@@ -22,36 +22,6 @@ public protocol PaymentDelegate : AnyObject
     
     func paymentCompleted(with status: PaymentStatus)
     
-    func applePayPaymentMethodUpdated(didSelect paymentMethod: PaymentMethod,
-                                      handler completion: @escaping (PKPaymentRequestPaymentMethodUpdate) -> Void)
-    
-    func applePayShippingMethodUpdated(didSelect shippingMethod: PKShippingMethod,
-                                       handler completion: @escaping (PKPaymentRequestShippingMethodUpdate) -> Void)
-    
-    func applePayContactUpdated(didSelect shippingContact: PKContact,
-                                handler completion: @escaping (PKPaymentRequestShippingContactUpdate) -> Void)
-    
-}
-
-extension PaymentDelegate{
-    func applePayPaymentMethodUpdated(didSelect paymentMethod: PaymentMethod,
-                                      handler completion: @escaping (PKPaymentRequestPaymentMethodUpdate) -> Void)
-    {
-
-    }
-
-    func applePayShippingMethodUpdated(didSelect shippingMethod: PKShippingMethod,
-                                       handler completion: @escaping (PKPaymentRequestShippingMethodUpdate) -> Void)
-    {
-        
-    }
-
-    func applePayContactUpdated(didSelect  shippingContact: PKContact,
-                                handler completion: @escaping (PKPaymentRequestShippingContactUpdate) -> Void)
-    {
-
-    }
-
 }
 
 public enum AuthorizationStatus{

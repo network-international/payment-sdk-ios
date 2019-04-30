@@ -15,6 +15,7 @@
 		2CFC39712207A54700FADEC3 /* ThreeDSWebViewRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFC39702207A54700FADEC3 /* ThreeDSWebViewRequest.swift */; };
 		2CFC39732207A58400FADEC3 /* ThreeDSWebViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFC39722207A58400FADEC3 /* ThreeDSWebViewDelegate.swift */; };
 		2CFC39752207AEE900FADEC3 /* CardDataCollectionFocusEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CFC39742207AEE900FADEC3 /* CardDataCollectionFocusEngine.swift */; };
+		36011F7B2278640C002A5ACB /* ApplePayDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36011F7A2278640C002A5ACB /* ApplePayDelegate.swift */; };
 		3697FAE4222CDFE10057F455 /* jcb_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3697FAE2222CDFE10057F455 /* jcb_card_front@2x.png */; };
 		3697FAE5222CDFE10057F455 /* discover_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3697FAE3222CDFE10057F455 /* discover_card_front@2x.png */; };
 		3697FAE9223124DA0057F455 /* diners_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3697FAE8223124DA0057F455 /* diners_card_front@2x.png */; };
@@ -168,6 +169,7 @@
 		2CFC39702207A54700FADEC3 /* ThreeDSWebViewRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSWebViewRequest.swift; sourceTree = "<group>"; };
 		2CFC39722207A58400FADEC3 /* ThreeDSWebViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSWebViewDelegate.swift; sourceTree = "<group>"; };
 		2CFC39742207AEE900FADEC3 /* CardDataCollectionFocusEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDataCollectionFocusEngine.swift; sourceTree = "<group>"; };
+		36011F7A2278640C002A5ACB /* ApplePayDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplePayDelegate.swift; sourceTree = "<group>"; };
 		3697FAE2222CDFE10057F455 /* jcb_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "jcb_card_front@2x.png"; sourceTree = "<group>"; };
 		3697FAE3222CDFE10057F455 /* discover_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "discover_card_front@2x.png"; sourceTree = "<group>"; };
 		3697FAE8223124DA0057F455 /* diners_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "diners_card_front@2x.png"; sourceTree = "<group>"; };
@@ -360,6 +362,7 @@
 				FE1F938F20D3EB8100109851 /* UI_accessible */,
 				FE1F938D20D3EB8100109851 /* utilities */,
 				36C918822226948600422F5D /* PaymentDelegate.swift */,
+				36011F7A2278640C002A5ACB /* ApplePayDelegate.swift */,
 			);
 			path = PaymentSDK;
 			sourceTree = "<group>";
@@ -897,6 +900,7 @@
 				FED063C420D7F2C40043F13D /* LocalizationUtilities.swift in Sources */,
 				FE75D3872125B53500E16EEF /* CardPreviewViewController.swift in Sources */,
 				2CFC39712207A54700FADEC3 /* ThreeDSWebViewRequest.swift in Sources */,
+				36011F7B2278640C002A5ACB /* ApplePayDelegate.swift in Sources */,
 				2C1DBE6F21FE78EB003868A0 /* CardPaymentParser.swift in Sources */,
 				FED063B620D7C73D0043F13D /* PaymentAuthorizationViewController.swift in Sources */,
 				36C9188522269A5000422F5D /* ActivityLoader.swift in Sources */,

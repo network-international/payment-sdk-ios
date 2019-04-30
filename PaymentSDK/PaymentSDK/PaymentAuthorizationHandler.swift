@@ -38,6 +38,7 @@ public final class PaymentAuthorizationHandler
     
     public func presentApplePayView(overParent parentViewController : UIViewController,
                                     withDelegate paymentDelegate : PaymentDelegate,
+                                    withApplePayDelegate applePayDelegate : ApplePayDelegate,
                                     withRequest applePayRequest : PKPaymentRequest?,
                                     items                           : [PKPaymentSummaryItem],
                                     completion                      : VoidBlock?)
@@ -99,6 +100,7 @@ public final class PaymentAuthorizationHandler
                 }
                 
                 self?.applePayManger.delegate = paymentDelegate
+                self?.applePayManger.applePayDelegate = applePayDelegate
                 self?.applePayManger.apiInteractor = apiInteractor
                 viewController.delegate = self?.applePayManger
                 

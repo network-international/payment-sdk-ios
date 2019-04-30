@@ -4,6 +4,7 @@ import PassKit
 @objc class ApplePayManager : NSObject, PKPaymentAuthorizationViewControllerDelegate
 {
     weak var delegate : PaymentDelegate?
+    weak var applePayDelegate : ApplePayDelegate?
     var apiInteractor : PaymentAuthorizationApiInteractor?
     
     //MARK: - Cancel/Close -
@@ -56,7 +57,7 @@ import PassKit
     {
         log("did update payment method:\(paymentMethod)")
         let method = PaymentMethod.method(fromPK: paymentMethod)
-        self.delegate?.applePayPaymentMethodUpdated(didSelect: method, handler: {
+        self.applePayDelegate?.applePayPaymentMethodUpdated(didSelect: method, handler: {
             updatedPaymentMethod in completion(updatedPaymentMethod)
         })
         
@@ -67,7 +68,7 @@ import PassKit
                                             handler completion: @escaping (PKPaymentRequestShippingMethodUpdate) -> Void)
     {
         log("did update shipping method:\(shippingMethod)")
-        self.delegate?.applePayShippingMethodUpdated(didSelect: shippingMethod, handler: {
+        self.applePayDelegate?.applePayShippingMethodUpdated(didSelect: shippingMethod, handler: {
             updatedShippingMethod in completion(updatedShippingMethod)
         })
     }
@@ -77,7 +78,7 @@ import PassKit
                                             handler completion: @escaping (PKPaymentRequestShippingContactUpdate) -> Void)
     {
         log("did update shipping contact:\(contact)")
-        self.delegate?.applePayContactUpdated(didSelect: contact, handler: {
+        self.applePayDelegate?.applePayContactUpdated(didSelect: contact, handler: {
             updatedContact in completion(updatedContact)
         })
     }
