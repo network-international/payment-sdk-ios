@@ -9,6 +9,19 @@ The target iOS version of the SDK is 11.0. It is built using Swift 2.0.
 iOS SDK supports English and Arabic.
 
 ***
+### Installation
+## [Carthage](http://github.com/Carthage/Carthage)
+Simply add the following line to your `Cartfile`:
+```ruby
+github "network-international/payment-sdk-ios" >= 1.0.0
+```
+Then add the `PaymentSDK.framework` to your frameworks list in the Xcode project.
+
+Then import it where you use it:
+```swift
+import PaymentSDK
+```
+***
 
 ## Card Integration
 Configure the SDK:
