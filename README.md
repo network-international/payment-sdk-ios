@@ -10,28 +10,56 @@ iOS SDK supports English and Arabic.
 
 ***
 
-## Payment API reference
-SDK provides `PaymentSDKHandler` for making payments. To get the handler you need to configure your app with the SDK.
+## Card Integration
+Configure the SDK:
 
 ```swift
-PaymentSDK.Interface.sharedInstance.configure{
-	(result) in
-	PaymentSDKHandler.sharedInstance.configResult = result
+import PaymentSDK
+// ...
+let sdk = PaymentSDK.Interface.sharedInstance
+sdk.configure()
+
+```
+
+Once its configure, create a PaymentSDK delegate file which will implement `PaymentDelegate`
+
+```swift
+final class PaymentSDKDelegate : PaymentDelegate {
+	// Implement methods from PaymentDelegate to conform the protocol
 }
 ```
 
-Once the SDK is configured you can use the PaymentSDKHandler to launch card payment view.
-
-### Card payment API
-SDK provides a very simple API to be able to get payment using debit or credit cards.
+Once the SDK is configured you can call the card payment method on tap of the Pay button in your app:
 
 ```swift
-PaymentSDKHandler.sdk.paymentAuthorizationHandler
-	.presentView(parentViewController, configuration, items, completion)
+guard let paymentHandler = PaymentSDKHandler.sdk.paymentAuthorizationHandler else
+{
+	return
+}
+paymentHandler.presentCardView(overParent: parent, withDelegate: paymentDelegate, completion: completion)
 ```
 
-The card payment API internally launches another view to get card details from the user, and control payment/3D Secure flows between the payment gateway and the merchant app.
+Above:
+- `overParent` will be your controller on which the card view will appear
+- `withDelegate` should be your delegate instance which was created in previous step
+- `completion` completion block.
 
+Above step will call `beginAuthorization` method in the delegate. In this method, app should call `merchant-server` to create the order in gateway and get the `PaymentAuthorization` link & code.
+
+```swift
+// Pseudo code to create order
+OrderService.create(amount: amount){
+	(orderCreateResponse) in
+	if let order = orderCreateResponse {
+		// Create auth link by URL & code
+		let authLink = PaymentAuthorizationLink(href: order.paymentAuthorizationUrl, code: order.code)
+		completion(authLink)
+	}
+}
+
+```
+
+Now the card payment UI will appear and once the transaction is processing/processed, delegate methods like `authorizationCompleted`, `paymentStarted`, `paymentCompleted` will be called respectively.
 ***
 
 ## Card payment process
