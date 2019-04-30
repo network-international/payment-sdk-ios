@@ -356,8 +356,6 @@
 				FE1F938420D3EB8100109851 /* applePay */,
 				FE1F939620D3EB8100109851 /* cards */,
 				FE1F939220D3EB8100109851 /* configuration */,
-				FE1F939520D3EB8100109851 /* orders */,
-				FE1F939A20D3EB8100109851 /* session */,
 				FE1F938920D3EB8100109851 /* UI */,
 				FE1F938F20D3EB8100109851 /* UI_accessible */,
 				FE1F938D20D3EB8100109851 /* utilities */,
@@ -555,13 +553,6 @@
 			path = session;
 			sourceTree = "<group>";
 		};
-		FE1F939520D3EB8100109851 /* orders */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = orders;
-			sourceTree = "<group>";
-		};
 		FE1F939620D3EB8100109851 /* cards */ = {
 			isa = PBXGroup;
 			children = (
@@ -609,13 +600,6 @@
 				FE49A72F2111C2D600FE64FE /* CardDetailsValidation.swift */,
 			);
 			path = validation;
-			sourceTree = "<group>";
-		};
-		FE1F939A20D3EB8100109851 /* session */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = session;
 			sourceTree = "<group>";
 		};
 		FE1F93A020D3F85700109851 /* models */ = {
