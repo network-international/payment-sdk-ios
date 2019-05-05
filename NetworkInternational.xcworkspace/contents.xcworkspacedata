@@ -4,7 +4,4 @@
    <FileRef
       location = "group:PaymentSDK/PaymentSDK.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:FurnitureStore/FurnitureStore.xcodeproj">
-   </FileRef>
 </Workspace>
