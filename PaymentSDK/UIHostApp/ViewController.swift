@@ -168,7 +168,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     {
         let instance = PaymentSDKHandler.sharedInstance
         instance.showApplePayPaymentView(paymentDelegate: self.paymentDelegate, applePayDelegate: self.applePayDelegate, overParent: self, request: getApplePayRequest(), items: getAppleSummaryItems()){
-            print("Showing card payment view!")
+            print("Showing apple payment view!")
         }
     }
     

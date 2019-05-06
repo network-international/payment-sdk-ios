@@ -21,7 +21,7 @@ final class PaymentSDKHandler{
     static func configureSDK()
     {
         // For Apple Pay
-        sdk.configure(with: Interface.Configuration(merchantIdentifier: "merchant.com.furniture.store.ni", merchantCapabilities: [.capabilityDebit, .capabilityCredit, .capability3DS]))
+        sdk.configure(with: Interface.Configuration(merchantIdentifier: "merchant.com.example.ngo.TestMerchant", merchantCapabilities: [.capabilityDebit, .capabilityCredit, .capability3DS]))
         // For only Card
         //        sdk.configure()
     }

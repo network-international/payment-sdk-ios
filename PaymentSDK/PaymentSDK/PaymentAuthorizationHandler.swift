@@ -85,7 +85,7 @@ public final class PaymentAuthorizationHandler
                         return
                 }
                 
-                paymentRequest.merchantIdentifier = merchantIdentifier // TODO: get it from PaymentSDK.Interface config
+                paymentRequest.merchantIdentifier = merchantIdentifier
                 paymentRequest.merchantCapabilities = merchantCapabilities
                 paymentRequest.supportedNetworks = acceptedCards
                 paymentRequest.paymentSummaryItems = items
@@ -104,7 +104,7 @@ public final class PaymentAuthorizationHandler
                 self?.applePayManger.apiInteractor = apiInteractor
                 viewController.delegate = self?.applePayManger
                 
-                paymentDelegate.authorizationCompleted(withStatus: .failed)
+                paymentDelegate.authorizationCompleted(withStatus: .success)
                 
                 parentViewController.present(viewController, animated: true, completion: completion)
             }

@@ -91,5 +91,5 @@ class UIHostAppUITests: XCTestCase {
             XCTAssert(false, "There should be a success tick mark image displayed on successful payment.")
             return
         }
-    }
+    }    
 }
