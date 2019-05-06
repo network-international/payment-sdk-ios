@@ -1,5 +1,7 @@
 # Payment SDK for iOS
 
+[![Build Status](https://travis-ci.com/network-international/payment-sdk-ios.svg?branch=master)](https://travis-ci.com/network-international/payment-sdk-ios)
+
 ![Banner](assets/banner.jpg)
 
 ### Specifications
