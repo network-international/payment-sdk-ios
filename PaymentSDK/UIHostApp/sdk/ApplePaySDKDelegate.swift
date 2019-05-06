@@ -12,15 +12,20 @@ import PaymentSDK
 
 final class ApplePaySDKDelegate : ApplePayDelegate{
     func applePayPaymentMethodUpdated(didSelect paymentMethod: PaymentMethod, handler completion: @escaping (PKPaymentRequestPaymentMethodUpdate) -> Void) {
-        
+        print("Apple pay payment method updated: \(paymentMethod)")
+        completion(PKPaymentRequestPaymentMethodUpdate(paymentSummaryItems: []))
     }
     
     func applePayShippingMethodUpdated(didSelect shippingMethod: PKShippingMethod, handler completion: @escaping (PKPaymentRequestShippingMethodUpdate) -> Void) {
-        
+        print("Apple pay shipping method updated: \(shippingMethod)")
+        completion(PKPaymentRequestShippingMethodUpdate(paymentSummaryItems: []))
     }
     
     func applePayContactUpdated(didSelect shippingContact: PKContact, handler completion: @escaping (PKPaymentRequestShippingContactUpdate) -> Void) {
-        
+        print("Apple pay contact updated: \(shippingContact)")
+        completion(PKPaymentRequestShippingContactUpdate(errors: nil,
+                                                         paymentSummaryItems: [],
+                                                         shippingMethods: []))
     }
     
     
