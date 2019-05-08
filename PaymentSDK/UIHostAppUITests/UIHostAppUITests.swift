@@ -65,7 +65,6 @@ class UIHostAppUITests: XCTestCase {
         let elementsQuery = app.scrollViews.otherElements
         
         elementsQuery.buttons["Pay by card"].tap()
-        
         guard app.buttons["Cancel"].waitForExistence(timeout: 10) else {
             XCTAssert(false, "There should be a cancel button after the 'Pay by Card' button is tapped.")
             return
@@ -91,5 +90,6 @@ class UIHostAppUITests: XCTestCase {
             XCTAssert(false, "There should be a success tick mark image displayed on successful payment.")
             return
         }
+        
     }    
 }

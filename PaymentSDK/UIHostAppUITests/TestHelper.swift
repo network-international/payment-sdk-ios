@@ -14,7 +14,6 @@ class TestHelper {
     static func type(_ string: String, in app: XCUIApplication){
         for char in string {
             app.keys[String(char)].tap()
-            
         }
     }
     
