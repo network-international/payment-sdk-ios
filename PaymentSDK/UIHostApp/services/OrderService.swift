@@ -12,7 +12,7 @@ typealias OrderResponseReturnBlock = (OrderResponse?, Error?)->()
 
 class OrderService {
     
-    private static let endpoint = URL(string: "http://192.168.143.213:3000/api/create_payment_order")
+    private static let endpoint = URL(string: "http://localhost:3000/api/create_payment_order")
     
     static func create(amount: Amount, action: String, completion : @escaping OrderResponseReturnBlock){
         guard let url = endpoint  else

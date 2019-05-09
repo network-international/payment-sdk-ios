@@ -94,6 +94,7 @@ struct PaymentAuthorizationService
 							   error        : Error?,
 							   completion   : @escaping (OrderLink?)->Void)
 	{
+        
 		let code = Response.codeValiditiy(response)
 		log("payment attempt code:\(code.value) valid:\(code.valid ? "true" : "false")")
 		guard code.valid else
@@ -112,6 +113,7 @@ struct PaymentAuthorizationService
 			return
 		}
 
+        
 		guard let orderLink = PaymentAuthorizationParser.orderLink(from: data, response: response) else
 		{
 			completion(nil)

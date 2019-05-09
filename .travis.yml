@@ -2,5 +2,6 @@ os: osx
 osx_image: xcode10.2
 script:
   - xcodebuild -project PaymentSDK/PaymentSDK.xcodeproj -scheme "PaymentSDK" -destination "platform=iOS Simulator,name=iPhone 7" clean test
+  - xcodebuild -workspace PaymentSDK/PaymentSDK.xcworkspace -scheme "UIHostApp" -destination "platform=iOS Simulator,name=iPhone 7" clean test
 
 
