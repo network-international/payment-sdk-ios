@@ -1,0 +1,72 @@
+{
+    "_id": "urn:order:orderId",
+    "action": "AUTH",
+    "amount": {
+        "currencyCode": "AED",
+        "value": 23500
+    },
+    "language": "en",
+    "merchantAttributes": {},
+    "emailAddress": "test@gmail.com",
+    "reference": "orderId",
+    "outletId": "outletId",
+    "createDateTime": "2019-05-09T07:08:16.519Z",
+    "paymentMethods": {
+        "wallet": [
+            "APPLE_PAY"
+        ],
+        "card": [
+            "MASTERCARD",
+            "AMERICAN_EXPRESS",
+            "DISCOVER",
+            "VISA",
+            "DINERS_CLUB_INTERNATIONAL"
+        ]
+    },
+    "orderSummary": {
+        "items": [],
+        "total": {
+            "currencyCode": "AED",
+            "value": 23500
+        }
+    },
+    "billingAddress": {
+        "firstName": "Test",
+        "lastName": "User",
+        "address1": "Address Line 1",
+        "city": "London",
+        "countryCode": "GB"
+    },
+    "referrer": "urn:Ecom:orderId",
+    "formattedOrderSummary": {
+        "total": "AED235.00",
+        "items": []
+    },
+    "formattedAmount": "AED235.00",
+    "_embedded": {
+        "payment": [
+            {
+                "_id": "urn:payment:paymentId",
+                "_links": {
+                    "payment:apple_pay": {
+                        "href": "http://localhost:3000/transactions/outlets/outletId/orders/orderId/payments/paymentId/apple-pay"
+                    },
+                    "self": {
+                        "href": "http://localhost:3000/transactions/outlets/outletId/orders/orderId/payments/paymentId"
+                    },
+                    "payment:card": {
+                        "href": "http://localhost:3000/transactions/outlets/outletId/orders/orderId/payments/paymentId/card"
+                    }
+                },
+                "state": "STARTED",
+                "amount": {
+                    "currencyCode": "AED",
+                    "value": 23500
+                },
+                "updateDateTime": "2019-05-09T07:08:16.519Z",
+                "outletId": "outletId",
+                "orderReference": "orderId"
+            }
+        ]
+    }
+}

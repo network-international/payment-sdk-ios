@@ -1,0 +1,26 @@
+{
+    "_id": "urn:payment:paymentId",
+    "_links": {
+        "self": {
+            "href": "/transactions/outlets/outletId/orders/orderId/payments/paymentId"
+        }
+    },
+    "paymentMethod": {
+        "expiry": "2022-12",
+        "cardholderName": "TEST",
+        "name": "VISA",
+        "pan": "411111******1111",
+        "cvv": "***"
+    },
+    "state": "CAPTURED",
+    "amount": {
+        "currencyCode": "AED",
+        "value": 23500
+    },
+    "updateDateTime": "2019-05-09T07:21:20.873Z",
+    "outletId": "outletId",
+    "orderReference": "orderId",
+    "authResponse": {
+        "success": false
+    }
+}

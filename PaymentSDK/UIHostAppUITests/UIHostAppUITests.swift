@@ -9,13 +9,17 @@
 import XCTest
 
 class UIHostAppUITests: XCTestCase {
+    
+    let httpStubs = HTTPStubs()
+    
     override func setUp() {
+        httpStubs.setUp()
         continueAfterFailure = false
         XCUIApplication().launch()
     }
     
     override func tearDown() {
-        
+        httpStubs.tearDown()
     }
     
     func test_productsShouldLoad() {
@@ -90,6 +94,5 @@ class UIHostAppUITests: XCTestCase {
             XCTAssert(false, "There should be a success tick mark image displayed on successful payment.")
             return
         }
-        
-    }    
+    }
 }
