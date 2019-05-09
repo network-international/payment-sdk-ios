@@ -218,15 +218,23 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     private func getAppleSummaryItems() -> [PKPaymentSummaryItem]{
-        return self.products.map { (product) -> PKPaymentSummaryItem in
+        var total = NSDecimalNumber(mantissa: UInt64(0), exponent: -2, isNegative: false)
+        var items = self.products
+            .filter({ (product) -> Bool in
+                return product.quantity > 0
+            })
+            .map { (product) -> PKPaymentSummaryItem in
             let price = product.prices.filter({(price:Product.Price) in return price.currency == ViewController.currency}).first
             var productPrice = 0.0;
             if let p = price {
-                productPrice = p.total/100
+                productPrice = p.total * product.quantity
             }
             let decimal = NSDecimalNumber(mantissa: UInt64(productPrice), exponent: -2, isNegative: false)
+            total = decimal.adding(total)
             return PKPaymentSummaryItem(label: product.info.name,amount: decimal )
         }
+        items.append(PKPaymentSummaryItem(label: "Total", amount: total ))
+        return items
     }
     
     private func getApplePayRequest() -> PKPaymentRequest{
