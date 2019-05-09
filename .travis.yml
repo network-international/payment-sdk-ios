@@ -1,8 +1,8 @@
 os: osx
 osx_image: xcode10.2
 script:
-  - xcodebuild -project PaymentSDK/PaymentSDK.xcodeproj -scheme "PaymentSDK" -destination "platform=iOS Simulator,name=iPhone 7" clean test
-  - xcodebuild -workspace PaymentSDK/PaymentSDK.xcworkspace -scheme "UIHostApp" -destination "platform=iOS Simulator,name=iPhone 7" -UseModernBuildSystem=NO clean test | xcpretty --test --color; test ${PIPESTATUS[0]} -eq 0
+  - xcodebuild -project PaymentSDK/PaymentSDK.xcodeproj -scheme "PaymentSDK" -destination "platform=iOS Simulator,name=iPhone 7" clean test | xcpretty && exit ${PIPESTATUS[0]}"
+  - xcodebuild -workspace PaymentSDK/PaymentSDK.xcworkspace -scheme "UIHostApp" -destination "platform=iOS Simulator,name=iPhone 7" -UseModernBuildSystem=NO clean test | xcpretty && exit ${PIPESTATUS[0]}"
 
 before_install:
   - gem install xcpretty
