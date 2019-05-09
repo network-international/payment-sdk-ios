@@ -7,7 +7,7 @@ struct ApplePayPaymentService
                     paymentLink              : PaymentAuthorizationService.PaymentLink,
                     completion          	 : @escaping (PKPaymentAuthorizationResult) -> Void)
     {
-        log("pay with payment:\(payment) \n|| link:\(link)")
+        log("pay with payment:\(payment)")
         guard let request = self.request(forIdentityToken: paymentLink.accessToken, //TODO: update to use code
                                          link            : paymentLink.href, payment: payment) else
         {

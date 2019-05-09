@@ -2,8 +2,6 @@ import Foundation
 
 struct PaymentAuthorizationParser
 {
-	#warning("separate authorization and order parsers and services")
-
 	// MARK: - Order -
 
 	//TODO: return result type (value, error)
