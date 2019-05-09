@@ -18,7 +18,7 @@ public struct PaymentMethod
 
 public extension PaymentMethod
 {
-    public static func method(fromPK paymentMethod: PKPaymentMethod) -> PaymentMethod
+    static func method(fromPK paymentMethod: PKPaymentMethod) -> PaymentMethod
     {
         return PaymentMethod(system     : .applePay,
                              displayName: paymentMethod.displayName,
