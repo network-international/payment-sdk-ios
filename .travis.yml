@@ -3,9 +3,10 @@ osx_image: xcode10.2
 script:
   - xcodebuild -project PaymentSDK/PaymentSDK.xcodeproj -scheme "PaymentSDK" -destination "platform=iOS Simulator,name=iPhone 7" clean test
   - xcodebuild -workspace PaymentSDK/PaymentSDK.xcworkspace -scheme "UIHostApp" -destination "platform=iOS Simulator,name=iPhone 7" clean test
+  - xcodebuild -workspace PaymentSDK/PaymentSDK.xcworkspace -scheme "UIHostApp" -destination "platform=iOS Simulator,name=iPhone 7" -UseModernBuildSystem=NO test | xcpretty --test --color;clean test ${PIPESTATUS[0]} -eq 0
+
 before_install:
+  - gem install xcpretty
   - gem install cocoapods --pre
   - cd PaymentSDK && pod install --repo-update
   - cd ..
-
-
