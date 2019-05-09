@@ -5,6 +5,7 @@ script:
   - xcodebuild -workspace PaymentSDK/PaymentSDK.xcworkspace -scheme "UIHostApp" -destination "platform=iOS Simulator,name=iPhone 7" clean test
 before_install:
   - gem install cocoapods --pre
-  - pod install --repo-update
+  - cd PaymentSDK && pod install --repo-update
+  - cd ..
 
 
