@@ -53,8 +53,6 @@
 		36E0428B227ED70000059464 /* PaymentSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE1F936620D3E6F700109851 /* PaymentSDK.framework */; };
 		36E0428C227ED70000059464 /* PaymentSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FE1F936620D3E6F700109851 /* PaymentSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		36E0428F2283F80A00059464 /* HTTPStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E0428E2283F80A00059464 /* HTTPStubs.swift */; };
-		CA27AC7B50BD4171D2F2AF8C /* Pods_PaymentSDKTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A794C68EB178B6009E0479DE /* Pods_PaymentSDKTests.framework */; };
-		E7CFAF78A339FBCBEDBCD8EC /* Pods_UIHostAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5959E8F60D35125F59048B99 /* Pods_UIHostAppUITests.framework */; };
 		FE08EE09211D9B3300C09C1D /* KeyboardShowingInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE08EE08211D9B3300C09C1D /* KeyboardShowingInfo.swift */; };
 		FE13A66F20DBFE650018B864 /* Logs.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE13A66E20DBFE650018B864 /* Logs.swift */; };
 		FE15366C20D94036001E8752 /* ApplePayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE15366B20D94036001E8752 /* ApplePayManager.swift */; };
@@ -424,7 +422,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				36E0426D227EC31D00059464 /* PaymentSDK.framework in Frameworks */,
-				E7CFAF78A339FBCBEDBCD8EC /* Pods_UIHostAppUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -440,7 +437,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				FE1F937020D3E6F700109851 /* PaymentSDK.framework in Frameworks */,
-				CA27AC7B50BD4171D2F2AF8C /* Pods_PaymentSDKTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
