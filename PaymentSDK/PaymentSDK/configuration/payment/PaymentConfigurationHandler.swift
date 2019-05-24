@@ -76,7 +76,7 @@ struct PaymentConfigurationHandler
                                            lengthSortedRanges   : [2: [dinersTwoDigitRange]],
                                            image                : "diners_card_front",
                                            cardType             : CardType.DINERS_CLUB_INTERNATIONAL,
-                                           network              : .discover)
+                                           network              : .masterCard)
         
         return [visa, amex, masterCard, jcbCard, discoverCard, dinersCard]
     }

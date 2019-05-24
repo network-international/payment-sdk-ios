@@ -16,7 +16,7 @@ iOS SDK supports English and Arabic.
 ## [Carthage](http://github.com/Carthage/Carthage)
 Simply add the following line to your `Cartfile`:
 ```ruby
-github "network-international/payment-sdk-ios" >= 1.0.1
+github "network-international/payment-sdk-ios" >= 1.0.2
 ```
 Then add the `PaymentSDK.framework` to your frameworks list in the Xcode project.
 
