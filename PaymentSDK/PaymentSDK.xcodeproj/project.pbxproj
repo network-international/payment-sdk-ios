@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -41,7 +41,6 @@
 		36E04269227EBD2500059464 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E04263227EBD2500059464 /* SettingsViewController.swift */; };
 		36E0426D227EC31D00059464 /* PaymentSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE1F936620D3E6F700109851 /* PaymentSDK.framework */; };
 		36E0426F227EC3BC00059464 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E0423A227EBC9000059464 /* AppDelegate.swift */; };
-		36E04274227EC40D00059464 /* PaymentSDK.framework in Sources */ = {isa = PBXBuildFile; fileRef = FE1F936620D3E6F700109851 /* PaymentSDK.framework */; };
 		36E04277227EC51100059464 /* PaymentSDKHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E04276227EC51100059464 /* PaymentSDKHandler.swift */; };
 		36E04279227EC53B00059464 /* PaymentSDKDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E04278227EC53B00059464 /* PaymentSDKDelegate.swift */; };
 		36E0427B227EC55600059464 /* ApplePaySDKDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E0427A227EC55600059464 /* ApplePaySDKDelegate.swift */; };
@@ -55,8 +54,40 @@
 		36E0428F2283F80A00059464 /* HTTPStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36E0428E2283F80A00059464 /* HTTPStubs.swift */; };
 		380F5D972CE8911098ACE0C2 /* Pods_PaymentSDKTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 204BF14693BFE9B55C58DE0D /* Pods_PaymentSDKTests.framework */; };
 		57A9CCC615AD727BA329B145 /* Pods_PaymentSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C9B0DFBB39A2856339851D1 /* Pods_PaymentSDK.framework */; };
+		87D4C5D312FCAB39B6A38952 /* Pods_UIHostObjCAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10910EB0E13716BB4ECD3101 /* Pods_UIHostObjCAppUITests.framework */; };
 		B24F5CE3A02C9624111F1CBF /* Pods_UIHostAppUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CDAB801AA56EB9A4FC63BA5 /* Pods_UIHostAppUITests.framework */; };
+		C05DC26722AE474B00C4EAC2 /* HTTPStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = C05DC26622AE474B00C4EAC2 /* HTTPStubs.swift */; };
+		C09F46C222A8E2A4008B451D /* Product.m in Sources */ = {isa = PBXBuildFile; fileRef = C09F46C122A8E2A4008B451D /* Product.m */; };
+		C09F46C522A8E3CF008B451D /* Price.m in Sources */ = {isa = PBXBuildFile; fileRef = C09F46C422A8E3CF008B451D /* Price.m */; };
+		C09F46C822A8E3EA008B451D /* Info.m in Sources */ = {isa = PBXBuildFile; fileRef = C09F46C722A8E3EA008B451D /* Info.m */; };
+		C09F46CB22A8E569008B451D /* CartItemTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = C09F46CA22A8E569008B451D /* CartItemTableViewCell.m */; };
+		C09F46CE22A8E5FD008B451D /* CartItemTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = C09F46CD22A8E5FD008B451D /* CartItemTableViewCell.xib */; };
+		C09F46D122A8EC28008B451D /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C09F46D022A8EC28008B451D /* SettingsViewController.m */; };
+		C09F46D422A90052008B451D /* CartData.m in Sources */ = {isa = PBXBuildFile; fileRef = C09F46D322A90052008B451D /* CartData.m */; };
+		C09F46D622A921DD008B451D /* products_en.json in Resources */ = {isa = PBXBuildFile; fileRef = C09F46D522A921DD008B451D /* products_en.json */; };
+		C09F46DE22AA3BC4008B451D /* UIHostObjCAppUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = C09F46DD22AA3BC4008B451D /* UIHostObjCAppUITests.m */; };
+		C09F46EA22AA3C6B008B451D /* payment_auth.json in Resources */ = {isa = PBXBuildFile; fileRef = C09F46E622AA3C6B008B451D /* payment_auth.json */; };
+		C09F46EB22AA3C6B008B451D /* order_create.json in Resources */ = {isa = PBXBuildFile; fileRef = C09F46E722AA3C6B008B451D /* order_create.json */; };
+		C09F46EC22AA3C6B008B451D /* order.json in Resources */ = {isa = PBXBuildFile; fileRef = C09F46E822AA3C6B008B451D /* order.json */; };
+		C09F46ED22AA3C6B008B451D /* card_payment.json in Resources */ = {isa = PBXBuildFile; fileRef = C09F46E922AA3C6B008B451D /* card_payment.json */; };
+		C0B3F13822AF87FE0000C189 /* TestHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = C0B3F13722AF87FE0000C189 /* TestHelper.m */; };
+		C0CF5A42229FC6110092F59A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C0CF5A41229FC6110092F59A /* AppDelegate.m */; };
+		C0CF5A45229FC6110092F59A /* CartViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C0CF5A44229FC6110092F59A /* CartViewController.m */; };
+		C0CF5A48229FC6110092F59A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C0CF5A46229FC6110092F59A /* Main.storyboard */; };
+		C0CF5A4A229FC6120092F59A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C0CF5A49229FC6120092F59A /* Assets.xcassets */; };
+		C0CF5A4D229FC6120092F59A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C0CF5A4B229FC6120092F59A /* LaunchScreen.storyboard */; };
+		C0CF5A50229FC6120092F59A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C0CF5A4F229FC6120092F59A /* main.m */; };
+		C0CF5A56229FC68A0092F59A /* PaymentSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE1F936620D3E6F700109851 /* PaymentSDK.framework */; };
+		C0CF5A58229FD5CB0092F59A /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = C0CF5A57229FD5CA0092F59A /* Podfile */; };
+		C0CF5A5B229FE2170092F59A /* PaymentSDKHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = C0CF5A5A229FE2170092F59A /* PaymentSDKHandler.m */; };
+		C0CF5A5F229FEB690092F59A /* PaymentSDKDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C0CF5A5E229FEB690092F59A /* PaymentSDKDelegate.m */; };
+		C0CF5A62229FEB8C0092F59A /* ApplePaySDKDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C0CF5A61229FEB8C0092F59A /* ApplePaySDKDelegate.m */; };
+		C0CF5A6622A53CFB0092F59A /* OrderService.m in Sources */ = {isa = PBXBuildFile; fileRef = C0CF5A6522A53CFB0092F59A /* OrderService.m */; };
+		C0CF5A6A22A660590092F59A /* Amount.m in Sources */ = {isa = PBXBuildFile; fileRef = C0CF5A6922A660590092F59A /* Amount.m */; };
+		C0CF5A6D22A660880092F59A /* OrderResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = C0CF5A6C22A660880092F59A /* OrderResponse.m */; };
+		C0CF5A7022A660A90092F59A /* OrderRequestPayload.m in Sources */ = {isa = PBXBuildFile; fileRef = C0CF5A6F22A660A90092F59A /* OrderRequestPayload.m */; };
 		D0B72998CC242874BB03288B /* Pods_UIHostApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 64528C2C40BAF0231AD6AFF3 /* Pods_UIHostApp.framework */; };
+		D2FAAA4BEE23B655C8B10C47 /* Pods_UIHostObjCApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E45F5BCF2855FD88892D4E3 /* Pods_UIHostObjCApp.framework */; };
 		FE08EE09211D9B3300C09C1D /* KeyboardShowingInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE08EE08211D9B3300C09C1D /* KeyboardShowingInfo.swift */; };
 		FE13A66F20DBFE650018B864 /* Logs.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE13A66E20DBFE650018B864 /* Logs.swift */; };
 		FE15366C20D94036001E8752 /* ApplePayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE15366B20D94036001E8752 /* ApplePayManager.swift */; };
@@ -199,6 +230,13 @@
 			remoteGlobalIDString = FE1F936520D3E6F700109851;
 			remoteInfo = PaymentSDK;
 		};
+		C09F46E022AA3BC4008B451D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FE1F935D20D3E6F700109851 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 36E04237227EBC9000059464;
+			remoteInfo = UIHostApp;
+		};
 		FE1F937120D3E6F800109851 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FE1F935D20D3E6F700109851 /* Project object */;
@@ -224,6 +262,8 @@
 
 /* Begin PBXFileReference section */
 		0328B8B61C856A1807A1E76D /* Pods-PaymentSDK.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PaymentSDK.debug.xcconfig"; path = "Target Support Files/Pods-PaymentSDK/Pods-PaymentSDK.debug.xcconfig"; sourceTree = "<group>"; };
+		105DEB5800381ACDA0C780E6 /* Pods-UIHostObjCAppUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIHostObjCAppUITests.debug.xcconfig"; path = "Target Support Files/Pods-UIHostObjCAppUITests/Pods-UIHostObjCAppUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		10910EB0E13716BB4ECD3101 /* Pods_UIHostObjCAppUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UIHostObjCAppUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		204BF14693BFE9B55C58DE0D /* Pods_PaymentSDKTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PaymentSDKTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C1DBE6E21FE78EB003868A0 /* CardPaymentParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentParser.swift; sourceTree = "<group>"; };
 		2C1DBE7021FE7AAB003868A0 /* PaymentAuthorizationParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentAuthorizationParser.swift; sourceTree = "<group>"; };
@@ -275,9 +315,65 @@
 		387C1107E934880BD6F1279D /* Pods-PaymentSDKTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PaymentSDKTests.release.xcconfig"; path = "Target Support Files/Pods-PaymentSDKTests/Pods-PaymentSDKTests.release.xcconfig"; sourceTree = "<group>"; };
 		4CDAB801AA56EB9A4FC63BA5 /* Pods_UIHostAppUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UIHostAppUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C9B0DFBB39A2856339851D1 /* Pods_PaymentSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PaymentSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5E45F5BCF2855FD88892D4E3 /* Pods_UIHostObjCApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UIHostObjCApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5F6CCE1E274316D649261CF1 /* Pods-UIHostObjCApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIHostObjCApp.debug.xcconfig"; path = "Target Support Files/Pods-UIHostObjCApp/Pods-UIHostObjCApp.debug.xcconfig"; sourceTree = "<group>"; };
 		64528C2C40BAF0231AD6AFF3 /* Pods_UIHostApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UIHostApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		707E92BB4DC138F76CFBD130 /* Pods-UIHostAppUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIHostAppUITests.release.xcconfig"; path = "Target Support Files/Pods-UIHostAppUITests/Pods-UIHostAppUITests.release.xcconfig"; sourceTree = "<group>"; };
 		8475AC46B33C6C5CD12A41A9 /* Pods-UIHostAppUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIHostAppUITests.debug.xcconfig"; path = "Target Support Files/Pods-UIHostAppUITests/Pods-UIHostAppUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		AC5434204BA1040C0F298D2E /* Pods-UIHostObjCAppUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIHostObjCAppUITests.release.xcconfig"; path = "Target Support Files/Pods-UIHostObjCAppUITests/Pods-UIHostObjCAppUITests.release.xcconfig"; sourceTree = "<group>"; };
+		C05DC26522AE474B00C4EAC2 /* UIHostObjCAppUITests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIHostObjCAppUITests-Bridging-Header.h"; sourceTree = "<group>"; };
+		C05DC26622AE474B00C4EAC2 /* HTTPStubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPStubs.swift; sourceTree = "<group>"; };
+		C05DC26B22AF73B700C4EAC2 /* UIHostObjCApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = UIHostObjCApp.entitlements; sourceTree = "<group>"; };
+		C09F46C022A8E2A4008B451D /* Product.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Product.h; sourceTree = "<group>"; };
+		C09F46C122A8E2A4008B451D /* Product.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Product.m; sourceTree = "<group>"; };
+		C09F46C322A8E3CF008B451D /* Price.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Price.h; sourceTree = "<group>"; };
+		C09F46C422A8E3CF008B451D /* Price.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Price.m; sourceTree = "<group>"; };
+		C09F46C622A8E3EA008B451D /* Info.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Info.h; sourceTree = "<group>"; };
+		C09F46C722A8E3EA008B451D /* Info.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Info.m; sourceTree = "<group>"; };
+		C09F46C922A8E569008B451D /* CartItemTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CartItemTableViewCell.h; sourceTree = "<group>"; };
+		C09F46CA22A8E569008B451D /* CartItemTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CartItemTableViewCell.m; sourceTree = "<group>"; };
+		C09F46CD22A8E5FD008B451D /* CartItemTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CartItemTableViewCell.xib; sourceTree = "<group>"; };
+		C09F46CF22A8EC28008B451D /* SettingsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingsViewController.h; sourceTree = "<group>"; };
+		C09F46D022A8EC28008B451D /* SettingsViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingsViewController.m; sourceTree = "<group>"; };
+		C09F46D222A90052008B451D /* CartData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CartData.h; sourceTree = "<group>"; };
+		C09F46D322A90052008B451D /* CartData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CartData.m; sourceTree = "<group>"; };
+		C09F46D522A921DD008B451D /* products_en.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = products_en.json; sourceTree = "<group>"; };
+		C09F46DB22AA3BC3008B451D /* UIHostObjCAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UIHostObjCAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C09F46DD22AA3BC4008B451D /* UIHostObjCAppUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UIHostObjCAppUITests.m; sourceTree = "<group>"; };
+		C09F46DF22AA3BC4008B451D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C09F46E622AA3C6B008B451D /* payment_auth.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = payment_auth.json; sourceTree = "<group>"; };
+		C09F46E722AA3C6B008B451D /* order_create.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = order_create.json; sourceTree = "<group>"; };
+		C09F46E822AA3C6B008B451D /* order.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = order.json; sourceTree = "<group>"; };
+		C09F46E922AA3C6B008B451D /* card_payment.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = card_payment.json; sourceTree = "<group>"; };
+		C0B3F13622AF87FE0000C189 /* TestHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestHelper.h; sourceTree = "<group>"; };
+		C0B3F13722AF87FE0000C189 /* TestHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestHelper.m; sourceTree = "<group>"; };
+		C0CF5A3E229FC6100092F59A /* UIHostObjCApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UIHostObjCApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0CF5A40229FC6110092F59A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		C0CF5A41229FC6110092F59A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		C0CF5A43229FC6110092F59A /* CartViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CartViewController.h; sourceTree = "<group>"; };
+		C0CF5A44229FC6110092F59A /* CartViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CartViewController.m; sourceTree = "<group>"; };
+		C0CF5A47229FC6110092F59A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C0CF5A49229FC6120092F59A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C0CF5A4C229FC6120092F59A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		C0CF5A4E229FC6120092F59A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C0CF5A4F229FC6120092F59A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C0CF5A54229FC67E0092F59A /* PassKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PassKit.framework; path = System/Library/Frameworks/PassKit.framework; sourceTree = SDKROOT; };
+		C0CF5A57229FD5CA0092F59A /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		C0CF5A59229FE2170092F59A /* PaymentSDKHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PaymentSDKHandler.h; sourceTree = "<group>"; };
+		C0CF5A5A229FE2170092F59A /* PaymentSDKHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PaymentSDKHandler.m; sourceTree = "<group>"; };
+		C0CF5A5D229FEB690092F59A /* PaymentSDKDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PaymentSDKDelegate.h; sourceTree = "<group>"; };
+		C0CF5A5E229FEB690092F59A /* PaymentSDKDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PaymentSDKDelegate.m; sourceTree = "<group>"; };
+		C0CF5A60229FEB8C0092F59A /* ApplePaySDKDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ApplePaySDKDelegate.h; sourceTree = "<group>"; };
+		C0CF5A61229FEB8C0092F59A /* ApplePaySDKDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ApplePaySDKDelegate.m; sourceTree = "<group>"; };
+		C0CF5A6422A53CFB0092F59A /* OrderService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OrderService.h; sourceTree = "<group>"; };
+		C0CF5A6522A53CFB0092F59A /* OrderService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OrderService.m; sourceTree = "<group>"; };
+		C0CF5A6822A660590092F59A /* Amount.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Amount.h; sourceTree = "<group>"; };
+		C0CF5A6922A660590092F59A /* Amount.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Amount.m; sourceTree = "<group>"; };
+		C0CF5A6B22A660870092F59A /* OrderResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OrderResponse.h; sourceTree = "<group>"; };
+		C0CF5A6C22A660880092F59A /* OrderResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OrderResponse.m; sourceTree = "<group>"; };
+		C0CF5A6E22A660A90092F59A /* OrderRequestPayload.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OrderRequestPayload.h; sourceTree = "<group>"; };
+		C0CF5A6F22A660A90092F59A /* OrderRequestPayload.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OrderRequestPayload.m; sourceTree = "<group>"; };
+		CE0F3AB2D7A89B16D869894E /* Pods-UIHostObjCApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIHostObjCApp.release.xcconfig"; path = "Target Support Files/Pods-UIHostObjCApp/Pods-UIHostObjCApp.release.xcconfig"; sourceTree = "<group>"; };
 		DC5BC6228DFE965530A72204 /* Pods-PaymentSDK.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PaymentSDK.release.xcconfig"; path = "Target Support Files/Pods-PaymentSDK/Pods-PaymentSDK.release.xcconfig"; sourceTree = "<group>"; };
 		EC375D8F294FD228DEE65B8B /* Pods-UIHostApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UIHostApp.release.xcconfig"; path = "Target Support Files/Pods-UIHostApp/Pods-UIHostApp.release.xcconfig"; sourceTree = "<group>"; };
 		F8E7842A5A9E06440C712B2C /* Pods-PaymentSDKTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PaymentSDKTests.debug.xcconfig"; path = "Target Support Files/Pods-PaymentSDKTests/Pods-PaymentSDKTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -431,6 +527,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C09F46D822AA3BC3008B451D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				87D4C5D312FCAB39B6A38952 /* Pods_UIHostObjCAppUITests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0CF5A3B229FC6100092F59A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0CF5A56229FC68A0092F59A /* PaymentSDK.framework in Frameworks */,
+				D2FAAA4BEE23B655C8B10C47 /* Pods_UIHostObjCApp.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FE1F936320D3E6F700109851 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -471,7 +584,6 @@
 				36E04275227EC43600059464 /* UIHostApp.entitlements */,
 				36E04260227EBD2400059464 /* CartItemTableViewCell.swift */,
 				36E04262227EBD2500059464 /* CartItemTableViewCell.xib */,
-				36E0425E227EBD2400059464 /* Product.swift */,
 				36E04261227EBD2500059464 /* products_en.json */,
 				36E0425F227EBD2400059464 /* SettingsDelegate.swift */,
 				36E04263227EBD2500059464 /* SettingsViewController.swift */,
@@ -510,6 +622,7 @@
 		36E0427F227ECD7800059464 /* models */ = {
 			isa = PBXGroup;
 			children = (
+				36E0425E227EBD2400059464 /* Product.swift */,
 				36E04284227ECDA800059464 /* Amount.swift */,
 				36E04283227ECDA800059464 /* OrderRequestPayload.swift */,
 				36E04285227ECDA800059464 /* OrderResponse.swift */,
@@ -536,6 +649,10 @@
 				EC375D8F294FD228DEE65B8B /* Pods-UIHostApp.release.xcconfig */,
 				8475AC46B33C6C5CD12A41A9 /* Pods-UIHostAppUITests.debug.xcconfig */,
 				707E92BB4DC138F76CFBD130 /* Pods-UIHostAppUITests.release.xcconfig */,
+				5F6CCE1E274316D649261CF1 /* Pods-UIHostObjCApp.debug.xcconfig */,
+				CE0F3AB2D7A89B16D869894E /* Pods-UIHostObjCApp.release.xcconfig */,
+				105DEB5800381ACDA0C780E6 /* Pods-UIHostObjCAppUITests.debug.xcconfig */,
+				AC5434204BA1040C0F298D2E /* Pods-UIHostObjCAppUITests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -543,21 +660,129 @@
 		75AE1A3849601C042FCA7068 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C0CF5A54229FC67E0092F59A /* PassKit.framework */,
 				5C9B0DFBB39A2856339851D1 /* Pods_PaymentSDK.framework */,
 				204BF14693BFE9B55C58DE0D /* Pods_PaymentSDKTests.framework */,
 				64528C2C40BAF0231AD6AFF3 /* Pods_UIHostApp.framework */,
 				4CDAB801AA56EB9A4FC63BA5 /* Pods_UIHostAppUITests.framework */,
+				5E45F5BCF2855FD88892D4E3 /* Pods_UIHostObjCApp.framework */,
+				10910EB0E13716BB4ECD3101 /* Pods_UIHostObjCAppUITests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C09F46CC22A8E5E9008B451D /* views */ = {
+			isa = PBXGroup;
+			children = (
+				C09F46C922A8E569008B451D /* CartItemTableViewCell.h */,
+				C09F46CA22A8E569008B451D /* CartItemTableViewCell.m */,
+				C09F46CD22A8E5FD008B451D /* CartItemTableViewCell.xib */,
+				C0CF5A43229FC6110092F59A /* CartViewController.h */,
+				C0CF5A44229FC6110092F59A /* CartViewController.m */,
+				C09F46CF22A8EC28008B451D /* SettingsViewController.h */,
+				C09F46D022A8EC28008B451D /* SettingsViewController.m */,
+			);
+			path = views;
+			sourceTree = "<group>";
+		};
+		C09F46DC22AA3BC4008B451D /* UIHostObjCAppUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C09F46E522AA3C6B008B451D /* stubs */,
+				C09F46DD22AA3BC4008B451D /* UIHostObjCAppUITests.m */,
+				C09F46DF22AA3BC4008B451D /* Info.plist */,
+				C05DC26622AE474B00C4EAC2 /* HTTPStubs.swift */,
+				C05DC26522AE474B00C4EAC2 /* UIHostObjCAppUITests-Bridging-Header.h */,
+				C0B3F13622AF87FE0000C189 /* TestHelper.h */,
+				C0B3F13722AF87FE0000C189 /* TestHelper.m */,
+			);
+			path = UIHostObjCAppUITests;
+			sourceTree = "<group>";
+		};
+		C09F46E522AA3C6B008B451D /* stubs */ = {
+			isa = PBXGroup;
+			children = (
+				C09F46E622AA3C6B008B451D /* payment_auth.json */,
+				C09F46E722AA3C6B008B451D /* order_create.json */,
+				C09F46E822AA3C6B008B451D /* order.json */,
+				C09F46E922AA3C6B008B451D /* card_payment.json */,
+			);
+			path = stubs;
+			sourceTree = "<group>";
+		};
+		C0CF5A3F229FC6110092F59A /* UIHostObjCApp */ = {
+			isa = PBXGroup;
+			children = (
+				C05DC26B22AF73B700C4EAC2 /* UIHostObjCApp.entitlements */,
+				C09F46CC22A8E5E9008B451D /* views */,
+				C0CF5A6722A660470092F59A /* models */,
+				C0CF5A6322A53CE90092F59A /* services */,
+				C0CF5A5C229FE65D0092F59A /* sdk */,
+				C0CF5A40229FC6110092F59A /* AppDelegate.h */,
+				C0CF5A41229FC6110092F59A /* AppDelegate.m */,
+				C0CF5A46229FC6110092F59A /* Main.storyboard */,
+				C0CF5A49229FC6120092F59A /* Assets.xcassets */,
+				C0CF5A4B229FC6120092F59A /* LaunchScreen.storyboard */,
+				C0CF5A4E229FC6120092F59A /* Info.plist */,
+				C0CF5A4F229FC6120092F59A /* main.m */,
+				C09F46D222A90052008B451D /* CartData.h */,
+				C09F46D322A90052008B451D /* CartData.m */,
+				C09F46D522A921DD008B451D /* products_en.json */,
+			);
+			path = UIHostObjCApp;
+			sourceTree = "<group>";
+		};
+		C0CF5A5C229FE65D0092F59A /* sdk */ = {
+			isa = PBXGroup;
+			children = (
+				C0CF5A59229FE2170092F59A /* PaymentSDKHandler.h */,
+				C0CF5A5A229FE2170092F59A /* PaymentSDKHandler.m */,
+				C0CF5A5D229FEB690092F59A /* PaymentSDKDelegate.h */,
+				C0CF5A5E229FEB690092F59A /* PaymentSDKDelegate.m */,
+				C0CF5A60229FEB8C0092F59A /* ApplePaySDKDelegate.h */,
+				C0CF5A61229FEB8C0092F59A /* ApplePaySDKDelegate.m */,
+			);
+			path = sdk;
+			sourceTree = "<group>";
+		};
+		C0CF5A6322A53CE90092F59A /* services */ = {
+			isa = PBXGroup;
+			children = (
+				C0CF5A6422A53CFB0092F59A /* OrderService.h */,
+				C0CF5A6522A53CFB0092F59A /* OrderService.m */,
+			);
+			path = services;
+			sourceTree = "<group>";
+		};
+		C0CF5A6722A660470092F59A /* models */ = {
+			isa = PBXGroup;
+			children = (
+				C0CF5A6822A660590092F59A /* Amount.h */,
+				C0CF5A6922A660590092F59A /* Amount.m */,
+				C0CF5A6B22A660870092F59A /* OrderResponse.h */,
+				C0CF5A6C22A660880092F59A /* OrderResponse.m */,
+				C0CF5A6E22A660A90092F59A /* OrderRequestPayload.h */,
+				C0CF5A6F22A660A90092F59A /* OrderRequestPayload.m */,
+				C09F46C022A8E2A4008B451D /* Product.h */,
+				C09F46C122A8E2A4008B451D /* Product.m */,
+				C09F46C322A8E3CF008B451D /* Price.h */,
+				C09F46C422A8E3CF008B451D /* Price.m */,
+				C09F46C622A8E3EA008B451D /* Info.h */,
+				C09F46C722A8E3EA008B451D /* Info.m */,
+			);
+			path = models;
 			sourceTree = "<group>";
 		};
 		FE1F935C20D3E6F700109851 = {
 			isa = PBXGroup;
 			children = (
+				C0CF5A57229FD5CA0092F59A /* Podfile */,
 				FE1F936820D3E6F700109851 /* PaymentSDK */,
 				FE1F937320D3E6F800109851 /* PaymentSDKTests */,
 				36E04239227EBC9000059464 /* UIHostApp */,
 				36E0424E227EBC9100059464 /* UIHostAppUITests */,
+				C0CF5A3F229FC6110092F59A /* UIHostObjCApp */,
+				C09F46DC22AA3BC4008B451D /* UIHostObjCAppUITests */,
 				FE1F936720D3E6F700109851 /* Products */,
 				6AF229F0011BC599DA44279E /* Pods */,
 				75AE1A3849601C042FCA7068 /* Frameworks */,
@@ -571,6 +796,8 @@
 				FE1F936F20D3E6F700109851 /* PaymentSDKTests.xctest */,
 				36E04238227EBC9000059464 /* UIHostApp.app */,
 				36E0424B227EBC9100059464 /* UIHostAppUITests.xctest */,
+				C0CF5A3E229FC6100092F59A /* UIHostObjCApp.app */,
+				C09F46DB22AA3BC3008B451D /* UIHostObjCAppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -589,7 +816,6 @@
 				FE1F939620D3EB8100109851 /* cards */,
 				FE1F939220D3EB8100109851 /* configuration */,
 				FE1F938920D3EB8100109851 /* UI */,
-				FE1F938F20D3EB8100109851 /* UI_accessible */,
 				FE1F938D20D3EB8100109851 /* utilities */,
 				36C918822226948600422F5D /* PaymentDelegate.swift */,
 				36011F7A2278640C002A5ACB /* ApplePayDelegate.swift */,
@@ -735,29 +961,6 @@
 				FE1ECE6320EBCE44006EB52D /* NetworkUtilities.swift */,
 			);
 			path = networking;
-			sourceTree = "<group>";
-		};
-		FE1F938F20D3EB8100109851 /* UI_accessible */ = {
-			isa = PBXGroup;
-			children = (
-				FE1F939020D3EB8100109851 /* address */,
-				FE1F939120D3EB8100109851 /* cardPayment */,
-			);
-			path = UI_accessible;
-			sourceTree = "<group>";
-		};
-		FE1F939020D3EB8100109851 /* address */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = address;
-			sourceTree = "<group>";
-		};
-		FE1F939120D3EB8100109851 /* cardPayment */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = cardPayment;
 			sourceTree = "<group>";
 		};
 		FE1F939220D3EB8100109851 /* configuration */ = {
@@ -985,6 +1188,44 @@
 			productReference = 36E0424B227EBC9100059464 /* UIHostAppUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		C09F46DA22AA3BC3008B451D /* UIHostObjCAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C09F46E222AA3BC4008B451D /* Build configuration list for PBXNativeTarget "UIHostObjCAppUITests" */;
+			buildPhases = (
+				FDBA182E32D2454911731EE7 /* [CP] Check Pods Manifest.lock */,
+				C09F46D722AA3BC3008B451D /* Sources */,
+				C09F46D822AA3BC3008B451D /* Frameworks */,
+				C09F46D922AA3BC3008B451D /* Resources */,
+				D4E2148BDC8E5B5AA9A868BD /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C09F46E122AA3BC4008B451D /* PBXTargetDependency */,
+			);
+			name = UIHostObjCAppUITests;
+			productName = UIHostObjCAppUITests;
+			productReference = C09F46DB22AA3BC3008B451D /* UIHostObjCAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		C0CF5A3D229FC6100092F59A /* UIHostObjCApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C0CF5A53229FC6120092F59A /* Build configuration list for PBXNativeTarget "UIHostObjCApp" */;
+			buildPhases = (
+				35AA2876E4265C153C440830 /* [CP] Check Pods Manifest.lock */,
+				C0CF5A3A229FC6100092F59A /* Sources */,
+				C0CF5A3B229FC6100092F59A /* Frameworks */,
+				C0CF5A3C229FC6100092F59A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = UIHostObjCApp;
+			productName = UIHostObjCApp;
+			productReference = C0CF5A3E229FC6100092F59A /* UIHostObjCApp.app */;
+			productType = "com.apple.product-type.application";
+		};
 		FE1F936520D3E6F700109851 /* PaymentSDK */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FE1F937A20D3E6F800109851 /* Build configuration list for PBXNativeTarget "PaymentSDK" */;
@@ -1045,6 +1286,19 @@
 						CreatedOnToolsVersion = 10.2.1;
 						TestTargetID = 36E04237227EBC9000059464;
 					};
+					C09F46DA22AA3BC3008B451D = {
+						CreatedOnToolsVersion = 10.2.1;
+						LastSwiftMigration = 1020;
+						TestTargetID = 36E04237227EBC9000059464;
+					};
+					C0CF5A3D229FC6100092F59A = {
+						CreatedOnToolsVersion = 10.2.1;
+						SystemCapabilities = {
+							com.apple.ApplePay = {
+								enabled = 1;
+							};
+						};
+					};
 					FE1F936520D3E6F700109851 = {
 						CreatedOnToolsVersion = 10.0;
 						LastSwiftMigration = 1000;
@@ -1072,6 +1326,8 @@
 				FE1F936E20D3E6F700109851 /* PaymentSDKTests */,
 				36E04237227EBC9000059464 /* UIHostApp */,
 				36E0424A227EBC9100059464 /* UIHostAppUITests */,
+				C0CF5A3D229FC6100092F59A /* UIHostObjCApp */,
+				C09F46DA22AA3BC3008B451D /* UIHostObjCAppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -1097,6 +1353,29 @@
 				36A9DB0B2283FD8300F66931 /* order_create.json in Resources */,
 				36A9DB0F22840A5000F66931 /* order.json in Resources */,
 				36A9DB1122840CEE00F66931 /* card_payment.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C09F46D922AA3BC3008B451D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C09F46ED22AA3C6B008B451D /* card_payment.json in Resources */,
+				C09F46EB22AA3C6B008B451D /* order_create.json in Resources */,
+				C09F46EA22AA3C6B008B451D /* payment_auth.json in Resources */,
+				C09F46EC22AA3C6B008B451D /* order.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0CF5A3C229FC6100092F59A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0CF5A4D229FC6120092F59A /* LaunchScreen.storyboard in Resources */,
+				C0CF5A4A229FC6120092F59A /* Assets.xcassets in Resources */,
+				C09F46CE22A8E5FD008B451D /* CartItemTableViewCell.xib in Resources */,
+				C0CF5A48229FC6110092F59A /* Main.storyboard in Resources */,
+				C09F46D622A921DD008B451D /* products_en.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1128,6 +1407,7 @@
 				FE191FE12135344E008F02F5 /* mc_card_front@2x.png in Resources */,
 				FE61800A213002AD00F0F894 /* digit_6@2x.png in Resources */,
 				FEB4550F213491B300730783 /* card_bg_front_generic@2x.png in Resources */,
+				C0CF5A58229FD5CB0092F59A /* Podfile in Resources */,
 				FE618023213002AD00F0F894 /* letter_A@2x.png in Resources */,
 				FE617FFF213002AD00F0F894 /* letter_H@2x.png in Resources */,
 				FE618000213002AD00F0F894 /* letter_Z@2x.png in Resources */,
@@ -1170,7 +1450,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		60E92134FEC6A60E6961637D /* [CP] Embed Pods Frameworks */ = {
+		35AA2876E4265C153C440830 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1178,14 +1458,31 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-UIHostAppUITests/Pods-UIHostAppUITests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Swifter/Swifter.framework",
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
-			name = "[CP] Embed Pods Frameworks";
+			name = "[CP] Check Pods Manifest.lock";
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Swifter.framework",
+				"$(DERIVED_FILE_DIR)/Pods-UIHostObjCApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		60E92134FEC6A60E6961637D /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-UIHostAppUITests/Pods-UIHostAppUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-UIHostAppUITests/Pods-UIHostAppUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1280,6 +1577,45 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		D4E2148BDC8E5B5AA9A868BD /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-UIHostObjCAppUITests/Pods-UIHostObjCAppUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-UIHostObjCAppUITests/Pods-UIHostObjCAppUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-UIHostObjCAppUITests/Pods-UIHostObjCAppUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FDBA182E32D2454911731EE7 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-UIHostObjCAppUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1290,7 +1626,6 @@
 				36E04277227EC51100059464 /* PaymentSDKHandler.swift in Sources */,
 				36E04287227ECDA800059464 /* Amount.swift in Sources */,
 				36E04279227EC53B00059464 /* PaymentSDKDelegate.swift in Sources */,
-				36E04274227EC40D00059464 /* PaymentSDK.framework in Sources */,
 				36E0423D227EBC9000059464 /* ViewController.swift in Sources */,
 				36E04265227EBD2500059464 /* SettingsDelegate.swift in Sources */,
 				36E0423B227EBC9000059464 /* AppDelegate.swift in Sources */,
@@ -1311,6 +1646,39 @@
 				36E0428F2283F80A00059464 /* HTTPStubs.swift in Sources */,
 				36E04250227EBC9100059464 /* UIHostAppUITests.swift in Sources */,
 				36E0428A227ED21000059464 /* TestHelper.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C09F46D722AA3BC3008B451D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0B3F13822AF87FE0000C189 /* TestHelper.m in Sources */,
+				C05DC26722AE474B00C4EAC2 /* HTTPStubs.swift in Sources */,
+				C09F46DE22AA3BC4008B451D /* UIHostObjCAppUITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0CF5A3A229FC6100092F59A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C09F46C822A8E3EA008B451D /* Info.m in Sources */,
+				C0CF5A5B229FE2170092F59A /* PaymentSDKHandler.m in Sources */,
+				C0CF5A7022A660A90092F59A /* OrderRequestPayload.m in Sources */,
+				C09F46C222A8E2A4008B451D /* Product.m in Sources */,
+				C09F46CB22A8E569008B451D /* CartItemTableViewCell.m in Sources */,
+				C0CF5A6D22A660880092F59A /* OrderResponse.m in Sources */,
+				C0CF5A62229FEB8C0092F59A /* ApplePaySDKDelegate.m in Sources */,
+				C0CF5A45229FC6110092F59A /* CartViewController.m in Sources */,
+				C0CF5A5F229FEB690092F59A /* PaymentSDKDelegate.m in Sources */,
+				C09F46D422A90052008B451D /* CartData.m in Sources */,
+				C0CF5A50229FC6120092F59A /* main.m in Sources */,
+				C0CF5A42229FC6110092F59A /* AppDelegate.m in Sources */,
+				C09F46C522A8E3CF008B451D /* Price.m in Sources */,
+				C09F46D122A8EC28008B451D /* SettingsViewController.m in Sources */,
+				C0CF5A6622A53CFB0092F59A /* OrderService.m in Sources */,
+				C0CF5A6A22A660590092F59A /* Amount.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1428,6 +1796,11 @@
 			target = FE1F936520D3E6F700109851 /* PaymentSDK */;
 			targetProxy = 36E04271227EC3E800059464 /* PBXContainerItemProxy */;
 		};
+		C09F46E122AA3BC4008B451D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 36E04237227EBC9000059464 /* UIHostApp */;
+			targetProxy = C09F46E022AA3BC4008B451D /* PBXContainerItemProxy */;
+		};
 		FE1F937220D3E6F800109851 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = FE1F936520D3E6F700109851 /* PaymentSDK */;
@@ -1448,6 +1821,22 @@
 			isa = PBXVariantGroup;
 			children = (
 				36E04244227EBC9100059464 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		C0CF5A46229FC6110092F59A /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C0CF5A47229FC6110092F59A /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		C0CF5A4B229FC6120092F59A /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C0CF5A4C229FC6120092F59A /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -1482,7 +1871,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pullingteeth.testapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1505,7 +1894,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pullingteeth.testapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -1518,7 +1907,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 84CDBVGV8X;
 				INFOPLIST_FILE = UIHostAppUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1527,7 +1916,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ngenius.UIHostAppUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = UIHostApp;
 			};
@@ -1541,7 +1930,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 84CDBVGV8X;
 				INFOPLIST_FILE = UIHostAppUITests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1550,9 +1939,100 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ngenius.UIHostAppUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = UIHostApp;
+			};
+			name = Release;
+		};
+		C09F46E322AA3BC4008B451D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 105DEB5800381ACDA0C780E6 /* Pods-UIHostObjCAppUITests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = UIHostObjCAppUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.UIHostObjCAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "UIHostObjCAppUITests/UIHostObjCAppUITests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = UIHostApp;
+			};
+			name = Debug;
+		};
+		C09F46E422AA3BC4008B451D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AC5434204BA1040C0F298D2E /* Pods-UIHostObjCAppUITests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = UIHostObjCAppUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.UIHostObjCAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "UIHostObjCAppUITests/UIHostObjCAppUITests-Bridging-Header.h";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = UIHostApp;
+			};
+			name = Release;
+		};
+		C0CF5A51229FC6120092F59A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5F6CCE1E274316D649261CF1 /* Pods-UIHostObjCApp.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = UIHostObjCApp/UIHostObjCApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = UIHostObjCApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.UIHostObjCApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C0CF5A52229FC6120092F59A /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CE0F3AB2D7A89B16D869894E /* Pods-UIHostObjCApp.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = UIHostObjCApp/UIHostObjCApp.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				INFOPLIST_FILE = UIHostObjCApp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.UIHostObjCApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1792,6 +2272,24 @@
 			buildConfigurations = (
 				36E04254227EBC9100059464 /* Debug */,
 				36E04255227EBC9100059464 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C09F46E222AA3BC4008B451D /* Build configuration list for PBXNativeTarget "UIHostObjCAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C09F46E322AA3BC4008B451D /* Debug */,
+				C09F46E422AA3BC4008B451D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C0CF5A53229FC6120092F59A /* Build configuration list for PBXNativeTarget "UIHostObjCApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C0CF5A51229FC6120092F59A /* Debug */,
+				C0CF5A52229FC6120092F59A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -9,15 +9,15 @@
 import Foundation
 import PassKit
 
-public protocol ApplePayDelegate : AnyObject
+@objc public protocol ApplePayDelegate
 {
-    func applePayPaymentMethodUpdated(didSelect paymentMethod: PaymentMethod,
+    @objc func applePayPaymentMethodUpdated(didSelect paymentMethod: PaymentMethod,
                                       handler completion: @escaping (PKPaymentRequestPaymentMethodUpdate) -> Void)
     
-    func applePayShippingMethodUpdated(didSelect shippingMethod: PKShippingMethod,
+    @objc func applePayShippingMethodUpdated(didSelect shippingMethod: PKShippingMethod,
                                        handler completion: @escaping (PKPaymentRequestShippingMethodUpdate) -> Void)
     
-    func applePayContactUpdated(didSelect shippingContact: PKContact,
+    @objc func applePayContactUpdated(didSelect shippingContact: PKContact,
                                 handler completion: @escaping (PKPaymentRequestShippingContactUpdate) -> Void)
     
 }

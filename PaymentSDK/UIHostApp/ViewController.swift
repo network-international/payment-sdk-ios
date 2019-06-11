@@ -242,6 +242,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         request.countryCode = "AE"
         request.currencyCode = ViewController.currency
         request.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
+        request.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
+
         return request
     }
     
