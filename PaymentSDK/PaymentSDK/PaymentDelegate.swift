@@ -9,27 +9,27 @@
 import Foundation
 import PassKit
 
-public protocol PaymentDelegate : AnyObject
+@objc public protocol PaymentDelegate
 {
     
-    func beginAuthorization(didSelect paymentMethod : PaymentSDK.PaymentMethod, handler completion: @escaping (PaymentAuthorizationLink?) -> Void)
+    @objc func beginAuthorization(didSelect paymentMethod : PaymentSDK.PaymentMethod, handler completion: @escaping (PaymentAuthorizationLink?) -> Void)
     
-    func authorizationStarted()
+    @objc func authorizationStarted()
     
-    func authorizationCompleted(withStatus status: AuthorizationStatus)
+    @objc func authorizationCompleted(withStatus status: AuthorizationStatus)
         
-    func paymentStarted()
+    @objc func paymentStarted()
     
-    func paymentCompleted(with status: PaymentStatus)
+    @objc func paymentCompleted(with status: PaymentStatus)
     
 }
 
-public enum AuthorizationStatus{
+@objc public enum AuthorizationStatus: Int {
     case success
     case failed
 }
 
-public enum PaymentStatus{
+@objc public enum PaymentStatus: Int {
     case success
     case failed
 }

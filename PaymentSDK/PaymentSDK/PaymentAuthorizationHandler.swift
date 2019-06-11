@@ -1,7 +1,7 @@
 import Foundation
 import PassKit
 
-public final class PaymentAuthorizationHandler
+@objc public final class PaymentAuthorizationHandler: NSObject
 {
     private let applePayManger = ApplePayManager()
     private let acceptedCards : [CardDescription]
@@ -20,12 +20,9 @@ public final class PaymentAuthorizationHandler
     ///
     /// - Parameters:
     ///   - parentViewController: The topmost UIViewController object in the host app.
-    ///   - configuration: The configuration object that contains properties required to present the payment UI.
-    ///   - items: The items to show the user. Contains high level summary of items(product total, tax total, delivery
-    ///     total) and the actual total the customer will be charged.
     ///   - completion: The block executed when the UI has finished animating into view.
     
-    public func presentCardView(overParent parentViewController : UIViewController,
+    @objc public func presentCardView(overParent parentViewController : UIViewController,
                                 withDelegate paymentDelegate : PaymentDelegate,
                                 completion                      : VoidBlock?){
         let manager = CardDataCollectionManager(withDelegate  : paymentDelegate, acceptedCards : self.acceptedCards)
@@ -36,7 +33,7 @@ public final class PaymentAuthorizationHandler
         }
     }
     
-    public func presentApplePayView(overParent parentViewController : UIViewController,
+    @objc public func presentApplePayView(overParent parentViewController : UIViewController,
                                     withDelegate paymentDelegate : PaymentDelegate,
                                     withApplePayDelegate applePayDelegate : ApplePayDelegate,
                                     withRequest applePayRequest : PKPaymentRequest?,
@@ -79,14 +76,13 @@ public final class PaymentAuthorizationHandler
                 }
                 
                 guard let merchantIdentifier = Interface.sharedInstance.configuration?.merchantIdentifier,
-                    let merchantCapabilities = Interface.sharedInstance.configuration?.merchantCapabilities else {
+                    let _ = paymentRequest.merchantCapabilities as PKMerchantCapability? else {
                         paymentDelegate.authorizationCompleted(withStatus: .failed)
                         completion?()
                         return
                 }
                 
                 paymentRequest.merchantIdentifier = merchantIdentifier
-                paymentRequest.merchantCapabilities = merchantCapabilities
                 paymentRequest.supportedNetworks = acceptedCards
                 paymentRequest.paymentSummaryItems = items
                 paymentRequest.requiredBillingContactFields = [.postalAddress, .name]

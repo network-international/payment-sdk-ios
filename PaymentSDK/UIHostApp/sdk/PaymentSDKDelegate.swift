@@ -23,7 +23,6 @@ final class PaymentSDKDelegate : PaymentDelegate {
                 let authLink = PaymentAuthorizationLink(href: order.paymentAuthorizationUrl, code: order.code)
                 completion(authLink)
             }
-            
         }
     }
     
