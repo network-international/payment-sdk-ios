@@ -4,7 +4,7 @@ script:
   - set -o pipefail
   - xcodebuild -workspace PaymentSDK/PaymentSDK.xcworkspace -scheme "PaymentSDK" -destination "platform=iOS Simulator,name=iPhone 7" clean test | xcpretty
   - xcodebuild -workspace PaymentSDK/PaymentSDK.xcworkspace -scheme "UIHostApp" -destination "platform=iOS Simulator,name=iPhone 7" -UseModernBuildSystem=NO clean test | xcpretty
-
+  - xcodebuild -workspace PaymentSDK/PaymentSDK.xcworkspace -scheme "UIHostObjCApp" -destination "platform=iOS Simulator,name=iPhone 7" -UseModernBuildSystem=NO clean test | xcpretty
 before_install:
   - gem install xcpretty
   - gem install cocoapods --pre

@@ -1,19 +1,33 @@
 import Foundation
 import PassKit
 
-public struct PaymentMethod
+@objc public class PaymentMethod: NSObject
 {
-    public let system      : System
-    public let displayName : String?
-    public let network     : PKPaymentNetwork?
-    public let type        : PKPaymentMethodType
-    public let paymentPass : PKPaymentPass?
+    public var system      : System
+    public var displayName : String? = nil
+    public var network     : PKPaymentNetwork? = nil
+    public var type        : PKPaymentMethodType
+    public var paymentPass : PKPaymentPass? = nil
     
     public enum System
     {
         case card
         case applePay
     }
+    
+    init(system: System,
+         displayName: String?,
+         network: PKPaymentNetwork?,
+         type: PKPaymentMethodType,
+         paymentPass: PKPaymentPass?) {
+        
+        self.system = system
+        self.displayName = displayName
+        self.network = network
+        self.type = type
+        self.paymentPass = paymentPass
+    }
+    
 }
 
 public extension PaymentMethod
