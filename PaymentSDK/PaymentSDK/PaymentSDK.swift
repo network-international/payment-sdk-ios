@@ -1,21 +1,21 @@
 import Foundation
 import PassKit
 
-public final class Interface
+@objc public final class Interface: NSObject
 {
-    public static let sharedInstance = Interface()
-    private(set) public var paymentAuthorizationHandler : PaymentAuthorizationHandler?
+    @objc public static let sharedInstance = Interface()
+    @objc public var paymentAuthorizationHandler : PaymentAuthorizationHandler?
     private(set) var configuration: Configuration?
     
-    private init() {}
+    private override init() { super.init() }
     
-    public func configure(with configuration: Configuration?)
+    @objc public func configure(with configuration: Configuration?)
     {
         self.configuration = configuration
         self.configure()
     }
     
-    public func configure(){
+    @objc public func configure(){
         PaymentConfigurationHandler.configure
             {
                 (paymentHandler) in
@@ -24,29 +24,27 @@ public final class Interface
     }
 }
 
+
 extension Interface
 {
-    public struct Configuration
+    @objc public class Configuration: NSObject
     {
-        let merchantIdentifier   : String?
-        let merchantCapabilities : PKMerchantCapability?
+        @objc public var merchantIdentifier: String?
         
-        public init(merchantIdentifier: String?, merchantCapabilities: PKMerchantCapability?)
+        @objc public init(merchantIdentifier: String?)
         {
             self.merchantIdentifier = merchantIdentifier
-            self.merchantCapabilities = merchantCapabilities
         }
-        
-        
+
     }
 }
 
-public struct PaymentAuthorizationLink : Codable
+@objc public class PaymentAuthorizationLink : NSObject
 {
     let href : String
     let code : String
     
-    public init(href : String, code : String)
+    @objc public init(href : String, code : String)
     {
         self.href = href
         self.code = code
