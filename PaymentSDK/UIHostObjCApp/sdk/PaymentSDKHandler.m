@@ -23,7 +23,10 @@
 }
 
 - (void)configureSDK {
+    // For Apple Pay
     [_sdk configureWith: [[Configuration alloc] initWithMerchantIdentifier: @"merchant.com.example.ngo.TestMerchant"]];
+    // For Card onl
+//    [_sdk configure];
 }
 
 - (void)showCardPaymentView:(id)delegate overParent:(UIViewController *)parent with:(VoidBlock)completionBlock {
