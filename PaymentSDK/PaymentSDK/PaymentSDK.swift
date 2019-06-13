@@ -15,7 +15,7 @@ import PassKit
         self.configure()
     }
     
-    public func configure(){
+    @objc public func configure(){
         PaymentConfigurationHandler.configure
             {
                 (paymentHandler) in
