@@ -114,7 +114,7 @@
         Price *price = [self filterPriceFrom: product.prices];
         double productPrice = 0.0;
         if (price) {
-            productPrice = price.total + product.quantity;
+            productPrice = price.total * product.quantity;
         }
         NSDecimalNumber *decimal = [NSDecimalNumber decimalNumberWithMantissa: productPrice exponent: -2 isNegative: false];
         total = [decimal decimalNumberByAdding: total];
@@ -252,10 +252,10 @@
     if (price) {
         productPrice = price.total / 100;
     }
-    cell.productPrice.text = [NSString stringWithFormat: @"Price: %lf %@", productPrice, [[CartData sharedInstance] currency]];
+    cell.productPrice.text = [NSString stringWithFormat: @"Price: %0.2lf %@", productPrice, [[CartData sharedInstance] currency]];
     cell.productImage.image = [UIImage imageNamed: product.info.image];
     cell.productTitle.text = product.info.name;
-    cell.productQuantity.text = [NSString stringWithFormat: @"Quantity: %lf", product.quantity];
+    cell.productQuantity.text = [NSString stringWithFormat: @"Quantity: %0.0lf", product.quantity];
 
     cell.stepper.tag = indexPath.row;
     cell.stepper.value = product.quantity;
