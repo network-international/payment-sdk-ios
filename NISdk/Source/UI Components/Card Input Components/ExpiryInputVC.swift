@@ -70,9 +70,7 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         hStack.axis = .horizontal
         hStack.alignment = .center
         hStack.distribution = .fill
-        hStack.spacing = 20
-        hStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-        hStack.isLayoutMarginsRelativeArrangement = true
+        hStack.spacing = 50
         
         view.addSubview(hStack)
 //        stackBackgroundView.pinAsBackground(to: hStack)

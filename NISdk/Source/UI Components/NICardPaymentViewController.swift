@@ -63,6 +63,8 @@ class NICardPaymentViewController: UIViewController {
         
         vStack.axis = .vertical
         vStack.spacing = 0
+        vStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
+        vStack.isLayoutMarginsRelativeArrangement = true
         
         view.addSubview(vStack)
         vStack.anchor(top: view.safeAreaLayoutGuide.topAnchor,
@@ -70,7 +72,7 @@ class NICardPaymentViewController: UIViewController {
                       bottom: nil,
                       trailing: view.safeAreaLayoutGuide.trailingAnchor,
                       padding: .zero,
-                      size: CGSize(width: 0, height: 100))
+                      size: CGSize(width: 0, height: 0))
         
         let stackBackgroundView = UIView()
         stackBackgroundView.backgroundColor = .white

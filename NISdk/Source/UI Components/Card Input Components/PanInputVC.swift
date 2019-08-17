@@ -53,8 +53,6 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         hStack.alignment = .center
         hStack.distribution = .fill
         hStack.spacing = 50
-        hStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-        hStack.isLayoutMarginsRelativeArrangement = true
         
         view.addSubview(hStack)
 //        stackBackgroundView.pinAsBackground(to: hStack)
