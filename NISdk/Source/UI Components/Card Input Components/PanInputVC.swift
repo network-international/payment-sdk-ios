@@ -42,8 +42,9 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         panTextField.addTarget(self, action: #selector(onPanFieldChange), for: .editingChanged)
         panTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
         
-//        let stackBackgroundView = UIView()
-//        stackBackgroundView.backgroundColor = .white
+        let stackBackgroundView = UIView()
+        stackBackgroundView.layoutIfNeeded()
+        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
 
         let label = UILabel()
         label.text = "Number"
@@ -55,12 +56,12 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         hStack.spacing = 50
         
         view.addSubview(hStack)
-//        stackBackgroundView.pinAsBackground(to: hStack)
+        stackBackgroundView.pinAsBackground(to: hStack)
         hStack.anchor(top: nil,
                       leading: view.safeAreaLayoutGuide.leadingAnchor,
                       bottom: nil,
                       trailing: view.safeAreaLayoutGuide.trailingAnchor,
                       padding: .zero,
-                      size: CGSize(width: 0, height: 50))
+                      size: CGSize(width: 0, height: 60))
     }
 }

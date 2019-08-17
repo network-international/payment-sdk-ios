@@ -43,6 +43,7 @@
 		862CBE492307443400767774 /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE482307443400767774 /* UIColor+Hex.swift */; };
 		862CBE4B23074A8100767774 /* UIViewController+Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4A23074A8100767774 /* UIViewController+Container.swift */; };
 		862CBE4D2307F9D600767774 /* UIView+AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4C2307F9D600767774 /* UIView+AutoLayout.swift */; };
+		862CBE5123089EDB00767774 /* UIView+Border.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE5023089EDB00767774 /* UIView+Border.swift */; };
 		86D2FB5922FC1AE700CF1FA1 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */; };
 		86D2FB5E22FC1AE700CF1FA1 /* NISdkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D2FB5D22FC1AE700CF1FA1 /* NISdkTests.swift */; };
 		86D2FB6022FC1AE700CF1FA1 /* NISdk.h in Headers */ = {isa = PBXBuildFile; fileRef = 86D2FB5222FC1AE700CF1FA1 /* NISdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -95,6 +96,7 @@
 		862CBE482307443400767774 /* UIColor+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
 		862CBE4A23074A8100767774 /* UIViewController+Container.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Container.swift"; sourceTree = "<group>"; };
 		862CBE4C2307F9D600767774 /* UIView+AutoLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+AutoLayout.swift"; sourceTree = "<group>"; };
+		862CBE5023089EDB00767774 /* UIView+Border.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Border.swift"; sourceTree = "<group>"; };
 		86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NISdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		86D2FB5222FC1AE700CF1FA1 /* NISdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NISdk.h; sourceTree = "<group>"; };
 		86D2FB5322FC1AE700CF1FA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -257,6 +259,7 @@
 				862CBE482307443400767774 /* UIColor+Hex.swift */,
 				862CBE4A23074A8100767774 /* UIViewController+Container.swift */,
 				862CBE4C2307F9D600767774 /* UIView+AutoLayout.swift */,
+				862CBE5023089EDB00767774 /* UIView+Border.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -428,6 +431,7 @@
 				860CCE0122FC476E00B85096 /* NICardPaymentDelegate.swift in Sources */,
 				860CCE0522FC933200B85096 /* NIPayment.swift in Sources */,
 				862CBE4623068C2900767774 /* NINameInput.swift in Sources */,
+				862CBE5123089EDB00767774 /* UIView+Border.swift in Sources */,
 				862CBDEE23054E1500767774 /* NIFormattedOrderSummary.swift in Sources */,
 				862CBE2F2305D75D00767774 /* NICardPaymentViewController.swift in Sources */,
 				860CCE0922FC945F00B85096 /* NITransaction.swift in Sources */,

@@ -66,19 +66,25 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         let seperatorLabel = UILabel()
         seperatorLabel.text = "/"
         
-        let hStack = UIStackView(arrangedSubviews: [label, monthTextField, seperatorLabel, yearTextField])
-        hStack.axis = .horizontal
-        hStack.alignment = .center
-        hStack.distribution = .fill
-        hStack.spacing = 50
+        let rightHStatch = UIStackView(arrangedSubviews: [monthTextField, seperatorLabel, yearTextField])
+        rightHStatch.axis = .horizontal
+        rightHStatch.alignment = .center
+        rightHStatch.distribution = .fill
+        rightHStatch.spacing = 20
         
-        view.addSubview(hStack)
-//        stackBackgroundView.pinAsBackground(to: hStack)
-        hStack.anchor(top: nil,
+        
+        let rootHStack = UIStackView(arrangedSubviews: [label, rightHStatch])
+        rootHStack.axis = .horizontal
+        rootHStack.alignment = .center
+        rootHStack.distribution = .fill
+        rootHStack.spacing = 60
+        
+        view.addSubview(rootHStack)
+        rootHStack.anchor(top: nil,
                       leading: view.safeAreaLayoutGuide.leadingAnchor,
                       bottom: nil,
                       trailing: view.safeAreaLayoutGuide.trailingAnchor,
                       padding: .zero,
-                      size: CGSize(width: 0, height: 50))
+                      size: CGSize(width: 0, height: 60))
     }
 }

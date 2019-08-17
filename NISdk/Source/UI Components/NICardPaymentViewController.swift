@@ -41,7 +41,7 @@ class NICardPaymentViewController: UIViewController {
                          bottom: nil,
                          trailing: view.safeAreaLayoutGuide.trailingAnchor,
                          padding: .zero,
-                         size: CGSize(width: 0, height: 50))
+                         size: CGSize(width: 0, height: 60))
         
         let expiryContainer = UIView()
         view.addSubview(expiryContainer)
@@ -50,7 +50,7 @@ class NICardPaymentViewController: UIViewController {
                             bottom: nil,
                             trailing: view.safeAreaLayoutGuide.trailingAnchor,
                             padding: .zero,
-                            size: CGSize(width: 0, height: 50))
+                            size: CGSize(width: 0, height: 60))
         
         
         add(panInputVC, inside: panContainer)
