@@ -8,8 +8,9 @@
 
 import Foundation
 
-class NIPanInputViewController: UIViewController, UITextFieldDelegate {
-    let panTextField: UITextField = UITextField(frame: CGRect(x: 0, y: 0, width: 300.00, height: 30.00))
+class PanInputVC: UIViewController, UITextFieldDelegate {
+    let panTextField: UITextField = UITextField()
+    
     @objc let onChangeText: onChangeTextClosure
     
     init(onChangeText: @escaping onChangeTextClosure) {
@@ -32,8 +33,6 @@ class NIPanInputViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super .viewDidLoad()
-        
-        panTextField.center = self.view.center
         panTextField.placeholder = "Card Number"
         panTextField.text = ""
         panTextField.borderStyle = UITextField.BorderStyle.none
@@ -43,11 +42,12 @@ class NIPanInputViewController: UIViewController, UITextFieldDelegate {
         panTextField.addTarget(self, action: #selector(onPanFieldChange), for: .editingChanged)
         panTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
         
-        let stackBackgroundView = UIView()
-        stackBackgroundView.backgroundColor = .white
+//        let stackBackgroundView = UIView()
+//        stackBackgroundView.backgroundColor = .white
 
         let label = UILabel()
         label.text = "Number"
+        
         let hStack = UIStackView(arrangedSubviews: [label, panTextField])
         hStack.axis = .horizontal
         hStack.alignment = .center
@@ -57,8 +57,8 @@ class NIPanInputViewController: UIViewController, UITextFieldDelegate {
         hStack.isLayoutMarginsRelativeArrangement = true
         
         view.addSubview(hStack)
-        stackBackgroundView.pinAsBackground(to: hStack)
-        hStack.anchor(top: view.safeAreaLayoutGuide.topAnchor,
+//        stackBackgroundView.pinAsBackground(to: hStack)
+        hStack.anchor(top: nil,
                       leading: view.safeAreaLayoutGuide.leadingAnchor,
                       bottom: nil,
                       trailing: view.safeAreaLayoutGuide.trailingAnchor,

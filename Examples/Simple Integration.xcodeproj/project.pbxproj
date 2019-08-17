@@ -84,9 +84,9 @@
 		86D2FB6922FC1B3300CF1FA1 = {
 			isa = PBXGroup;
 			children = (
-				862CBE302305DA8200767774 /* NISdk.framework */,
 				86D2FB7422FC1B3300CF1FA1 /* Simple Integration */,
 				86D2FB7322FC1B3300CF1FA1 /* Products */,
+				862CBE302305DA8200767774 /* NISdk.framework */,
 			);
 			sourceTree = "<group>";
 		};

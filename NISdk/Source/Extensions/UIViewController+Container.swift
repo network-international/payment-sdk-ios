@@ -9,10 +9,15 @@
 import Foundation
 
 extension UIViewController {
-    func add(_ child: UIViewController) {
+    func add(_ child: UIViewController, inside container: UIView?) {
         addChild(child)
-        view.addSubview(child.view)
-        child.didMove(toParent: self)
+        if let container = container {
+            container.addSubview(child.view)
+            child.view.bindFrameToSuperviewBounds()
+        } else {
+            view.addSubview(child.view)
+
+        }
     }
     
     func remove() {

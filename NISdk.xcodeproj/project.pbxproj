@@ -36,8 +36,8 @@
 		862CBE2F2305D75D00767774 /* NICardPaymentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE2E2305D75D00767774 /* NICardPaymentViewController.swift */; };
 		862CBE3A230678F000767774 /* OCRA.otf in Resources */ = {isa = PBXBuildFile; fileRef = 862CBE39230678F000767774 /* OCRA.otf */; };
 		862CBE3D23067C2300767774 /* NICardPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE3C23067C2300767774 /* NICardPreview.swift */; };
-		862CBE4023068BD700767774 /* NIPanInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE3F23068BD700767774 /* NIPanInputViewController.swift */; };
-		862CBE4223068C0400767774 /* NIExpiryInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4123068C0400767774 /* NIExpiryInput.swift */; };
+		862CBE4023068BD700767774 /* PanInputVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE3F23068BD700767774 /* PanInputVC.swift */; };
+		862CBE4223068C0400767774 /* ExpiryInputVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4123068C0400767774 /* ExpiryInputVC.swift */; };
 		862CBE4423068C1E00767774 /* NICvvInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4323068C1E00767774 /* NICvvInput.swift */; };
 		862CBE4623068C2900767774 /* NINameInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4523068C2900767774 /* NINameInput.swift */; };
 		862CBE492307443400767774 /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE482307443400767774 /* UIColor+Hex.swift */; };
@@ -88,8 +88,8 @@
 		862CBE2E2305D75D00767774 /* NICardPaymentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICardPaymentViewController.swift; sourceTree = "<group>"; };
 		862CBE39230678F000767774 /* OCRA.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = OCRA.otf; sourceTree = "<group>"; };
 		862CBE3C23067C2300767774 /* NICardPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICardPreview.swift; sourceTree = "<group>"; };
-		862CBE3F23068BD700767774 /* NIPanInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIPanInputViewController.swift; sourceTree = "<group>"; };
-		862CBE4123068C0400767774 /* NIExpiryInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIExpiryInput.swift; sourceTree = "<group>"; };
+		862CBE3F23068BD700767774 /* PanInputVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanInputVC.swift; sourceTree = "<group>"; };
+		862CBE4123068C0400767774 /* ExpiryInputVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryInputVC.swift; sourceTree = "<group>"; };
 		862CBE4323068C1E00767774 /* NICvvInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICvvInput.swift; sourceTree = "<group>"; };
 		862CBE4523068C2900767774 /* NINameInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NINameInput.swift; sourceTree = "<group>"; };
 		862CBE482307443400767774 /* UIColor+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
@@ -243,8 +243,8 @@
 		862CBE3E2306898900767774 /* Card Input Components */ = {
 			isa = PBXGroup;
 			children = (
-				862CBE3F23068BD700767774 /* NIPanInputViewController.swift */,
-				862CBE4123068C0400767774 /* NIExpiryInput.swift */,
+				862CBE3F23068BD700767774 /* PanInputVC.swift */,
+				862CBE4123068C0400767774 /* ExpiryInputVC.swift */,
 				862CBE4323068C1E00767774 /* NICvvInput.swift */,
 				862CBE4523068C2900767774 /* NINameInput.swift */,
 			);
@@ -432,14 +432,14 @@
 				862CBE2F2305D75D00767774 /* NICardPaymentViewController.swift in Sources */,
 				860CCE0922FC945F00B85096 /* NITransaction.swift in Sources */,
 				860CCDFF22FC473800B85096 /* NISdk.swift in Sources */,
-				862CBE4223068C0400767774 /* NIExpiryInput.swift in Sources */,
+				862CBE4223068C0400767774 /* ExpiryInputVC.swift in Sources */,
 				862CBDE82305493700767774 /* NIAmount.swift in Sources */,
 				860CCE1122FD3B2000B85096 /* NIOrderInfo.swift in Sources */,
 				862CBDF123058F4200767774 /* NIPaymentTypes.swift in Sources */,
 				860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */,
 				862CBDEA23054C7000767774 /* NIBillingAddress.swift in Sources */,
 				862CBDDD2303EFC800767774 /* NIApplePayDelegate.swift in Sources */,
-				862CBE4023068BD700767774 /* NIPanInputViewController.swift in Sources */,
+				862CBE4023068BD700767774 /* PanInputVC.swift in Sources */,
 				860CCE0722FC934700B85096 /* NIOrder.swift in Sources */,
 				860CCE1522FD3B9C00B85096 /* NITransactionAdapter.swift in Sources */,
 				862CBE4423068C1E00767774 /* NICvvInput.swift in Sources */,
