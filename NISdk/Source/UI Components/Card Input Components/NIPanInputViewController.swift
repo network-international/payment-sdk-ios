@@ -9,7 +9,7 @@
 import Foundation
 
 class NIPanInputViewController: UIViewController, UITextFieldDelegate {
-    let panField: UITextField = UITextField(frame: CGRect(x: 0, y: 0, width: 300.00, height: 30.00))
+    let panTextField: UITextField = UITextField(frame: CGRect(x: 0, y: 0, width: 300.00, height: 30.00))
     @objc let onChangeText: onChangeTextClosure
     
     init(onChangeText: @escaping onChangeTextClosure) {
@@ -33,14 +33,36 @@ class NIPanInputViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super .viewDidLoad()
         
-        panField.center = self.view.center
-        panField.placeholder = "Card Number"
-        panField.text = ""
-        panField.borderStyle = UITextField.BorderStyle.none
-        panField.backgroundColor = .white
-        panField.textColor = .black
-        panField.delegate = self
-        panField.addTarget(self, action: #selector(onPanFieldChange), for: .editingChanged)
-        self.view.addSubview(panField)
+        panTextField.center = self.view.center
+        panTextField.placeholder = "Card Number"
+        panTextField.text = ""
+        panTextField.borderStyle = UITextField.BorderStyle.none
+        panTextField.backgroundColor = .white
+        panTextField.textColor = .black
+        panTextField.delegate = self
+        panTextField.addTarget(self, action: #selector(onPanFieldChange), for: .editingChanged)
+        panTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
+        
+        let stackBackgroundView = UIView()
+        stackBackgroundView.backgroundColor = .white
+
+        let label = UILabel()
+        label.text = "Number"
+        let hStack = UIStackView(arrangedSubviews: [label, panTextField])
+        hStack.axis = .horizontal
+        hStack.alignment = .center
+        hStack.distribution = .fill
+        hStack.spacing = 50
+        hStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        hStack.isLayoutMarginsRelativeArrangement = true
+        
+        view.addSubview(hStack)
+        stackBackgroundView.pinAsBackground(to: hStack)
+        hStack.anchor(top: view.safeAreaLayoutGuide.topAnchor,
+                      leading: view.safeAreaLayoutGuide.leadingAnchor,
+                      bottom: nil,
+                      trailing: view.safeAreaLayoutGuide.trailingAnchor,
+                      padding: .zero,
+                      size: CGSize(width: 0, height: 50))
     }
 }

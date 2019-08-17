@@ -39,4 +39,19 @@ extension UIView {
             heightAnchor.constraint(equalToConstant: size.height).isActive = true
         }
     }
+    
+    func pinAsBackground(to view: UIStackView) {
+        translatesAutoresizingMaskIntoConstraints = false
+        view.insertSubview(self, at: 0)
+        pin(to: view)
+    }
+    
+    public func pin(to view: UIView) {
+        NSLayoutConstraint.activate([
+            leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            topAnchor.constraint(equalTo: view.topAnchor),
+            bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
+    }
 }

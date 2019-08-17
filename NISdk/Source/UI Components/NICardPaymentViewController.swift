@@ -20,7 +20,7 @@ class NICardPaymentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(hexString: "#F8F8F8")
+        view.backgroundColor = UIColor(hexString: "#EFEFF4")
         let panInputViewController = NIPanInputViewController(onChangeText: onChangePan)
         self.add(panInputViewController)
     }
