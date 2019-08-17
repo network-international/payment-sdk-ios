@@ -57,11 +57,6 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         
         view.addSubview(hStack)
         stackBackgroundView.pinAsBackground(to: hStack)
-        hStack.anchor(top: nil,
-                      leading: view.safeAreaLayoutGuide.leadingAnchor,
-                      bottom: nil,
-                      trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                      padding: .zero,
-                      size: CGSize(width: 0, height: 60))
+        hStack.bindFrameToSuperviewBounds()
     }
 }

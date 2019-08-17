@@ -80,11 +80,6 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         rootHStack.spacing = 60
         
         view.addSubview(rootHStack)
-        rootHStack.anchor(top: nil,
-                      leading: view.safeAreaLayoutGuide.leadingAnchor,
-                      bottom: nil,
-                      trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                      padding: .zero,
-                      size: CGSize(width: 0, height: 60))
+        rootHStack.bindFrameToSuperviewBounds()
     }
 }
