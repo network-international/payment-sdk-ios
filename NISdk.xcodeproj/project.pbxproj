@@ -1,0 +1,714 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		860CCD9222FC212A00B85096 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9122FC212A00B85096 /* Localizable.strings */; };
+		860CCD9F22FC217A00B85096 /* payment_success@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9322FC217900B85096 /* payment_success@2x.png */; };
+		860CCDA022FC217A00B85096 /* card_bg_back_generic@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9422FC217900B85096 /* card_bg_back_generic@2x.png */; };
+		860CCDA122FC217A00B85096 /* card_bg_front_cvv_amex@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9522FC217900B85096 /* card_bg_front_cvv_amex@2x.png */; };
+		860CCDA222FC217A00B85096 /* visa_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9622FC217900B85096 /* visa_card_front@2x.png */; };
+		860CCDA322FC217A00B85096 /* payment_failure@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9722FC217900B85096 /* payment_failure@2x.png */; };
+		860CCDA422FC217A00B85096 /* jcb_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9822FC217900B85096 /* jcb_card_front@2x.png */; };
+		860CCDA522FC217A00B85096 /* amex_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9922FC217900B85096 /* amex_card_front@2x.png */; };
+		860CCDA622FC217A00B85096 /* discover_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9A22FC217900B85096 /* discover_card_front@2x.png */; };
+		860CCDA722FC217A00B85096 /* diners_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9B22FC217900B85096 /* diners_card_front@2x.png */; };
+		860CCDA822FC217A00B85096 /* card_bg_front_generic@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9C22FC217A00B85096 /* card_bg_front_generic@2x.png */; };
+		860CCDAA22FC217A00B85096 /* mc_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9E22FC217A00B85096 /* mc_card_front@2x.png */; };
+		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
+		860CCE0122FC476E00B85096 /* NICardPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0022FC476E00B85096 /* NICardPaymentDelegate.swift */; };
+		860CCE0522FC933200B85096 /* NIPayment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0422FC933200B85096 /* NIPayment.swift */; };
+		860CCE0722FC934700B85096 /* NIOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0622FC934700B85096 /* NIOrder.swift */; };
+		860CCE0922FC945F00B85096 /* NITransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0822FC945F00B85096 /* NITransaction.swift */; };
+		860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0E22FD243000B85096 /* HTTPClient.swift */; };
+		860CCE1122FD3B2000B85096 /* NIOrderInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE1022FD3B2000B85096 /* NIOrderInfo.swift */; };
+		860CCE1522FD3B9C00B85096 /* NITransactionAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE1422FD3B9C00B85096 /* NITransactionAdapter.swift */; };
+		862CBDDD2303EFC800767774 /* NIApplePayDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDDC2303EFC800767774 /* NIApplePayDelegate.swift */; };
+		862CBDE82305493700767774 /* NIAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDE72305493700767774 /* NIAmount.swift */; };
+		862CBDEA23054C7000767774 /* NIBillingAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDE923054C7000767774 /* NIBillingAddress.swift */; };
+		862CBDEC23054C9800767774 /* NIOrderSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDEB23054C9800767774 /* NIOrderSummary.swift */; };
+		862CBDEE23054E1500767774 /* NIFormattedOrderSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDED23054E1500767774 /* NIFormattedOrderSummary.swift */; };
+		862CBDF123058F4200767774 /* NIPaymentTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDF023058F4200767774 /* NIPaymentTypes.swift */; };
+		862CBE2F2305D75D00767774 /* NICardPaymentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE2E2305D75D00767774 /* NICardPaymentViewController.swift */; };
+		862CBE3A230678F000767774 /* OCRA.otf in Resources */ = {isa = PBXBuildFile; fileRef = 862CBE39230678F000767774 /* OCRA.otf */; };
+		862CBE3D23067C2300767774 /* NICardPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE3C23067C2300767774 /* NICardPreview.swift */; };
+		862CBE4023068BD700767774 /* NIPanInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE3F23068BD700767774 /* NIPanInputViewController.swift */; };
+		862CBE4223068C0400767774 /* NIExpiryInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4123068C0400767774 /* NIExpiryInput.swift */; };
+		862CBE4423068C1E00767774 /* NICvvInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4323068C1E00767774 /* NICvvInput.swift */; };
+		862CBE4623068C2900767774 /* NINameInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4523068C2900767774 /* NINameInput.swift */; };
+		862CBE492307443400767774 /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE482307443400767774 /* UIColor+Hex.swift */; };
+		862CBE4B23074A8100767774 /* UIViewController+Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4A23074A8100767774 /* UIViewController+Container.swift */; };
+		862CBE4D2307F9D600767774 /* UIView+AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4C2307F9D600767774 /* UIView+AutoLayout.swift */; };
+		86D2FB5922FC1AE700CF1FA1 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */; };
+		86D2FB5E22FC1AE700CF1FA1 /* NISdkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D2FB5D22FC1AE700CF1FA1 /* NISdkTests.swift */; };
+		86D2FB6022FC1AE700CF1FA1 /* NISdk.h in Headers */ = {isa = PBXBuildFile; fileRef = 86D2FB5222FC1AE700CF1FA1 /* NISdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		86D2FB5A22FC1AE700CF1FA1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 86D2FB4622FC1AE700CF1FA1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 86D2FB4E22FC1AE700CF1FA1;
+			remoteInfo = NISdk;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		860CCD9122FC212A00B85096 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
+		860CCD9322FC217900B85096 /* payment_success@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "payment_success@2x.png"; sourceTree = "<group>"; };
+		860CCD9422FC217900B85096 /* card_bg_back_generic@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "card_bg_back_generic@2x.png"; sourceTree = "<group>"; };
+		860CCD9522FC217900B85096 /* card_bg_front_cvv_amex@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "card_bg_front_cvv_amex@2x.png"; sourceTree = "<group>"; };
+		860CCD9622FC217900B85096 /* visa_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "visa_card_front@2x.png"; sourceTree = "<group>"; };
+		860CCD9722FC217900B85096 /* payment_failure@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "payment_failure@2x.png"; sourceTree = "<group>"; };
+		860CCD9822FC217900B85096 /* jcb_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "jcb_card_front@2x.png"; sourceTree = "<group>"; };
+		860CCD9922FC217900B85096 /* amex_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "amex_card_front@2x.png"; sourceTree = "<group>"; };
+		860CCD9A22FC217900B85096 /* discover_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "discover_card_front@2x.png"; sourceTree = "<group>"; };
+		860CCD9B22FC217900B85096 /* diners_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "diners_card_front@2x.png"; sourceTree = "<group>"; };
+		860CCD9C22FC217A00B85096 /* card_bg_front_generic@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "card_bg_front_generic@2x.png"; sourceTree = "<group>"; };
+		860CCD9E22FC217A00B85096 /* mc_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mc_card_front@2x.png"; sourceTree = "<group>"; };
+		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
+		860CCE0022FC476E00B85096 /* NICardPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICardPaymentDelegate.swift; sourceTree = "<group>"; };
+		860CCE0422FC933200B85096 /* NIPayment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIPayment.swift; sourceTree = "<group>"; };
+		860CCE0622FC934700B85096 /* NIOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIOrder.swift; sourceTree = "<group>"; };
+		860CCE0822FC945F00B85096 /* NITransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NITransaction.swift; sourceTree = "<group>"; };
+		860CCE0E22FD243000B85096 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
+		860CCE1022FD3B2000B85096 /* NIOrderInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIOrderInfo.swift; sourceTree = "<group>"; };
+		860CCE1422FD3B9C00B85096 /* NITransactionAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NITransactionAdapter.swift; sourceTree = "<group>"; };
+		862CBDDC2303EFC800767774 /* NIApplePayDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIApplePayDelegate.swift; sourceTree = "<group>"; };
+		862CBDE72305493700767774 /* NIAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIAmount.swift; sourceTree = "<group>"; };
+		862CBDE923054C7000767774 /* NIBillingAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIBillingAddress.swift; sourceTree = "<group>"; };
+		862CBDEB23054C9800767774 /* NIOrderSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIOrderSummary.swift; sourceTree = "<group>"; };
+		862CBDED23054E1500767774 /* NIFormattedOrderSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIFormattedOrderSummary.swift; sourceTree = "<group>"; };
+		862CBDF023058F4200767774 /* NIPaymentTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIPaymentTypes.swift; sourceTree = "<group>"; };
+		862CBE2E2305D75D00767774 /* NICardPaymentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICardPaymentViewController.swift; sourceTree = "<group>"; };
+		862CBE39230678F000767774 /* OCRA.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = OCRA.otf; sourceTree = "<group>"; };
+		862CBE3C23067C2300767774 /* NICardPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICardPreview.swift; sourceTree = "<group>"; };
+		862CBE3F23068BD700767774 /* NIPanInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIPanInputViewController.swift; sourceTree = "<group>"; };
+		862CBE4123068C0400767774 /* NIExpiryInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIExpiryInput.swift; sourceTree = "<group>"; };
+		862CBE4323068C1E00767774 /* NICvvInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICvvInput.swift; sourceTree = "<group>"; };
+		862CBE4523068C2900767774 /* NINameInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NINameInput.swift; sourceTree = "<group>"; };
+		862CBE482307443400767774 /* UIColor+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
+		862CBE4A23074A8100767774 /* UIViewController+Container.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Container.swift"; sourceTree = "<group>"; };
+		862CBE4C2307F9D600767774 /* UIView+AutoLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+AutoLayout.swift"; sourceTree = "<group>"; };
+		86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NISdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		86D2FB5222FC1AE700CF1FA1 /* NISdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NISdk.h; sourceTree = "<group>"; };
+		86D2FB5322FC1AE700CF1FA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		86D2FB5822FC1AE700CF1FA1 /* NISdkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NISdkTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		86D2FB5D22FC1AE700CF1FA1 /* NISdkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdkTests.swift; sourceTree = "<group>"; };
+		86D2FB5F22FC1AE700CF1FA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		86D2FB4C22FC1AE700CF1FA1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		86D2FB5522FC1AE700CF1FA1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86D2FB5922FC1AE700CF1FA1 /* NISdk.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		860CCD8922FC1F3F00B85096 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				862CBE36230678A300767774 /* Fonts */,
+				860CCD9022FC210100B85096 /* Images */,
+				860CCD8F22FC20F700B85096 /* Localizations */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		860CCD8A22FC1F6500B85096 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				86D2FB5222FC1AE700CF1FA1 /* NISdk.h */,
+				860CCDFE22FC473800B85096 /* NISdk.swift */,
+				860CCE1422FD3B9C00B85096 /* NITransactionAdapter.swift */,
+				860CCE0022FC476E00B85096 /* NICardPaymentDelegate.swift */,
+				862CBDDC2303EFC800767774 /* NIApplePayDelegate.swift */,
+				860CCE0D22FD242100B85096 /* HTTPClient */,
+				860CCE0222FC928500B85096 /* Domain */,
+				860CCD8C22FC202600B85096 /* UI Components */,
+				862CBE47230743BD00767774 /* Extensions */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		860CCD8B22FC1F7F00B85096 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				86D2FB5322FC1AE700CF1FA1 /* Info.plist */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		860CCD8C22FC202600B85096 /* UI Components */ = {
+			isa = PBXGroup;
+			children = (
+				862CBE2E2305D75D00767774 /* NICardPaymentViewController.swift */,
+				862CBE3E2306898900767774 /* Card Input Components */,
+				862CBE3B23067BE800767774 /* Card Preview Components */,
+			);
+			path = "UI Components";
+			sourceTree = "<group>";
+		};
+		860CCD8F22FC20F700B85096 /* Localizations */ = {
+			isa = PBXGroup;
+			children = (
+				860CCD9122FC212A00B85096 /* Localizable.strings */,
+			);
+			path = Localizations;
+			sourceTree = "<group>";
+		};
+		860CCD9022FC210100B85096 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				860CCD9922FC217900B85096 /* amex_card_front@2x.png */,
+				860CCD9422FC217900B85096 /* card_bg_back_generic@2x.png */,
+				860CCD9522FC217900B85096 /* card_bg_front_cvv_amex@2x.png */,
+				860CCD9C22FC217A00B85096 /* card_bg_front_generic@2x.png */,
+				860CCD9B22FC217900B85096 /* diners_card_front@2x.png */,
+				860CCD9A22FC217900B85096 /* discover_card_front@2x.png */,
+				860CCD9822FC217900B85096 /* jcb_card_front@2x.png */,
+				860CCD9E22FC217A00B85096 /* mc_card_front@2x.png */,
+				860CCD9722FC217900B85096 /* payment_failure@2x.png */,
+				860CCD9322FC217900B85096 /* payment_success@2x.png */,
+				860CCD9622FC217900B85096 /* visa_card_front@2x.png */,
+			);
+			path = Images;
+			sourceTree = "<group>";
+		};
+		860CCE0222FC928500B85096 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				862CBDE62305487200767774 /* NIOrder */,
+				860CCE0422FC933200B85096 /* NIPayment.swift */,
+				860CCE0822FC945F00B85096 /* NITransaction.swift */,
+				860CCE1022FD3B2000B85096 /* NIOrderInfo.swift */,
+				862CBDF023058F4200767774 /* NIPaymentTypes.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		860CCE0D22FD242100B85096 /* HTTPClient */ = {
+			isa = PBXGroup;
+			children = (
+				860CCE0E22FD243000B85096 /* HTTPClient.swift */,
+			);
+			path = HTTPClient;
+			sourceTree = "<group>";
+		};
+		862CBDE62305487200767774 /* NIOrder */ = {
+			isa = PBXGroup;
+			children = (
+				860CCE0622FC934700B85096 /* NIOrder.swift */,
+				862CBDE72305493700767774 /* NIAmount.swift */,
+				862CBDE923054C7000767774 /* NIBillingAddress.swift */,
+				862CBDEB23054C9800767774 /* NIOrderSummary.swift */,
+				862CBDED23054E1500767774 /* NIFormattedOrderSummary.swift */,
+			);
+			path = NIOrder;
+			sourceTree = "<group>";
+		};
+		862CBE36230678A300767774 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				862CBE39230678F000767774 /* OCRA.otf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		862CBE3B23067BE800767774 /* Card Preview Components */ = {
+			isa = PBXGroup;
+			children = (
+				862CBE3C23067C2300767774 /* NICardPreview.swift */,
+			);
+			path = "Card Preview Components";
+			sourceTree = "<group>";
+		};
+		862CBE3E2306898900767774 /* Card Input Components */ = {
+			isa = PBXGroup;
+			children = (
+				862CBE3F23068BD700767774 /* NIPanInputViewController.swift */,
+				862CBE4123068C0400767774 /* NIExpiryInput.swift */,
+				862CBE4323068C1E00767774 /* NICvvInput.swift */,
+				862CBE4523068C2900767774 /* NINameInput.swift */,
+			);
+			path = "Card Input Components";
+			sourceTree = "<group>";
+		};
+		862CBE47230743BD00767774 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				862CBE482307443400767774 /* UIColor+Hex.swift */,
+				862CBE4A23074A8100767774 /* UIViewController+Container.swift */,
+				862CBE4C2307F9D600767774 /* UIView+AutoLayout.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		86D2FB4522FC1AE700CF1FA1 = {
+			isa = PBXGroup;
+			children = (
+				86D2FB5122FC1AE700CF1FA1 /* NISdk */,
+				86D2FB5C22FC1AE700CF1FA1 /* NISdkTests */,
+				86D2FB5022FC1AE700CF1FA1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		86D2FB5022FC1AE700CF1FA1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */,
+				86D2FB5822FC1AE700CF1FA1 /* NISdkTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		86D2FB5122FC1AE700CF1FA1 /* NISdk */ = {
+			isa = PBXGroup;
+			children = (
+				860CCD8B22FC1F7F00B85096 /* Supporting Files */,
+				860CCD8A22FC1F6500B85096 /* Source */,
+				860CCD8922FC1F3F00B85096 /* Resources */,
+			);
+			path = NISdk;
+			sourceTree = "<group>";
+		};
+		86D2FB5C22FC1AE700CF1FA1 /* NISdkTests */ = {
+			isa = PBXGroup;
+			children = (
+				86D2FB5D22FC1AE700CF1FA1 /* NISdkTests.swift */,
+				86D2FB5F22FC1AE700CF1FA1 /* Info.plist */,
+			);
+			path = NISdkTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		86D2FB4A22FC1AE700CF1FA1 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86D2FB6022FC1AE700CF1FA1 /* NISdk.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		86D2FB4E22FC1AE700CF1FA1 /* NISdk */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 86D2FB6322FC1AE700CF1FA1 /* Build configuration list for PBXNativeTarget "NISdk" */;
+			buildPhases = (
+				86D2FB4A22FC1AE700CF1FA1 /* Headers */,
+				86D2FB4B22FC1AE700CF1FA1 /* Sources */,
+				86D2FB4C22FC1AE700CF1FA1 /* Frameworks */,
+				86D2FB4D22FC1AE700CF1FA1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NISdk;
+			productName = NISdk;
+			productReference = 86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		86D2FB5722FC1AE700CF1FA1 /* NISdkTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 86D2FB6622FC1AE700CF1FA1 /* Build configuration list for PBXNativeTarget "NISdkTests" */;
+			buildPhases = (
+				86D2FB5422FC1AE700CF1FA1 /* Sources */,
+				86D2FB5522FC1AE700CF1FA1 /* Frameworks */,
+				86D2FB5622FC1AE700CF1FA1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				86D2FB5B22FC1AE700CF1FA1 /* PBXTargetDependency */,
+			);
+			name = NISdkTests;
+			productName = NISdkTests;
+			productReference = 86D2FB5822FC1AE700CF1FA1 /* NISdkTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		86D2FB4622FC1AE700CF1FA1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1030;
+				LastUpgradeCheck = 1030;
+				ORGANIZATIONNAME = "Network International";
+				TargetAttributes = {
+					86D2FB4E22FC1AE700CF1FA1 = {
+						CreatedOnToolsVersion = 10.3;
+						LastSwiftMigration = 1030;
+					};
+					86D2FB5722FC1AE700CF1FA1 = {
+						CreatedOnToolsVersion = 10.3;
+					};
+				};
+			};
+			buildConfigurationList = 86D2FB4922FC1AE700CF1FA1 /* Build configuration list for PBXProject "NISdk" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 86D2FB4522FC1AE700CF1FA1;
+			productRefGroup = 86D2FB5022FC1AE700CF1FA1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				86D2FB4E22FC1AE700CF1FA1 /* NISdk */,
+				86D2FB5722FC1AE700CF1FA1 /* NISdkTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		86D2FB4D22FC1AE700CF1FA1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				860CCDA122FC217A00B85096 /* card_bg_front_cvv_amex@2x.png in Resources */,
+				860CCDA722FC217A00B85096 /* diners_card_front@2x.png in Resources */,
+				860CCD9222FC212A00B85096 /* Localizable.strings in Resources */,
+				860CCDAA22FC217A00B85096 /* mc_card_front@2x.png in Resources */,
+				860CCDA822FC217A00B85096 /* card_bg_front_generic@2x.png in Resources */,
+				860CCDA422FC217A00B85096 /* jcb_card_front@2x.png in Resources */,
+				860CCDA022FC217A00B85096 /* card_bg_back_generic@2x.png in Resources */,
+				860CCDA222FC217A00B85096 /* visa_card_front@2x.png in Resources */,
+				860CCDA622FC217A00B85096 /* discover_card_front@2x.png in Resources */,
+				860CCDA322FC217A00B85096 /* payment_failure@2x.png in Resources */,
+				862CBE3A230678F000767774 /* OCRA.otf in Resources */,
+				860CCD9F22FC217A00B85096 /* payment_success@2x.png in Resources */,
+				860CCDA522FC217A00B85096 /* amex_card_front@2x.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		86D2FB5622FC1AE700CF1FA1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		86D2FB4B22FC1AE700CF1FA1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				862CBE4D2307F9D600767774 /* UIView+AutoLayout.swift in Sources */,
+				862CBE492307443400767774 /* UIColor+Hex.swift in Sources */,
+				862CBDEC23054C9800767774 /* NIOrderSummary.swift in Sources */,
+				862CBE4B23074A8100767774 /* UIViewController+Container.swift in Sources */,
+				862CBE3D23067C2300767774 /* NICardPreview.swift in Sources */,
+				860CCE0122FC476E00B85096 /* NICardPaymentDelegate.swift in Sources */,
+				860CCE0522FC933200B85096 /* NIPayment.swift in Sources */,
+				862CBE4623068C2900767774 /* NINameInput.swift in Sources */,
+				862CBDEE23054E1500767774 /* NIFormattedOrderSummary.swift in Sources */,
+				862CBE2F2305D75D00767774 /* NICardPaymentViewController.swift in Sources */,
+				860CCE0922FC945F00B85096 /* NITransaction.swift in Sources */,
+				860CCDFF22FC473800B85096 /* NISdk.swift in Sources */,
+				862CBE4223068C0400767774 /* NIExpiryInput.swift in Sources */,
+				862CBDE82305493700767774 /* NIAmount.swift in Sources */,
+				860CCE1122FD3B2000B85096 /* NIOrderInfo.swift in Sources */,
+				862CBDF123058F4200767774 /* NIPaymentTypes.swift in Sources */,
+				860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */,
+				862CBDEA23054C7000767774 /* NIBillingAddress.swift in Sources */,
+				862CBDDD2303EFC800767774 /* NIApplePayDelegate.swift in Sources */,
+				862CBE4023068BD700767774 /* NIPanInputViewController.swift in Sources */,
+				860CCE0722FC934700B85096 /* NIOrder.swift in Sources */,
+				860CCE1522FD3B9C00B85096 /* NITransactionAdapter.swift in Sources */,
+				862CBE4423068C1E00767774 /* NICvvInput.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		86D2FB5422FC1AE700CF1FA1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86D2FB5E22FC1AE700CF1FA1 /* NISdkTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		86D2FB5B22FC1AE700CF1FA1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 86D2FB4E22FC1AE700CF1FA1 /* NISdk */;
+			targetProxy = 86D2FB5A22FC1AE700CF1FA1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		86D2FB6122FC1AE700CF1FA1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		86D2FB6222FC1AE700CF1FA1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		86D2FB6422FC1AE700CF1FA1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "$(SRCROOT)/NISdk/Supporting Files/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 9;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ae.network.gateway.sdk;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		86D2FB6522FC1AE700CF1FA1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "$(SRCROOT)/NISdk/Supporting Files/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 9;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ae.network.gateway.sdk;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		86D2FB6722FC1AE700CF1FA1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = NISdkTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ae.network.NISdkTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		86D2FB6822FC1AE700CF1FA1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = NISdkTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = ae.network.NISdkTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		86D2FB4922FC1AE700CF1FA1 /* Build configuration list for PBXProject "NISdk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86D2FB6122FC1AE700CF1FA1 /* Debug */,
+				86D2FB6222FC1AE700CF1FA1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		86D2FB6322FC1AE700CF1FA1 /* Build configuration list for PBXNativeTarget "NISdk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86D2FB6422FC1AE700CF1FA1 /* Debug */,
+				86D2FB6522FC1AE700CF1FA1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		86D2FB6622FC1AE700CF1FA1 /* Build configuration list for PBXNativeTarget "NISdkTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				86D2FB6722FC1AE700CF1FA1 /* Debug */,
+				86D2FB6822FC1AE700CF1FA1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 86D2FB4622FC1AE700CF1FA1 /* Project object */;
+}
