@@ -16,6 +16,18 @@ class CardPaymentViewController: UIViewController {
     var expiryYearValue: String?
     var cvvValue: String?
     var nameValue: String?
+    let transactionService: TransactionService
+    let order: Order
+    
+    init(transactionService: TransactionService, order: Order) {
+        self.transactionService = transactionService
+        self.order = order
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     @objc func onChangePan(textField: UITextField) {
         self.panValue = textField.text
@@ -40,6 +52,10 @@ class CardPaymentViewController: UIViewController {
     @objc func onChangeName(textField: UITextField) {
         self.nameValue = textField.text
         print(self.nameValue ?? "")
+    }
+    
+    @objc func payButtonAction() {
+        
     }
 
     func setupCardInputForm() {
@@ -117,6 +133,20 @@ class CardPaymentViewController: UIViewController {
         stackBackgroundView.addBorder(.top, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
         stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
         stackBackgroundView.pinAsBackground(to: vStack)
+        
+        let payButton = UIButton()
+        payButton.backgroundColor = .black
+        payButton.setTitleColor(.white, for: .normal)
+        payButton.setTitle("Pay", for: .normal)
+        payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
+        
+        view.addSubview(payButton)
+        payButton.anchor(top: vStack.bottomAnchor,
+                         leading: view.safeAreaLayoutGuide.leadingAnchor,
+                         bottom: nil,
+                         trailing: view.safeAreaLayoutGuide.trailingAnchor,
+                         padding: UIEdgeInsets(top: 100, left: 20, bottom: 20, right: 20),
+                         size: CGSize(width: 0, height: 50))
     }
     
     override func viewDidLoad() {

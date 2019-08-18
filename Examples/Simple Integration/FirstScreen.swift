@@ -12,7 +12,7 @@ import NISdk
 
 class FirstScreen: UIViewController, CardPaymentDelegate {
     let payButton = UIButton()
-    var fetchedOrder: NIOrder?
+    var fetchedOrder: Order?
     
     func paymentDidStart() {
         
@@ -34,12 +34,11 @@ class FirstScreen: UIViewController, CardPaymentDelegate {
                 (data, urlresponse, error) in
                 if let data = data {
                     do {
-                        let orderResponse: NIOrder = try JSONDecoder().decode(NIOrder.self, from: data)
+                        let orderResponse: Order = try JSONDecoder().decode(Order.self, from: data)
                         self.fetchedOrder = orderResponse
                         print(orderResponse.type ?? "Not found");
                     } catch let error {
                         print("Error: \(error)")
-
                     }
 
                 }

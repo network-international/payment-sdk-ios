@@ -1,5 +1,5 @@
 //
-//  NIPaymentTypes.swift
+//  PaymentTypes.swift
 //  NISdk
 //
 //  Created by Johnny Peter on 15/08/19.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class NIPaymentTypes: Codable {
+public class PaymentTypes: Codable {
     var card: [CardProviders]
     var wallet: [WalletProviders]
     
@@ -27,15 +27,15 @@ public class NIPaymentTypes: Codable {
     }
     
     
-    private enum NIPaymentTypesCodingKeys: String, CodingKey {
+    private enum PaymentTypesCodingKeys: String, CodingKey {
         case card
         case wallet
     }
     
     required public init(from decoder: Decoder) throws {
-        let NIPaymentTypesContainer = try decoder.container(keyedBy: NIPaymentTypesCodingKeys.self)
+        let PaymentTypesContainer = try decoder.container(keyedBy: PaymentTypesCodingKeys.self)
 
-        card = try NIPaymentTypesContainer.decode([CardProviders].self, forKey: .card)
-        wallet = try NIPaymentTypesContainer.decode([WalletProviders].self, forKey: .wallet)
+        card = try PaymentTypesContainer.decode([CardProviders].self, forKey: .card)
+        wallet = try PaymentTypesContainer.decode([WalletProviders].self, forKey: .wallet)
     }
 }
