@@ -13,22 +13,44 @@ public enum HTTPClientErrors: Error {
 }
 
 public class HTTPClient {
-    let session = URLSession.shared
-    public var url: URL?
+    let session: URLSession
+    let request: NSMutableURLRequest
     
-    public init() {}
+    public init?(url: String) {
+        if let url = URL(string: url) {
+            self.session = URLSession(configuration: URLSessionConfiguration.default)
+            self.request = NSMutableURLRequest(url: url)
+            self.request.httpMethod = "GET" // default value
+        } else {
+            print("Invalid url")
+            return nil
+        }
+    }
     
-    public func with(url: String) -> HTTPClient {
-        self.url = URL(string: url)
-        return self;
+    public func withMethod(method: String) -> HTTPClient {
+        request.httpMethod = method
+        return self
+    }
+    
+    public func withHeaders(headers: [String: String]) -> HTTPClient {
+        for(key, value) in headers {
+            request.addValue(key, forHTTPHeaderField: value)
+        }
+        return self
+    }
+    
+    public func withBodyData(data: Data) -> HTTPClient {
+        request.httpBody = data
+        return self
+    }
+    
+    public func withBodyData(data: String) -> HTTPClient {
+        request.httpBody = data.data(using: .utf8)
+        return self
     }
     
     public func makeRequest(with completionHandler: @escaping ((Data?, URLResponse?, Error?) -> Void)) {
-        if let url = self.url {
-            let request = session.dataTask(with: url, completionHandler: completionHandler)
-            request.resume()
-        } else {
-            completionHandler(nil, nil, HTTPClientErrors.missingUrl);
-        }
+            let task = session.dataTask(with: self.request as URLRequest, completionHandler: completionHandler)
+            task.resume()
     }
 }

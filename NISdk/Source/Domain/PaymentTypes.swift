@@ -26,7 +26,6 @@ public class PaymentTypes: Codable {
         case chinaUnionPay
     }
     
-    
     private enum PaymentTypesCodingKeys: String, CodingKey {
         case card
         case wallet

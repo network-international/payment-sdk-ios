@@ -9,6 +9,17 @@
 import Foundation
 
 @objc public protocol CardPaymentDelegate {
-    @objc func paymentDidStart()
+    
+    // authorisation event cycles
+    @objc optional func authorizationWillBegin()
+    @objc optional func authorizationDidBegin()
+    @objc optional func authorizationDidComplete(with status: String)
+    
+    // payment event cycles
+    @objc optional func paymentDidBegin()
     @objc func paymentDidComplete(with status: String)
+    
+    // 3ds challenge cycles
+    @objc optional func threeDSChallengeDidBegin()
+    @objc optional func threeDSChallengeDidComplete(with status: String)
 }

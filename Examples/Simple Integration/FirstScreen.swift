@@ -14,11 +14,7 @@ class FirstScreen: UIViewController, CardPaymentDelegate {
     let payButton = UIButton()
     var fetchedOrder: Order?
     
-    func paymentDidStart() {
-        
-    }
-    
-    func paymentDidComplete(with status: String) {
+    @objc func paymentDidComplete(with status: String) {
         
     }
     
@@ -28,8 +24,7 @@ class FirstScreen: UIViewController, CardPaymentDelegate {
         view.backgroundColor = .white
         
         // Fire request to create order
-        HTTPClient()
-            .with(url: "http://localhost:3000/sampleOrder")
+        HTTPClient(url: "http://localhost:3000/sampleOrder")?
             .makeRequest {
                 (data, urlresponse, error) in
                 if let data = data {

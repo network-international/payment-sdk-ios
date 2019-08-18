@@ -137,9 +137,9 @@
 			children = (
 				86D2FB5222FC1AE700CF1FA1 /* NISdk.h */,
 				860CCDFE22FC473800B85096 /* NISdk.swift */,
-				860CCE1422FD3B9C00B85096 /* TransactionServiceAdapter.swift */,
 				860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */,
 				862CBDDC2303EFC800767774 /* ApplePayDelegate.swift */,
+				860CCE1422FD3B9C00B85096 /* TransactionServiceAdapter.swift */,
 				860CCE0D22FD242100B85096 /* HTTPClient */,
 				860CCE0222FC928500B85096 /* Domain */,
 				860CCD8C22FC202600B85096 /* UI Components */,

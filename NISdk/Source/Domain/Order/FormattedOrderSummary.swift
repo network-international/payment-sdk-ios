@@ -14,7 +14,7 @@ public struct FormattedOrderSummary {
 
 extension FormattedOrderSummary: Codable {
     
-    private enum  FormattedOrderSummaryCodingKeys: String, CodingKey {
+    private enum FormattedOrderSummaryCodingKeys: String, CodingKey {
         case total
     }
     
