@@ -16,7 +16,6 @@ extension UIViewController {
             child.view.bindFrameToSuperviewBounds()
         } else {
             view.addSubview(child.view)
-
         }
     }
     

@@ -14,6 +14,8 @@ class NICardPaymentViewController: UIViewController {
     var panValue: String?
     var expiryMonthValue: String?
     var expiryYearValue: String?
+    var cvvValue: String?
+    var nameValue: String?
     
     @objc func onChangePan(textField: UITextField) {
         self.panValue = textField.text
@@ -29,11 +31,20 @@ class NICardPaymentViewController: UIViewController {
         self.expiryYearValue = textField.text
         print(self.expiryYearValue ?? "")
     }
+    
+    @objc func onChangeCVV(textField: UITextField) {
+        self.cvvValue = textField.text
+        print(self.cvvValue ?? "")
+    }
+    
+    @objc func onChangeName(textField: UITextField) {
+        self.nameValue = textField.text
+        print(self.nameValue ?? "")
+    }
 
     func setupCardInputForm() {
+        // Setup Pan field
         let panInputVC = PanInputVC(onChangeText: onChangePan)
-        let expiryVC = ExpiryInputVC(onChangeMonth: onChangeMonth, onChangeYear: onChangeYear)
-
         let panContainer = UIView()
         view.addSubview(panContainer)
         panContainer.anchor(top: nil,
@@ -42,7 +53,11 @@ class NICardPaymentViewController: UIViewController {
                          trailing: view.safeAreaLayoutGuide.trailingAnchor,
                          padding: .zero,
                          size: CGSize(width: 0, height: 60))
+        add(panInputVC, inside: panContainer)
+        panInputVC.didMove(toParent: self)
         
+        // Setup Expiry field
+        let expiryInputVC = ExpiryInputVC(onChangeMonth: onChangeMonth, onChangeYear: onChangeYear)
         let expiryContainer = UIView()
         view.addSubview(expiryContainer)
         expiryContainer.anchor(top: nil,
@@ -51,15 +66,38 @@ class NICardPaymentViewController: UIViewController {
                             trailing: view.safeAreaLayoutGuide.trailingAnchor,
                             padding: .zero,
                             size: CGSize(width: 0, height: 60))
+        add(expiryInputVC, inside: expiryContainer)
+        expiryInputVC.didMove(toParent: self)
+
         
+        // Setup CVV field
+        let cvvInputVC = CvvInputVC(onChangeText: onChangeCVV)
+        let cvvContainer = UIView()
+        view.addSubview(cvvContainer)
+        cvvContainer.anchor(top: nil,
+                            leading: view.safeAreaLayoutGuide.leadingAnchor,
+                            bottom: nil,
+                            trailing: view.safeAreaLayoutGuide.trailingAnchor,
+                            padding: .zero,
+                            size: CGSize(width: 0, height: 60))
+        add(cvvInputVC, inside: cvvContainer)
+        cvvInputVC.didMove(toParent: self)
         
-        add(panInputVC, inside: panContainer)
-        add(expiryVC, inside: expiryContainer)
+        // Setup Name field
+        let nameInputVC = NameInputVC(onChangeText: onChangeName)
+        let nameContainer = UIView()
+        view.addSubview(nameContainer)
+        nameContainer.anchor(top: nil,
+                            leading: view.safeAreaLayoutGuide.leadingAnchor,
+                            bottom: nil,
+                            trailing: view.safeAreaLayoutGuide.trailingAnchor,
+                            padding: .zero,
+                            size: CGSize(width: 0, height: 60))
+        add(nameInputVC, inside: nameContainer)
+        nameInputVC.didMove(toParent: self)
         
-        let vStack = UIStackView(arrangedSubviews: [panContainer, expiryContainer])
+        let vStack = UIStackView(arrangedSubviews: [panContainer, expiryContainer, cvvContainer, nameContainer])
         
-        panInputVC.didMove(toParent: self)
-        expiryVC.didMove(toParent: self)
         
         vStack.axis = .vertical
         vStack.spacing = 0
@@ -76,6 +114,8 @@ class NICardPaymentViewController: UIViewController {
         
         let stackBackgroundView = UIView()
         stackBackgroundView.backgroundColor = .white
+        stackBackgroundView.addBorder(.top, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
+        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
         stackBackgroundView.pinAsBackground(to: vStack)
     }
     

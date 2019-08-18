@@ -37,7 +37,6 @@ class FirstScreen: UIViewController, NICardPaymentDelegate {
                         let orderResponse: NIOrder = try JSONDecoder().decode(NIOrder.self, from: data)
                         self.fetchedOrder = orderResponse
                         print(orderResponse.type ?? "Not found");
-
                     } catch let error {
                         print("Error: \(error)")
 

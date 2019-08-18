@@ -38,8 +38,8 @@
 		862CBE3D23067C2300767774 /* NICardPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE3C23067C2300767774 /* NICardPreview.swift */; };
 		862CBE4023068BD700767774 /* PanInputVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE3F23068BD700767774 /* PanInputVC.swift */; };
 		862CBE4223068C0400767774 /* ExpiryInputVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4123068C0400767774 /* ExpiryInputVC.swift */; };
-		862CBE4423068C1E00767774 /* NICvvInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4323068C1E00767774 /* NICvvInput.swift */; };
-		862CBE4623068C2900767774 /* NINameInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4523068C2900767774 /* NINameInput.swift */; };
+		862CBE4423068C1E00767774 /* CvvInputVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4323068C1E00767774 /* CvvInputVC.swift */; };
+		862CBE4623068C2900767774 /* NameInputVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4523068C2900767774 /* NameInputVC.swift */; };
 		862CBE492307443400767774 /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE482307443400767774 /* UIColor+Hex.swift */; };
 		862CBE4B23074A8100767774 /* UIViewController+Container.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4A23074A8100767774 /* UIViewController+Container.swift */; };
 		862CBE4D2307F9D600767774 /* UIView+AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE4C2307F9D600767774 /* UIView+AutoLayout.swift */; };
@@ -91,8 +91,8 @@
 		862CBE3C23067C2300767774 /* NICardPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICardPreview.swift; sourceTree = "<group>"; };
 		862CBE3F23068BD700767774 /* PanInputVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanInputVC.swift; sourceTree = "<group>"; };
 		862CBE4123068C0400767774 /* ExpiryInputVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryInputVC.swift; sourceTree = "<group>"; };
-		862CBE4323068C1E00767774 /* NICvvInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICvvInput.swift; sourceTree = "<group>"; };
-		862CBE4523068C2900767774 /* NINameInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NINameInput.swift; sourceTree = "<group>"; };
+		862CBE4323068C1E00767774 /* CvvInputVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CvvInputVC.swift; sourceTree = "<group>"; };
+		862CBE4523068C2900767774 /* NameInputVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameInputVC.swift; sourceTree = "<group>"; };
 		862CBE482307443400767774 /* UIColor+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
 		862CBE4A23074A8100767774 /* UIViewController+Container.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Container.swift"; sourceTree = "<group>"; };
 		862CBE4C2307F9D600767774 /* UIView+AutoLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+AutoLayout.swift"; sourceTree = "<group>"; };
@@ -247,8 +247,8 @@
 			children = (
 				862CBE3F23068BD700767774 /* PanInputVC.swift */,
 				862CBE4123068C0400767774 /* ExpiryInputVC.swift */,
-				862CBE4323068C1E00767774 /* NICvvInput.swift */,
-				862CBE4523068C2900767774 /* NINameInput.swift */,
+				862CBE4323068C1E00767774 /* CvvInputVC.swift */,
+				862CBE4523068C2900767774 /* NameInputVC.swift */,
 			);
 			path = "Card Input Components";
 			sourceTree = "<group>";
@@ -430,7 +430,7 @@
 				862CBE3D23067C2300767774 /* NICardPreview.swift in Sources */,
 				860CCE0122FC476E00B85096 /* NICardPaymentDelegate.swift in Sources */,
 				860CCE0522FC933200B85096 /* NIPayment.swift in Sources */,
-				862CBE4623068C2900767774 /* NINameInput.swift in Sources */,
+				862CBE4623068C2900767774 /* NameInputVC.swift in Sources */,
 				862CBE5123089EDB00767774 /* UIView+Border.swift in Sources */,
 				862CBDEE23054E1500767774 /* NIFormattedOrderSummary.swift in Sources */,
 				862CBE2F2305D75D00767774 /* NICardPaymentViewController.swift in Sources */,
@@ -446,7 +446,7 @@
 				862CBE4023068BD700767774 /* PanInputVC.swift in Sources */,
 				860CCE0722FC934700B85096 /* NIOrder.swift in Sources */,
 				860CCE1522FD3B9C00B85096 /* NITransactionAdapter.swift in Sources */,
-				862CBE4423068C1E00767774 /* NICvvInput.swift in Sources */,
+				862CBE4423068C1E00767774 /* CvvInputVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

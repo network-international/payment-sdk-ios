@@ -49,17 +49,14 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
     }
     
     override func viewDidLoad() {
-        super .viewDidLoad()
+        super.viewDidLoad()
         
         self.setup(textField: monthTextField, placeholder: "MM", huggingPriority: nil)
         monthTextField.addTarget(self, action: #selector(onMonthChangeCallback), for: .editingChanged)
         
         self.setup(textField: yearTextField, placeholder: "YY", huggingPriority: 249)
         yearTextField.addTarget(self, action: #selector(onYearChangeCallback), for: .editingChanged)
-        
-        let stackBackgroundView = UIView()
-        stackBackgroundView.backgroundColor = .white
-        
+                
         let label = UILabel()
         label.text = "Expires"
         
@@ -80,6 +77,11 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         rootHStack.spacing = 60
         
         view.addSubview(rootHStack)
+        
+        let stackBackgroundView = UIView()
+        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
+        stackBackgroundView.pinAsBackground(to: rootHStack)
+        
         rootHStack.bindFrameToSuperviewBounds()
     }
 }

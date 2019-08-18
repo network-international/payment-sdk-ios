@@ -32,19 +32,15 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
 //    }
     
     override func viewDidLoad() {
-        super .viewDidLoad()
+        super.viewDidLoad()
         panTextField.placeholder = "Card Number"
         panTextField.text = ""
-        panTextField.borderStyle = UITextField.BorderStyle.none
+        panTextField.borderStyle = .none
         panTextField.backgroundColor = .white
         panTextField.textColor = .black
         panTextField.delegate = self
         panTextField.addTarget(self, action: #selector(onPanFieldChange), for: .editingChanged)
         panTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
-        
-        let stackBackgroundView = UIView()
-        stackBackgroundView.layoutIfNeeded()
-        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
 
         let label = UILabel()
         label.text = "Number"
@@ -56,7 +52,11 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         hStack.spacing = 50
         
         view.addSubview(hStack)
+        
+        let stackBackgroundView = UIView()
+        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
         stackBackgroundView.pinAsBackground(to: hStack)
+        
         hStack.bindFrameToSuperviewBounds()
     }
 }
