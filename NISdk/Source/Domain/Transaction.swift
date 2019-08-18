@@ -9,6 +9,6 @@
 import Foundation
 
 /* protocol conforming to transaction service */
-@objc public protocol NITransaction {
+@objc public protocol Transaction {
     @objc func makePayment(for order: NIOrder, with paymentToken: String)
 }

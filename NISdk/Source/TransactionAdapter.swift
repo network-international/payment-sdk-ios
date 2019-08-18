@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc public final class NITransactionAdapter: NSObject, NITransaction {
+@objc public final class TransactionAdapter: NSObject, Transaction {
     public func getPaymentToken(for authCode: String) {
     
     }

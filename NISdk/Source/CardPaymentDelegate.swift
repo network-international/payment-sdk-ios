@@ -8,7 +8,7 @@
 
 import Foundation
 
-@objc public protocol NICardPaymentDelegate {
+@objc public protocol CardPaymentDelegate {
     @objc func paymentDidStart()
     @objc func paymentDidComplete(with status: String)
 }

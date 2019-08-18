@@ -10,7 +10,7 @@ import UIKit
 import NISdk
 
 
-class FirstScreen: UIViewController, NICardPaymentDelegate {
+class FirstScreen: UIViewController, CardPaymentDelegate {
     let payButton = UIButton()
     var fetchedOrder: NIOrder?
     

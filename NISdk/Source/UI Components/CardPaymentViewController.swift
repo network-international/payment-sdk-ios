@@ -10,7 +10,7 @@ import UIKit
 
 typealias onChangeTextClosure = (UITextField) -> Void
 
-class NICardPaymentViewController: UIViewController {
+class CardPaymentViewController: UIViewController {
     var panValue: String?
     var expiryMonthValue: String?
     var expiryYearValue: String?

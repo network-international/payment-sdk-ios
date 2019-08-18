@@ -14,10 +14,10 @@ import Foundation
     
     private override init() { super.init() }
     
-    public func showCardPaymentView(withDelegate: NICardPaymentDelegate,
+    public func showCardPaymentView(withDelegate: CardPaymentDelegate,
                              overParent parentViewController: UIViewController,
                              for order: NIOrder) {
-        let cardPaymentViewController = NICardPaymentViewController()
+        let cardPaymentViewController = CardPaymentViewController()
         parentViewController.present(cardPaymentViewController, animated: false)
     }
 }

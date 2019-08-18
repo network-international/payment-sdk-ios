@@ -20,20 +20,19 @@
 		860CCDA822FC217A00B85096 /* card_bg_front_generic@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9C22FC217A00B85096 /* card_bg_front_generic@2x.png */; };
 		860CCDAA22FC217A00B85096 /* mc_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9E22FC217A00B85096 /* mc_card_front@2x.png */; };
 		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
-		860CCE0122FC476E00B85096 /* NICardPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0022FC476E00B85096 /* NICardPaymentDelegate.swift */; };
-		860CCE0522FC933200B85096 /* NIPayment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0422FC933200B85096 /* NIPayment.swift */; };
+		860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */; };
+		860CCE0522FC933200B85096 /* Payment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0422FC933200B85096 /* Payment.swift */; };
 		860CCE0722FC934700B85096 /* NIOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0622FC934700B85096 /* NIOrder.swift */; };
-		860CCE0922FC945F00B85096 /* NITransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0822FC945F00B85096 /* NITransaction.swift */; };
+		860CCE0922FC945F00B85096 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0822FC945F00B85096 /* Transaction.swift */; };
 		860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0E22FD243000B85096 /* HTTPClient.swift */; };
-		860CCE1122FD3B2000B85096 /* NIOrderInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE1022FD3B2000B85096 /* NIOrderInfo.swift */; };
-		860CCE1522FD3B9C00B85096 /* NITransactionAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE1422FD3B9C00B85096 /* NITransactionAdapter.swift */; };
-		862CBDDD2303EFC800767774 /* NIApplePayDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDDC2303EFC800767774 /* NIApplePayDelegate.swift */; };
+		860CCE1522FD3B9C00B85096 /* TransactionAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE1422FD3B9C00B85096 /* TransactionAdapter.swift */; };
+		862CBDDD2303EFC800767774 /* ApplePayDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDDC2303EFC800767774 /* ApplePayDelegate.swift */; };
 		862CBDE82305493700767774 /* NIAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDE72305493700767774 /* NIAmount.swift */; };
 		862CBDEA23054C7000767774 /* NIBillingAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDE923054C7000767774 /* NIBillingAddress.swift */; };
 		862CBDEC23054C9800767774 /* NIOrderSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDEB23054C9800767774 /* NIOrderSummary.swift */; };
 		862CBDEE23054E1500767774 /* NIFormattedOrderSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDED23054E1500767774 /* NIFormattedOrderSummary.swift */; };
 		862CBDF123058F4200767774 /* NIPaymentTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDF023058F4200767774 /* NIPaymentTypes.swift */; };
-		862CBE2F2305D75D00767774 /* NICardPaymentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE2E2305D75D00767774 /* NICardPaymentViewController.swift */; };
+		862CBE2F2305D75D00767774 /* CardPaymentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE2E2305D75D00767774 /* CardPaymentViewController.swift */; };
 		862CBE3A230678F000767774 /* OCRA.otf in Resources */ = {isa = PBXBuildFile; fileRef = 862CBE39230678F000767774 /* OCRA.otf */; };
 		862CBE3D23067C2300767774 /* NICardPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE3C23067C2300767774 /* NICardPreview.swift */; };
 		862CBE4023068BD700767774 /* PanInputVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE3F23068BD700767774 /* PanInputVC.swift */; };
@@ -73,20 +72,19 @@
 		860CCD9C22FC217A00B85096 /* card_bg_front_generic@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "card_bg_front_generic@2x.png"; sourceTree = "<group>"; };
 		860CCD9E22FC217A00B85096 /* mc_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mc_card_front@2x.png"; sourceTree = "<group>"; };
 		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
-		860CCE0022FC476E00B85096 /* NICardPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICardPaymentDelegate.swift; sourceTree = "<group>"; };
-		860CCE0422FC933200B85096 /* NIPayment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIPayment.swift; sourceTree = "<group>"; };
+		860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentDelegate.swift; sourceTree = "<group>"; };
+		860CCE0422FC933200B85096 /* Payment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Payment.swift; sourceTree = "<group>"; };
 		860CCE0622FC934700B85096 /* NIOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIOrder.swift; sourceTree = "<group>"; };
-		860CCE0822FC945F00B85096 /* NITransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NITransaction.swift; sourceTree = "<group>"; };
+		860CCE0822FC945F00B85096 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		860CCE0E22FD243000B85096 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
-		860CCE1022FD3B2000B85096 /* NIOrderInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIOrderInfo.swift; sourceTree = "<group>"; };
-		860CCE1422FD3B9C00B85096 /* NITransactionAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NITransactionAdapter.swift; sourceTree = "<group>"; };
-		862CBDDC2303EFC800767774 /* NIApplePayDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIApplePayDelegate.swift; sourceTree = "<group>"; };
+		860CCE1422FD3B9C00B85096 /* TransactionAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionAdapter.swift; sourceTree = "<group>"; };
+		862CBDDC2303EFC800767774 /* ApplePayDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplePayDelegate.swift; sourceTree = "<group>"; };
 		862CBDE72305493700767774 /* NIAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIAmount.swift; sourceTree = "<group>"; };
 		862CBDE923054C7000767774 /* NIBillingAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIBillingAddress.swift; sourceTree = "<group>"; };
 		862CBDEB23054C9800767774 /* NIOrderSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIOrderSummary.swift; sourceTree = "<group>"; };
 		862CBDED23054E1500767774 /* NIFormattedOrderSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIFormattedOrderSummary.swift; sourceTree = "<group>"; };
 		862CBDF023058F4200767774 /* NIPaymentTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIPaymentTypes.swift; sourceTree = "<group>"; };
-		862CBE2E2305D75D00767774 /* NICardPaymentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICardPaymentViewController.swift; sourceTree = "<group>"; };
+		862CBE2E2305D75D00767774 /* CardPaymentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentViewController.swift; sourceTree = "<group>"; };
 		862CBE39230678F000767774 /* OCRA.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = OCRA.otf; sourceTree = "<group>"; };
 		862CBE3C23067C2300767774 /* NICardPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NICardPreview.swift; sourceTree = "<group>"; };
 		862CBE3F23068BD700767774 /* PanInputVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanInputVC.swift; sourceTree = "<group>"; };
@@ -139,9 +137,9 @@
 			children = (
 				86D2FB5222FC1AE700CF1FA1 /* NISdk.h */,
 				860CCDFE22FC473800B85096 /* NISdk.swift */,
-				860CCE1422FD3B9C00B85096 /* NITransactionAdapter.swift */,
-				860CCE0022FC476E00B85096 /* NICardPaymentDelegate.swift */,
-				862CBDDC2303EFC800767774 /* NIApplePayDelegate.swift */,
+				860CCE1422FD3B9C00B85096 /* TransactionAdapter.swift */,
+				860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */,
+				862CBDDC2303EFC800767774 /* ApplePayDelegate.swift */,
 				860CCE0D22FD242100B85096 /* HTTPClient */,
 				860CCE0222FC928500B85096 /* Domain */,
 				860CCD8C22FC202600B85096 /* UI Components */,
@@ -161,7 +159,7 @@
 		860CCD8C22FC202600B85096 /* UI Components */ = {
 			isa = PBXGroup;
 			children = (
-				862CBE2E2305D75D00767774 /* NICardPaymentViewController.swift */,
+				862CBE2E2305D75D00767774 /* CardPaymentViewController.swift */,
 				862CBE3E2306898900767774 /* Card Input Components */,
 				862CBE3B23067BE800767774 /* Card Preview Components */,
 			);
@@ -198,9 +196,8 @@
 			isa = PBXGroup;
 			children = (
 				862CBDE62305487200767774 /* NIOrder */,
-				860CCE0422FC933200B85096 /* NIPayment.swift */,
-				860CCE0822FC945F00B85096 /* NITransaction.swift */,
-				860CCE1022FD3B2000B85096 /* NIOrderInfo.swift */,
+				860CCE0822FC945F00B85096 /* Transaction.swift */,
+				860CCE0422FC933200B85096 /* Payment.swift */,
 				862CBDF023058F4200767774 /* NIPaymentTypes.swift */,
 			);
 			path = Domain;
@@ -428,24 +425,23 @@
 				862CBDEC23054C9800767774 /* NIOrderSummary.swift in Sources */,
 				862CBE4B23074A8100767774 /* UIViewController+Container.swift in Sources */,
 				862CBE3D23067C2300767774 /* NICardPreview.swift in Sources */,
-				860CCE0122FC476E00B85096 /* NICardPaymentDelegate.swift in Sources */,
-				860CCE0522FC933200B85096 /* NIPayment.swift in Sources */,
+				860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */,
+				860CCE0522FC933200B85096 /* Payment.swift in Sources */,
 				862CBE4623068C2900767774 /* NameInputVC.swift in Sources */,
 				862CBE5123089EDB00767774 /* UIView+Border.swift in Sources */,
 				862CBDEE23054E1500767774 /* NIFormattedOrderSummary.swift in Sources */,
-				862CBE2F2305D75D00767774 /* NICardPaymentViewController.swift in Sources */,
-				860CCE0922FC945F00B85096 /* NITransaction.swift in Sources */,
+				862CBE2F2305D75D00767774 /* CardPaymentViewController.swift in Sources */,
+				860CCE0922FC945F00B85096 /* Transaction.swift in Sources */,
 				860CCDFF22FC473800B85096 /* NISdk.swift in Sources */,
 				862CBE4223068C0400767774 /* ExpiryInputVC.swift in Sources */,
 				862CBDE82305493700767774 /* NIAmount.swift in Sources */,
-				860CCE1122FD3B2000B85096 /* NIOrderInfo.swift in Sources */,
 				862CBDF123058F4200767774 /* NIPaymentTypes.swift in Sources */,
 				860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */,
 				862CBDEA23054C7000767774 /* NIBillingAddress.swift in Sources */,
-				862CBDDD2303EFC800767774 /* NIApplePayDelegate.swift in Sources */,
+				862CBDDD2303EFC800767774 /* ApplePayDelegate.swift in Sources */,
 				862CBE4023068BD700767774 /* PanInputVC.swift in Sources */,
 				860CCE0722FC934700B85096 /* NIOrder.swift in Sources */,
-				860CCE1522FD3B9C00B85096 /* NITransactionAdapter.swift in Sources */,
+				860CCE1522FD3B9C00B85096 /* TransactionAdapter.swift in Sources */,
 				862CBE4423068C1E00767774 /* CvvInputVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
