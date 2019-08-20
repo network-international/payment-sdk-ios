@@ -18,6 +18,10 @@ class FirstScreen: UIViewController, CardPaymentDelegate {
         
     }
     
+    @objc func authorizationDidComplete(with status: AuthorizationStatus) {
+        
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupPayButton()
@@ -61,7 +65,7 @@ class FirstScreen: UIViewController, CardPaymentDelegate {
     @objc func payButtonTapped() {
         let sharedSDKInstance = NISdk.sharedInstance
         if let order = self.fetchedOrder {
-            sharedSDKInstance.showCardPaymentView(withDelegate: self, overParent: self, for: order)
+            sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: self, overParent: self, for: order)
         }
     }
 }

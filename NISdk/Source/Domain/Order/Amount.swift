@@ -19,7 +19,7 @@ public struct Amount: Codable {
     
     public init(from decoder: Decoder) throws {
         let AmountContainer = try decoder.container(keyedBy: AmountCodingKeys.self)
-        currencyCode = try AmountContainer.decode(String.self, forKey: .currencyCode)
-        value = try AmountContainer.decode(Int.self, forKey: .value)
+        currencyCode = try AmountContainer.decodeIfPresent(String.self, forKey: .currencyCode)
+        value = try AmountContainer.decodeIfPresent(Int.self, forKey: .value)
     }
 }

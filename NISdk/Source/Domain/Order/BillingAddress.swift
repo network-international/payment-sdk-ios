@@ -9,11 +9,11 @@
 import Foundation
 
 public struct BillingAddress: Codable {
-    let firstName: String
-    let lastName: String
-    let address1: String
-    let city: String
-    let countryCode: String
+    let firstName: String?
+    let lastName: String?
+    let address1: String?
+    let city: String?
+    let countryCode: String?
     
     private enum  BillingAddressCodingKeys: String, CodingKey {
         case firstName
@@ -25,10 +25,10 @@ public struct BillingAddress: Codable {
     
     public init(from decoder: Decoder) throws {
         let BillingAddressContainer = try decoder.container(keyedBy: BillingAddressCodingKeys.self)
-        firstName = try BillingAddressContainer.decode(String.self, forKey: .firstName)
-        lastName = try BillingAddressContainer.decode(String.self, forKey: .lastName)
-        address1 = try BillingAddressContainer.decode(String.self, forKey: .address1)
-        city = try BillingAddressContainer.decode(String.self, forKey: .city)
-        countryCode = try BillingAddressContainer.decode(String.self, forKey: .countryCode)
+        firstName = try BillingAddressContainer.decodeIfPresent(String.self, forKey: .firstName)
+        lastName = try BillingAddressContainer.decodeIfPresent(String.self, forKey: .lastName)
+        address1 = try BillingAddressContainer.decodeIfPresent(String.self, forKey: .address1)
+        city = try BillingAddressContainer.decodeIfPresent(String.self, forKey: .city)
+        countryCode = try BillingAddressContainer.decodeIfPresent(String.self, forKey: .countryCode)
     }
 }

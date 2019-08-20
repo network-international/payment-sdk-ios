@@ -14,14 +14,11 @@ import Foundation
     
     private override init() { super.init() }
     
-    public func showCardPaymentView(withDelegate: CardPaymentDelegate,
+    public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
                              overParent parentViewController: UIViewController,
                              for order: Order) {
         
-        let transactionServiceAdapter = TransactionServiceAdapter()
-        let cardPaymentViewController = CardPaymentViewController(
-            transactionService: transactionServiceAdapter, order: order)
-        
-        parentViewController.present(cardPaymentViewController, animated: false)
+        let paymentViewController = PaymentViewController(order: order, and: cardPaymentDelegate)
+        parentViewController.present(paymentViewController, animated: false)
     }
 }

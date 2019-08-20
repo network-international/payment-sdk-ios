@@ -12,6 +12,8 @@ public enum HTTPClientErrors: Error {
     case missingUrl
 }
 
+public typealias HttpResponseCallback = (Data?, URLResponse?, Error?) -> Void
+
 public class HTTPClient {
     let session: URLSession
     let request: NSMutableURLRequest
@@ -49,7 +51,7 @@ public class HTTPClient {
         return self
     }
     
-    public func makeRequest(with completionHandler: @escaping ((Data?, URLResponse?, Error?) -> Void)) {
+    public func makeRequest(with completionHandler: @escaping (HttpResponseCallback)) {
             let task = session.dataTask(with: self.request as URLRequest, completionHandler: completionHandler)
             task.resume()
     }

@@ -9,7 +9,7 @@
 import Foundation
 
 public struct OrderSummary {
-    public let total: Amount
+    public let total: Amount?
 }
 
 extension OrderSummary: Codable {
@@ -20,6 +20,6 @@ extension OrderSummary: Codable {
     
     public init(from decoder: Decoder) throws {
         let OrderSummaryContainer = try decoder.container(keyedBy: OrderSummaryCodingKeys.self)
-        total = try OrderSummaryContainer.decode(Amount.self, forKey: .total)
+        total = try OrderSummaryContainer.decodeIfPresent(Amount.self, forKey: .total)
     }
 }

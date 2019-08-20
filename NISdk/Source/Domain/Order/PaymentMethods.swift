@@ -8,9 +8,9 @@
 
 import Foundation
 
-public class PaymentTypes: Codable {
-    var card: [CardProviders]
-    var wallet: [WalletProviders]
+public class PaymentMethods: Codable {
+    var card: [CardProviders]?
+    var wallet: [WalletProviders]?
     
     public enum CardProviders: String, Codable {
         case visa

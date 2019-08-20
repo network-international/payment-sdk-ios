@@ -20,6 +20,6 @@ extension FormattedOrderSummary: Codable {
     
     public init(from decoder: Decoder) throws {
         let FormattedOrderSummaryContainer = try decoder.container(keyedBy: FormattedOrderSummaryCodingKeys.self)
-        total = try FormattedOrderSummaryContainer.decode(String.self, forKey: .total)
+        total = try FormattedOrderSummaryContainer.decodeIfPresent(String.self, forKey: .total)
     }
 }

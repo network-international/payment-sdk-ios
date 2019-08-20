@@ -9,8 +9,17 @@
 import Foundation
 
 /* protocol conforming to transaction service */
-@objc public protocol TransactionService {
-    @objc func authorisePayment(for authCode: String)
-    @objc func getOrder(with orderId: String, under outlet: String, using paymentToken: String)
-    @objc func makePayment(for order: Order, using paymentToken: String)
+@objc protocol TransactionService {
+    @objc func authorizePayment(for authCode: String,
+                                using authorizationLink: String,
+                                on completion: @escaping (String?) -> Void)
+    
+    @objc func getOrder(with orderId: String,
+                        under outlet: String,
+                        using paymentToken: String)
+    
+    @objc func makePayment(for order: Order,
+                           with paymentInfo: Payment,
+                           using paymentToken: String,
+                           on completion: @escaping (HttpResponseCallback))
 }

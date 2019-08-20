@@ -11,17 +11,11 @@ import UIKit
 typealias onChangeTextClosure = (UITextField) -> Void
 
 class CardPaymentViewController: UIViewController {
-    var panValue: String?
-    var expiryMonthValue: String?
-    var expiryYearValue: String?
-    var cvvValue: String?
-    var nameValue: String?
-    let transactionService: TransactionService
-    let order: Order
+    var makePaymentCallback: MakePaymentCallback
+    let payment = Payment()
     
-    init(transactionService: TransactionService, order: Order) {
-        self.transactionService = transactionService
-        self.order = order
+    init(makePaymentCallback: @escaping MakePaymentCallback) {
+        self.makePaymentCallback = makePaymentCallback
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -29,33 +23,34 @@ class CardPaymentViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = UIColor(hexString: "#EFEFF4")
+        self.setupCardInputForm()
+    }
+    
     @objc func onChangePan(textField: UITextField) {
-        self.panValue = textField.text
-        print(self.panValue ?? "")
+        payment.set(pan: textField.text ?? "")
     }
     
     @objc func onChangeMonth(textField: UITextField) {
-        self.expiryMonthValue = textField.text
-        print(self.expiryMonthValue ?? "")
+        payment.set(expiryMonth: textField.text ?? "")
     }
     
     @objc func onChangeYear(textField: UITextField) {
-        self.expiryYearValue = textField.text
-        print(self.expiryYearValue ?? "")
+        payment.set(expiryYear: textField.text ?? "")
     }
     
     @objc func onChangeCVV(textField: UITextField) {
-        self.cvvValue = textField.text
-        print(self.cvvValue ?? "")
+        payment.set(cvv: textField.text ?? "")
     }
     
     @objc func onChangeName(textField: UITextField) {
-        self.nameValue = textField.text
-        print(self.nameValue ?? "")
+        payment.set(cardHolderName: textField.text ?? "")
     }
     
     @objc func payButtonAction() {
-        
+        makePaymentCallback(payment)
     }
 
     func setupCardInputForm() {
@@ -113,8 +108,6 @@ class CardPaymentViewController: UIViewController {
         nameInputVC.didMove(toParent: self)
         
         let vStack = UIStackView(arrangedSubviews: [panContainer, expiryContainer, cvvContainer, nameContainer])
-        
-        
         vStack.axis = .vertical
         vStack.spacing = 0
         vStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
@@ -147,11 +140,5 @@ class CardPaymentViewController: UIViewController {
                          trailing: view.safeAreaLayoutGuide.trailingAnchor,
                          padding: UIEdgeInsets(top: 100, left: 20, bottom: 20, right: 20),
                          size: CGSize(width: 0, height: 50))
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = UIColor(hexString: "#EFEFF4")
-        self.setupCardInputForm()
     }
 }
