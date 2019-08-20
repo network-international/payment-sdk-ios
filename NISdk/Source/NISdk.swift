@@ -16,7 +16,7 @@ import Foundation
     
     public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
                              overParent parentViewController: UIViewController,
-                             for order: Order) {
+                             for order: OrderResponse) {
         
         let paymentViewController = PaymentViewController(order: order, and: cardPaymentDelegate)
         parentViewController.present(paymentViewController, animated: false)

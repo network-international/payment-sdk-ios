@@ -15,7 +15,7 @@ import Foundation
                                  using authorizationLink: String,
                                  on completion: @escaping (String?) -> Void) {
         
-        let authorizationRequestHeaders = ["Accept":"application/vnd.ni-payment.v2+json",
+        let authorizationRequestHeaders = ["Accept": "application/vnd.ni-payment.v2+json",
                                            "Media-Type": "application/x-www-form-urlencoded",
                                            "Content-Type": "application/x-www-form-urlencoded"]
         HTTPClient(url: authorizationLink)?
@@ -43,19 +43,21 @@ import Foundation
             })
     }
     
-    // Use this to fetch order details
+    // Use this to fetch order details TODO
     public func getOrder(with orderId: String, under outlet: String, using paymentToken: String) {
         // _links.self.href
         // "https://api-gateway-dev.ngenius-payments.com/transactions/outlets/0411acca-92f2-4305-a732-ac0f105d2a40/orders/403eeb5f-9987-4a91-9a18-03ee189f0a08"
     }
     
     // Use this to make payment against an order
-    public func makePayment(for order: Order,
-                            with paymentInfo: Payment,
+    public func makePayment(for order: OrderResponse,
+                            with paymentInfo: PaymentRequest,
                             using paymentToken: String,
                             on completion: @escaping (HttpResponseCallback)) {
         
-        let paymentRequestHeaders = ["Authorization":"Bearer \(paymentToken)", "Content-Type":"application/vnd.ni-payment.v2+json"]
+        let paymentRequestHeaders = ["Authorization": "Bearer \(paymentToken)",
+                                     "Content-Type": "application/vnd.ni-payment.v2+json"]
+        
         let paymentData = try! JSONEncoder().encode(paymentInfo)
         let paymentDataJsonString = String(data: paymentData, encoding: .utf8)!
         

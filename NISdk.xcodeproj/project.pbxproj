@@ -21,8 +21,8 @@
 		860CCDAA22FC217A00B85096 /* mc_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9E22FC217A00B85096 /* mc_card_front@2x.png */; };
 		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
 		860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */; };
-		860CCE0522FC933200B85096 /* Payment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0422FC933200B85096 /* Payment.swift */; };
-		860CCE0722FC934700B85096 /* Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0622FC934700B85096 /* Order.swift */; };
+		860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0422FC933200B85096 /* PaymentRequest.swift */; };
+		860CCE0722FC934700B85096 /* OrderResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0622FC934700B85096 /* OrderResponse.swift */; };
 		860CCE0922FC945F00B85096 /* TransactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0822FC945F00B85096 /* TransactionService.swift */; };
 		860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0E22FD243000B85096 /* HTTPClient.swift */; };
 		860CCE1522FD3B9C00B85096 /* TransactionServiceAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE1422FD3B9C00B85096 /* TransactionServiceAdapter.swift */; };
@@ -47,6 +47,9 @@
 		862CBE55230A5F0C00767774 /* URL+QueryParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE54230A5F0C00767774 /* URL+QueryParams.swift */; };
 		862CBE57230A63F300767774 /* PaymentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE56230A63F300767774 /* PaymentViewController.swift */; };
 		862CBE59230A641E00767774 /* AutorizationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE58230A641E00767774 /* AutorizationViewController.swift */; };
+		862CBE5E230C66BC00767774 /* EmbeddedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE5D230C66BC00767774 /* EmbeddedData.swift */; };
+		862CBE60230C6D0100767774 /* PaymentResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE5F230C6D0100767774 /* PaymentResponse.swift */; };
+		862CBE64230C800900767774 /* PaymentLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE63230C800900767774 /* PaymentLinks.swift */; };
 		86D2FB5922FC1AE700CF1FA1 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */; };
 		86D2FB5E22FC1AE700CF1FA1 /* NISdkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D2FB5D22FC1AE700CF1FA1 /* NISdkTests.swift */; };
 		86D2FB6022FC1AE700CF1FA1 /* NISdk.h in Headers */ = {isa = PBXBuildFile; fileRef = 86D2FB5222FC1AE700CF1FA1 /* NISdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -77,8 +80,8 @@
 		860CCD9E22FC217A00B85096 /* mc_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mc_card_front@2x.png"; sourceTree = "<group>"; };
 		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
 		860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentDelegate.swift; sourceTree = "<group>"; };
-		860CCE0422FC933200B85096 /* Payment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Payment.swift; sourceTree = "<group>"; };
-		860CCE0622FC934700B85096 /* Order.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Order.swift; sourceTree = "<group>"; };
+		860CCE0422FC933200B85096 /* PaymentRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentRequest.swift; sourceTree = "<group>"; };
+		860CCE0622FC934700B85096 /* OrderResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderResponse.swift; sourceTree = "<group>"; };
 		860CCE0822FC945F00B85096 /* TransactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionService.swift; sourceTree = "<group>"; };
 		860CCE0E22FD243000B85096 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
 		860CCE1422FD3B9C00B85096 /* TransactionServiceAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionServiceAdapter.swift; sourceTree = "<group>"; };
@@ -103,6 +106,9 @@
 		862CBE54230A5F0C00767774 /* URL+QueryParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+QueryParams.swift"; sourceTree = "<group>"; };
 		862CBE56230A63F300767774 /* PaymentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentViewController.swift; sourceTree = "<group>"; };
 		862CBE58230A641E00767774 /* AutorizationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutorizationViewController.swift; sourceTree = "<group>"; };
+		862CBE5D230C66BC00767774 /* EmbeddedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddedData.swift; sourceTree = "<group>"; };
+		862CBE5F230C6D0100767774 /* PaymentResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentResponse.swift; sourceTree = "<group>"; };
+		862CBE63230C800900767774 /* PaymentLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentLinks.swift; sourceTree = "<group>"; };
 		86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NISdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		86D2FB5222FC1AE700CF1FA1 /* NISdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NISdk.h; sourceTree = "<group>"; };
 		86D2FB5322FC1AE700CF1FA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -205,9 +211,9 @@
 		860CCE0222FC928500B85096 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				862CBE61230C7F9100767774 /* Transaction Service Responses */,
 				860CCE0822FC945F00B85096 /* TransactionService.swift */,
-				860CCE0422FC933200B85096 /* Payment.swift */,
-				862CBDE62305487200767774 /* Order */,
+				860CCE0422FC933200B85096 /* PaymentRequest.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -218,20 +224,6 @@
 				860CCE0E22FD243000B85096 /* HTTPClient.swift */,
 			);
 			path = HTTPClient;
-			sourceTree = "<group>";
-		};
-		862CBDE62305487200767774 /* Order */ = {
-			isa = PBXGroup;
-			children = (
-				860CCE0622FC934700B85096 /* Order.swift */,
-				862CBDE72305493700767774 /* Amount.swift */,
-				862CBDE923054C7000767774 /* BillingAddress.swift */,
-				862CBDEB23054C9800767774 /* OrderSummary.swift */,
-				862CBDED23054E1500767774 /* FormattedOrderSummary.swift */,
-				862CBE52230A4F4D00767774 /* OrderLinks.swift */,
-				862CBDF023058F4200767774 /* PaymentMethods.swift */,
-			);
-			path = Order;
 			sourceTree = "<group>";
 		};
 		862CBE36230678A300767774 /* Fonts */ = {
@@ -271,6 +263,23 @@
 				862CBE54230A5F0C00767774 /* URL+QueryParams.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		862CBE61230C7F9100767774 /* Transaction Service Responses */ = {
+			isa = PBXGroup;
+			children = (
+				860CCE0622FC934700B85096 /* OrderResponse.swift */,
+				862CBE5F230C6D0100767774 /* PaymentResponse.swift */,
+				862CBDE72305493700767774 /* Amount.swift */,
+				862CBDE923054C7000767774 /* BillingAddress.swift */,
+				862CBDEB23054C9800767774 /* OrderSummary.swift */,
+				862CBDED23054E1500767774 /* FormattedOrderSummary.swift */,
+				862CBE52230A4F4D00767774 /* OrderLinks.swift */,
+				862CBDF023058F4200767774 /* PaymentMethods.swift */,
+				862CBE5D230C66BC00767774 /* EmbeddedData.swift */,
+				862CBE63230C800900767774 /* PaymentLinks.swift */,
+			);
+			path = "Transaction Service Responses";
 			sourceTree = "<group>";
 		};
 		86D2FB4522FC1AE700CF1FA1 = {
@@ -440,7 +449,7 @@
 				862CBE4B23074A8100767774 /* UIViewController+Container.swift in Sources */,
 				862CBE3D23067C2300767774 /* CardPreview.swift in Sources */,
 				860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */,
-				860CCE0522FC933200B85096 /* Payment.swift in Sources */,
+				860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */,
 				862CBE4623068C2900767774 /* NameInputVC.swift in Sources */,
 				862CBE5123089EDB00767774 /* UIView+Border.swift in Sources */,
 				862CBDEE23054E1500767774 /* FormattedOrderSummary.swift in Sources */,
@@ -449,15 +458,18 @@
 				860CCDFF22FC473800B85096 /* NISdk.swift in Sources */,
 				862CBE4223068C0400767774 /* ExpiryInputVC.swift in Sources */,
 				862CBDE82305493700767774 /* Amount.swift in Sources */,
+				862CBE60230C6D0100767774 /* PaymentResponse.swift in Sources */,
+				862CBE5E230C66BC00767774 /* EmbeddedData.swift in Sources */,
 				862CBDF123058F4200767774 /* PaymentMethods.swift in Sources */,
 				860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */,
 				862CBE55230A5F0C00767774 /* URL+QueryParams.swift in Sources */,
 				862CBDEA23054C7000767774 /* BillingAddress.swift in Sources */,
 				862CBDDD2303EFC800767774 /* ApplePayDelegate.swift in Sources */,
 				862CBE4023068BD700767774 /* PanInputVC.swift in Sources */,
-				860CCE0722FC934700B85096 /* Order.swift in Sources */,
+				860CCE0722FC934700B85096 /* OrderResponse.swift in Sources */,
 				862CBE59230A641E00767774 /* AutorizationViewController.swift in Sources */,
 				860CCE1522FD3B9C00B85096 /* TransactionServiceAdapter.swift in Sources */,
+				862CBE64230C800900767774 /* PaymentLinks.swift in Sources */,
 				862CBE4423068C1E00767774 /* CvvInputVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

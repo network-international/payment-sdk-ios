@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias MakePaymentCallback = (Payment) -> Void
+typealias MakePaymentCallback = (PaymentRequest) -> Void
 
 class PaymentViewController: UIViewController {
     private var state: State?
@@ -16,10 +16,10 @@ class PaymentViewController: UIViewController {
     
     private let transactionService = TransactionServiceAdapter()
     private let cardPaymentDelegate: CardPaymentDelegate
-    private let order: Order
+    private let order: OrderResponse
     private var paymentToken: String?
     
-    init(order: Order, and cardPaymentDelegate: CardPaymentDelegate) {
+    init(order: OrderResponse, and cardPaymentDelegate: CardPaymentDelegate) {
         self.order = order
         self.cardPaymentDelegate = cardPaymentDelegate
         super.init(nibName: nil, bundle: nil)
@@ -70,8 +70,16 @@ class PaymentViewController: UIViewController {
         }
     }
     
-    private func makePayment(paymentInfo: Payment) -> Void {
+    private func makePayment(paymentRequest: PaymentRequest) -> Void {
         // 3. Make Payment
+        
+        /* payment token below is safely force unwrapped
+         as its gauranteed to contain a value else
+         the vc would have been closed */
+        transactionService.makePayment(for: order, with: paymentRequest, using: paymentToken!, on: {
+            data, response, error in
+            
+        })
         // 4. Intermediatory checks for payment failure attempts and anything else
         // 5. Close Screen if payment is done
     }

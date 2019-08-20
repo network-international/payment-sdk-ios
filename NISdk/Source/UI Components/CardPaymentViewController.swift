@@ -12,7 +12,7 @@ typealias onChangeTextClosure = (UITextField) -> Void
 
 class CardPaymentViewController: UIViewController {
     var makePaymentCallback: MakePaymentCallback
-    let payment = Payment()
+    let paymentRequest = PaymentRequest()
     
     init(makePaymentCallback: @escaping MakePaymentCallback) {
         self.makePaymentCallback = makePaymentCallback
@@ -30,27 +30,27 @@ class CardPaymentViewController: UIViewController {
     }
     
     @objc func onChangePan(textField: UITextField) {
-        payment.set(pan: textField.text ?? "")
+        paymentRequest.set(pan: textField.text ?? "")
     }
     
     @objc func onChangeMonth(textField: UITextField) {
-        payment.set(expiryMonth: textField.text ?? "")
+        paymentRequest.set(expiryMonth: textField.text ?? "")
     }
     
     @objc func onChangeYear(textField: UITextField) {
-        payment.set(expiryYear: textField.text ?? "")
+        paymentRequest.set(expiryYear: textField.text ?? "")
     }
     
     @objc func onChangeCVV(textField: UITextField) {
-        payment.set(cvv: textField.text ?? "")
+        paymentRequest.set(cvv: textField.text ?? "")
     }
     
     @objc func onChangeName(textField: UITextField) {
-        payment.set(cardHolderName: textField.text ?? "")
+        paymentRequest.set(cardHolderName: textField.text ?? "")
     }
     
     @objc func payButtonAction() {
-        makePaymentCallback(payment)
+        makePaymentCallback(paymentRequest)
     }
 
     func setupCardInputForm() {

@@ -18,8 +18,8 @@ import Foundation
                         under outlet: String,
                         using paymentToken: String)
     
-    @objc func makePayment(for order: Order,
-                           with paymentInfo: Payment,
+    @objc func makePayment(for order: OrderResponse,
+                           with paymentInfo: PaymentRequest,
                            using paymentToken: String,
                            on completion: @escaping (HttpResponseCallback))
 }

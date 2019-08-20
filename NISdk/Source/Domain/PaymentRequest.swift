@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Payment: NSObject, Codable {
+class PaymentRequest: NSObject, Codable {
     var pan: String?
     var expiryMonth: String?
     var expiryYear: String?
@@ -30,6 +30,15 @@ class Payment: NSObject, Codable {
         expiryYear = nil
         cvv = nil
         cardHolderName = nil
+    }
+    
+    init(pan: String, expiryMonth: String, expiryYear: String,
+         cvv: String, cardHolderName: String) {
+        self.pan = pan
+        self.expiryMonth = expiryMonth
+        self.expiryYear = expiryYear
+        self.cvv = cvv
+        self.cardHolderName = cardHolderName
     }
     
     func set(pan: String) {
