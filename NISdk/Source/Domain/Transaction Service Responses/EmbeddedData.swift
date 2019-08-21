@@ -23,7 +23,7 @@ extension EmbeddedData: Codable {
     
     public init(from decoder: Decoder) throws {
         let embeddedDataContainer = try decoder.container(keyedBy: EmbeddedDataCodingKeys.self)
-        order = try embeddedDataContainer.decode([OrderResponse].self, forKey: .order)
-        payment = try embeddedDataContainer.decode([PaymentResponse].self, forKey: .payment)
+        order = try embeddedDataContainer.decodeIfPresent([OrderResponse].self, forKey: .order)
+        payment = try embeddedDataContainer.decodeIfPresent([PaymentResponse].self, forKey: .payment)
     }
 }

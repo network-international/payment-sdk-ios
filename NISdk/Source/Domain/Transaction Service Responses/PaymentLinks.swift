@@ -17,9 +17,9 @@ public struct PaymentLinks {
 extension PaymentLinks: Codable {
     
     private enum OrderLinksCodingKeys: String, CodingKey {
-        case paymentLink = "cnp:payment-link"
-        case cardPaymentLink = "payment-authorization"
-        case savedCardPaymentLink = "self"
+        case paymentLink = "self"
+        case cardPaymentLink = "payment:card"
+        case savedCardPaymentLink = "payment:saved-card"
     }
     
     private enum hrefCodingKeys: String, CodingKey {

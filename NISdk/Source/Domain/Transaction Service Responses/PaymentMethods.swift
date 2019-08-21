@@ -13,14 +13,15 @@ public class PaymentMethods: Codable {
     var wallet: [WalletProviders]?
     
     public enum CardProviders: String, Codable {
-        case visa
-        case masterCard
-        case dinersClubInternational
-        case jcb
-        case americanExpress
+        case visa = "VISA"
+        case masterCard = "MASTERCARD"
+        case dinersClubInternational = "DINERS_CLUB_INTERNATIONAL"
+        case jcb = "JCB"
+        case americanExpress = "AMERICAN_EXPRESS"
+        case discover = "DISCOVER"
     }
     
-    public enum WalletProviders: String, Codable {
+    public enum WalletProviders: String, Codable, CaseIterable {
         case applePay
         case samsungPay
         case chinaUnionPay
@@ -34,7 +35,7 @@ public class PaymentMethods: Codable {
     required public init(from decoder: Decoder) throws {
         let PaymentTypesContainer = try decoder.container(keyedBy: PaymentTypesCodingKeys.self)
 
-        card = try PaymentTypesContainer.decode([CardProviders].self, forKey: .card)
-        wallet = try PaymentTypesContainer.decode([WalletProviders].self, forKey: .wallet)
+        card = try PaymentTypesContainer.decodeIfPresent([CardProviders].self, forKey: .card)
+        wallet = try PaymentTypesContainer.decodeIfPresent([WalletProviders].self, forKey: .wallet)
     }
 }
