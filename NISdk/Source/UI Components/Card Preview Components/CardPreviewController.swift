@@ -8,9 +8,22 @@
 
 import Foundation
 
-//  -> card background color
-
 class CardPreviewController: UIViewController {
+    var panLabel: UILabel?
+    var cardHolderNameLabel: UILabel?
+    var expiryDateLabel: UILabel?
+    let defaultPanText = "---- ---- ---- ----"
+    let defaultNameLabelText = "---"
+    let defaultExpiryLabelText = "--/--"
+    
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -50,19 +63,36 @@ class CardPreviewController: UIViewController {
         return containerView
     }
     
+    @objc func didChangePan(_ notification: Notification) {
+        if let data = notification.userInfo, let panLabel = panLabel {
+            let pan = data["value"] as? String ?? ""
+            if (pan).isEmpty {
+               panLabel.text = defaultPanText
+            } else {
+                panLabel.text = pan
+            }
+        }
+    }
+
+    
     func setupPanView() -> UIView {
         let containerView = UIView()
-        let panLabel = UILabel()
-        panLabel.font = UIFont(name: "OCRA", size: 20.0)
-        
-        panLabel.textColor = .white
-        panLabel.text = "---- ---- ---- ----"
-        containerView.addSubview(panLabel)
-        panLabel.anchor(top: containerView.topAnchor,
-                        leading: containerView.leadingAnchor,
-                        bottom: containerView.bottomAnchor,
-                        trailing: containerView.trailingAnchor,
-                        padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0))
+        panLabel = UILabel()
+        if let panLabel = panLabel {
+            panLabel.font = UIFont(name: "OCRA", size: 20.0)
+            
+            panLabel.textColor = .white
+            NotificationCenter.default.addObserver(self,
+                                                   selector: #selector(didChangePan(_:)),
+                                                   name: .didChangePan, object: nil)
+            panLabel.text = defaultPanText
+            containerView.addSubview(panLabel)
+            panLabel.anchor(top: containerView.topAnchor,
+                            leading: containerView.leadingAnchor,
+                            bottom: containerView.bottomAnchor,
+                            trailing: containerView.trailingAnchor,
+                            padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0))
+        }
         return containerView
     }
     
@@ -71,7 +101,7 @@ class CardPreviewController: UIViewController {
         let nameLabel = UILabel()
         nameLabel.font = UIFont(name: "OCRA", size: 13.0)
         nameLabel.textColor = .white
-        nameLabel.text = "---"
+        nameLabel.text = defaultNameLabelText
         containerView.addSubview(nameLabel)
         
         nameLabel.anchor(top: containerView.topAnchor,
@@ -83,7 +113,7 @@ class CardPreviewController: UIViewController {
         let expiryLabel = UILabel()
         expiryLabel.font = UIFont(name: "OCRA", size: 13.0)
         expiryLabel.textColor = .white
-        expiryLabel.text = "--/--"
+        expiryLabel.text = defaultExpiryLabelText
         containerView.addSubview(expiryLabel)
         
         expiryLabel.anchor(top: containerView.topAnchor,

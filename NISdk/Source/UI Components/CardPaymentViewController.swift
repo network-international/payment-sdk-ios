@@ -13,7 +13,10 @@ typealias onChangeTextClosure = (UITextField) -> Void
 class CardPaymentViewController: UIViewController {
     // data properties
     var makePaymentCallback: MakePaymentCallback
-    let paymentRequest = PaymentRequest()
+    let pan = Pan()
+    let cvv = Cvv()
+    let cardHolderName = CardHolderName()
+    let expiryDate = ExpiryDate()
     
     // ui properties
     let cardPreviewContainer = UIView()
@@ -36,27 +39,38 @@ class CardPaymentViewController: UIViewController {
     }
     
     @objc func onChangePan(textField: UITextField) {
-        paymentRequest.set(pan: textField.text ?? "")
+        pan.value = textField.text ?? ""
     }
     
     @objc func onChangeMonth(textField: UITextField) {
-        paymentRequest.set(expiryMonth: textField.text ?? "")
+        expiryDate.month = textField.text ?? ""
     }
     
     @objc func onChangeYear(textField: UITextField) {
-        paymentRequest.set(expiryYear: textField.text ?? "")
+        expiryDate.year = textField.text ?? ""
     }
     
     @objc func onChangeCVV(textField: UITextField) {
-        paymentRequest.set(cvv: textField.text ?? "")
+        cvv.value = textField.text ?? ""
     }
     
     @objc func onChangeName(textField: UITextField) {
-        paymentRequest.set(cardHolderName: textField.text ?? "")
+        cardHolderName.value = textField.text ?? ""
     }
     
     @objc func payButtonAction() {
-        makePaymentCallback(paymentRequest)
+        if let pan = pan.value,
+            let expiryMonth = expiryDate.month,
+            let expiryYear = expiryDate.year,
+            let cvv = cvv.value,
+            let cardHolderName = cardHolderName.value {
+            let paymentRequest = PaymentRequest(pan: pan,
+                                                expiryMonth: expiryMonth,
+                                                expiryYear: expiryYear,
+                                                cvv: cvv,
+                                                cardHolderName: cardHolderName)
+            makePaymentCallback(paymentRequest)
+        }
     }
     
     func setupCardPreviewComponent() {

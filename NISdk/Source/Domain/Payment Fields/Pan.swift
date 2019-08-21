@@ -7,3 +7,21 @@
 //
 
 import Foundation
+
+class Pan {
+     var value: String? {
+        didSet {
+            if let value = self.value {
+                let isValid = self.validatePan()
+                NotificationCenter.default.post(name: .didChangePan,
+                                                object: self,
+                                                userInfo: ["value": value, "isValid": isValid])
+            }
+        }
+    }
+    
+    func validatePan() -> Bool {
+        return true
+    }
+}
+

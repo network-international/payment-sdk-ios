@@ -1,27 +1,26 @@
 //
-//  cvv.swift
+//  Name.swift
 //  NISdk
 //
-//  Created by Johnny Peter on 21/08/19.
+//  Created by Johnny Peter on 22/08/19.
 //  Copyright © 2019 Network International. All rights reserved.
 //
 
 import Foundation
 
-class Cvv {
+class CardHolderName {
     var value: String? {
         didSet {
             if let value = self.value {
-                let isValid = self.validateCvv()
-                NotificationCenter.default.post(name: .didChangeCVV,
+                let isValid = self.validateCardHolderName()
+                NotificationCenter.default.post(name: .didChangeCardHolderName,
                                                 object: self,
                                                 userInfo: ["value": value, "isValid": isValid])
             }
         }
     }
     
-    func validateCvv() -> Bool {
+    func validateCardHolderName() -> Bool {
         return true
     }
 }
-
