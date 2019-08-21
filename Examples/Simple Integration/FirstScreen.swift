@@ -11,7 +11,7 @@ import NISdk
 
 
 class FirstScreen: UIViewController, CardPaymentDelegate {
-    let payButton = UIButton()
+    let payButton = UIButton(type: .system)
     var fetchedOrder: OrderResponse?
     
     @objc func paymentDidComplete(with status: String) {
@@ -24,6 +24,10 @@ class FirstScreen: UIViewController, CardPaymentDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+//        for family in UIFont.familyNames.sorted() {
+//            let names = UIFont.fontNames(forFamilyName: family)
+//            print("Family: \(family) Font names: \(names)")
+//        }
         setupPayButton()
         view.backgroundColor = .white
         
@@ -65,7 +69,8 @@ class FirstScreen: UIViewController, CardPaymentDelegate {
     @objc func payButtonTapped() {
         let sharedSDKInstance = NISdk.sharedInstance
         if let order = self.fetchedOrder {
-            sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: self, overParent: self, for: order)
+            sharedSDKInstance.testController(overParent: self)
+//            sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: self, overParent: self, for: order)
         }
     }
 }

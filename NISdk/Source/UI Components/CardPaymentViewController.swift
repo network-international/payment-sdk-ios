@@ -11,8 +11,13 @@ import UIKit
 typealias onChangeTextClosure = (UITextField) -> Void
 
 class CardPaymentViewController: UIViewController {
+    // data properties
     var makePaymentCallback: MakePaymentCallback
     let paymentRequest = PaymentRequest()
+    
+    // ui properties
+    let cardPreviewContainer = UIView()
+    let cardPreviewController = CardPreviewController()
     
     init(makePaymentCallback: @escaping MakePaymentCallback) {
         self.makePaymentCallback = makePaymentCallback
@@ -26,6 +31,7 @@ class CardPaymentViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(hexString: "#EFEFF4")
+        self.setupCardPreviewComponent()
         self.setupCardInputForm()
     }
     
@@ -51,6 +57,17 @@ class CardPaymentViewController: UIViewController {
     
     @objc func payButtonAction() {
         makePaymentCallback(paymentRequest)
+    }
+    
+    func setupCardPreviewComponent() {
+        view.addSubview(cardPreviewContainer)
+        cardPreviewContainer.anchor(top: view.safeAreaLayoutGuide.topAnchor,
+                                    leading: view.safeAreaLayoutGuide.leadingAnchor,
+                                    bottom: nil, trailing: view.safeAreaLayoutGuide.trailingAnchor,
+                                    padding: UIEdgeInsets(top: 30, left: 40, bottom: 30, right: 40),
+                                    size: CGSize(width: 0, height: 200))
+        add(cardPreviewController, inside: cardPreviewContainer)
+        cardPreviewController.didMove(toParent: self)
     }
 
     func setupCardInputForm() {
@@ -114,11 +131,11 @@ class CardPaymentViewController: UIViewController {
         vStack.isLayoutMarginsRelativeArrangement = true
         
         view.addSubview(vStack)
-        vStack.anchor(top: view.safeAreaLayoutGuide.topAnchor,
+        vStack.anchor(top: cardPreviewContainer.bottomAnchor,
                       leading: view.safeAreaLayoutGuide.leadingAnchor,
                       bottom: nil,
                       trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                      padding: .zero,
+                      padding:  UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0),
                       size: CGSize(width: 0, height: 0))
         
         let stackBackgroundView = UIView()
@@ -138,7 +155,7 @@ class CardPaymentViewController: UIViewController {
                          leading: view.safeAreaLayoutGuide.leadingAnchor,
                          bottom: nil,
                          trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                         padding: UIEdgeInsets(top: 100, left: 20, bottom: 20, right: 20),
+                         padding: UIEdgeInsets(top: 50, left: 20, bottom: 20, right: 20),
                          size: CGSize(width: 0, height: 50))
     }
 }

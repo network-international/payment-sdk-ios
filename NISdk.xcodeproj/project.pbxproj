@@ -8,17 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		860CCD9222FC212A00B85096 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9122FC212A00B85096 /* Localizable.strings */; };
-		860CCD9F22FC217A00B85096 /* payment_success@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9322FC217900B85096 /* payment_success@2x.png */; };
-		860CCDA022FC217A00B85096 /* card_bg_back_generic@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9422FC217900B85096 /* card_bg_back_generic@2x.png */; };
-		860CCDA122FC217A00B85096 /* card_bg_front_cvv_amex@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9522FC217900B85096 /* card_bg_front_cvv_amex@2x.png */; };
-		860CCDA222FC217A00B85096 /* visa_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9622FC217900B85096 /* visa_card_front@2x.png */; };
-		860CCDA322FC217A00B85096 /* payment_failure@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9722FC217900B85096 /* payment_failure@2x.png */; };
-		860CCDA422FC217A00B85096 /* jcb_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9822FC217900B85096 /* jcb_card_front@2x.png */; };
-		860CCDA522FC217A00B85096 /* amex_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9922FC217900B85096 /* amex_card_front@2x.png */; };
-		860CCDA622FC217A00B85096 /* discover_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9A22FC217900B85096 /* discover_card_front@2x.png */; };
-		860CCDA722FC217A00B85096 /* diners_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9B22FC217900B85096 /* diners_card_front@2x.png */; };
-		860CCDA822FC217A00B85096 /* card_bg_front_generic@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9C22FC217A00B85096 /* card_bg_front_generic@2x.png */; };
-		860CCDAA22FC217A00B85096 /* mc_card_front@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9E22FC217A00B85096 /* mc_card_front@2x.png */; };
 		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
 		860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */; };
 		860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0422FC933200B85096 /* PaymentRequest.swift */; };
@@ -53,6 +42,8 @@
 		862CBE67230C8C1800767774 /* Pan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE66230C8C1800767774 /* Pan.swift */; };
 		862CBE69230C8C2C00767774 /* Cvv.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE68230C8C2C00767774 /* Cvv.swift */; };
 		862CBE6B230CEDC200767774 /* CardPreviewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE6A230CEDC200767774 /* CardPreviewDelegate.swift */; };
+		862CBE6D230D2A0E00767774 /* CardLogos.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 862CBE6C230D2A0E00767774 /* CardLogos.xcassets */; };
+		862CBE71230D7AC800767774 /* UIFont+RegisterFromBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE70230D7AC800767774 /* UIFont+RegisterFromBundle.swift */; };
 		86D2FB5922FC1AE700CF1FA1 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */; };
 		86D2FB5E22FC1AE700CF1FA1 /* NISdkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D2FB5D22FC1AE700CF1FA1 /* NISdkTests.swift */; };
 		86D2FB6022FC1AE700CF1FA1 /* NISdk.h in Headers */ = {isa = PBXBuildFile; fileRef = 86D2FB5222FC1AE700CF1FA1 /* NISdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -70,17 +61,6 @@
 
 /* Begin PBXFileReference section */
 		860CCD9122FC212A00B85096 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
-		860CCD9322FC217900B85096 /* payment_success@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "payment_success@2x.png"; sourceTree = "<group>"; };
-		860CCD9422FC217900B85096 /* card_bg_back_generic@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "card_bg_back_generic@2x.png"; sourceTree = "<group>"; };
-		860CCD9522FC217900B85096 /* card_bg_front_cvv_amex@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "card_bg_front_cvv_amex@2x.png"; sourceTree = "<group>"; };
-		860CCD9622FC217900B85096 /* visa_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "visa_card_front@2x.png"; sourceTree = "<group>"; };
-		860CCD9722FC217900B85096 /* payment_failure@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "payment_failure@2x.png"; sourceTree = "<group>"; };
-		860CCD9822FC217900B85096 /* jcb_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "jcb_card_front@2x.png"; sourceTree = "<group>"; };
-		860CCD9922FC217900B85096 /* amex_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "amex_card_front@2x.png"; sourceTree = "<group>"; };
-		860CCD9A22FC217900B85096 /* discover_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "discover_card_front@2x.png"; sourceTree = "<group>"; };
-		860CCD9B22FC217900B85096 /* diners_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "diners_card_front@2x.png"; sourceTree = "<group>"; };
-		860CCD9C22FC217A00B85096 /* card_bg_front_generic@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "card_bg_front_generic@2x.png"; sourceTree = "<group>"; };
-		860CCD9E22FC217A00B85096 /* mc_card_front@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mc_card_front@2x.png"; sourceTree = "<group>"; };
 		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
 		860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentDelegate.swift; sourceTree = "<group>"; };
 		860CCE0422FC933200B85096 /* PaymentRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentRequest.swift; sourceTree = "<group>"; };
@@ -115,6 +95,8 @@
 		862CBE66230C8C1800767774 /* Pan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pan.swift; sourceTree = "<group>"; };
 		862CBE68230C8C2C00767774 /* Cvv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cvv.swift; sourceTree = "<group>"; };
 		862CBE6A230CEDC200767774 /* CardPreviewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPreviewDelegate.swift; sourceTree = "<group>"; };
+		862CBE6C230D2A0E00767774 /* CardLogos.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = CardLogos.xcassets; sourceTree = "<group>"; };
+		862CBE70230D7AC800767774 /* UIFont+RegisterFromBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+RegisterFromBundle.swift"; sourceTree = "<group>"; };
 		86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NISdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		86D2FB5222FC1AE700CF1FA1 /* NISdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NISdk.h; sourceTree = "<group>"; };
 		86D2FB5322FC1AE700CF1FA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -148,6 +130,7 @@
 				862CBE36230678A300767774 /* Fonts */,
 				860CCD9022FC210100B85096 /* Images */,
 				860CCD8F22FC20F700B85096 /* Localizations */,
+				862CBE6C230D2A0E00767774 /* CardLogos.xcassets */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -199,17 +182,6 @@
 		860CCD9022FC210100B85096 /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				860CCD9922FC217900B85096 /* amex_card_front@2x.png */,
-				860CCD9422FC217900B85096 /* card_bg_back_generic@2x.png */,
-				860CCD9522FC217900B85096 /* card_bg_front_cvv_amex@2x.png */,
-				860CCD9C22FC217A00B85096 /* card_bg_front_generic@2x.png */,
-				860CCD9B22FC217900B85096 /* diners_card_front@2x.png */,
-				860CCD9A22FC217900B85096 /* discover_card_front@2x.png */,
-				860CCD9822FC217900B85096 /* jcb_card_front@2x.png */,
-				860CCD9E22FC217A00B85096 /* mc_card_front@2x.png */,
-				860CCD9722FC217900B85096 /* payment_failure@2x.png */,
-				860CCD9322FC217900B85096 /* payment_success@2x.png */,
-				860CCD9622FC217900B85096 /* visa_card_front@2x.png */,
 			);
 			path = Images;
 			sourceTree = "<group>";
@@ -269,6 +241,7 @@
 				862CBE4C2307F9D600767774 /* UIView+AutoLayout.swift */,
 				862CBE5023089EDB00767774 /* UIView+Border.swift */,
 				862CBE54230A5F0C00767774 /* URL+QueryParams.swift */,
+				862CBE70230D7AC800767774 /* UIFont+RegisterFromBundle.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -428,19 +401,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				860CCDA122FC217A00B85096 /* card_bg_front_cvv_amex@2x.png in Resources */,
-				860CCDA722FC217A00B85096 /* diners_card_front@2x.png in Resources */,
 				860CCD9222FC212A00B85096 /* Localizable.strings in Resources */,
-				860CCDAA22FC217A00B85096 /* mc_card_front@2x.png in Resources */,
-				860CCDA822FC217A00B85096 /* card_bg_front_generic@2x.png in Resources */,
-				860CCDA422FC217A00B85096 /* jcb_card_front@2x.png in Resources */,
-				860CCDA022FC217A00B85096 /* card_bg_back_generic@2x.png in Resources */,
-				860CCDA222FC217A00B85096 /* visa_card_front@2x.png in Resources */,
-				860CCDA622FC217A00B85096 /* discover_card_front@2x.png in Resources */,
-				860CCDA322FC217A00B85096 /* payment_failure@2x.png in Resources */,
+				862CBE6D230D2A0E00767774 /* CardLogos.xcassets in Resources */,
 				862CBE3A230678F000767774 /* OCRA.otf in Resources */,
-				860CCD9F22FC217A00B85096 /* payment_success@2x.png in Resources */,
-				860CCDA522FC217A00B85096 /* amex_card_front@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,6 +430,7 @@
 				862CBE4B23074A8100767774 /* UIViewController+Container.swift in Sources */,
 				862CBE3D23067C2300767774 /* CardPreviewController.swift in Sources */,
 				860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */,
+				862CBE71230D7AC800767774 /* UIFont+RegisterFromBundle.swift in Sources */,
 				860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */,
 				862CBE4623068C2900767774 /* NameInputVC.swift in Sources */,
 				862CBE5123089EDB00767774 /* UIView+Border.swift in Sources */,
