@@ -134,7 +134,6 @@
 			isa = PBXGroup;
 			children = (
 				862CBE36230678A300767774 /* Fonts */,
-				860CCD9022FC210100B85096 /* Images */,
 				860CCD8F22FC20F700B85096 /* Localizations */,
 				862CBE6C230D2A0E00767774 /* CardLogos.xcassets */,
 			);
@@ -183,13 +182,6 @@
 				860CCD9122FC212A00B85096 /* Localizable.strings */,
 			);
 			path = Localizations;
-			sourceTree = "<group>";
-		};
-		860CCD9022FC210100B85096 /* Images */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Images;
 			sourceTree = "<group>";
 		};
 		860CCE0222FC928500B85096 /* Domain */ = {
