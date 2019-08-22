@@ -26,6 +26,7 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
         
         cvvTextField.placeholder = "Secure Code"
         cvvTextField.text = ""
+        cvvTextField.keyboardType = .numberPad
         cvvTextField.borderStyle = .none
         cvvTextField.backgroundColor = .white
         cvvTextField.textColor = .black

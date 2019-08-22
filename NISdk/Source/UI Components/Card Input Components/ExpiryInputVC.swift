@@ -11,6 +11,7 @@ import Foundation
 class ExpiryInputVC: UIViewController, UITextFieldDelegate {
     let monthTextField: UITextField = UITextField()
     let yearTextField: UITextField = UITextField()
+    let expiryCharacterLimit = 2
     
     @objc let onChangeMonth: onChangeTextClosure
     @objc let onChangeYear: onChangeTextClosure
@@ -75,6 +76,7 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
             placeholder: String,
             huggingPriority: Float?) {
         textField.placeholder = placeholder
+        textField.keyboardType = .numberPad
         textField.text = ""
         textField.borderStyle = UITextField.BorderStyle.none
         textField.backgroundColor = .white

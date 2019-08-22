@@ -10,6 +10,7 @@ import Foundation
 
 class PanInputVC: UIViewController, UITextFieldDelegate {
     let panTextField: UITextField = UITextField()
+    let panCharacterLimit = 19
     @objc let onChangeText: onChangeTextClosure
     
     init(onChangeText: @escaping onChangeTextClosure) {
@@ -24,6 +25,7 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         panTextField.placeholder = "Card Number"
+        panTextField.keyboardType = .numberPad
         panTextField.text = ""
         panTextField.borderStyle = .none
         panTextField.backgroundColor = .white
@@ -54,8 +56,9 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         self.onChangeText(textField)
     }
     
-    //    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-    //        // return NO to not change text
-    //        return true
-    //    }
+    func textField(_ textField: UITextField,
+                   shouldChangeCharactersIn range: NSRange,
+                   replacementString string: String) -> Bool {
+        return textField.hasReachedCharacterLimit(for: string, in: range, with: panCharacterLimit)
+    }
 }
