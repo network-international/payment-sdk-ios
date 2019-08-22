@@ -9,19 +9,25 @@
 import Foundation
 
 class Pan {
-     var value: String? {
-        didSet {
-            if let value = self.value {
-                let isValid = self.validatePan()
-                NotificationCenter.default.post(name: .didChangePan,
-                                                object: self,
-                                                userInfo: ["value": value, "isValid": isValid])
-            }
-        }
+    var value: String? {
+        didSet { notifyPanChange() }
+    }
+    
+    var formattedValue: String? {
+        get { return value }
     }
     
     func validatePan() -> Bool {
         return true
+    }
+    
+    func notifyPanChange() {
+        if let value = self.value {
+        let isValid = self.validatePan()
+        NotificationCenter.default.post(name: .didChangePan,
+                                        object: self,
+                                        userInfo: ["value": value, "isValid": isValid])
+        }
     }
 }
 

@@ -10,7 +10,6 @@ import Foundation
 
 class CvvInputVC: UIViewController, UITextFieldDelegate {
     let cvvTextField: UITextField = UITextField()
-    
     @objc let onChangeCvv: onChangeTextClosure
     
     init(onChangeText: @escaping onChangeTextClosure) {
@@ -20,10 +19,6 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc func onCVVChangeCallback(textField: UITextField) {
-        self.onChangeCvv(textField)
     }
     
     override func viewDidLoad() {
@@ -55,5 +50,9 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
         stackBackgroundView.pinAsBackground(to: hStack)
         
         hStack.bindFrameToSuperviewBounds()
+    }
+    
+    @objc func onCVVChangeCallback(textField: UITextField) {
+        self.onChangeCvv(textField)
     }
 }

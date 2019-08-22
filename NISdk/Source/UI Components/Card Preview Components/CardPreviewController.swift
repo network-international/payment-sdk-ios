@@ -9,9 +9,9 @@
 import Foundation
 
 class CardPreviewController: UIViewController {
-    var panLabel: UILabel?
-    var cardHolderNameLabel: UILabel?
-    var expiryDateLabel: UILabel?
+    let panLabel = UILabel()
+    let cardHolderNameLabel = UILabel()
+    let expiryDateLabel = UILabel()
     let defaultPanText = "---- ---- ---- ----"
     let defaultNameLabelText = "---"
     let defaultExpiryLabelText = "--/--"
@@ -64,7 +64,7 @@ class CardPreviewController: UIViewController {
     }
     
     @objc func didChangePan(_ notification: Notification) {
-        if let data = notification.userInfo, let panLabel = panLabel {
+        if let data = notification.userInfo {
             let pan = data["value"] as? String ?? ""
             if (pan).isEmpty {
                panLabel.text = defaultPanText
@@ -73,54 +73,78 @@ class CardPreviewController: UIViewController {
             }
         }
     }
-
     
     func setupPanView() -> UIView {
         let containerView = UIView()
-        panLabel = UILabel()
-        if let panLabel = panLabel {
-            panLabel.font = UIFont(name: "OCRA", size: 20.0)
-            
-            panLabel.textColor = .white
-            NotificationCenter.default.addObserver(self,
-                                                   selector: #selector(didChangePan(_:)),
-                                                   name: .didChangePan, object: nil)
-            panLabel.text = defaultPanText
-            containerView.addSubview(panLabel)
-            panLabel.anchor(top: containerView.topAnchor,
-                            leading: containerView.leadingAnchor,
-                            bottom: containerView.bottomAnchor,
-                            trailing: containerView.trailingAnchor,
-                            padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0))
-        }
+        panLabel.font = UIFont(name: "OCRA", size: 20.0)
+        
+        panLabel.textColor = .white
+        panLabel.text = defaultPanText
+        containerView.addSubview(panLabel)
+        panLabel.anchor(top: containerView.topAnchor,
+                        leading: containerView.leadingAnchor,
+                        bottom: containerView.bottomAnchor,
+                        trailing: containerView.trailingAnchor,
+                        padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0))
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(didChangePan(_:)),
+                                               name: .didChangePan, object: nil)
         return containerView
+    }
+    
+    @objc func didChangeCardHolderName(_ notification: Notification) {
+        if let data = notification.userInfo {
+            let cardHolderName = data["value"] as? String ?? ""
+            if (cardHolderName).isEmpty {
+                cardHolderNameLabel.text = defaultNameLabelText
+            } else {
+                cardHolderNameLabel.text = cardHolderName
+            }
+        }
+    }
+    
+    @objc func didChangeExpiry(_ notification: Notification) {
+        if let data = notification.userInfo {
+            var expiryMonth = data["month"] as? String ?? ""
+            var expiryYear = data["year"] as? String ?? ""
+            if (expiryMonth).isEmpty {
+                expiryMonth = "--"
+            }
+            if(expiryYear).isEmpty {
+                expiryYear = "--"
+            }
+            expiryDateLabel.text = "\(expiryMonth)/\(expiryYear)"
+        }
     }
     
     func setupNameAndExpiryView() -> UIView {
         let containerView = UIView()
-        let nameLabel = UILabel()
-        nameLabel.font = UIFont(name: "OCRA", size: 13.0)
-        nameLabel.textColor = .white
-        nameLabel.text = defaultNameLabelText
-        containerView.addSubview(nameLabel)
+        cardHolderNameLabel.font = UIFont(name: "OCRA", size: 13.0)
+        cardHolderNameLabel.textColor = .white
+        cardHolderNameLabel.text = defaultNameLabelText
+        containerView.addSubview(cardHolderNameLabel)
         
-        nameLabel.anchor(top: containerView.topAnchor,
+        cardHolderNameLabel.anchor(top: containerView.topAnchor,
                          leading: containerView.leadingAnchor,
                          bottom: containerView.bottomAnchor,
                          trailing: nil,
                          padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(didChangeCardHolderName(_:)),
+                                               name: .didChangeCardHolderName, object: nil)
         
-        let expiryLabel = UILabel()
-        expiryLabel.font = UIFont(name: "OCRA", size: 13.0)
-        expiryLabel.textColor = .white
-        expiryLabel.text = defaultExpiryLabelText
-        containerView.addSubview(expiryLabel)
+        expiryDateLabel.font = UIFont(name: "OCRA", size: 13.0)
+        expiryDateLabel.textColor = .white
+        expiryDateLabel.text = defaultExpiryLabelText
+        containerView.addSubview(expiryDateLabel)
         
-        expiryLabel.anchor(top: containerView.topAnchor,
+        expiryDateLabel.anchor(top: containerView.topAnchor,
                            leading: nil, bottom: containerView.bottomAnchor,
                            trailing: containerView.trailingAnchor,
                            padding: UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10))
-        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(didChangeExpiry(_:)),
+                                               name: .didChangeExpiryDate, object: nil)
         return containerView
     }
 }

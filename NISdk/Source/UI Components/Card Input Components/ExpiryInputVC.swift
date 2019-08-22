@@ -25,29 +25,6 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc func onMonthChangeCallback(textField: UITextField) {
-        self.onChangeMonth(textField)
-    }
-    
-    @objc func onYearChangeCallback(textField: UITextField) {
-        self.onChangeYear(textField)
-    }
-    
-    func setup(textField: UITextField,
-            placeholder: String,
-            huggingPriority: Float?) {
-        textField.placeholder = placeholder
-        textField.text = ""
-        textField.borderStyle = UITextField.BorderStyle.none
-        textField.backgroundColor = .white
-        textField.textColor = .black
-        textField.delegate = self
-        
-        if let huggingPriority = huggingPriority {
-            textField.setContentHuggingPriority(UILayoutPriority(huggingPriority), for: .horizontal)
-        }
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -56,7 +33,7 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         
         self.setup(textField: yearTextField, placeholder: "YY", huggingPriority: 249)
         yearTextField.addTarget(self, action: #selector(onYearChangeCallback), for: .editingChanged)
-                
+        
         let label = UILabel()
         label.text = "Expires"
         
@@ -84,5 +61,28 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         stackBackgroundView.pinAsBackground(to: rootHStack)
         
         rootHStack.bindFrameToSuperviewBounds()
+    }
+    
+    @objc func onMonthChangeCallback(textField: UITextField) {
+        self.onChangeMonth(textField)
+    }
+    
+    @objc func onYearChangeCallback(textField: UITextField) {
+        self.onChangeYear(textField)
+    }
+    
+    func setup(textField: UITextField,
+            placeholder: String,
+            huggingPriority: Float?) {
+        textField.placeholder = placeholder
+        textField.text = ""
+        textField.borderStyle = UITextField.BorderStyle.none
+        textField.backgroundColor = .white
+        textField.textColor = .black
+        textField.delegate = self
+        
+        if let huggingPriority = huggingPriority {
+            textField.setContentHuggingPriority(UILayoutPriority(huggingPriority), for: .horizontal)
+        }
     }
 }

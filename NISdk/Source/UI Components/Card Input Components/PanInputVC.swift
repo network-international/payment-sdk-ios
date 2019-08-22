@@ -10,7 +10,6 @@ import Foundation
 
 class PanInputVC: UIViewController, UITextFieldDelegate {
     let panTextField: UITextField = UITextField()
-    
     @objc let onChangeText: onChangeTextClosure
     
     init(onChangeText: @escaping onChangeTextClosure) {
@@ -21,15 +20,6 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    @objc func onPanFieldChange(textField: UITextField) {
-        self.onChangeText(textField)
-    }
-    
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        // return NO to not change text
-//        return true
-//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,4 +49,13 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         
         hStack.bindFrameToSuperviewBounds()
     }
+    
+    @objc func onPanFieldChange(textField: UITextField) {
+        self.onChangeText(textField)
+    }
+    
+    //    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    //        // return NO to not change text
+    //        return true
+    //    }
 }

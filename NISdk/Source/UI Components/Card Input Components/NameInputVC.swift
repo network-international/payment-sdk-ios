@@ -10,7 +10,6 @@ import Foundation
 
 class NameInputVC: UIViewController, UITextFieldDelegate {
     let nameTextField: UITextField = UITextField()
-    
     @objc let onChangeName: onChangeTextClosure
     
     init(onChangeText: @escaping onChangeTextClosure) {
@@ -20,10 +19,6 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc func onNameChangeCallback(textField: UITextField) {
-        self.onChangeName(textField)
     }
     
     override func viewDidLoad() {
@@ -55,4 +50,9 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
         
         hStack.bindFrameToSuperviewBounds()
     }
+    
+    @objc func onNameChangeCallback(textField: UITextField) {
+        self.onChangeName(textField)
+    }
+
 }

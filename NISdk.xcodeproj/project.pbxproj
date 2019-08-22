@@ -41,7 +41,6 @@
 		862CBE64230C800900767774 /* PaymentLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE63230C800900767774 /* PaymentLinks.swift */; };
 		862CBE67230C8C1800767774 /* Pan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE66230C8C1800767774 /* Pan.swift */; };
 		862CBE69230C8C2C00767774 /* Cvv.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE68230C8C2C00767774 /* Cvv.swift */; };
-		862CBE6B230CEDC200767774 /* CardPreviewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE6A230CEDC200767774 /* CardPreviewDelegate.swift */; };
 		862CBE6D230D2A0E00767774 /* CardLogos.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 862CBE6C230D2A0E00767774 /* CardLogos.xcassets */; };
 		862CBE71230D7AC800767774 /* UIFont+RegisterFromBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE70230D7AC800767774 /* UIFont+RegisterFromBundle.swift */; };
 		862CBE73230DCF6300767774 /* CardDataNotificationTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE72230DCF6300767774 /* CardDataNotificationTypes.swift */; };
@@ -97,7 +96,6 @@
 		862CBE63230C800900767774 /* PaymentLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentLinks.swift; sourceTree = "<group>"; };
 		862CBE66230C8C1800767774 /* Pan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pan.swift; sourceTree = "<group>"; };
 		862CBE68230C8C2C00767774 /* Cvv.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cvv.swift; sourceTree = "<group>"; };
-		862CBE6A230CEDC200767774 /* CardPreviewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPreviewDelegate.swift; sourceTree = "<group>"; };
 		862CBE6C230D2A0E00767774 /* CardLogos.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = CardLogos.xcassets; sourceTree = "<group>"; };
 		862CBE70230D7AC800767774 /* UIFont+RegisterFromBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+RegisterFromBundle.swift"; sourceTree = "<group>"; };
 		862CBE72230DCF6300767774 /* CardDataNotificationTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDataNotificationTypes.swift; sourceTree = "<group>"; };
@@ -215,7 +213,6 @@
 			isa = PBXGroup;
 			children = (
 				862CBE3C23067C2300767774 /* CardPreviewController.swift */,
-				862CBE6A230CEDC200767774 /* CardPreviewDelegate.swift */,
 			);
 			path = "Card Preview Components";
 			sourceTree = "<group>";
@@ -427,7 +424,6 @@
 				862CBE4D2307F9D600767774 /* UIView+AutoLayout.swift in Sources */,
 				862CBE492307443400767774 /* UIColor+Hex.swift in Sources */,
 				862CBDEC23054C9800767774 /* OrderSummary.swift in Sources */,
-				862CBE6B230CEDC200767774 /* CardPreviewDelegate.swift in Sources */,
 				862CBE73230DCF6300767774 /* CardDataNotificationTypes.swift in Sources */,
 				862CBE4B23074A8100767774 /* UIViewController+Container.swift in Sources */,
 				862CBE3D23067C2300767774 /* CardPreviewController.swift in Sources */,
