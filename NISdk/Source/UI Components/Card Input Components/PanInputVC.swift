@@ -59,6 +59,6 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
     func textField(_ textField: UITextField,
                    shouldChangeCharactersIn range: NSRange,
                    replacementString string: String) -> Bool {
-        return textField.hasReachedCharacterLimit(for: string, in: range, with: panCharacterLimit)
+        return textField.hasReachedCharacterLimit(for: string, in: range, with: panCharacterLimit) && textField.hasOnlyDigits(string: string)
     }
 }

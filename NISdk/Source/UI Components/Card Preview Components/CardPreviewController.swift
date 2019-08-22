@@ -12,9 +12,36 @@ class CardPreviewController: UIViewController {
     let panLabel = UILabel()
     let cardHolderNameLabel = UILabel()
     let expiryDateLabel = UILabel()
+    let cardLogo = UIImageView()
+    var cardProvider: CardProvider?
+    
     let defaultPanText = "---- ---- ---- ----"
     let defaultNameLabelText = "---"
     let defaultExpiryLabelText = "--/--"
+    var cardProviderLogo: String {
+        switch self.cardProvider {
+        case .masterCard?:
+            return "mastercardlogo"
+        case .visa?:
+            return "visalogo"
+        case .dinersClubInternational?:
+            return "dinerslogo"
+        case .jcb?:
+            return "jcblogo"
+        case .americanExpress?:
+            return "amexlogo"
+            
+        case .discover?:
+            return "discoverlogo"
+            
+        case .visaElectron?:
+            return "defaultlogo"
+        case .maestro?:
+            return "defaultlogo"
+        default:
+            return "defaultlogo"
+        }
+    }
     
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -49,14 +76,21 @@ class CardPreviewController: UIViewController {
         vStack.bindFrameToSuperviewBounds()
     }
     
+    func updateCardLogo() {
+        let cardLogoImage = UIImage(named: self.cardProviderLogo, in: Bundle(for: NISdk.self), compatibleWith: nil)
+        cardLogo.image = cardLogoImage
+    }
+    
     func setupProviderLogoView() -> UIView {
         let containerView = UIStackView()
         containerView.axis = .horizontal
+        containerView.alignment = .center
         
-        let cardLogo = UIImageView()
-        cardLogo.image = UIImage(named: "mastercardlogo", in: Bundle(for: NISdk.self), compatibleWith: nil)
+        cardLogo.contentMode = .scaleAspectFill
+        updateCardLogo()
         cardLogo.contentMode = .scaleAspectFit
         containerView.addArrangedSubview(cardLogo)
+        cardLogo.anchor(top: nil, leading: nil, bottom: nil, trailing: nil, padding: .zero, size: CGSize(width: 60, height: 0))
         
         let deadSpaceView = UIView()
         containerView.addArrangedSubview(deadSpaceView)
@@ -67,11 +101,16 @@ class CardPreviewController: UIViewController {
         if let data = notification.userInfo {
             let pan = data["value"] as? String ?? ""
             if (pan).isEmpty {
-               panLabel.text = defaultPanText
+                panLabel.text = defaultPanText
             } else {
+//                let pan = pan.group(by: 4, separator: " ")
                 panLabel.text = pan
             }
+            if let cardProvider = data["cardProvider"] as? CardProvider {
+                self.cardProvider = cardProvider
+            }
         }
+        updateCardLogo()
     }
     
     func setupPanView() -> UIView {

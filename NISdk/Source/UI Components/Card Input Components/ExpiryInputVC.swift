@@ -87,4 +87,11 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
             textField.setContentHuggingPriority(UILayoutPriority(huggingPriority), for: .horizontal)
         }
     }
+    
+    func textField(_ textField: UITextField,
+                   shouldChangeCharactersIn range: NSRange,
+                   replacementString string: String) -> Bool {
+        return textField.hasReachedCharacterLimit(for: string, in: range, with: expiryCharacterLimit) &&
+            textField.hasOnlyDigits(string: string)
+    }
 }

@@ -17,4 +17,10 @@ extension UITextField {
         let newLength = currentCharacterCount + string.count - range.length
         return newLength <= limit
     }
+    
+    func hasOnlyDigits(string: String) -> Bool {
+        let allowedCharacters = CharacterSet.decimalDigits.union(.whitespaces)
+        let characterSet = CharacterSet(charactersIn: string)
+        return allowedCharacters.isSuperset(of: characterSet)
+    }
 }
