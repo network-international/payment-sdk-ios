@@ -80,15 +80,14 @@ class PaymentViewController: UIViewController {
                 do {
                     let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
                     // 4. Intermediatory checks for payment failure attempts and anything else
-                    if(paymentResponse.state == "AUTHORISED") {
-                        self.cardPaymentDelegate.paymentDidComplete(with: .PaymentSuccess)
-                        DispatchQueue.main.async {
+                    DispatchQueue.main.async {
+                        if(paymentResponse.state == "AUTHORISED") {
                             // 5. Close Screen if payment is done
+                            self.cardPaymentDelegate.paymentDidComplete(with: .PaymentSuccess)
                             self.closePaymentViewController()
-                        }
-                    } else {
-                        self.cardPaymentDelegate.paymentDidComplete(with: .PaymentFailed)
-                        DispatchQueue.main.async {
+                            
+                        } else {
+                            self.cardPaymentDelegate.paymentDidComplete(with: .PaymentFailed)
                             self.closePaymentViewController()
                         }
                     }

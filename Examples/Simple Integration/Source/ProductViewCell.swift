@@ -20,7 +20,7 @@ class ProductViewCell: UICollectionViewCell {
         addViews()
     }
     
-    func updateWith(borderColor: UIColor) {
+    private func updateWith(borderColor: UIColor) {
         contentView.addBorder(.top, color: borderColor, thickness: 5)
         contentView.addBorder(.bottom, color: borderColor, thickness: 5)
         contentView.addBorder(.left, color: borderColor, thickness: 5)

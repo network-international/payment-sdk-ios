@@ -14,13 +14,23 @@ class StoreFrontViewController: UIViewController, UICollectionViewDataSource, UI
     
     var collectionView: UICollectionView?
     let payButton = UIButton(type: .system)
-    let pets = ["🦁", "🐅", "🐆", "🦓", "🦏"]
+    let pets = ["🐊", "🐅", "🐆", "🦓", "🦏", "🦠", "🐙", "🐡", "🐋", "🐳"]
     var total: Int = 0 {
         didSet { showHidePayButton() }
     }
     
+    func resetSelection() {
+        total = 0
+        collectionView?.deselectAllItems(animated: true, resetHandler: {
+            cell in
+            if let cell = cell as! ProductViewCell? {
+                cell.updateBorder(selected: false)
+            }
+        })
+    }
+    
     @objc func paymentDidComplete(with status: PaymentStatus) {
-        
+        resetSelection()
     }
     
     @objc func authorizationDidComplete(with status: AuthorizationStatus) {
@@ -50,7 +60,6 @@ class StoreFrontViewController: UIViewController, UICollectionViewDataSource, UI
             payButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
             payButton.bottomAnchor.constraint(equalTo: parentView.bottomAnchor, constant: -50).isActive = true
             payButton.isHidden = true
-//            payButton.centerYAnchor.constraint(equalTo: parentView.centerYAnchor).isActive = true
         }
     }
     
@@ -130,7 +139,6 @@ class StoreFrontViewController: UIViewController, UICollectionViewDataSource, UI
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        
-        return UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
+        return UIEdgeInsets(top: 0, left: 15, bottom: 80, right: 15)
     }
 }

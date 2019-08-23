@@ -25,10 +25,30 @@ class OrderCreationViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func dismissVC() {
+    func dismissVC(completion: (() -> Void)?) {
         DispatchQueue.main.async {
-            self.dismiss(animated: true, completion: nil)
+            self.dismiss(animated: true, completion: { () in
+                if let completion = completion {
+                    completion()
+                }
+            })
         }
+    }
+    
+    func displayErrorAndClose(error: Error?) {
+        var errorTitle = ""
+        if let error = error {
+            let userInfo: [String: Any] = (error as NSError).userInfo
+            errorTitle = userInfo["NSLocalizedDescription"] as? String ?? "Unknown Error"
+        }
+        
+        self.dismissVC(completion: {() in
+            DispatchQueue.main.async {
+                let alert = UIAlertController(title: errorTitle, message: "", preferredStyle: UIAlertController.Style.alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+                (self.cardPaymentDelegate as! UIViewController).present(alert, animated: true, completion: nil)
+            }
+        })
     }
     
     func createOrder() {
@@ -46,6 +66,9 @@ class OrderCreationViewController: UIViewController {
 
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+            if (error != nil) {
+                self.displayErrorAndClose(error: error)
+            }
             if let data = data {
                 do {
                     let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
@@ -58,8 +81,7 @@ class OrderCreationViewController: UIViewController {
                         })
                     }
                 } catch let error {
-                    self.dismissVC()
-                    print("Error: \(error)")
+                    self.displayErrorAndClose(error: error)
                 }
             }
         })
