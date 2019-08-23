@@ -22,5 +22,5 @@ class CardHolderName {
     
     func validateCardHolderName() -> Bool {
         return true
-    }
+    }    
 }

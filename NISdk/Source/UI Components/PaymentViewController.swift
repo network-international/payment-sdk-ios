@@ -12,10 +12,10 @@ typealias MakePaymentCallback = (PaymentRequest) -> Void
 
 class PaymentViewController: UIViewController {
     private var state: State?
-    private var shownViewController: UIViewController?
+    private weak var shownViewController: UIViewController?
     
     private let transactionService = TransactionServiceAdapter()
-    private let cardPaymentDelegate: CardPaymentDelegate
+    private weak var cardPaymentDelegate: CardPaymentDelegate?
     private let order: OrderResponse
     private var paymentToken: String?
     
@@ -38,31 +38,31 @@ class PaymentViewController: UIViewController {
     
     // This is called when authorization fails
     func endAuthAndClosePaymentController() {
-        cardPaymentDelegate.authorizationDidComplete(with: .AuthFailed)
+        cardPaymentDelegate?.authorizationDidComplete(with: .AuthFailed)
         closePaymentViewController()
     }
     
     func authorizePayment() {
-        cardPaymentDelegate.authorizationDidBegin?()
+        cardPaymentDelegate?.authorizationDidBegin?()
         self.transition(to: .authorizing)
         if let authCode = order.getAuthCode(),
             let paymentLink = order.orderLinks?.paymentAuthorizationLink {
             transactionService.authorizePayment(for: authCode, using: paymentLink, on: {
-                paymentToken in
+                [weak self] paymentToken in
                 if let paymentToken = paymentToken {
                     // Callback hell...
-                    self.paymentToken = paymentToken
+                    self?.paymentToken = paymentToken
                     // 2. Show card payment screen after authorization (payment token is received)
                      DispatchQueue.main.async { // Use the main thread to update any UI
-                        let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment)
-                        self.cardPaymentDelegate.authorizationDidComplete(with: .AuthSuccess)
-                        self.cardPaymentDelegate.paymentDidBegin?()
-                        self.transition(to: .renderCardPaymentForm(cardPaymentViewController))
+                        let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self?.makePayment)
+                        self?.cardPaymentDelegate?.authorizationDidComplete(with: .AuthSuccess)
+                        self?.cardPaymentDelegate?.paymentDidBegin?()
+                        self?.transition(to: .renderCardPaymentForm(cardPaymentViewController))
                     }
                 } else {
                     DispatchQueue.main.async { // Use the main thread to update any UI
                      // Close payment view controller if paymentToken could not be fetched
-                        self.endAuthAndClosePaymentController()
+                        self?.endAuthAndClosePaymentController()
                     }
                 }
             })
@@ -75,7 +75,7 @@ class PaymentViewController: UIViewController {
     private func makePayment(paymentRequest: PaymentRequest) -> Void {
         // 3. Make Payment
         transactionService.makePayment(for: order, with: paymentRequest, using: paymentToken!, on: {
-            data, response, error in
+            [weak self] data, response, error in
             if let data = data {
                 do {
                     let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
@@ -83,12 +83,12 @@ class PaymentViewController: UIViewController {
                     DispatchQueue.main.async {
                         if(paymentResponse.state == "AUTHORISED") {
                             // 5. Close Screen if payment is done
-                            self.cardPaymentDelegate.paymentDidComplete(with: .PaymentSuccess)
-                            self.closePaymentViewController()
+                            self?.cardPaymentDelegate?.paymentDidComplete(with: .PaymentSuccess)
+                            self?.closePaymentViewController()
                             
                         } else {
-                            self.cardPaymentDelegate.paymentDidComplete(with: .PaymentFailed)
-                            self.closePaymentViewController()
+                            self?.cardPaymentDelegate?.paymentDidComplete(with: .PaymentFailed)
+                            self?.closePaymentViewController()
                         }
                     }
                 } catch let error {

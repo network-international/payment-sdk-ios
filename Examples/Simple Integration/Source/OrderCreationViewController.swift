@@ -25,13 +25,9 @@ class OrderCreationViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func dismissVC(completion: (() -> Void)?) {
+    @objc func dismissVC() {
         DispatchQueue.main.async {
-            self.dismiss(animated: true, completion: { () in
-                if let completion = completion {
-                    completion()
-                }
-            })
+            self.dismiss(animated: true, completion: nil)
         }
     }
     
@@ -42,13 +38,11 @@ class OrderCreationViewController: UIViewController {
             errorTitle = userInfo["NSLocalizedDescription"] as? String ?? "Unknown Error"
         }
         
-        self.dismissVC(completion: {() in
-            DispatchQueue.main.async {
-                let alert = UIAlertController(title: errorTitle, message: "", preferredStyle: UIAlertController.Style.alert)
-                alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
-                (self.cardPaymentDelegate as! UIViewController).present(alert, animated: true, completion: nil)
-            }
-        })
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: errorTitle, message: "", preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: { [weak self] _ in self?.dismissVC() }))
+            self.present(alert, animated: true, completion: nil)
+        }
     }
     
     func createOrder() {
@@ -65,23 +59,23 @@ class OrderCreationViewController: UIViewController {
         request.httpBody = orderRequestData
 
         let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { [weak self] (data, response, error) in
             if (error != nil) {
-                self.displayErrorAndClose(error: error)
+                self?.displayErrorAndClose(error: error)
             }
             if let data = data {
                 do {
                     let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
                     let sharedSDKInstance = NISdk.sharedInstance
                     DispatchQueue.main.async {
-                        self.dismiss(animated: false, completion: {
-                            sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: self.cardPaymentDelegate!,
-                                                                      overParent: self.cardPaymentDelegate as! UIViewController,
+                        self?.dismiss(animated: false, completion: {
+                            sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
+                                                                      overParent: self?.cardPaymentDelegate as! UIViewController,
                                                                       for: orderResponse)
                         })
                     }
                 } catch let error {
-                    self.displayErrorAndClose(error: error)
+                    self?.displayErrorAndClose(error: error)
                 }
             }
         })

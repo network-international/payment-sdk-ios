@@ -12,7 +12,7 @@ typealias onChangeTextClosure = (UITextField) -> Void
 
 class CardPaymentViewController: UIViewController {
     // data properties
-    var makePaymentCallback: MakePaymentCallback
+    var makePaymentCallback: MakePaymentCallback?
     let pan = Pan()
     let cvv = Cvv()
     let cardHolderName = CardHolderName()
@@ -22,8 +22,10 @@ class CardPaymentViewController: UIViewController {
     let cardPreviewContainer = UIView()
     let cardPreviewController = CardPreviewController()
     
-    init(makePaymentCallback: @escaping MakePaymentCallback) {
-        self.makePaymentCallback = makePaymentCallback
+    init(makePaymentCallback: MakePaymentCallback?) {
+        if let makePaymentCallback = makePaymentCallback {
+            self.makePaymentCallback = makePaymentCallback
+        }
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -69,7 +71,7 @@ class CardPaymentViewController: UIViewController {
                                                 expiryYear: expiryYear,
                                                 cvv: cvv,
                                                 cardHolderName: cardHolderName)
-            makePaymentCallback(paymentRequest)
+            makePaymentCallback?(paymentRequest)
         }
     }
     
