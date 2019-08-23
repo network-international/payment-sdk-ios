@@ -72,10 +72,10 @@ class PaymentViewController: UIViewController {
         }
     }
     
-    private func makePayment(paymentRequest: PaymentRequest) -> Void {
+    lazy private var makePayment = { [unowned self] paymentRequest in
         // 3. Make Payment
-        transactionService.makePayment(for: order, with: paymentRequest, using: paymentToken!, on: {
-            [weak self] data, response, error in
+        self.transactionService.makePayment(for: self.order, with: paymentRequest, using: self.paymentToken!, on: {
+            data, response, error in
             if let data = data {
                 do {
                     let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
@@ -83,12 +83,12 @@ class PaymentViewController: UIViewController {
                     DispatchQueue.main.async {
                         if(paymentResponse.state == "AUTHORISED") {
                             // 5. Close Screen if payment is done
-                            self?.cardPaymentDelegate?.paymentDidComplete(with: .PaymentSuccess)
-                            self?.closePaymentViewController()
+                            self.cardPaymentDelegate?.paymentDidComplete(with: .PaymentSuccess)
+                            self.closePaymentViewController()
                             
                         } else {
-                            self?.cardPaymentDelegate?.paymentDidComplete(with: .PaymentFailed)
-                            self?.closePaymentViewController()
+                            self.cardPaymentDelegate?.paymentDidComplete(with: .PaymentFailed)
+                            self.closePaymentViewController()
                         }
                     }
                 } catch let error {
