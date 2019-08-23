@@ -26,9 +26,4 @@ import Foundation
         let paymentViewController = PaymentViewController(order: order, and: cardPaymentDelegate)
         parentViewController.present(paymentViewController, animated: false)
     }
-    
-    public func testController(overParent parentViewController: UIViewController) {
-        let paymentViewController = CardPaymentViewController(makePaymentCallback: {_ in })
-        parentViewController.present(paymentViewController, animated: false)
-    }
 }

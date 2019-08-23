@@ -31,16 +31,34 @@ extension OrderLinks: Codable {
     public init(from decoder: Decoder) throws {
         let orderLinksContainer = try decoder.container(keyedBy: OrderLinksCodingKeys.self)
         
-        let paymentLinkContainer = try orderLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .paymentLink)
-        paymentLink = try paymentLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        do {
+            let paymentLinkContainer = try orderLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .paymentLink)
+            paymentLink = try paymentLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.paymentLink = nil
+        }
         
-        let paymentAuthorizationLinkContainer = try orderLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .paymentAuthorizationLink)
-        paymentAuthorizationLink = try paymentAuthorizationLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        do {
+            let paymentAuthorizationLinkContainer = try orderLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .paymentAuthorizationLink)
+            paymentAuthorizationLink = try paymentAuthorizationLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+           self.paymentAuthorizationLink = nil
+        }
         
-        let orderLinkContainer = try orderLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .orderLink)
-        orderLink = try orderLinkContainer.decodeIfPresent(String.self, forKey: .href)
         
-        let payPageLinkContainer = try orderLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .payPageLink)
-        payPageLink = try payPageLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        do {
+            let orderLinkContainer = try orderLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .orderLink)
+            orderLink = try orderLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.orderLink = nil
+        }
+        
+        
+        do {
+            let payPageLinkContainer = try orderLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .payPageLink)
+            payPageLink = try payPageLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.payPageLink = nil
+        }
     }
 }

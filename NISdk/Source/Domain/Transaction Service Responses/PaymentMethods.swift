@@ -22,9 +22,9 @@ public class PaymentMethods: Codable {
     }
     
     public enum WalletProviders: String, Codable, CaseIterable {
-        case applePay
-        case samsungPay
-        case chinaUnionPay
+        case applePay = "APPLE_PAY"
+        case samsungPay = "SAMSUNG_PAY"
+        case chinaUnionPay = "UNION_PAY"
     }
     
     private enum PaymentTypesCodingKeys: String, CodingKey {

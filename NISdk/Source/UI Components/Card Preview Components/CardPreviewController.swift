@@ -34,9 +34,7 @@ class CardPreviewController: UIViewController {
         case .discover?:
             return "discoverlogo"
             
-        case .visaElectron?:
-            return "defaultlogo"
-        case .maestro?:
+        case .visaElectron?, .maestro?:
             return "defaultlogo"
         default:
             return "defaultlogo"

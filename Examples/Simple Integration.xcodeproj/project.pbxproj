@@ -9,10 +9,16 @@
 /* Begin PBXBuildFile section */
 		862CBE312305DA8200767774 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 862CBE302305DA8200767774 /* NISdk.framework */; };
 		862CBE322305DA8200767774 /* NISdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 862CBE302305DA8200767774 /* NISdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		862CBE352305DF9C00767774 /* FirstScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE342305DF9C00767774 /* FirstScreen.swift */; };
+		862CBE81230EE14F00767774 /* StoreFrontViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE80230EE14F00767774 /* StoreFrontViewController.swift */; };
+		862CBE83230EF13700767774 /* ProductViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE82230EF13700767774 /* ProductViewCell.swift */; };
+		862CBE85230EF89100767774 /* UIView+AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE84230EF89100767774 /* UIView+AutoLayout.swift */; };
+		862CBE88230EF9F700767774 /* UIView+Border.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE87230EF9F700767774 /* UIView+Border.swift */; };
 		86D2FB7622FC1B3300CF1FA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D2FB7522FC1B3300CF1FA1 /* AppDelegate.swift */; };
 		86D2FB7D22FC1B3300CF1FA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 86D2FB7C22FC1B3300CF1FA1 /* Assets.xcassets */; };
 		86D2FB8022FC1B3300CF1FA1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86D2FB7E22FC1B3300CF1FA1 /* LaunchScreen.storyboard */; };
+		86EA2237230F204B00B46FF9 /* OrderCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA2236230F204B00B46FF9 /* OrderCreationViewController.swift */; };
+		86EA2239230F2AA300B46FF9 /* OrderRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA2238230F2AA300B46FF9 /* OrderRequest.swift */; };
+		86EA223B230F2BDE00B46FF9 /* OrderAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,12 +37,18 @@
 
 /* Begin PBXFileReference section */
 		862CBE302305DA8200767774 /* NISdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = NISdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		862CBE342305DF9C00767774 /* FirstScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstScreen.swift; sourceTree = "<group>"; };
+		862CBE80230EE14F00767774 /* StoreFrontViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreFrontViewController.swift; sourceTree = "<group>"; };
+		862CBE82230EF13700767774 /* ProductViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductViewCell.swift; sourceTree = "<group>"; };
+		862CBE84230EF89100767774 /* UIView+AutoLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+AutoLayout.swift"; sourceTree = "<group>"; };
+		862CBE87230EF9F700767774 /* UIView+Border.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Border.swift"; sourceTree = "<group>"; };
 		86D2FB7222FC1B3300CF1FA1 /* Simple Integration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Simple Integration.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		86D2FB7522FC1B3300CF1FA1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		86D2FB7C22FC1B3300CF1FA1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		86D2FB7F22FC1B3300CF1FA1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		86D2FB8122FC1B3300CF1FA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		86EA2236230F204B00B46FF9 /* OrderCreationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderCreationViewController.swift; sourceTree = "<group>"; };
+		86EA2238230F2AA300B46FF9 /* OrderRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRequest.swift; sourceTree = "<group>"; };
+		86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderAmount.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +66,7 @@
 		860CCD8822FC1D2B00B85096 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				86D2FB7E22FC1B3300CF1FA1 /* LaunchScreen.storyboard */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -61,16 +74,22 @@
 		862CBDE423053FC400767774 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				862CBDE52305413800767774 /* Api */,
+				862CBDE52305413800767774 /* Models */,
+				862CBE80230EE14F00767774 /* StoreFrontViewController.swift */,
+				862CBE82230EF13700767774 /* ProductViewCell.swift */,
+				86EA2236230F204B00B46FF9 /* OrderCreationViewController.swift */,
+				862CBE86230EF9DB00767774 /* Extensions */,
 			);
 			path = Source;
 			sourceTree = "<group>";
 		};
-		862CBDE52305413800767774 /* Api */ = {
+		862CBDE52305413800767774 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				86EA2238230F2AA300B46FF9 /* OrderRequest.swift */,
+				86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */,
 			);
-			path = Api;
+			path = Models;
 			sourceTree = "<group>";
 		};
 		862CBDEF230559E400767774 /* Supporting Files */ = {
@@ -79,6 +98,15 @@
 				86D2FB8122FC1B3300CF1FA1 /* Info.plist */,
 			);
 			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		862CBE86230EF9DB00767774 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				862CBE87230EF9F700767774 /* UIView+Border.swift */,
+				862CBE84230EF89100767774 /* UIView+AutoLayout.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 		86D2FB6922FC1B3300CF1FA1 = {
@@ -106,8 +134,6 @@
 				860CCD8822FC1D2B00B85096 /* Resources */,
 				86D2FB7522FC1B3300CF1FA1 /* AppDelegate.swift */,
 				86D2FB7C22FC1B3300CF1FA1 /* Assets.xcassets */,
-				86D2FB7E22FC1B3300CF1FA1 /* LaunchScreen.storyboard */,
-				862CBE342305DF9C00767774 /* FirstScreen.swift */,
 			);
 			path = "Simple Integration";
 			sourceTree = "<group>";
@@ -183,8 +209,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				862CBE352305DF9C00767774 /* FirstScreen.swift in Sources */,
+				86EA2239230F2AA300B46FF9 /* OrderRequest.swift in Sources */,
+				862CBE85230EF89100767774 /* UIView+AutoLayout.swift in Sources */,
+				862CBE83230EF13700767774 /* ProductViewCell.swift in Sources */,
+				862CBE88230EF9F700767774 /* UIView+Border.swift in Sources */,
+				86EA223B230F2BDE00B46FF9 /* OrderAmount.swift in Sources */,
+				862CBE81230EE14F00767774 /* StoreFrontViewController.swift in Sources */,
 				86D2FB7622FC1B3300CF1FA1 /* AppDelegate.swift in Sources */,
+				86EA2237230F204B00B46FF9 /* OrderCreationViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

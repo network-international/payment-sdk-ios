@@ -12,7 +12,7 @@ public struct Amount: Codable {
     public let currencyCode: String?
     public let value: Int?
     
-    private enum  AmountCodingKeys: String, CodingKey {
+    private enum AmountCodingKeys: String, CodingKey {
         case currencyCode
         case value
     }

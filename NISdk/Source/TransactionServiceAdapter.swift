@@ -23,8 +23,7 @@ import Foundation
             .withHeaders(headers: authorizationRequestHeaders)
             .withBodyData(data: "code=\(authCode)")
             .makeRequest(with: { (Data, URLResponse, Error) in
-                if let httpURLResponse = URLResponse as? HTTPURLResponse {
-                    let headers = httpURLResponse.allHeaderFields
+                if let headers = URLResponse?.getResponseHeaders() {
                     let paymentTokenHeader = headers.filter {
                         if let headerValue = $0.value as? String {
                             return headerValue.contains("payment-token")
@@ -59,13 +58,12 @@ import Foundation
                                      "Content-Type": "application/vnd.ni-payment.v2+json"]
         
         let paymentData = try! JSONEncoder().encode(paymentInfo)
-        let paymentDataJsonString = String(data: paymentData, encoding: .utf8)!
         
-        if let paymentLink = order.orderLinks?.paymentLink {
+        if let paymentLink = order.embeddedData?.payment?[0].paymentLinks?.cardPaymentLink {
             HTTPClient(url: paymentLink)?
                 .withMethod(method: "PUT")
                 .withHeaders(headers: paymentRequestHeaders)
-                .withBodyData(data: paymentDataJsonString)
+                .withBodyData(data: paymentData)
                 .makeRequest(with: completion)
         }
     }

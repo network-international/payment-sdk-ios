@@ -17,18 +17,17 @@ import Foundation
     
     // payment event cycles
     @objc optional func paymentDidBegin()
-    @objc func paymentDidComplete(with status: String)
+    @objc func paymentDidComplete(with status: PaymentStatus)
     
     // 3ds challenge cycles
     @objc optional func threeDSChallengeDidBegin()
     @objc optional func threeDSChallengeDidComplete(with status: String)
 }
 
+public typealias RawValue = String
 @objc public enum AuthorizationStatus: Int, RawRepresentable  {
     case AuthSuccess
     case AuthFailed
-    
-    public typealias RawValue = String
     
     public var rawValue: RawValue {
         switch self {
@@ -47,6 +46,31 @@ import Foundation
             self = .AuthFailed
         default:
             self = .AuthFailed
+        }
+    }
+}
+
+@objc public enum PaymentStatus: Int, RawRepresentable {
+    case PaymentSuccess
+    case PaymentFailed
+    
+    public var rawValue: RawValue {
+        switch self {
+        case.PaymentSuccess:
+            return "PaymentSuccess"
+        case .PaymentFailed:
+            return "PaymentFailed"
+        }
+    }
+    
+    public init?(rawValue: RawValue) {
+        switch rawValue {
+        case "PaymentSuccess":
+            self = .PaymentSuccess
+        case "PaymentFailed":
+            self = .PaymentFailed
+        default:
+            self = .PaymentSuccess
         }
     }
 }

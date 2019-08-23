@@ -9,7 +9,7 @@
 import Foundation
 
 @objc public class PaymentResponse: NSObject, Codable {
-    let _id: String
+    let _id: String?
     let state: String
     let amount: Amount?
     let embeddedData: EmbeddedData?
@@ -25,9 +25,9 @@ import Foundation
     
     required public init(from decoder: Decoder) throws {
         let paymentResponseContainer = try decoder.container(keyedBy: PaymentResponseCodingKeys.self)
-        _id = try paymentResponseContainer.decode(String.self, forKey: ._id)
-        state = try paymentResponseContainer.decode(String.self, forKey: .state)
-        amount = try paymentResponseContainer.decode(Amount.self, forKey: .amount)
+        _id = try paymentResponseContainer.decodeIfPresent(String.self, forKey: ._id)
+        state = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .state) ?? ""
+        amount = try paymentResponseContainer.decodeIfPresent(Amount.self, forKey: .amount)
         embeddedData = try paymentResponseContainer.decodeIfPresent(EmbeddedData.self, forKey: .embeddedData)
         paymentLinks = try paymentResponseContainer.decodeIfPresent(PaymentLinks.self, forKey: .paymentLinks)
     }

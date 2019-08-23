@@ -21,7 +21,7 @@ public class HTTPClient {
     public init?(url: String) {
         if let url = URL(string: url) {
             self.session = URLSession(configuration: URLSessionConfiguration.default)
-            self.request = NSMutableURLRequest(url: url)
+            self.request = NSMutableURLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
             self.request.httpMethod = "GET" // default value
         } else {
             print("Invalid url")
@@ -36,7 +36,7 @@ public class HTTPClient {
     
     public func withHeaders(headers: [String: String]) -> HTTPClient {
         for(key, value) in headers {
-            request.addValue(key, forHTTPHeaderField: value)
+            request.addValue(value, forHTTPHeaderField: key)
         }
         return self
     }

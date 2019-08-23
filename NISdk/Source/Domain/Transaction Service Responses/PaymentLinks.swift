@@ -16,7 +16,7 @@ public struct PaymentLinks {
 
 extension PaymentLinks: Codable {
     
-    private enum OrderLinksCodingKeys: String, CodingKey {
+    private enum PaymentLinksCodingKeys: String, CodingKey {
         case paymentLink = "self"
         case cardPaymentLink = "payment:card"
         case savedCardPaymentLink = "payment:saved-card"
@@ -27,15 +27,28 @@ extension PaymentLinks: Codable {
     }
     
     public init(from decoder: Decoder) throws {
-        let paymentLinksContainer = try decoder.container(keyedBy: OrderLinksCodingKeys.self)
+        let paymentLinksContainer = try decoder.container(keyedBy: PaymentLinksCodingKeys.self)
         
-        let paymentLinkContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .paymentLink)
-        paymentLink = try paymentLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        do {
+            let paymentLinkContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .paymentLink)
+            paymentLink = try paymentLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.paymentLink = nil
+        }
         
-        let cardPaymentLinkContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .cardPaymentLink)
-        cardPaymentLink = try cardPaymentLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        do {
+            let cardPaymentLinkContainer: KeyedDecodingContainer? = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .cardPaymentLink)
+            cardPaymentLink = try cardPaymentLinkContainer?.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.cardPaymentLink = nil
+        }
         
-        let savedCardPaymentContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .savedCardPaymentLink)
-        savedCardPaymentLink = try savedCardPaymentContainer.decodeIfPresent(String.self, forKey: .href)
+        do {
+            let savedCardPaymentContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .savedCardPaymentLink)
+            savedCardPaymentLink = try savedCardPaymentContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.savedCardPaymentLink = nil
+        }
+        
     }
 }

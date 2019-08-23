@@ -17,7 +17,7 @@ class PaymentRequest: NSObject, Codable {
     var expiry: String {
         get {
             if let expiryMonth = expiryMonth, let expiryYear = expiryYear {
-                return "\(expiryYear)-\(expiryMonth)"
+                return "20\(expiryYear)-\(expiryMonth)"
             } else {
                 return ""
             }

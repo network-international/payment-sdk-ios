@@ -53,15 +53,17 @@ class PaymentViewController: UIViewController {
                     // Callback hell...
                     self.paymentToken = paymentToken
                     // 2. Show card payment screen after authorization (payment token is received)
-                    let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment)
-                    self.cardPaymentDelegate.authorizationDidComplete(with: .AuthSuccess)
-                    self.cardPaymentDelegate.paymentDidBegin?()
-                    DispatchQueue.main.async { // Use the main thread to update any UI
+                     DispatchQueue.main.async { // Use the main thread to update any UI
+                        let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment)
+                        self.cardPaymentDelegate.authorizationDidComplete(with: .AuthSuccess)
+                        self.cardPaymentDelegate.paymentDidBegin?()
                         self.transition(to: .renderCardPaymentForm(cardPaymentViewController))
                     }
                 } else {
+                    DispatchQueue.main.async { // Use the main thread to update any UI
                      // Close payment view controller if paymentToken could not be fetched
-                    self.endAuthAndClosePaymentController()
+                        self.endAuthAndClosePaymentController()
+                    }
                 }
             })
         } else {
@@ -72,16 +74,29 @@ class PaymentViewController: UIViewController {
     
     private func makePayment(paymentRequest: PaymentRequest) -> Void {
         // 3. Make Payment
-        
-        /* payment token below is safely force unwrapped
-         as its gauranteed to contain a value else
-         the vc would have been closed */
         transactionService.makePayment(for: order, with: paymentRequest, using: paymentToken!, on: {
             data, response, error in
-            
+            if let data = data {
+                do {
+                    let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                    // 4. Intermediatory checks for payment failure attempts and anything else
+                    if(paymentResponse.state == "AUTHORISED") {
+                        self.cardPaymentDelegate.paymentDidComplete(with: .PaymentSuccess)
+                        DispatchQueue.main.async {
+                            // 5. Close Screen if payment is done
+                            self.closePaymentViewController()
+                        }
+                    } else {
+                        self.cardPaymentDelegate.paymentDidComplete(with: .PaymentFailed)
+                        DispatchQueue.main.async {
+                            self.closePaymentViewController()
+                        }
+                    }
+                } catch let error {
+                    print(error)
+                }
+            }
         })
-        // 4. Intermediatory checks for payment failure attempts and anything else
-        // 5. Close Screen if payment is done
     }
     
     private func closePaymentViewController() {
