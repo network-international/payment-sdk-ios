@@ -40,24 +40,24 @@ class CardPaymentViewController: UIViewController {
         self.setupCardInputForm()
     }
     
-    @objc func onChangePan(textField: UITextField) {
-        pan.value = textField.text ?? ""
+    @objc lazy private var onChangePan: onChangeTextClosure = { [weak self] textField in
+        self?.pan.value = textField.text ?? ""
     }
     
-    @objc func onChangeMonth(textField: UITextField) {
-        expiryDate.month = textField.text ?? ""
+    @objc lazy private var onChangeMonth: onChangeTextClosure = { [weak self] textField in
+        self?.expiryDate.month = textField.text ?? ""
     }
     
-    @objc func onChangeYear(textField: UITextField) {
-        expiryDate.year = textField.text ?? ""
+    @objc lazy private var onChangeYear: onChangeTextClosure = { [weak self] textField in
+        self?.expiryDate.year = textField.text ?? ""
     }
     
-    @objc func onChangeCVV(textField: UITextField) {
-        cvv.value = textField.text ?? ""
+    @objc lazy private var onChangeCVV: onChangeTextClosure = { [weak self] textField in
+        self?.cvv.value = textField.text ?? ""
     }
     
-    @objc func onChangeName(textField: UITextField) {
-        cardHolderName.value = textField.text ?? ""
+    @objc lazy private var onChangeName: onChangeTextClosure = { [weak self] textField in
+        self?.cardHolderName.value = textField.text ?? ""
     }
     
     @objc func payButtonAction() {
