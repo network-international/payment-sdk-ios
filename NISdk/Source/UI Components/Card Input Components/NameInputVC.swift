@@ -54,5 +54,4 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
     @objc func onNameChangeCallback(textField: UITextField) {
         self.onChangeName(textField)
     }
-
 }

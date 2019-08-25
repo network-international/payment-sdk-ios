@@ -17,6 +17,10 @@ class Pan {
         get { return getCardProvider() }
     }
     
+    var trimmedValue: String? {
+        get { return value?.removeWhitespace()}
+    }
+    
     var formattedValue: String? {
         get { return value }
     }

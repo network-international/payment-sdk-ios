@@ -101,8 +101,8 @@ class CardPreviewController: UIViewController {
             if (pan).isEmpty {
                 panLabel.text = defaultPanText
             } else {
-//                let pan = pan.group(by: 4, separator: " ")
-                panLabel.text = pan
+                let newPan = pan.removeWhitespace().inserting(separator: " ", every: 4)
+                panLabel.text = newPan
             }
             if let cardProvider = data["cardProvider"] as? CardProvider {
                 self.cardProvider = cardProvider
