@@ -13,7 +13,7 @@ import Foundation
     // authorisation event cycles
     @objc optional func authorizationWillBegin()
     @objc optional func authorizationDidBegin()
-    @objc func authorizationDidComplete(with status: AuthorizationStatus)
+    @objc optional func authorizationDidComplete(with status: AuthorizationStatus)
     
     // payment event cycles
     @objc optional func paymentDidBegin()
@@ -21,7 +21,7 @@ import Foundation
     
     // 3ds challenge cycles
     @objc optional func threeDSChallengeDidBegin()
-    @objc optional func threeDSChallengeDidComplete(with status: String)
+    @objc optional func threeDSChallengeDidComplete(with status: ThreeDSStatus)
 }
 
 public typealias RawValue = String
@@ -73,4 +73,30 @@ public typealias RawValue = String
             self = .PaymentSuccess
         }
     }
+}
+
+@objc public enum ThreeDSStatus: Int, RawRepresentable {
+    case ThreeDSSuccess
+    case ThreeDSFailed
+    
+    public var rawValue: RawValue {
+        switch self {
+        case.ThreeDSSuccess:
+            return "ThreeDSSuccess"
+        case .ThreeDSFailed:
+            return "ThreeDSFailed"
+        }
+    }
+    
+    public init?(rawValue: RawValue) {
+        switch rawValue {
+        case "ThreeDSSuccess":
+            self = .ThreeDSSuccess
+        case "ThreeDSFailed":
+            self = .ThreeDSFailed
+        default:
+            self = .ThreeDSSuccess
+        }
+    }
+
 }

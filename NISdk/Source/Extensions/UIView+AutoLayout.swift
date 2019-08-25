@@ -40,6 +40,12 @@ extension UIView {
         }
     }
     
+    func alignCenterToCenterOf(parent: UIView) {
+        translatesAutoresizingMaskIntoConstraints = false
+        centerYAnchor.constraint(equalTo: parent.centerYAnchor).isActive = true
+        centerXAnchor.constraint(equalTo: parent.centerXAnchor).isActive = true
+    }
+    
     func bindFrameToSuperviewBounds() {
         guard let superview = self.superview else {
             print("Error! `superview` was nil – call `addSubview(view: UIView)` before calling `bindFrameToSuperviewBounds()` to fix this.")

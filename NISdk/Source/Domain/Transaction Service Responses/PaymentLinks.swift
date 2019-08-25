@@ -12,6 +12,7 @@ public struct PaymentLinks {
     public let paymentLink: String?
     public let cardPaymentLink: String?
     public let savedCardPaymentLink: String?
+    public let threeDSTermURL: String?
 }
 
 extension PaymentLinks: Codable {
@@ -20,6 +21,7 @@ extension PaymentLinks: Codable {
         case paymentLink = "self"
         case cardPaymentLink = "payment:card"
         case savedCardPaymentLink = "payment:saved-card"
+        case threeDSTermURL = "cnp:3ds"
     }
     
     private enum hrefCodingKeys: String, CodingKey {
@@ -50,5 +52,11 @@ extension PaymentLinks: Codable {
             self.savedCardPaymentLink = nil
         }
         
+        do {
+            let threeDSTermURLContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .threeDSTermURL)
+            threeDSTermURL = try threeDSTermURLContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.threeDSTermURL = nil
+        }
     }
 }

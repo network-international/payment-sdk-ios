@@ -29,12 +29,27 @@ class StoreFrontViewController: UIViewController, UICollectionViewDataSource, UI
         })
     }
     
+    func showAlertWith(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
+    
     @objc func paymentDidComplete(with status: PaymentStatus) {
-        resetSelection()
+        if(status == .PaymentSuccess) {
+            resetSelection()
+            showAlertWith(title: "Payment Successfull", message: "Your Payment was successfull.")
+            return
+        }
+        showAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.")
     }
     
     @objc func authorizationDidComplete(with status: AuthorizationStatus) {
-        
+        if(status == .AuthFailed) {
+            print("Auth Failed :(")
+            return
+        }
+         print("Auth Passed :)")
     }
     
     @objc func payButtonTapped() {

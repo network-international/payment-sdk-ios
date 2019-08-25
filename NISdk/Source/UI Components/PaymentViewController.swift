@@ -36,13 +36,7 @@ class PaymentViewController: UIViewController {
         self.authorizePayment()
     }
     
-    // This is called when authorization fails
-    func endAuthAndClosePaymentController() {
-        cardPaymentDelegate?.authorizationDidComplete(with: .AuthFailed)
-        closePaymentViewController()
-    }
-    
-    func authorizePayment() {
+    private func authorizePayment() {
         cardPaymentDelegate?.authorizationDidBegin?()
         self.transition(to: .authorizing)
         if let authCode = order.getAuthCode(),
@@ -55,20 +49,17 @@ class PaymentViewController: UIViewController {
                     // 2. Show card payment screen after authorization (payment token is received)
                      DispatchQueue.main.async { // Use the main thread to update any UI
                         let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self?.makePayment)
-                        self?.cardPaymentDelegate?.authorizationDidComplete(with: .AuthSuccess)
+                        self?.cardPaymentDelegate?.authorizationDidComplete?(with: .AuthSuccess)
                         self?.cardPaymentDelegate?.paymentDidBegin?()
                         self?.transition(to: .renderCardPaymentForm(cardPaymentViewController))
                     }
                 } else {
-                    DispatchQueue.main.async { // Use the main thread to update any UI
-                     // Close payment view controller if paymentToken could not be fetched
-                        self?.endAuthAndClosePaymentController()
-                    }
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
                 }
             })
         } else {
             // Close payment view controller if authCode or payment link is broken
-           endAuthAndClosePaymentController()
+           self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
         }
     }
     
@@ -83,12 +74,12 @@ class PaymentViewController: UIViewController {
                     DispatchQueue.main.async {
                         if(paymentResponse.state == "AUTHORISED") {
                             // 5. Close Screen if payment is done
-                            self.cardPaymentDelegate?.paymentDidComplete(with: .PaymentSuccess)
-                            self.closePaymentViewController()
-                            
+                            self.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                        } else if(paymentResponse.state == "AWAIT_3DS") {
+                            self.cardPaymentDelegate?.threeDSChallengeDidBegin?()
+                            self.initiateThreeDS(with: paymentResponse)
                         } else {
-                            self.cardPaymentDelegate?.paymentDidComplete(with: .PaymentFailed)
-                            self.closePaymentViewController()
+                            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
                         }
                     }
                 } catch let error {
@@ -98,8 +89,52 @@ class PaymentViewController: UIViewController {
         })
     }
     
-    private func closePaymentViewController() {
-        dismiss(animated: true, completion: nil)
+    private func initiateThreeDS(with paymentRepsonse: PaymentResponse) {
+        if let acsUrl = paymentRepsonse.threeDSConfig?.acsUrl,
+            let acsPaReq = paymentRepsonse.threeDSConfig?.acsMd,
+            let acsMd = paymentRepsonse.threeDSConfig?.acsMd,
+            let threeDSTermURL = paymentRepsonse.paymentLinks?.threeDSTermURL {
+            let threeDSViewController = ThreeDSViewController(with: acsUrl,
+                                                              acsPaReq: acsPaReq,
+                                                              acsMd: acsMd,
+                                                              threeDSTermURL: threeDSTermURL,
+                                                              completion: onThreeDSCompletion)
+            self.transition(to: .renderThreeDSChallengeForm(threeDSViewController))
+        } else {
+            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: nil)
+        }
+    }
+    
+    lazy private var onThreeDSCompletion: (Bool) -> Void = { [weak self] isthreeDSCompletedSuccessfully in
+        if(isthreeDSCompletedSuccessfully) {
+            self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: .ThreeDSSuccess, and: nil)
+            return
+        }
+        self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: nil)
+    }
+    
+    // This is called when payment is done(fail or success) with 3ds(fail or success) or without 3ds
+    private func finishPaymentAndClosePaymentViewController(with paymentStatus: PaymentStatus,
+                                                            and threeDSStatus: ThreeDSStatus?,
+                                                            and authStatus: AuthorizationStatus?) {
+        DispatchQueue.main.async { // Use the main thread to update any UI
+            if let threeDSStatus = threeDSStatus {
+                self.cardPaymentDelegate?.threeDSChallengeDidComplete?(with: threeDSStatus)
+            }
+            
+            if let authStatus = authStatus  {
+                self.cardPaymentDelegate?.authorizationDidComplete?(with: authStatus)
+            }
+            
+            self.closePaymentViewController(completion: {
+                [weak self] in
+                self?.cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
+            })
+        }
+    }
+    
+    private func closePaymentViewController(completion: (() -> Void)?) {
+        dismiss(animated: true, completion: completion)
     }
 }
 
@@ -107,6 +142,7 @@ private extension PaymentViewController {
     enum State {
         case authorizing
         case renderCardPaymentForm(UIViewController)
+        case renderThreeDSChallengeForm(UIViewController)
     }
     
     private func transition(to newState: State) {
@@ -122,7 +158,8 @@ private extension PaymentViewController {
         case .authorizing:
             return AuthorizationViewController()
             
-        case .renderCardPaymentForm(let viewController):
+        case .renderCardPaymentForm(let viewController),
+             .renderThreeDSChallengeForm(let viewController):
             return viewController
         }
     }
