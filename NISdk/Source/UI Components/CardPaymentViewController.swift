@@ -19,8 +19,10 @@ class CardPaymentViewController: UIViewController {
     let expiryDate = ExpiryDate()
     
     // ui properties
+    let scrollView = UIScrollView()
+    let contentView = UIView()
+    
     let cardPreviewContainer = UIView()
-    let cardPreviewController = CardPreviewController()
     
     init(makePaymentCallback: MakePaymentCallback?) {
         if let makePaymentCallback = makePaymentCallback {
@@ -36,8 +38,103 @@ class CardPaymentViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor(hexString: "#EFEFF4")
-        self.setupCardPreviewComponent()
-        self.setupCardInputForm()
+        setupScrollView()
+        setupCardPreviewComponent()
+        setupCardInputForm()
+    }
+    
+    func setupScrollView() {
+        view.addSubview(scrollView)
+        scrollView.anchor(top: view.safeAreaLayoutGuide.topAnchor,
+                          leading: view.safeAreaLayoutGuide.leadingAnchor,
+                          bottom: view.safeAreaLayoutGuide.bottomAnchor,
+                          trailing: view.safeAreaLayoutGuide.trailingAnchor)
+        scrollView.anchor(width: view.safeAreaLayoutGuide.widthAnchor)
+        
+        scrollView.addSubview(contentView)
+        contentView.anchor(top: scrollView.topAnchor,
+                           leading: scrollView.leadingAnchor,
+                           bottom: scrollView.bottomAnchor,
+                           trailing: scrollView.trailingAnchor)
+        contentView.anchor(width: view.widthAnchor)
+    }
+    
+    func setupCardPreviewComponent() {
+        let cardPreviewController = CardPreviewController()
+        contentView.addSubview(cardPreviewContainer)
+        cardPreviewContainer.anchor(top: contentView.topAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), size: CGSize(width: 0, height: 200))
+        
+        add(cardPreviewController, inside: cardPreviewContainer)
+        cardPreviewController.didMove(toParent: self)
+    }
+
+    func setupCardInputForm() {
+        let vStack = UIStackView()
+        vStack.axis = .vertical
+        vStack.spacing = 0
+        
+        contentView.addSubview(vStack)
+        vStack.anchor(top: cardPreviewContainer.bottomAnchor,
+                      leading: contentView.leadingAnchor,
+                      bottom: nil,
+                      trailing: contentView.trailingAnchor,
+                      padding:  UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0),
+                      size: CGSize(width: 0, height: 0))
+        vStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
+        vStack.isLayoutMarginsRelativeArrangement = true
+        
+        let stackBackgroundView = UIView()
+        stackBackgroundView.backgroundColor = .white
+        stackBackgroundView.addBorder(.top, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
+        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
+        stackBackgroundView.pinAsBackground(to: vStack)
+        
+        // Setup Pan field
+        let panInputVC = PanInputVC(onChangeText: onChangePan)
+        let panContainer = UIView()
+        vStack.addArrangedSubview(panContainer)
+        panContainer.anchor(heightConstant: 60)
+        add(panInputVC, inside: panContainer)
+        panInputVC.didMove(toParent: self)
+
+        // Setup Expiry field
+        let expiryInputVC = ExpiryInputVC(onChangeMonth: onChangeMonth, onChangeYear: onChangeYear)
+        let expiryContainer = UIView()
+        vStack.addArrangedSubview(expiryContainer)
+        expiryContainer.anchor(heightConstant: 60)
+        add(expiryInputVC, inside: expiryContainer)
+        expiryInputVC.didMove(toParent: self)
+
+
+        // Setup CVV field
+        let cvvInputVC = CvvInputVC(onChangeText: onChangeCVV)
+        let cvvContainer = UIView()
+        vStack.addArrangedSubview(cvvContainer)
+        cvvContainer.anchor(heightConstant: 60)
+        add(cvvInputVC, inside: cvvContainer)
+        cvvInputVC.didMove(toParent: self)
+
+        // Setup Name field
+        let nameInputVC = NameInputVC(onChangeText: onChangeName)
+        let nameContainer = UIView()
+        vStack.addArrangedSubview(nameContainer)
+        nameContainer.anchor(heightConstant: 60)
+        add(nameInputVC, inside: nameContainer)
+        nameInputVC.didMove(toParent: self)
+
+        let payButton = UIButton()
+        payButton.backgroundColor = .black
+        payButton.setTitleColor(.white, for: .normal)
+        payButton.setTitle("Pay", for: .normal)
+        payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
+
+        contentView.addSubview(payButton)
+        payButton.anchor(top: vStack.bottomAnchor,
+                         leading: contentView.leadingAnchor,
+                         bottom: contentView.bottomAnchor,
+                         trailing: contentView.trailingAnchor,
+                         padding: UIEdgeInsets(top: 50, left: 20, bottom: 20, right: 20),
+                         size: CGSize(width: 0, height: 50))
     }
     
     @objc lazy private var onChangePan: onChangeTextClosure = { [weak self] textField in
@@ -73,105 +170,5 @@ class CardPaymentViewController: UIViewController {
                                                 cardHolderName: cardHolderName)
             makePaymentCallback?(paymentRequest)
         }
-    }
-    
-    func setupCardPreviewComponent() {
-        view.addSubview(cardPreviewContainer)
-        cardPreviewContainer.anchor(top: view.safeAreaLayoutGuide.topAnchor,
-                                    leading: view.safeAreaLayoutGuide.leadingAnchor,
-                                    bottom: nil, trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                                    padding: UIEdgeInsets(top: 30, left: 40, bottom: 30, right: 40),
-                                    size: CGSize(width: 0, height: 200))
-        add(cardPreviewController, inside: cardPreviewContainer)
-        cardPreviewController.didMove(toParent: self)
-    }
-
-    func setupCardInputForm() {
-        // Setup Pan field
-        let panInputVC = PanInputVC(onChangeText: onChangePan)
-        let panContainer = UIView()
-        view.addSubview(panContainer)
-        panContainer.anchor(top: nil,
-                         leading: view.safeAreaLayoutGuide.leadingAnchor,
-                         bottom: nil,
-                         trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                         padding: .zero,
-                         size: CGSize(width: 0, height: 60))
-        add(panInputVC, inside: panContainer)
-        panInputVC.didMove(toParent: self)
-        
-        // Setup Expiry field
-        let expiryInputVC = ExpiryInputVC(onChangeMonth: onChangeMonth, onChangeYear: onChangeYear)
-        let expiryContainer = UIView()
-        view.addSubview(expiryContainer)
-        expiryContainer.anchor(top: nil,
-                            leading: view.safeAreaLayoutGuide.leadingAnchor,
-                            bottom: nil,
-                            trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                            padding: .zero,
-                            size: CGSize(width: 0, height: 60))
-        add(expiryInputVC, inside: expiryContainer)
-        expiryInputVC.didMove(toParent: self)
-
-        
-        // Setup CVV field
-        let cvvInputVC = CvvInputVC(onChangeText: onChangeCVV)
-        let cvvContainer = UIView()
-        view.addSubview(cvvContainer)
-        cvvContainer.anchor(top: nil,
-                            leading: view.safeAreaLayoutGuide.leadingAnchor,
-                            bottom: nil,
-                            trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                            padding: .zero,
-                            size: CGSize(width: 0, height: 60))
-        add(cvvInputVC, inside: cvvContainer)
-        cvvInputVC.didMove(toParent: self)
-        
-        // Setup Name field
-        let nameInputVC = NameInputVC(onChangeText: onChangeName)
-        let nameContainer = UIView()
-        view.addSubview(nameContainer)
-        nameContainer.anchor(top: nil,
-                            leading: view.safeAreaLayoutGuide.leadingAnchor,
-                            bottom: nil,
-                            trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                            padding: .zero,
-                            size: CGSize(width: 0, height: 60))
-        add(nameInputVC, inside: nameContainer)
-        nameInputVC.didMove(toParent: self)
-        
-        let vStack = UIStackView(arrangedSubviews: [panContainer, expiryContainer, cvvContainer, nameContainer])
-        vStack.axis = .vertical
-        vStack.spacing = 0
-        vStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
-        vStack.isLayoutMarginsRelativeArrangement = true
-        
-        view.addSubview(vStack)
-        vStack.anchor(top: cardPreviewContainer.bottomAnchor,
-                      leading: view.safeAreaLayoutGuide.leadingAnchor,
-                      bottom: nil,
-                      trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                      padding:  UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0),
-                      size: CGSize(width: 0, height: 0))
-        
-        let stackBackgroundView = UIView()
-        stackBackgroundView.backgroundColor = .white
-        stackBackgroundView.addBorder(.top, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
-        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
-        stackBackgroundView.pinAsBackground(to: vStack)
-        
-        let payButton = UIButton()
-        payButton.backgroundColor = .black
-        payButton.setTitleColor(.white, for: .normal)
-        payButton.setTitle("Pay", for: .normal)
-        payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
-        
-        view.addSubview(payButton)
-        payButton.anchor(top: vStack.bottomAnchor,
-                         leading: view.safeAreaLayoutGuide.leadingAnchor,
-                         bottom: nil,
-                         trailing: view.safeAreaLayoutGuide.trailingAnchor,
-                         padding: UIEdgeInsets(top: 50, left: 20, bottom: 20, right: 20),
-                         size: CGSize(width: 0, height: 50))
     }
 }

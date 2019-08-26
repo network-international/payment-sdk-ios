@@ -40,6 +40,26 @@ extension UIView {
         }
     }
     
+    func anchor(width: NSLayoutDimension) {
+        translatesAutoresizingMaskIntoConstraints = false
+        widthAnchor.constraint(equalTo: width).isActive = true
+    }
+    
+    func anchor(height: NSLayoutDimension) {
+        translatesAutoresizingMaskIntoConstraints = false
+        heightAnchor.constraint(equalTo: height).isActive = true
+    }
+    
+    func anchor(widthConstant: CGFloat) {
+        translatesAutoresizingMaskIntoConstraints = false
+        widthAnchor.constraint(equalToConstant: widthConstant).isActive = true
+    }
+    
+    func anchor(heightConstant: CGFloat) {
+        translatesAutoresizingMaskIntoConstraints = false
+        heightAnchor.constraint(equalToConstant: heightConstant).isActive = true
+    }
+    
     func alignCenterToCenterOf(parent: UIView) {
         translatesAutoresizingMaskIntoConstraints = false
         centerYAnchor.constraint(equalTo: parent.centerYAnchor).isActive = true
