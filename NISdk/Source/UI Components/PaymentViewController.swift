@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import PassKit
 
 typealias MakePaymentCallback = (PaymentRequest) -> Void
 
@@ -18,10 +19,19 @@ class PaymentViewController: UIViewController {
     private weak var cardPaymentDelegate: CardPaymentDelegate?
     private let order: OrderResponse
     private var paymentToken: String?
+    private let paymentMedium: PaymentMedium
+    private var applePayController: ApplePayController?
+    private var applePayDelegate: ApplePayDelegate?
+    var applePayRequest: PKPaymentRequest?
     
-    init(order: OrderResponse, and cardPaymentDelegate: CardPaymentDelegate) {
+    init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
+         applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
         self.order = order
         self.cardPaymentDelegate = cardPaymentDelegate
+        self.paymentMedium = paymentMedium
+        if let applePayDelegate = applePayDelegate {
+            self.applePayDelegate = applePayDelegate
+        }
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -48,10 +58,9 @@ class PaymentViewController: UIViewController {
                     self?.paymentToken = paymentToken
                     // 2. Show card payment screen after authorization (payment token is received)
                      DispatchQueue.main.async { // Use the main thread to update any UI
-                        let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self?.makePayment)
                         self?.cardPaymentDelegate?.authorizationDidComplete?(with: .AuthSuccess)
                         self?.cardPaymentDelegate?.paymentDidBegin?()
-                        self?.transition(to: .renderCardPaymentForm(cardPaymentViewController))
+                        self?.initiatePaymentForm()
                     }
                 } else {
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
@@ -60,6 +69,24 @@ class PaymentViewController: UIViewController {
         } else {
             // Close payment view controller if authCode or payment link is broken
            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
+        }
+    }
+    
+    private func initiatePaymentForm() {
+        switch paymentMedium {
+        case .Card:
+            let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment)
+            self.transition(to: .renderCardPaymentForm(cardPaymentViewController))
+            break;
+        case .ApplePay:
+            if let applePayRequest = applePayRequest {
+                applePayController = ApplePayController(applePayPaymentRequest: applePayRequest)
+                if let applePayViewController = applePayController?.getController() {
+                    self.transition(to: .renderApplePaySheet(applePayViewController))
+                }
+            }
+            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+            break
         }
     }
     
@@ -143,6 +170,7 @@ private extension PaymentViewController {
         case authorizing
         case renderCardPaymentForm(UIViewController)
         case renderThreeDSChallengeForm(UIViewController)
+        case renderApplePaySheet(UIViewController)
     }
     
     private func transition(to newState: State) {
@@ -159,7 +187,8 @@ private extension PaymentViewController {
             return AuthorizationViewController()
             
         case .renderCardPaymentForm(let viewController),
-             .renderThreeDSChallengeForm(let viewController):
+             .renderThreeDSChallengeForm(let viewController),
+             .renderApplePaySheet(let viewController):
             return viewController
         }
     }

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import PassKit
 
 
 @objc public final class NISdk: NSObject {
@@ -23,7 +24,20 @@ import Foundation
                              overParent parentViewController: UIViewController,
                              for order: OrderResponse) {
         
-        let paymentViewController = PaymentViewController(order: order, and: cardPaymentDelegate)
-        parentViewController.present(paymentViewController, animated: false)
+        let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
+                                                          applePayDelegate: nil, paymentMedium: .Card)
+        parentViewController.present(paymentViewController, animated: true)
     }
+    
+    public func initiateApplePayWith(applePayDelegate: ApplePayDelegate?,
+                                     cardPaymentDelegate: CardPaymentDelegate,
+                                     overParent parentViewController: UIViewController,
+                                     for order: OrderResponse,
+                                     with applePayRequest: PKPaymentRequest) {
+        
+        let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
+                                                          applePayDelegate: applePayDelegate, paymentMedium: .ApplePay)
+        paymentViewController.applePayRequest = applePayRequest
+        parentViewController.present(paymentViewController, animated: true)
+    }    
 }
