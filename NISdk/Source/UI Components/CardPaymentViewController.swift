@@ -41,10 +41,26 @@ class CardPaymentViewController: UIViewController {
         setupScrollView()
         setupCardPreviewComponent()
         setupCardInputForm()
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        guard let userInfo = notification.userInfo else {return}
+        guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
+        let keyboardFrame = keyboardSize.cgRectValue
+        self.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        if(self.scrollView.contentInset.bottom != 0) {
+            self.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        }
     }
     
     func setupScrollView() {
         view.addSubview(scrollView)
+        scrollView.keyboardDismissMode = .interactive
         scrollView.anchor(top: view.safeAreaLayoutGuide.topAnchor,
                           leading: view.safeAreaLayoutGuide.leadingAnchor,
                           bottom: view.safeAreaLayoutGuide.bottomAnchor,
@@ -122,7 +138,7 @@ class CardPaymentViewController: UIViewController {
         add(nameInputVC, inside: nameContainer)
         nameInputVC.didMove(toParent: self)
 
-        let payButton = UIButton()
+        let payButton = UIButton(type: .system)
         payButton.backgroundColor = .black
         payButton.setTitleColor(.white, for: .normal)
         payButton.setTitle("Pay", for: .normal)
