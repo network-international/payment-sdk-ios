@@ -41,7 +41,6 @@ class PaymentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         // 1. Perform authorization by aquiring a payment token
         self.authorizePayment()
     }
@@ -82,9 +81,11 @@ class PaymentViewController: UIViewController {
             if let applePayRequest = applePayRequest {
                 applePayController = ApplePayController(applePayPaymentRequest: applePayRequest,
                                                         applePayDelegate: self.applePayDelegate!,
+                                                        order: order,
                                                         onAuthorizeApplePayCallback: handleApplePayAuthorization)
                 if let applePayVC = applePayController?.pkPaymentAuthorizationVC {
                     self.transition(to: .renderApplePaySheet(applePayVC))
+                    return
                 }
             }
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
@@ -92,7 +93,8 @@ class PaymentViewController: UIViewController {
         }
     }
     
-    lazy private var handleApplePayAuthorization: OnAuthorizeApplePayCallback  = { [unowned self] payment, completion in
+    lazy private var handleApplePayAuthorization: OnAuthorizeApplePayCallback  = {
+        [unowned self] payment, completion in
         self.transactionService.postApplePayResponse(for: self.order,
                                                      with: payment,
                                                      using: self.paymentToken!, on: completion)

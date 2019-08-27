@@ -17,12 +17,18 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
     var pkPaymentAuthorizationVC: PKPaymentAuthorizationViewController?
     let applePayPaymentRequest: PKPaymentRequest
     let onAuthorizeApplePayCallback: OnAuthorizeApplePayCallback
+    let order: OrderResponse
     
     init(applePayPaymentRequest: PKPaymentRequest,
          applePayDelegate: ApplePayDelegate,
+         order: OrderResponse,
          onAuthorizeApplePayCallback: @escaping OnAuthorizeApplePayCallback) {
         
+        self.order = order
         self.applePayPaymentRequest = applePayPaymentRequest
+        if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
+            self.applePayPaymentRequest.supportedNetworks = Array(Set(allowedPKPaymentNetworks))
+        }
         self.pkPaymentAuthorizationVC = PKPaymentAuthorizationViewController(paymentRequest: applePayPaymentRequest)
         self.onAuthorizeApplePayCallback = onAuthorizeApplePayCallback
         super.init()
@@ -50,7 +56,8 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didAuthorizePayment payment: PKPayment,
                                             handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
-        self.onAuthorizeApplePayCallback(payment, { authorizationResult in
+        self.onAuthorizeApplePayCallback(payment, {
+            authorizationResult in
             completion(authorizationResult)
         })
     }

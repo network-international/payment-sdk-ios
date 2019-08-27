@@ -9,18 +9,53 @@
 import Foundation
 import UIKit
 import NISdk
+import PassKit
 
-class StoreFrontViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, CardPaymentDelegate {
+class StoreFrontViewController:
+    UIViewController,
+    UICollectionViewDataSource,
+    UICollectionViewDelegateFlowLayout,
+    UICollectionViewDelegate,
+    CardPaymentDelegate,
+    ApplePayDelegate {
     
     var collectionView: UICollectionView?
     let payButton = UIButton(type: .system)
+    lazy var applePayButton = PKPaymentButton(paymentButtonType: .buy , paymentButtonStyle: .black)
+    let buttonStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.distribution = .fill
+        stack.spacing = 20
+        return stack
+    }()
     let pets = ["🐊", "🐅", "🐆", "🦓", "🦏", "🦠", "🐙", "🐡", "🐋", "🐳"]
     var total: Int = 0 {
-        didSet { showHidePayButton() }
+        didSet { showHidePayButtonStack() }
+    }
+    var selectedItems: [Product] = []
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupPaymentButtons()
+        
+        title = "Zoomoji Store"
+        let indexPath = IndexPath(item: pets.count, section: 0)
+        self.collectionView?.insertItems(at: [indexPath])
+        self.collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: UICollectionViewFlowLayout())
+        collectionView?.register(ProductViewCell.self, forCellWithReuseIdentifier: "collectionCell")
+        collectionView?.delegate = self
+        collectionView?.allowsSelection = true
+        collectionView?.allowsMultipleSelection = true
+        collectionView?.dataSource = self
+        collectionView?.backgroundColor = UIColor.white
+        view.addSubview(collectionView!)
     }
     
     func resetSelection() {
         total = 0
+        selectedItems = []
         collectionView?.deselectAllItems(animated: true, resetHandler: {
             cell in
             if let cell = cell as! ProductViewCell? {
@@ -53,62 +88,58 @@ class StoreFrontViewController: UIViewController, UICollectionViewDataSource, UI
     }
     
     @objc func payButtonTapped() {
-        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, and: self)
+        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, and: self, using: .Card, with: selectedItems)
         self.present(orderCreationViewController, animated: true, completion: nil)
     }
     
-    func setupPayButton() {
+    @objc func applePayButtonTapped(applePayPaymentRequest: PKPaymentRequest) {
+        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, and: self, using: .ApplePay, with: selectedItems)
+        self.present(orderCreationViewController, animated: true, completion: nil)
+    }
+    
+    func setupPaymentButtons() {
+        navigationController?.view.addSubview(buttonStack)
+        if let parentView = navigationController?.view {
+            buttonStack.translatesAutoresizingMaskIntoConstraints = false
+            buttonStack.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: 20).isActive = true
+            buttonStack.trailingAnchor.constraint(equalTo: parentView.trailingAnchor, constant: -20).isActive = true
+            buttonStack.heightAnchor.constraint(equalToConstant: 50).isActive = true
+            buttonStack.bottomAnchor.constraint(equalTo: parentView.bottomAnchor, constant: -50).isActive = true
+            buttonStack.isHidden = true
+        }
+        
+        // Pay button for card
         payButton.backgroundColor = .black
         payButton.setTitleColor(.white, for: .normal)
         payButton.setTitle("Pay", for: .normal)
+        payButton.layer.cornerRadius = 5
         payButton.addTarget(self, action: #selector(payButtonTapped), for: .touchUpInside)
+        buttonStack.addArrangedSubview(payButton)
         
-        navigationController?.view.addSubview(payButton)
-        setPayButtonConstraints()
-    }
-    
-    func setPayButtonConstraints() {
-        if let parentView = navigationController?.view {
-            payButton.translatesAutoresizingMaskIntoConstraints = false
-            payButton.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: 20).isActive = true
-            payButton.trailingAnchor.constraint(equalTo: parentView.trailingAnchor, constant: -20).isActive = true
-            payButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
-            payButton.bottomAnchor.constraint(equalTo: parentView.bottomAnchor, constant: -50).isActive = true
-            payButton.isHidden = true
+        // Pay button for Apple Pay
+        if(NISdk.sharedInstance.deviceSupportsApplePay()) {
+            applePayButton.addTarget(self, action: #selector(applePayButtonTapped), for: .touchUpInside)
+            buttonStack.addArrangedSubview(applePayButton)
         }
     }
     
-    func showHidePayButton() {
+    func showHidePayButtonStack() {
         if(total > 0) {
-            payButton.isHidden = false
+            buttonStack.isHidden = false
             payButton.setTitle("Pay AED \(total)", for: .normal)
         } else {
-            payButton.isHidden = true
+            buttonStack.isHidden = true
         }
     }
     
-    func add(amount: Int) {
+    func add(amount: Int, emoji: String) {
         total += amount
+        selectedItems.append(Product(name: emoji, amount: amount))
     }
     
-    func remove(amount: Int) {
+    func remove(amount: Int, emoji: String) {
         total -= amount
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupPayButton()
-        title = "Zoomoji Store"
-        let indexPath = IndexPath(item: pets.count, section: 0)
-        self.collectionView?.insertItems(at: [indexPath])
-        self.collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView?.register(ProductViewCell.self, forCellWithReuseIdentifier: "collectionCell")
-        collectionView?.delegate = self
-        collectionView?.allowsSelection = true
-        collectionView?.allowsMultipleSelection = true
-        collectionView?.dataSource = self
-        collectionView?.backgroundColor = UIColor.white
-        view.addSubview(collectionView!)
+        selectedItems = selectedItems.filter { $0.name != emoji}
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
@@ -129,14 +160,14 @@ class StoreFrontViewController: UIViewController, UICollectionViewDataSource, UI
         let cell = collectionView.cellForItem(at: indexPath) as! ProductViewCell
         cell.isSelected = true
         cell.updateBorder(selected: true)
-        add(amount: cell.price)
+        add(amount: cell.price, emoji: cell.productLabel.text!)
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as! ProductViewCell
         cell.isSelected = false
         cell.updateBorder(selected: false)
-        remove(amount: cell.price)
+        remove(amount: cell.price, emoji: cell.productLabel.text!)
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

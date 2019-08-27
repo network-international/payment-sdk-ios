@@ -43,27 +43,11 @@ class Pan {
     }
 }
 
-
-// Card provider related functions
-public enum CardProvider: String, CaseIterable {
-    case visa
-    case visaElectron
-    case masterCard
-    case maestro
-    case dinersClubInternational
-    case jcb
-    case americanExpress
-    case discover
-    case unknown
-}
-
 extension Pan {
     func getPatternFor(cardType: CardProvider) -> String {
         switch cardType  {
         case .visa: return "^4[0-9]{12}(?:[0-9]{3})?$"
-        case .visaElectron: return "^(4026|417500|4508|4844|491(3|7))"
         case .masterCard: return "^5[1-5][0-9]{14}$"
-        case .maestro: return "^(5018|5020|5038|6304|6759|676[1-3])"
         case .americanExpress: return "^3[47][0-9]{13}$"
         case .dinersClubInternational: return "^3(?:0[0-5]|[68][0-9])[0-9]{11}$"
         case .discover: return "^6(?:011|5[0-9]{2})[0-9]{12}$"

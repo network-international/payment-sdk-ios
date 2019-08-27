@@ -9,33 +9,18 @@
 import Foundation
 
 public class PaymentMethods: Codable {
-    var card: [CardProviders]?
-    var wallet: [WalletProviders]?
+    var card: [CardProvider]?
+    var wallet: [WalletProvider]?
     
-    public enum CardProviders: String, Codable {
-        case visa = "VISA"
-        case masterCard = "MASTERCARD"
-        case dinersClubInternational = "DINERS_CLUB_INTERNATIONAL"
-        case jcb = "JCB"
-        case americanExpress = "AMERICAN_EXPRESS"
-        case discover = "DISCOVER"
-    }
-    
-    public enum WalletProviders: String, Codable, CaseIterable {
-        case applePay = "APPLE_PAY"
-        case samsungPay = "SAMSUNG_PAY"
-        case chinaUnionPay = "UNION_PAY"
-    }
-    
-    private enum PaymentTypesCodingKeys: String, CodingKey {
+    public enum PaymentMethodsCodingKeys: String, CodingKey {
         case card
         case wallet
     }
     
     required public init(from decoder: Decoder) throws {
-        let PaymentTypesContainer = try decoder.container(keyedBy: PaymentTypesCodingKeys.self)
+        let paymentTypesContainer = try decoder.container(keyedBy: PaymentMethodsCodingKeys.self)
 
-        card = try PaymentTypesContainer.decodeIfPresent([CardProviders].self, forKey: .card)
-        wallet = try PaymentTypesContainer.decodeIfPresent([WalletProviders].self, forKey: .wallet)
+        card = try paymentTypesContainer.decodeIfPresent([CardProvider].self, forKey: .card)
+        wallet = try paymentTypesContainer.decodeIfPresent([WalletProvider].self, forKey: .wallet)
     }
 }

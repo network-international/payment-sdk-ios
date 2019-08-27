@@ -9,16 +9,36 @@
 import Foundation
 import UIKit
 import NISdk
+import PassKit
 
 class OrderCreationViewController: UIViewController {
-    let cancelButton = UIButton(type: .system)
     let paymentAmount: Int
     let cardPaymentDelegate: CardPaymentDelegate?
+    let paymentMethod: PaymentMethod?
+    let purchasedItems: [Product]
+    var paymentRequest: PKPaymentRequest?
     
-    init(paymentAmount: Int, and cardPaymentDelegate: CardPaymentDelegate) {
+    init(paymentAmount: Int, and cardPaymentDelegate: CardPaymentDelegate,
+         using paymentMethod: PaymentMethod = .Card,
+         with purchasedItems: [Product]) {
+        
         self.cardPaymentDelegate = cardPaymentDelegate
         self.paymentAmount = paymentAmount
+        self.paymentMethod = paymentMethod
+        self.purchasedItems = purchasedItems
         super.init(nibName: nil, bundle: nil)
+        
+        if(paymentMethod == .ApplePay) {
+            paymentRequest = PKPaymentRequest()
+            paymentRequest?.merchantIdentifier = "merchant.com.mu1ex"
+            paymentRequest?.countryCode = "AE"
+            paymentRequest?.currencyCode = "AED"
+            paymentRequest?.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
+            paymentRequest?.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
+            paymentRequest?.requiredBillingContactFields = [.postalAddress, .name]
+            paymentRequest?.paymentSummaryItems = self.purchasedItems.map { PKPaymentSummaryItem(label: $0.name, amount: NSDecimalNumber(value: $0.amount)) }
+            paymentRequest?.paymentSummaryItems.append(PKPaymentSummaryItem(label: "Total", amount: NSDecimalNumber(value: paymentAmount)))
+        }
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -68,10 +88,17 @@ class OrderCreationViewController: UIViewController {
                     let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
                     let sharedSDKInstance = NISdk.sharedInstance
                     DispatchQueue.main.async {
-                        self?.dismiss(animated: false, completion: {
-                            sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
-                                                                      overParent: self?.cardPaymentDelegate as! UIViewController,
-                                                                      for: orderResponse)
+                        self?.dismiss(animated: false, completion: { [weak self] in
+                            if(self?.paymentMethod == .Card) {
+                                sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
+                                                                          overParent: self?.cardPaymentDelegate as! UIViewController,
+                                                                        for: orderResponse)
+                            } else {
+                                sharedSDKInstance.initiateApplePayWith(applePayDelegate: self?.cardPaymentDelegate as? ApplePayDelegate,
+                                                                       cardPaymentDelegate: (self?.cardPaymentDelegate)!,
+                                                                       overParent: self?.cardPaymentDelegate as!UIViewController,
+                                                                       for: orderResponse, with: self!.paymentRequest!)
+                            }
                         })
                     }
                 } catch let error {

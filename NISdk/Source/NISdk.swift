@@ -20,12 +20,18 @@ import PassKit
         }
     }
     
+    public func deviceSupportsApplePay() -> Bool {
+        return PKPaymentAuthorizationViewController.canMakePayments()
+    }
+    
     public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
                              overParent parentViewController: UIViewController,
                              for order: OrderResponse) {
         
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
                                                           applePayDelegate: nil, paymentMedium: .Card)
+        paymentViewController.view.backgroundColor = .clear
+        paymentViewController.modalPresentationStyle = .overCurrentContext
         parentViewController.present(paymentViewController, animated: true)
     }
     
@@ -38,6 +44,8 @@ import PassKit
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
                                                           applePayDelegate: applePayDelegate, paymentMedium: .ApplePay)
         paymentViewController.applePayRequest = applePayRequest
+        paymentViewController.view.backgroundColor = .clear
+        paymentViewController.modalPresentationStyle = .overCurrentContext
         parentViewController.present(paymentViewController, animated: true)
-    }    
+    }
 }
