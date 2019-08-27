@@ -80,14 +80,22 @@ class PaymentViewController: UIViewController {
             break;
         case .ApplePay:
             if let applePayRequest = applePayRequest {
-                applePayController = ApplePayController(applePayPaymentRequest: applePayRequest)
-                if let applePayViewController = applePayController?.getController() {
-                    self.transition(to: .renderApplePaySheet(applePayViewController))
+                applePayController = ApplePayController(applePayPaymentRequest: applePayRequest,
+                                                        applePayDelegate: self.applePayDelegate!,
+                                                        onAuthorizeApplePayCallback: handleApplePayAuthorization)
+                if let applePayVC = applePayController?.pkPaymentAuthorizationVC {
+                    self.transition(to: .renderApplePaySheet(applePayVC))
                 }
             }
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
             break
         }
+    }
+    
+    lazy private var handleApplePayAuthorization: OnAuthorizeApplePayCallback  = { [unowned self] payment, completion in
+        self.transactionService.postApplePayResponse(for: self.order,
+                                                     with: payment,
+                                                     using: self.paymentToken!, on: completion)
     }
     
     lazy private var makePayment = { [unowned self] paymentRequest in

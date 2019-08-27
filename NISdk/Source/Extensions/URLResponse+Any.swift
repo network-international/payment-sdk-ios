@@ -24,4 +24,13 @@ extension URLResponse {
             return nil
         }
     }
+    
+    func isSuccess() -> Bool {
+        if let statusCode = self.getStatusCode() {
+            if(statusCode < 200 || statusCode > 299) {
+                return true
+            }
+        }
+        return false
+    }
 }

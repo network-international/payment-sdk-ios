@@ -9,17 +9,24 @@
 import Foundation
 import PassKit
 
+typealias OnPostApplePayResponseCallback = (PKPaymentAuthorizationResult) -> Void
+typealias OnAuthorizeApplePayCallback = (PKPayment, @escaping OnPostApplePayResponseCallback) -> Void
+
 class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate {
     
-    var applePayController: PKPaymentAuthorizationViewController?
+    var pkPaymentAuthorizationVC: PKPaymentAuthorizationViewController?
     let applePayPaymentRequest: PKPaymentRequest
+    let onAuthorizeApplePayCallback: OnAuthorizeApplePayCallback
     
-    init(applePayPaymentRequest: PKPaymentRequest) {
+    init(applePayPaymentRequest: PKPaymentRequest,
+         applePayDelegate: ApplePayDelegate,
+         onAuthorizeApplePayCallback: @escaping OnAuthorizeApplePayCallback) {
+        
         self.applePayPaymentRequest = applePayPaymentRequest
-    }
-    
-    func getController() -> UIViewController? {
-        return applePayController
+        self.pkPaymentAuthorizationVC = PKPaymentAuthorizationViewController(paymentRequest: applePayPaymentRequest)
+        self.onAuthorizeApplePayCallback = onAuthorizeApplePayCallback
+        super.init()
+        self.pkPaymentAuthorizationVC?.delegate = self
     }
     
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
@@ -43,7 +50,9 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didAuthorizePayment payment: PKPayment,
                                             handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
-        
+        self.onAuthorizeApplePayCallback(payment, { authorizationResult in
+            completion(authorizationResult)
+        })
     }
     
     func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {

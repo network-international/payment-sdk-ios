@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import PassKit
 
 @objc final class TransactionServiceAdapter: NSObject, TransactionService {
     
@@ -65,6 +66,33 @@ import Foundation
                 .withHeaders(headers: paymentRequestHeaders)
                 .withBodyData(data: paymentData)
                 .makeRequest(with: completion)
+        }
+    }
+    
+    public func postApplePayResponse(for order: OrderResponse,
+                                     with applePayPaymentResponse: PKPayment,
+                                     using paymentToken: String,
+                                     on completion: @escaping OnPostApplePayResponseCallback) {
+        
+        let paymentRequestHeaders = ["Authorization": "Bearer \(paymentToken)",
+            "Content-Type": "application/vnd.ni-payment.v2+json"]
+        
+        if let applePayLink = order.embeddedData?.payment?[0].paymentLinks?.applePayLink {
+            HTTPClient(url: applePayLink)?
+                .withMethod(method: "PUT")
+                .withHeaders(headers: paymentRequestHeaders)
+                .withBodyData(data: applePayPaymentResponse.token.paymentData)
+                .makeRequest(with: { _, response, _ in
+                    if let response = response {
+                        if(response.isSuccess()) {
+                            completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
+                            return
+                        }
+                    }
+                    completion(PKPaymentAuthorizationResult(status: .failure, errors: nil))
+                })
+        } else {
+            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil))
         }
     }
 }

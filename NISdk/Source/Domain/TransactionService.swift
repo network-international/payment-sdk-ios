@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import PassKit
 
 /* protocol conforming to transaction service */
 @objc protocol TransactionService {
@@ -22,4 +23,9 @@ import Foundation
                            with paymentInfo: PaymentRequest,
                            using paymentToken: String,
                            on completion: @escaping (HttpResponseCallback))
+    
+    @objc func postApplePayResponse(for order: OrderResponse,
+                                    with applePayPaymentResponse: PKPayment,
+                                    using paymentToken: String,
+                                    on completion: @escaping (OnPostApplePayResponseCallback))
 }
