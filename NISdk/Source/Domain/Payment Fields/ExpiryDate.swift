@@ -24,7 +24,7 @@ class ExpiryDate {
     func notifyDateChange() {
         let month = self.month ?? ""
         let year = self.year ?? ""
-        let isValid = self.validateExpiryDate(month: month, year: year)
+        let isValid = self.validate()
         
         NotificationCenter.default.post(name: .didChangeExpiryDate,
                                             object: self,
@@ -33,7 +33,14 @@ class ExpiryDate {
                                                        "isValid": isValid])
     }
     
-    func validateExpiryDate(month: String, year: String) -> Bool {
-        return true
+    func validate() -> Bool {
+        if let month = month, let year = year {
+            let expiryString = "20\(year)-\(month)"
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM"
+            let expiryDate = dateFormatter.date(from: expiryString)
+            return expiryDate?.timeIntervalSinceNow.sign == .plus
+        }
+        return false
     }
 }

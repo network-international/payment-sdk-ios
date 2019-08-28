@@ -32,6 +32,12 @@ class CardPaymentViewController: UIViewController {
         payButton.setTitle("Processing Payment...", for: .disabled)
         return payButton
     }()
+    var errorLabel: UILabel = {
+        let errorLabel = UILabel()
+        errorLabel.textColor = .red
+        errorLabel.text = ""
+        return errorLabel
+    }()
     
     var paymentInProgress: Bool = false {
         didSet {
@@ -111,7 +117,11 @@ class CardPaymentViewController: UIViewController {
     func setupCardPreviewComponent() {
         let cardPreviewController = CardPreviewController()
         contentView.addSubview(cardPreviewContainer)
-        cardPreviewContainer.anchor(top: contentView.topAnchor, leading: contentView.leadingAnchor, bottom: nil, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30), size: CGSize(width: 0, height: 200))
+        cardPreviewContainer.anchor(top: contentView.topAnchor,
+                                    leading: contentView.leadingAnchor,
+                                    bottom: nil, trailing: contentView.trailingAnchor,
+                                    padding: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30),
+                                    size: CGSize(width: 0, height: 200))
         
         add(cardPreviewController, inside: cardPreviewContainer)
         cardPreviewController.didMove(toParent: self)
@@ -170,23 +180,34 @@ class CardPaymentViewController: UIViewController {
         nameContainer.anchor(heightConstant: 60)
         add(nameInputVC, inside: nameContainer)
         nameInputVC.didMove(toParent: self)
+        
+        let errorContainer = UIView()
+        contentView.addSubview(errorContainer)
+        errorContainer.anchor(top: vStack.bottomAnchor,
+                              leading: contentView.leadingAnchor,
+                              bottom: nil,
+                              trailing: contentView.trailingAnchor,
+                              padding: UIEdgeInsets(top: 20, left: 30, bottom: 0, right: 30),
+                              size: CGSize(width: 0, height: 50))
+        errorContainer.addSubview(errorLabel)
+        errorLabel.alignCenterToCenterOf(parent: errorContainer)
 
         payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
+
+        contentView.addSubview(payButton)
+        payButton.anchor(top: errorContainer.bottomAnchor,
+                         leading: contentView.leadingAnchor,
+                         bottom: contentView.bottomAnchor,
+                         trailing: contentView.trailingAnchor,
+                         padding: UIEdgeInsets(top: 20, left: 30, bottom: 0, right: 30),
+                         size: CGSize(width: 0, height: 50))
         
         payButton.addSubview(loadingSpinner)
         let payButtonLabel = payButton.titleLabel
         loadingSpinner.anchor(top: payButtonLabel?.topAnchor,
-                       leading: payButtonLabel?.trailingAnchor,
-                       bottom: nil, trailing: nil,
-                       padding: UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0))
-
-        contentView.addSubview(payButton)
-        payButton.anchor(top: vStack.bottomAnchor,
-                         leading: contentView.leadingAnchor,
-                         bottom: contentView.bottomAnchor,
-                         trailing: contentView.trailingAnchor,
-                         padding: UIEdgeInsets(top: 50, left: 30, bottom: 30, right: 30),
-                         size: CGSize(width: 0, height: 50))
+                              leading: payButtonLabel?.trailingAnchor,
+                              bottom: nil, trailing: nil,
+                              padding: UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0))
     }
     
     @objc lazy private var onChangePan: onChangeTextClosure = { [weak self] textField in
@@ -209,19 +230,56 @@ class CardPaymentViewController: UIViewController {
         self?.cardHolderName.value = textField.text ?? ""
     }
     
+    func validateAllFields() -> (Bool, [String:String]) {
+        var errors: [String:String] = [:]
+        
+        let isPanValid = pan.validate()
+        if(!isPanValid) {
+            errors["pan"] = "Invalid pan number"
+        }
+        
+        let isExpiryValid = expiryDate.validate()
+        if(!isExpiryValid) {
+            errors["expiryDate"] = "Invalid expiry date"
+        }
+        
+        let isCvvValid = cvv.validate()
+        if(!isCvvValid) {
+            errors["cvv"] = "Invalid Cvv Field"
+        }
+        
+        let isNameValid = cardHolderName.validate()
+        if(!isNameValid) {
+            errors["cardHolderName"] = "Invalid card holder name"
+        }
+        
+        return (errors.isEmpty, errors)
+    }
+    
     @objc func payButtonAction() {
+        let (isAllValid, errors) = validateAllFields()
         if let pan = pan.value,
             let expiryMonth = expiryDate.month,
             let expiryYear = expiryDate.year,
             let cvv = cvv.value,
             let cardHolderName = cardHolderName.value {
-            let paymentRequest = PaymentRequest(pan: pan,
-                                                expiryMonth: expiryMonth,
-                                                expiryYear: expiryYear,
-                                                cvv: cvv,
-                                                cardHolderName: cardHolderName)
-            paymentInProgress = true
-            makePaymentCallback?(paymentRequest)
+            if (isAllValid) {
+                errorLabel.text = ""
+                let paymentRequest = PaymentRequest(pan: pan,
+                                                    expiryMonth: expiryMonth,
+                                                    expiryYear: expiryYear,
+                                                    cvv: cvv,
+                                                    cardHolderName: cardHolderName)
+                paymentInProgress = true
+                makePaymentCallback?(paymentRequest)
+                return
+            } else {
+                if(errors.count == 1) {
+                    errorLabel.text = errors.values.first
+                    return
+                }
+            }
         }
+        errorLabel.text = "There are \(errors.count) issues above"
     }
 }

@@ -12,7 +12,7 @@ class Cvv {
     var value: String? {
         didSet {
             if let value = self.value {
-                let isValid = self.validateCvv()
+                let isValid = self.validate()
                 NotificationCenter.default.post(name: .didChangeCVV,
                                                 object: self,
                                                 userInfo: ["value": value, "isValid": isValid])
@@ -20,8 +20,11 @@ class Cvv {
         }
     }
     
-    func validateCvv() -> Bool {
-        return true
+    func validate() -> Bool {
+        if let value = value {
+            return Int(value) ?? 0 > 99 && Int(value) ?? 0 < 1000
+        }
+        return false
     }
 }
 

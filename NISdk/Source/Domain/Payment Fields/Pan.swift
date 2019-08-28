@@ -25,13 +25,16 @@ class Pan {
         get { return value }
     }
     
-    func validatePan() -> Bool {
-        return true
+    func validate() -> Bool {
+        if let value = self.value {
+            return value.isValidLuhn()
+        }
+        return false
     }
     
     func notifyPanChange() {
         var userInfo: [String: Any] = [:]
-        let isValid = self.validatePan()
+        let isValid = self.validate()
         if let value = self.value {
             userInfo["value"] = value
             userInfo["isValid"] = isValid
