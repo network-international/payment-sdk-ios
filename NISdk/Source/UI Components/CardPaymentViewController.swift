@@ -22,13 +22,44 @@ class CardPaymentViewController: UIViewController {
     let scrollView = UIScrollView()
     let contentView = UIView()
     var orderAmount: Amount?
+    let payButton: UIButton = {
+        let payButton = UIButton()
+        payButton.backgroundColor = .black
+        payButton.setTitleColor(.white, for: .normal)
+        payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        payButton.setTitleColor(UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
+        payButton.layer.cornerRadius = 5
+        payButton.setTitle("Processing Payment...", for: .disabled)
+        return payButton
+    }()
+    
+    var paymentInProgress: Bool = false {
+        didSet {
+            if(self.paymentInProgress) {
+                self.loadingSpinner.startAnimating()
+                self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+                self.payButton.isEnabled = false
+            } else {
+                self.loadingSpinner.stopAnimating()
+                self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
+                self.payButton.isEnabled = true
+            }
+        }
+    }
     
     let cardPreviewContainer = UIView()
+    let loadingSpinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: .white)
+        spinner.isHidden = true
+        spinner.hidesWhenStopped = true
+        return spinner
+    }()
     
     init(makePaymentCallback: MakePaymentCallback?, orderAmount: Amount?) {
         if let makePaymentCallback = makePaymentCallback, let orderAmount = orderAmount {
             self.makePaymentCallback = makePaymentCallback
             self.orderAmount = orderAmount
+            self.payButton.setTitle("Pay \(orderAmount.currencyCode ?? "") \(String(orderAmount.value ?? 0))", for: .normal)
         }
         super.init(nibName: nil, bundle: nil)
     }
@@ -140,14 +171,14 @@ class CardPaymentViewController: UIViewController {
         add(nameInputVC, inside: nameContainer)
         nameInputVC.didMove(toParent: self)
 
-        let payButton = UIButton()
-        payButton.backgroundColor = .black
-        payButton.setTitleColor(.white, for: .normal)
-        payButton.setTitle("Pay \(orderAmount?.currencyCode ?? "") \(String(orderAmount?.value ?? 0))", for: .normal)
-        payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-        payButton.setTitleColor(UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
-        payButton.layer.cornerRadius = 5
         payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
+        
+        payButton.addSubview(loadingSpinner)
+        let payButtonLabel = payButton.titleLabel
+        loadingSpinner.anchor(top: payButtonLabel?.topAnchor,
+                       leading: payButtonLabel?.trailingAnchor,
+                       bottom: nil, trailing: nil,
+                       padding: UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0))
 
         contentView.addSubview(payButton)
         payButton.anchor(top: vStack.bottomAnchor,
@@ -189,6 +220,7 @@ class CardPaymentViewController: UIViewController {
                                                 expiryYear: expiryYear,
                                                 cvv: cvv,
                                                 cardHolderName: cardHolderName)
+            paymentInProgress = true
             makePaymentCallback?(paymentRequest)
         }
     }
