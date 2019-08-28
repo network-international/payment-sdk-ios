@@ -21,12 +21,14 @@ class CardPaymentViewController: UIViewController {
     // ui properties
     let scrollView = UIScrollView()
     let contentView = UIView()
+    var orderAmount: Amount?
     
     let cardPreviewContainer = UIView()
     
-    init(makePaymentCallback: MakePaymentCallback?) {
-        if let makePaymentCallback = makePaymentCallback {
+    init(makePaymentCallback: MakePaymentCallback?, orderAmount: Amount?) {
+        if let makePaymentCallback = makePaymentCallback, let orderAmount = orderAmount {
             self.makePaymentCallback = makePaymentCallback
+            self.orderAmount = orderAmount
         }
         super.init(nibName: nil, bundle: nil)
     }
@@ -138,10 +140,13 @@ class CardPaymentViewController: UIViewController {
         add(nameInputVC, inside: nameContainer)
         nameInputVC.didMove(toParent: self)
 
-        let payButton = UIButton(type: .system)
+        let payButton = UIButton()
         payButton.backgroundColor = .black
         payButton.setTitleColor(.white, for: .normal)
-        payButton.setTitle("Pay", for: .normal)
+        payButton.setTitle("Pay \(orderAmount?.currencyCode ?? "") \(String(orderAmount?.value ?? 0))", for: .normal)
+        payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        payButton.setTitleColor(UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
+        payButton.layer.cornerRadius = 5
         payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
 
         contentView.addSubview(payButton)
@@ -149,7 +154,7 @@ class CardPaymentViewController: UIViewController {
                          leading: contentView.leadingAnchor,
                          bottom: contentView.bottomAnchor,
                          trailing: contentView.trailingAnchor,
-                         padding: UIEdgeInsets(top: 50, left: 20, bottom: 20, right: 20),
+                         padding: UIEdgeInsets(top: 50, left: 30, bottom: 30, right: 30),
                          size: CGSize(width: 0, height: 50))
     }
     

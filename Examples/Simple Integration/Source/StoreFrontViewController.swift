@@ -20,7 +20,7 @@ class StoreFrontViewController:
     ApplePayDelegate {
     
     var collectionView: UICollectionView?
-    let payButton = UIButton(type: .system)
+    let payButton = UIButton()
     lazy var applePayButton = PKPaymentButton(paymentButtonType: .buy , paymentButtonStyle: .black)
     let buttonStack: UIStackView = {
         let stack = UIStackView()
@@ -99,6 +99,7 @@ class StoreFrontViewController:
     
     func setupPaymentButtons() {
         navigationController?.view.addSubview(buttonStack)
+        configureButtonStack()
         if let parentView = navigationController?.view {
             buttonStack.translatesAutoresizingMaskIntoConstraints = false
             buttonStack.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: 20).isActive = true
@@ -111,6 +112,8 @@ class StoreFrontViewController:
         // Pay button for card
         payButton.backgroundColor = .black
         payButton.setTitleColor(.white, for: .normal)
+        payButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        payButton.setTitleColor(UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
         payButton.setTitle("Pay", for: .normal)
         payButton.layer.cornerRadius = 5
         payButton.addTarget(self, action: #selector(payButtonTapped), for: .touchUpInside)
@@ -122,11 +125,18 @@ class StoreFrontViewController:
             buttonStack.addArrangedSubview(applePayButton)
         }
     }
+    func configureButtonStack() {
+        let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.light)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = view.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        blurEffectView.pinAsBackground(to: buttonStack)
+    }
     
     func showHidePayButtonStack() {
         if(total > 0) {
             buttonStack.isHidden = false
-            payButton.setTitle("Pay AED \(total)", for: .normal)
+            payButton.setTitle("Pay Aed \(total)", for: .normal)
         } else {
             buttonStack.isHidden = true
         }
