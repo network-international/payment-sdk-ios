@@ -22,6 +22,7 @@ class CardPaymentViewController: UIViewController {
     let scrollView = UIScrollView()
     let contentView = UIView()
     var orderAmount: Amount?
+    var allowedCardProviders: [CardProvider]?
     let payButton: UIButton = {
         let payButton = UIButton()
         payButton.backgroundColor = .black
@@ -61,10 +62,11 @@ class CardPaymentViewController: UIViewController {
         return spinner
     }()
     
-    init(makePaymentCallback: MakePaymentCallback?, orderAmount: Amount?) {
-        if let makePaymentCallback = makePaymentCallback, let orderAmount = orderAmount {
+    init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse) {
+        if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
             self.makePaymentCallback = makePaymentCallback
-            self.orderAmount = orderAmount
+            self.orderAmount = order.amount
+            self.allowedCardProviders = order.paymentMethods?.card
             self.payButton.setTitle("Pay \(orderAmount.currencyCode ?? "") \(String(orderAmount.value ?? 0))", for: .normal)
         }
         super.init(nibName: nil, bundle: nil)
@@ -236,6 +238,14 @@ class CardPaymentViewController: UIViewController {
         let isPanValid = pan.validate()
         if(!isPanValid) {
             errors["pan"] = "Invalid pan number"
+        }
+        
+        if let allowedCardProviders = allowedCardProviders {
+            let panProvider = pan.getCardProvider()
+            let allowedCardProvidersSet: Set<CardProvider> = Set(allowedCardProviders)
+            if(panProvider != .unknown && !allowedCardProvidersSet.contains(panProvider)) {
+                errors["card-provider"] = "This card provider is not allowed"
+            }
         }
         
         let isExpiryValid = expiryDate.validate()
