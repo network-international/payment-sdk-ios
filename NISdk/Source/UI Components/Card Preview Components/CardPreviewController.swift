@@ -114,6 +114,8 @@ class CardPreviewController: UIViewController {
         
         panLabel.textColor = .white
         panLabel.text = defaultPanText
+        panLabel.adjustsFontSizeToFitWidth = true
+        panLabel.numberOfLines = 1
         containerView.addSubview(panLabel)
         panLabel.anchor(top: containerView.topAnchor,
                         leading: containerView.leadingAnchor,
