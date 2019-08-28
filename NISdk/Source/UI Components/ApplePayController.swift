@@ -38,19 +38,21 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didSelect paymentMethod: PKPaymentMethod,
                                             handler completion: @escaping (PKPaymentRequestPaymentMethodUpdate) -> Void) {
-        
+        completion(PKPaymentRequestPaymentMethodUpdate(paymentSummaryItems: []))
     }
     
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didSelect shippingMethod: PKShippingMethod,
                                             handler completion: @escaping (PKPaymentRequestShippingMethodUpdate) -> Void) {
-        
+        completion(PKPaymentRequestShippingMethodUpdate(paymentSummaryItems: []))
     }
     
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didSelectShippingContact contact: PKContact,
                                             handler completion: @escaping (PKPaymentRequestShippingContactUpdate) -> Void) {
-        
+        completion(PKPaymentRequestShippingContactUpdate(errors: nil,
+                                                         paymentSummaryItems: [],
+                                                         shippingMethods: []))
     }
     
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,

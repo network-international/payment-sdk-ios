@@ -23,7 +23,7 @@ extension PaymentLinks: Codable {
         case cardPaymentLink = "payment:card"
         case savedCardPaymentLink = "payment:saved-card"
         case threeDSTermURL = "cnp:3ds"
-        case applePayLink = "apple_pay"
+        case applePayLink = "payment:apple_pay"
     }
     
     private enum hrefCodingKeys: String, CodingKey {

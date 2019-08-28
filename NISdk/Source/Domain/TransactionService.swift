@@ -13,7 +13,7 @@ import PassKit
 @objc protocol TransactionService {
     @objc func authorizePayment(for authCode: String,
                                 using authorizationLink: String,
-                                on completion: @escaping (String?) -> Void)
+                                on completion: @escaping ([String: String]) -> Void)
     
     @objc func getOrder(with orderId: String,
                         under outlet: String,
@@ -27,5 +27,5 @@ import PassKit
     @objc func postApplePayResponse(for order: OrderResponse,
                                     with applePayPaymentResponse: PKPayment,
                                     using paymentToken: String,
-                                    on completion: @escaping (OnPostApplePayResponseCallback))
+                                    on completion: @escaping (HttpResponseCallback))
 }

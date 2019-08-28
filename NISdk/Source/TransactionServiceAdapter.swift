@@ -14,7 +14,7 @@ import PassKit
     // Use this to fetch token
     func authorizePayment(for authCode: String,
                                  using authorizationLink: String,
-                                 on completion: @escaping (String?) -> Void) {
+                                 on completion: @escaping ([String:String]) -> Void) {
         
         let authorizationRequestHeaders = ["Accept": "application/vnd.ni-payment.v2+json",
                                            "Media-Type": "application/x-www-form-urlencoded",
@@ -26,19 +26,19 @@ import PassKit
             .makeRequest(with: { (Data, URLResponse, Error) in
                 if let headers = URLResponse?.getResponseHeaders() {
                     let paymentTokenHeader = headers.filter {
-                        if let headerValue = $0.value as? String {
-                            return headerValue.contains("payment-token")
+                        if let headerKey = $0.key as? String {
+                            return headerKey.contains("Set-Cookie")
                         }
                         return false
                     }
                     if(paymentTokenHeader.count > 0) {
-                        if let paymentToken = paymentTokenHeader["Set-Cookie"] as? String {
-                            let paymentToken = paymentToken.components(separatedBy: "payment-token=")[1]
-                            completion(paymentToken)
+                        if let setCookieValue = paymentTokenHeader["Set-Cookie"] as? String {
+                            let tokens = TokenUtils.extractTokens(headerValue: setCookieValue, tokenPatterns: ["payment-token", "access-token"])
+                            completion(tokens)
                             return
                         }
                     }
-                    completion(nil)
+                    completion([:])
                 }
             })
     }
@@ -69,12 +69,13 @@ import PassKit
         }
     }
     
+    // Use this to post apple pay response to transaction service
     public func postApplePayResponse(for order: OrderResponse,
                                      with applePayPaymentResponse: PKPayment,
-                                     using paymentToken: String,
-                                     on completion: @escaping OnPostApplePayResponseCallback) {
+                                     using accessToken: String,
+                                     on completion: @escaping (HttpResponseCallback)) {
         
-        let paymentRequestHeaders = ["Authorization": "Bearer \(paymentToken)",
+        let paymentRequestHeaders = ["Authorization": "Bearer \(accessToken)",
             "Content-Type": "application/vnd.ni-payment.v2+json"]
         
         if let applePayLink = order.embeddedData?.payment?[0].paymentLinks?.applePayLink {
@@ -82,17 +83,9 @@ import PassKit
                 .withMethod(method: "PUT")
                 .withHeaders(headers: paymentRequestHeaders)
                 .withBodyData(data: applePayPaymentResponse.token.paymentData)
-                .makeRequest(with: { _, response, _ in
-                    if let response = response {
-                        if(response.isSuccess()) {
-                            completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
-                            return
-                        }
-                    }
-                    completion(PKPaymentAuthorizationResult(status: .failure, errors: nil))
-                })
+                .makeRequest(with: completion)
         } else {
-            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil))
+            completion(nil, nil, nil)
         }
     }
 }
