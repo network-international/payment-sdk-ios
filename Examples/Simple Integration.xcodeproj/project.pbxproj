@@ -73,6 +73,7 @@
 		860CCD8822FC1D2B00B85096 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				86D2FB7C22FC1B3300CF1FA1 /* Assets.xcassets */,
 				86D2FB7E22FC1B3300CF1FA1 /* LaunchScreen.storyboard */,
 			);
 			path = Resources;
@@ -82,6 +83,7 @@
 			isa = PBXGroup;
 			children = (
 				862CBDE52305413800767774 /* Models */,
+				86D2FB7522FC1B3300CF1FA1 /* AppDelegate.swift */,
 				862CBE80230EE14F00767774 /* StoreFrontViewController.swift */,
 				862CBE82230EF13700767774 /* ProductViewCell.swift */,
 				86EA2236230F204B00B46FF9 /* OrderCreationViewController.swift */,
@@ -143,8 +145,6 @@
 				862CBDEF230559E400767774 /* Supporting Files */,
 				862CBDE423053FC400767774 /* Source */,
 				860CCD8822FC1D2B00B85096 /* Resources */,
-				86D2FB7522FC1B3300CF1FA1 /* AppDelegate.swift */,
-				86D2FB7C22FC1B3300CF1FA1 /* Assets.xcassets */,
 			);
 			path = "Simple Integration";
 			sourceTree = "<group>";

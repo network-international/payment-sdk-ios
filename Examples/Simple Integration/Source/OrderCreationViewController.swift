@@ -66,8 +66,9 @@ class OrderCreationViewController: UIViewController {
     }
     
     func createOrder() {
+        // Multiply amount always by 100 while creating an order
         let orderRequest = OrderRequest(action: "SALE",
-                                        amount: OrderAmount(currencyCode: "AED", value: paymentAmount))
+                                        amount: OrderAmount(currencyCode: "AED", value: paymentAmount * 100))
         let encoder = JSONEncoder()
         let orderRequestData = try! encoder.encode(orderRequest)
         let headers = ["Content-Type": "application/json"]

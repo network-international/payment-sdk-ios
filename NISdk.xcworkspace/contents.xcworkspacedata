@@ -7,4 +7,7 @@
    <FileRef
       location = "group:Examples/Simple Integration.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:Examples/Simple Integration Obj-C.xcodeproj">
+   </FileRef>
 </Workspace>
