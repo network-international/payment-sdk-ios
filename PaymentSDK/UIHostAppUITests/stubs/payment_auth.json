@@ -1,7 +1,0 @@
-{
-    "_links": {
-        "cnp:order": {
-            "href": "http://localhost:3000/transactions/outlets/outletId/orders/orderId"
-        }
-    }
-}
