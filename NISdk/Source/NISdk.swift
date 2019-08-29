@@ -20,7 +20,7 @@ import PassKit
         }
     }
     
-    public func deviceSupportsApplePay() -> Bool {
+    @objc public func deviceSupportsApplePay() -> Bool {
         return PKPaymentAuthorizationViewController.canMakePayments()
     }
     
@@ -35,7 +35,7 @@ import PassKit
         parentViewController.present(paymentViewController, animated: true)
     }
     
-    public func initiateApplePayWith(applePayDelegate: ApplePayDelegate?,
+    @objc public func initiateApplePayWith(applePayDelegate: ApplePayDelegate?,
                                      cardPaymentDelegate: CardPaymentDelegate,
                                      overParent parentViewController: UIViewController,
                                      for order: OrderResponse,

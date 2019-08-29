@@ -1,15 +1,13 @@
 //
-//  ViewController.h
+//  OrderAmount.h
 //  Simple Integration Obj-C
 //
 //  Created by Johnny Peter on 29/08/19.
 //  Copyright © 2019 Network International. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#ifndef OrderAmount_h
+#define OrderAmount_h
 
-@interface ViewController : UIViewController
 
-
-@end
-
+#endif /* OrderAmount_h */
