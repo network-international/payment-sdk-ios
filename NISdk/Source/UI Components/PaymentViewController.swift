@@ -42,6 +42,16 @@ class PaymentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.performPreAuthChecksAndBeginAuth()
+    }
+    
+    // Perform any checks that need to be done before auth
+    private func performPreAuthChecksAndBeginAuth() {
+        // Apple pay is not enabled by merchant, hence abort payment flow
+        if(self.paymentMedium == .ApplePay && (self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink) == nil) {
+            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
+            return
+        }
         // 1. Perform authorization by aquiring a payment token
         self.authorizePayment()
     }
