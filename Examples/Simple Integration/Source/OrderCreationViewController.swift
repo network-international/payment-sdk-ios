@@ -116,10 +116,12 @@ class OrderCreationViewController: UIViewController {
         view.backgroundColor = .white
         
         let authorizationLabel = UILabel()
+        authorizationLabel.textColor = .white
         authorizationLabel.text = "Creating Order..."
         
         let spinner = UIActivityIndicatorView(style: .gray)
         spinner.isHidden = false
+        spinner.color = .white
         spinner.startAnimating()
         
         let vStack = UIStackView(arrangedSubviews: [authorizationLabel, spinner])
