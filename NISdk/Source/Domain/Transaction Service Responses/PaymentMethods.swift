@@ -8,9 +8,9 @@
 
 import Foundation
 
-public class PaymentMethods: Codable {
-    var card: [CardProvider]?
-    var wallet: [WalletProvider]?
+@objc public class PaymentMethods: NSObject, Codable {
+    public var card: [CardProvider]?
+    public var wallet: [WalletProvider]?
     
     public enum PaymentMethodsCodingKeys: String, CodingKey {
         case card

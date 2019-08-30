@@ -9,5 +9,14 @@
 #ifndef OrderAmount_h
 #define OrderAmount_h
 
+@interface OrderAmount : NSObject
+
+@property (nonatomic) NSString *currencyCode;
+@property (nonatomic) int value;
+
+-(instancetype)initWitCurrencyCode:(NSString *)currencyCode andValue:(int) value;
+-(NSDictionary *)dictionary;
+
+@end
 
 #endif /* OrderAmount_h */

@@ -7,3 +7,25 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "OrderAmount.h"
+
+@implementation OrderAmount
+
+@synthesize currencyCode;
+@synthesize value;
+
+
+-(instancetype)initWitCurrencyCode:(NSString *)currencyCode andValue:(int) value {
+    if(self = [super init]) {
+        self.currencyCode = currencyCode;
+        self.value = value;
+    }
+    return self;
+}
+
+
+-(NSDictionary *)dictionary {
+    return [[NSDictionary alloc] initWithObjectsAndKeys: self.currencyCode, @"currencyCode", [NSNumber numberWithInt: self.value],  @"value", nil];
+}
+
+@end
