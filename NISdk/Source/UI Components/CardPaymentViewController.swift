@@ -172,7 +172,7 @@ class CardPaymentViewController: UIViewController {
 
 
         // Setup CVV field
-        let cvvInputVC = CvvInputVC(onChangeText: onChangeCVV)
+        let cvvInputVC = CvvInputVC(onChangeText: onChangeCVV, cvv: self.cvv)
         let cvvContainer = UIView()
         vStack.addArrangedSubview(cvvContainer)
         cvvContainer.anchor(heightConstant: 60)
