@@ -8,7 +8,13 @@
 
 import Foundation
 
+struct CVVLengths {
+    static let normal: Int = 3
+    static let amex: Int = 4
+}
+
 class Cvv {
+    var length: Int = CVVLengths.normal
     var value: String? {
         didSet {
             if let value = self.value {
@@ -20,9 +26,25 @@ class Cvv {
         }
     }
     
+    init() {
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(updateCvvMaxLenFor(_:)),
+                                               name: .didChangePan, object: nil)
+    }
+    
+    @objc func updateCvvMaxLenFor(_ notification: Notification) {
+        if let data = notification.userInfo, let cardProvider = data["cardProvider"] as? CardProvider {
+            if(cardProvider == .americanExpress) {
+                self.length = CVVLengths.amex
+            } else {
+                self.length = CVVLengths.normal
+            }
+        }
+    }
+    
     func validate() -> Bool {
         if let value = value {
-            return Int(value) ?? 0 > 99 && Int(value) ?? 0 < 1000
+            return String(value).count == self.length
         }
         return false
     }

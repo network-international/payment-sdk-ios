@@ -10,11 +10,12 @@ import Foundation
 
 class CvvInputVC: UIViewController, UITextFieldDelegate {
     let cvvTextField: UITextField = UITextField()
-    let cvvCharacterLimit = 3
     @objc let onChangeCvv: onChangeTextClosure
+    let cvv: Cvv
     
-    init(onChangeText: @escaping onChangeTextClosure) {
+    init(onChangeText: @escaping onChangeTextClosure, cvv: Cvv) {
         self.onChangeCvv = onChangeText
+        self.cvv = cvv
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -61,7 +62,7 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
     func textField(_ textField: UITextField,
                    shouldChangeCharactersIn range: NSRange,
                    replacementString string: String) -> Bool {
-        return textField.hasReachedCharacterLimit(for: string, in: range, with: cvvCharacterLimit) &&
+        return textField.hasReachedCharacterLimit(for: string, in: range, with: cvv.length) &&
             textField.hasOnlyDigits(string: string)
     }
 }
