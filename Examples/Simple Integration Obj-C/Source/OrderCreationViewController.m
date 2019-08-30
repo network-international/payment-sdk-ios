@@ -59,10 +59,12 @@
     self.view.backgroundColor = UIColor.whiteColor;
     
     UILabel * authorizationLabel = [[UILabel alloc] init];
+    [authorizationLabel setTextColor: UIColor.whiteColor];
     authorizationLabel.text = @"Creating Order...";
     
     UIActivityIndicatorView * spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle: UIActivityIndicatorViewStyleGray];
     [spinner setHidden: true];
+    [spinner setColor: UIColor.whiteColor];
     [spinner startAnimating];
     
     UIStackView *vStack = [[UIStackView alloc] initWithArrangedSubviews: [[NSArray alloc] initWithObjects: authorizationLabel, spinner, nil] ];
@@ -132,7 +134,7 @@
             if(data != nil) {
                 OrderResponse *orderResponse = [OrderResponse decodeFromData: data error: nil];
                 dispatch_async(dispatch_get_main_queue(), ^(void){
-                    [weakSelf dismissViewControllerAnimated: YES completion: ^() {
+                    [weakSelf dismissViewControllerAnimated: NO completion: ^() {
                         NISdk *sdkInstance = [NISdk sharedInstance];
                         if(weakSelf.paymentMethod == Card) {
                             [sdkInstance showCardPaymentViewWithCardPaymentDelegate: weakSelf.cardPaymentDelegate
