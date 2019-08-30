@@ -17,6 +17,7 @@ class CardPaymentViewController: UIViewController {
     let cvv = Cvv()
     let cardHolderName = CardHolderName()
     let expiryDate = ExpiryDate()
+    let onCancel: () -> Void?
     
     // ui properties
     let scrollView = UIScrollView()
@@ -62,7 +63,7 @@ class CardPaymentViewController: UIViewController {
         return spinner
     }()
     
-    init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse) {
+    init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse, onCancel: @escaping () -> Void) {
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
             var orderAmountValue = 0.0
             if let amountValue = orderAmount.value {
@@ -73,6 +74,7 @@ class CardPaymentViewController: UIViewController {
             self.allowedCardProviders = order.paymentMethods?.card
             self.payButton.setTitle("Pay   \(orderAmount.currencyCode ?? "") \(String(format: "%.2f", orderAmountValue))", for: .normal)
         }
+        self.onCancel = onCancel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -86,8 +88,19 @@ class CardPaymentViewController: UIViewController {
         setupScrollView()
         setupCardPreviewComponent()
         setupCardInputForm()
+        setupCancelButton()
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    private func setupCancelButton() {
+        self.parent?.navigationController?.setNavigationBarHidden(false, animated: false)
+        self.parent?.navigationItem.title = "Make Payment"
+        self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel", style: .done, target: self, action: #selector(self.cancelAction))
+    }
+    
+    @objc func cancelAction() {
+        self.onCancel();
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {

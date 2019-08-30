@@ -190,10 +190,13 @@
 - (void)paymentDidCompleteWith:(enum PaymentStatus)status {
     if(status == PaymentStatusPaymentSuccess) {
         [self resetSelection];
-        [self showAlertWithTitle: @"Payment Successfull" andMessage:@"Your Payment was successfull."];
+        [self showAlertWithTitle: @"Payment Successfull" andMessage: @"Your Payment was successfull."];
         return;
+    } else if(status == PaymentStatusPaymentFailed) {
+        [self showAlertWithTitle: @"Payment Failed" andMessage: @"Your Payment could not be completed."];
+    } else if(status == PaymentStatusPaymentCancelled) {
+        [self showAlertWithTitle: @"Payment Aborted" andMessage: @"You cancelled the payment request. You can try again!"];
     }
-    [self showAlertWithTitle: @"Payment Failed" andMessage:@"Your Payment could not be completed."];
 }
 
 @end

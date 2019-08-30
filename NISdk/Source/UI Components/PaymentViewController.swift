@@ -86,7 +86,10 @@ class PaymentViewController: UIViewController {
     private func initiatePaymentForm() {
         switch paymentMedium {
         case .Card:
-            let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment, order: order)
+            let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment, order: order, onCancel: {
+                [weak self] in
+                self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+            })
             self.transition(to: .renderCardPaymentForm(cardPaymentViewController))
             break;
         case .ApplePay:

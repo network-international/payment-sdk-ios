@@ -73,8 +73,11 @@ class StoreFrontViewController:
             resetSelection()
             showAlertWith(title: "Payment Successfull", message: "Your Payment was successfull.")
             return
+        } else if(status == .PaymentFailed) {
+            showAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.")
+        } else if(status == .PaymentCancelled) {
+            showAlertWith(title: "Payment Aborted", message: "You cancelled the payment request. You can try again!")
         }
-        showAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.")
     }
     
     @objc func authorizationDidComplete(with status: AuthorizationStatus) {
