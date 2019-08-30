@@ -64,10 +64,14 @@ class CardPaymentViewController: UIViewController {
     
     init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse) {
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
+            var orderAmountValue = 0.0
+            if let amountValue = orderAmount.value {
+                orderAmountValue = amountValue > 0 ? Double(amountValue) / 100 : 0.0;
+            }
             self.makePaymentCallback = makePaymentCallback
             self.orderAmount = order.amount
             self.allowedCardProviders = order.paymentMethods?.card
-            self.payButton.setTitle("Pay \(orderAmount.currencyCode ?? "") \(String(orderAmount.value ?? 0))", for: .normal)
+            self.payButton.setTitle("Pay   \(orderAmount.currencyCode ?? "") \(String(format: "%.2f", orderAmountValue))", for: .normal)
         }
         super.init(nibName: nil, bundle: nil)
     }
