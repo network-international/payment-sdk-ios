@@ -45,6 +45,7 @@
 		862F84192317D8520085E0AA /* UIView+AutoLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+AutoLayout.swift"; sourceTree = "<group>"; };
 		862F841A2317D8520085E0AA /* UICollectionView+DeselectAll.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UICollectionView+DeselectAll.swift"; sourceTree = "<group>"; };
 		862F841E2318276D0085E0AA /* PaymentMethod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PaymentMethod.h; sourceTree = "<group>"; };
+		862F841F23191D020085E0AA /* Simple Integration Obj-C.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Simple Integration Obj-C.entitlements"; sourceTree = "<group>"; };
 		869DDD7823170D520020CB20 /* Simple Integration Obj-C.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Simple Integration Obj-C.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		869DDD7B23170D520020CB20 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		869DDD7C23170D520020CB20 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -111,6 +112,7 @@
 		869DDD7A23170D520020CB20 /* Simple Integration Obj-C */ = {
 			isa = PBXGroup;
 			children = (
+				862F841F23191D020085E0AA /* Simple Integration Obj-C.entitlements */,
 				869DDD9F231776AF0020CB20 /* Resources */,
 				869DDD9C231775340020CB20 /* Source */,
 				869DDD9B2317751D0020CB20 /* Supporting Files */,
@@ -225,6 +227,11 @@
 					869DDD7723170D520020CB20 = {
 						CreatedOnToolsVersion = 10.3;
 						LastSwiftMigration = 1030;
+						SystemCapabilities = {
+							com.apple.ApplePay = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -417,6 +424,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Simple Integration Obj-C/Simple Integration Obj-C.entitlements";
 				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
@@ -444,6 +452,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Simple Integration Obj-C/Simple Integration Obj-C.entitlements";
 				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
