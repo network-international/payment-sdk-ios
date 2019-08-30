@@ -259,7 +259,7 @@ class CardPaymentViewController: UIViewController {
         
         let isCvvValid = cvv.validate()
         if(!isCvvValid) {
-            errors["cvv"] = "Invalid Cvv Field"
+            errors["cvv"] = "Invalid CVV Field"
         }
         
         let isNameValid = cardHolderName.validate()
