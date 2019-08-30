@@ -30,9 +30,11 @@ import PassKit
         
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
                                                           applePayDelegate: nil, paymentMedium: .Card)
+        let navController = UINavigationController(rootViewController: paymentViewController)
+        
         paymentViewController.view.backgroundColor = .clear
         paymentViewController.modalPresentationStyle = .overCurrentContext
-        parentViewController.present(paymentViewController, animated: true)
+        parentViewController.present(navController, animated: true)
     }
     
     @objc public func initiateApplePayWith(applePayDelegate: ApplePayDelegate?,

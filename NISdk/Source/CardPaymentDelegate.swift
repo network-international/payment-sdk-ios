@@ -53,6 +53,7 @@ public typealias RawValue = String
 @objc public enum PaymentStatus: Int, RawRepresentable {
     case PaymentSuccess
     case PaymentFailed
+    case PaymentCancelled
     
     public var rawValue: RawValue {
         switch self {
@@ -60,6 +61,8 @@ public typealias RawValue = String
             return "PaymentSuccess"
         case .PaymentFailed:
             return "PaymentFailed"
+        case .PaymentCancelled:
+            return "PaymentCancelled"
         }
     }
     
@@ -69,8 +72,10 @@ public typealias RawValue = String
             self = .PaymentSuccess
         case "PaymentFailed":
             self = .PaymentFailed
+        case "PaymentCancelled":
+            self = .PaymentCancelled
         default:
-            self = .PaymentSuccess
+            self = .PaymentCancelled
         }
     }
 }
