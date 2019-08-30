@@ -10,10 +10,16 @@
 #import "Product.h"
 
 @interface Product()
-@property (nonatomic) NSString *name;
-@property (nonatomic) int *amount;
 @end
 
 @implementation Product
+
+-(instancetype)initWithName:(NSString *)name andAmount:(int) amount {
+    if(self = [super init]) {
+        self.name = name;
+        self.amount = amount;
+    }
+    return self;
+}
 
 @end

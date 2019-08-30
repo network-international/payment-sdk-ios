@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		862F841B2317D8520085E0AA /* UIView+Border.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862F84182317D8520085E0AA /* UIView+Border.swift */; };
+		862F841C2317D8520085E0AA /* UIView+AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862F84192317D8520085E0AA /* UIView+AutoLayout.swift */; };
+		862F841D2317D8520085E0AA /* UICollectionView+DeselectAll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862F841A2317D8520085E0AA /* UICollectionView+DeselectAll.swift */; };
 		869DDD7D23170D520020CB20 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD7C23170D520020CB20 /* AppDelegate.m */; };
 		869DDD8023170D520020CB20 /* StoreFrontViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD7F23170D520020CB20 /* StoreFrontViewController.m */; };
 		869DDD8323170D520020CB20 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 869DDD8123170D520020CB20 /* Main.storyboard */; };
@@ -17,10 +20,9 @@
 		869DDD9923170ED70020CB20 /* NISdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 869DDD9723170ED70020CB20 /* NISdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		869DDDB923177A5B0020CB20 /* OrderCreationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDB823177A5B0020CB20 /* OrderCreationViewController.m */; };
 		869DDDBC23177AE60020CB20 /* Product.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDBB23177AE60020CB20 /* Product.m */; };
-		869DDDBE23177B170020CB20 /* PaymentMethods.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDBD23177B170020CB20 /* PaymentMethods.m */; };
 		869DDDC223177B400020CB20 /* OrderAmount.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDC123177B400020CB20 /* OrderAmount.m */; };
 		869DDDC423177B4E0020CB20 /* OrderRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDC323177B4E0020CB20 /* OrderRequest.m */; };
-		869DDDCB23177C0A0020CB20 /* CollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDCA23177C0A0020CB20 /* CollectionViewCell.m */; };
+		869DDDCB23177C0A0020CB20 /* ProductViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDCA23177C0A0020CB20 /* ProductViewCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -38,6 +40,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		862F84172317D8510085E0AA /* Simple Integration Obj-C-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Simple Integration Obj-C-Bridging-Header.h"; sourceTree = "<group>"; };
+		862F84182317D8520085E0AA /* UIView+Border.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Border.swift"; sourceTree = "<group>"; };
+		862F84192317D8520085E0AA /* UIView+AutoLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+AutoLayout.swift"; sourceTree = "<group>"; };
+		862F841A2317D8520085E0AA /* UICollectionView+DeselectAll.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UICollectionView+DeselectAll.swift"; sourceTree = "<group>"; };
+		862F841E2318276D0085E0AA /* PaymentMethod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PaymentMethod.h; sourceTree = "<group>"; };
 		869DDD7823170D520020CB20 /* Simple Integration Obj-C.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Simple Integration Obj-C.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		869DDD7B23170D520020CB20 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		869DDD7C23170D520020CB20 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -53,14 +60,12 @@
 		869DDDB823177A5B0020CB20 /* OrderCreationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OrderCreationViewController.m; sourceTree = "<group>"; };
 		869DDDBA23177AD90020CB20 /* Product.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Product.h; sourceTree = "<group>"; };
 		869DDDBB23177AE60020CB20 /* Product.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Product.m; sourceTree = "<group>"; };
-		869DDDBD23177B170020CB20 /* PaymentMethods.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PaymentMethods.m; sourceTree = "<group>"; };
-		869DDDBF23177B250020CB20 /* PaymentMethods.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PaymentMethods.h; sourceTree = "<group>"; };
 		869DDDC023177B320020CB20 /* OrderAmount.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OrderAmount.h; sourceTree = "<group>"; };
 		869DDDC123177B400020CB20 /* OrderAmount.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OrderAmount.m; sourceTree = "<group>"; };
 		869DDDC323177B4E0020CB20 /* OrderRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OrderRequest.m; sourceTree = "<group>"; };
 		869DDDC523177B6A0020CB20 /* OrderRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OrderRequest.h; sourceTree = "<group>"; };
-		869DDDC923177C0A0020CB20 /* CollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CollectionViewCell.h; sourceTree = "<group>"; };
-		869DDDCA23177C0A0020CB20 /* CollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CollectionViewCell.m; sourceTree = "<group>"; };
+		869DDDC923177C0A0020CB20 /* ProductViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProductViewCell.h; sourceTree = "<group>"; };
+		869DDDCA23177C0A0020CB20 /* ProductViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProductViewCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +80,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		862F84162317D8300085E0AA /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				862F841A2317D8520085E0AA /* UICollectionView+DeselectAll.swift */,
+				862F84192317D8520085E0AA /* UIView+AutoLayout.swift */,
+				862F84182317D8520085E0AA /* UIView+Border.swift */,
+				862F84172317D8510085E0AA /* Simple Integration Obj-C-Bridging-Header.h */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 		869DDD6F23170D520020CB20 = {
 			isa = PBXGroup;
 			children = (
@@ -119,11 +135,11 @@
 				869DDD7C23170D520020CB20 /* AppDelegate.m */,
 				869DDD7E23170D520020CB20 /* StoreFrontViewController.h */,
 				869DDD7F23170D520020CB20 /* StoreFrontViewController.m */,
-				869DDDC923177C0A0020CB20 /* CollectionViewCell.h */,
-				869DDDCA23177C0A0020CB20 /* CollectionViewCell.m */,
+				869DDDC923177C0A0020CB20 /* ProductViewCell.h */,
+				869DDDCA23177C0A0020CB20 /* ProductViewCell.m */,
 				869DDDB723177A5B0020CB20 /* OrderCreationViewController.h */,
 				869DDDB823177A5B0020CB20 /* OrderCreationViewController.m */,
-				869DDD9E2317766F0020CB20 /* Categories */,
+				862F84162317D8300085E0AA /* Protocols */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -132,18 +148,11 @@
 			isa = PBXGroup;
 			children = (
 				869DDDB6231779A90020CB20 /* Product */,
-				869DDDB52317799F0020CB20 /* PaymentMethods */,
 				869DDDB4231779950020CB20 /* OrderAmount */,
 				869DDDB32317798C0020CB20 /* OrderRequest */,
+				862F841E2318276D0085E0AA /* PaymentMethod.h */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		869DDD9E2317766F0020CB20 /* Categories */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Categories;
 			sourceTree = "<group>";
 		};
 		869DDD9F231776AF0020CB20 /* Resources */ = {
@@ -159,8 +168,8 @@
 		869DDDB32317798C0020CB20 /* OrderRequest */ = {
 			isa = PBXGroup;
 			children = (
-				869DDDC323177B4E0020CB20 /* OrderRequest.m */,
 				869DDDC523177B6A0020CB20 /* OrderRequest.h */,
+				869DDDC323177B4E0020CB20 /* OrderRequest.m */,
 			);
 			path = OrderRequest;
 			sourceTree = "<group>";
@@ -172,15 +181,6 @@
 				869DDDC123177B400020CB20 /* OrderAmount.m */,
 			);
 			path = OrderAmount;
-			sourceTree = "<group>";
-		};
-		869DDDB52317799F0020CB20 /* PaymentMethods */ = {
-			isa = PBXGroup;
-			children = (
-				869DDDBD23177B170020CB20 /* PaymentMethods.m */,
-				869DDDBF23177B250020CB20 /* PaymentMethods.h */,
-			);
-			path = PaymentMethods;
 			sourceTree = "<group>";
 		};
 		869DDDB6231779A90020CB20 /* Product */ = {
@@ -224,6 +224,7 @@
 				TargetAttributes = {
 					869DDD7723170D520020CB20 = {
 						CreatedOnToolsVersion = 10.3;
+						LastSwiftMigration = 1030;
 					};
 				};
 			};
@@ -266,12 +267,14 @@
 				869DDDC223177B400020CB20 /* OrderAmount.m in Sources */,
 				869DDDB923177A5B0020CB20 /* OrderCreationViewController.m in Sources */,
 				869DDDBC23177AE60020CB20 /* Product.m in Sources */,
-				869DDDCB23177C0A0020CB20 /* CollectionViewCell.m in Sources */,
+				869DDDCB23177C0A0020CB20 /* ProductViewCell.m in Sources */,
 				869DDD8023170D520020CB20 /* StoreFrontViewController.m in Sources */,
-				869DDDBE23177B170020CB20 /* PaymentMethods.m in Sources */,
 				869DDD8B23170D530020CB20 /* main.m in Sources */,
 				869DDDC423177B4E0020CB20 /* OrderRequest.m in Sources */,
+				862F841B2317D8520085E0AA /* UIView+Border.swift in Sources */,
+				862F841C2317D8520085E0AA /* UIView+AutoLayout.swift in Sources */,
 				869DDD7D23170D520020CB20 /* AppDelegate.m in Sources */,
+				862F841D2317D8520085E0AA /* UICollectionView+DeselectAll.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -413,8 +416,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Manual;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/**",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration Obj-C/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -423,6 +432,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.example.Simple-Integration-Obj-C";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Simple Integration Obj-C/Source/Protocols/Simple Integration Obj-C-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -431,8 +443,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Manual;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/**",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration Obj-C/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -441,6 +459,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.example.Simple-Integration-Obj-C";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Simple Integration Obj-C/Source/Protocols/Simple Integration Obj-C-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

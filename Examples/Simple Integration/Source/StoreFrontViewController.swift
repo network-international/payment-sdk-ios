@@ -41,9 +41,7 @@ class StoreFrontViewController:
         setupPaymentButtons()
         
         title = "Zoomoji Store"
-//        let indexPath = IndexPath(item: pets.count, section: 0)
         self.collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: UICollectionViewFlowLayout())
-//        self.collectionView?.insertItems(at: [indexPath])
         collectionView?.register(ProductViewCell.self, forCellWithReuseIdentifier: "collectionCell")
         collectionView?.delegate = self
         collectionView?.allowsSelection = true

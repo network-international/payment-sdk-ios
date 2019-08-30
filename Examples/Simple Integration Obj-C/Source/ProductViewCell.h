@@ -10,7 +10,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CollectionViewCell : UICollectionViewCell
+@interface ProductViewCell : UICollectionViewCell
+
+@property (nonatomic) UILabel *productLabel;
+@property (nonatomic) UILabel *priceLabel;
+@property (nonatomic) int price;
+
+- (void)updateBorder:(Boolean)selected;
 
 @end
 

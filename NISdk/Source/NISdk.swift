@@ -24,7 +24,7 @@ import PassKit
         return PKPaymentAuthorizationViewController.canMakePayments()
     }
     
-    public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
+    @objc public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
                              overParent parentViewController: UIViewController,
                              for order: OrderResponse) {
         

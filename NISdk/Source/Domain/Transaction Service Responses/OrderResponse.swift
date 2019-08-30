@@ -57,6 +57,15 @@ import Foundation
         return nil
     }
     
+    @objc public static func decodeFrom(data: Data) throws -> OrderResponse {
+        do {
+            let orderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
+            return orderResponse
+        } catch let error {
+            throw error
+        }
+    }
+    
     public required init(from decoder: Decoder) throws {
         let OrderResponseContainer = try decoder.container(keyedBy: OrderCodingKeys.self)
 

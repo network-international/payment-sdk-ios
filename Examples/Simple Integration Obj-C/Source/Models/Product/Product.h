@@ -11,6 +11,11 @@
 
 @interface Product : NSObject
 
+@property (nonatomic) NSString *name;
+@property (nonatomic) int amount;
+
+-(id)initWithName:(NSString *)name andAmount:(int) amount;
+
 @end
 
 

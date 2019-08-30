@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "StoreFrontViewController.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +18,14 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    StoreFrontViewController *firstScreen = [[StoreFrontViewController alloc] init];
+    UINavigationController * navigationController = [[UINavigationController alloc] initWithRootViewController: firstScreen];
+    
+    self.window = [[UIWindow alloc] initWithFrame: UIScreen.mainScreen.bounds];
+    self.window.rootViewController = navigationController;
+    [self.window makeKeyAndVisible];
+    
     return YES;
 }
 

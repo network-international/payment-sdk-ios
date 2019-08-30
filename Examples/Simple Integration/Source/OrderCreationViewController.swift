@@ -45,7 +45,7 @@ class OrderCreationViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc func dismissVC() {
+    func dismissVC() {
         DispatchQueue.main.async {
             self.dismiss(animated: true, completion: nil)
         }
