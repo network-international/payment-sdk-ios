@@ -93,10 +93,21 @@ class CardPaymentViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        tearDownCancelButton()
+    }
+    
     private func setupCancelButton() {
         self.parent?.navigationController?.setNavigationBarHidden(false, animated: false)
         self.parent?.navigationItem.title = "Make Payment"
         self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel", style: .done, target: self, action: #selector(self.cancelAction))
+    }
+    
+    private func tearDownCancelButton() {
+        self.parent?.navigationController?.setNavigationBarHidden(true, animated: true)
+        self.parent?.navigationItem.title = nil
+        self.parent?.navigationItem.rightBarButtonItem = nil
     }
     
     @objc func cancelAction() {
