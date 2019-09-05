@@ -17,7 +17,9 @@ Pod::Spec.new do |spec|
 
   spec.source = { :git => 'https://github.com/network-international/payment-sdk-ios.git', :tag => "v#{spec.version}" }
   spec.source_files = 'NISdk/Source/**/*.{swift}'
-  spec.ios.resources = "NISdk/Resources/**/*.{xcassets,otf,strings}"
+  spec.resource_bundles = {
+    'NISdk' => ["NISdk/Resources/**/*.{xcassets,otf,strings}"]
+  }
 
   spec.frameworks = 'Foundation', 'Security', 'WebKit', 'PassKit'
   spec.requires_arc = true
