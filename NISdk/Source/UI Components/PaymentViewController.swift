@@ -96,6 +96,7 @@ class PaymentViewController: UIViewController {
             if let applePayRequest = applePayRequest {
                 applePayController = ApplePayController(applePayDelegate: self.applePayDelegate!,
                                                         order: order,
+                                                        onDismissCallback: handlePaymentResponse,
                                                         onAuthorizeApplePayCallback: handleApplePayAuthorization)
                 if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
                     applePayRequest.supportedNetworks = Array(Set(allowedPKPaymentNetworks))
@@ -125,14 +126,12 @@ class PaymentViewController: UIViewController {
                         do {
                             let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
                             if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED") {
-                                completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
+                                completion(PKPaymentAuthorizationResult(status: .success, errors: nil), paymentResponse)
                             } else {
-                                completion(PKPaymentAuthorizationResult(status: .failure, errors: nil))
+                                completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
                             }
-                            self.handlePaymentResponse(paymentResponse)
                         } catch let error {
-                            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil))
-                            self.handlePaymentResponse(nil)
+                            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                         }
                     }
             })
