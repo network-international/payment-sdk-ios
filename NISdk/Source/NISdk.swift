@@ -9,14 +9,26 @@
 import Foundation
 import PassKit
 
+private class NISdkBundleLocator {}
 
 @objc public final class NISdk: NSObject {
     @objc public static let sharedInstance = NISdk()
     
     private override init() {
         super.init()
-        if let bundle = Bundle(identifier: "ae.network.gateway.sdk") {
-            UIFont.RegisterFont(withFilenameString: "OCRA.otf", in: bundle)
+        let bundle = getBundle()
+        UIFont.RegisterFont(withFilenameString: "OCRA.otf", in: bundle)
+    }
+    
+    private func getBundle() -> Bundle {
+        if let bundle = Bundle(path: "NISdk.bundle") {
+            return bundle
+        } else if let path = Bundle(for: NISdkBundleLocator.self).path(forResource: "NISdk", ofType: "bundle"),
+            let bundle = Bundle(path: path)  {
+            return bundle
+        } else {
+            let bundle = Bundle(for: NISdkBundleLocator.self)
+            return bundle
         }
     }
     
