@@ -10,29 +10,18 @@ import Foundation
 import PassKit
 
 typealias OnPostApplePayResponseCallback = (PKPaymentAuthorizationResult) -> Void
-typealias OnAuthorizeApplePayCallback = (PKPayment, @escaping OnPostApplePayResponseCallback) -> Void
+typealias OnAuthorizeApplePayCallback = (PKPayment?, OnPostApplePayResponseCallback?) -> Void
 
 class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate {
-    
-    var pkPaymentAuthorizationVC: PKPaymentAuthorizationViewController?
-    let applePayPaymentRequest: PKPaymentRequest
     let onAuthorizeApplePayCallback: OnAuthorizeApplePayCallback
     let order: OrderResponse
     
-    init(applePayPaymentRequest: PKPaymentRequest,
-         applePayDelegate: ApplePayDelegate,
+    init(applePayDelegate: ApplePayDelegate,
          order: OrderResponse,
          onAuthorizeApplePayCallback: @escaping OnAuthorizeApplePayCallback) {
-        
         self.order = order
-        self.applePayPaymentRequest = applePayPaymentRequest
-        if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
-            self.applePayPaymentRequest.supportedNetworks = Array(Set(allowedPKPaymentNetworks))
-        }
-        self.pkPaymentAuthorizationVC = PKPaymentAuthorizationViewController(paymentRequest: applePayPaymentRequest)
         self.onAuthorizeApplePayCallback = onAuthorizeApplePayCallback
         super.init()
-        self.pkPaymentAuthorizationVC?.delegate = self
     }
     
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
@@ -61,10 +50,13 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
         self.onAuthorizeApplePayCallback(payment, {
             authorizationResult in
             completion(authorizationResult)
+            controller.dismiss(animated: false, completion: nil)
         })
     }
     
     func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
-        self.pkPaymentAuthorizationVC?.dismiss(animated: true, completion: nil)
+        controller.dismiss(animated: false, completion: {
+            self.onAuthorizeApplePayCallback(nil, nil)
+        })
     }
 }
