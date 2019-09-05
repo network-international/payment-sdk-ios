@@ -177,7 +177,7 @@ class PaymentViewController: UIViewController {
     
     private func initiateThreeDS(with paymentRepsonse: PaymentResponse) {
         if let acsUrl = paymentRepsonse.threeDSConfig?.acsUrl,
-            let acsPaReq = paymentRepsonse.threeDSConfig?.acsMd,
+            let acsPaReq = paymentRepsonse.threeDSConfig?.acsPaReq,
             let acsMd = paymentRepsonse.threeDSConfig?.acsMd,
             let threeDSTermURL = paymentRepsonse.paymentLinks?.threeDSTermURL {
             let threeDSViewController = ThreeDSViewController(with: acsUrl,
