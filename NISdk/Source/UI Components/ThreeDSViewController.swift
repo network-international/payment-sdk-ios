@@ -60,7 +60,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
         var request = URLRequest(url: URL(string: acsUrl)!)
         request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         request.httpMethod = "POST"
-        request.httpBody   = "PaReq=\(acsPaReq)&TermUrl=\(threeDSTermURL)&MD=\(acsMd)".data(using: .utf8)
+        request.httpBody   = "PaReq=\(acsPaReq.encodeAsURL())&TermUrl=\(threeDSTermURL.encodeAsURL())&MD=\(acsMd.encodeAsURL())".data(using: .utf8)
         
         webView.load(request)
         showActivityIndicator()
