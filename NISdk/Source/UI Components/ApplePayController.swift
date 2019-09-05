@@ -9,18 +9,21 @@
 import Foundation
 import PassKit
 
-typealias OnPostApplePayResponseCallback = (PKPaymentAuthorizationResult) -> Void
+typealias OnPostApplePayResponseCallback = (PKPaymentAuthorizationResult, PaymentResponse?) -> Void
 typealias OnAuthorizeApplePayCallback = (PKPayment?, OnPostApplePayResponseCallback?) -> Void
 
 class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate {
     let onAuthorizeApplePayCallback: OnAuthorizeApplePayCallback
     let order: OrderResponse
+    let onDismissCallback: (PaymentResponse?) -> Void
     
     init(applePayDelegate: ApplePayDelegate,
          order: OrderResponse,
+         onDismissCallback: @escaping (PaymentResponse?) -> Void,
          onAuthorizeApplePayCallback: @escaping OnAuthorizeApplePayCallback) {
         self.order = order
         self.onAuthorizeApplePayCallback = onAuthorizeApplePayCallback
+        self.onDismissCallback = onDismissCallback
         super.init()
     }
     
@@ -48,15 +51,19 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
                                             didAuthorizePayment payment: PKPayment,
                                             handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
         self.onAuthorizeApplePayCallback(payment, {
-            authorizationResult in
+            authorizationResult, paymentResponse in
             completion(authorizationResult)
-            controller.dismiss(animated: false, completion: nil)
+            controller.dismiss(animated: false, completion: {
+                [weak self] in
+                self?.onDismissCallback(paymentResponse)
+            })
         })
     }
     
     func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
         controller.dismiss(animated: false, completion: {
-            self.onAuthorizeApplePayCallback(nil, nil)
+            [weak self] in
+            self?.onDismissCallback(nil)
         })
     }
 }
