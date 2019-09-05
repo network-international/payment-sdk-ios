@@ -94,12 +94,18 @@ class PaymentViewController: UIViewController {
             break;
         case .ApplePay:
             if let applePayRequest = applePayRequest {
-                applePayController = ApplePayController(applePayPaymentRequest: applePayRequest,
-                                                        applePayDelegate: self.applePayDelegate!,
+                applePayController = ApplePayController(applePayDelegate: self.applePayDelegate!,
                                                         order: order,
                                                         onAuthorizeApplePayCallback: handleApplePayAuthorization)
-                if let applePayVC = applePayController?.pkPaymentAuthorizationVC {
-                    self.transition(to: .renderApplePaySheet(applePayVC))
+                if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
+                    applePayRequest.supportedNetworks = Array(Set(allowedPKPaymentNetworks))
+                }
+                // Dont use container view controllers for apple pay
+                let pkPaymentAuthorizationVC = PKPaymentAuthorizationViewController(paymentRequest: applePayRequest)
+                if let pkPaymentAuthorizationVC = pkPaymentAuthorizationVC {
+                    pkPaymentAuthorizationVC.delegate = applePayController
+                    self.shownViewController?.remove()
+                    self.present(pkPaymentAuthorizationVC, animated: false, completion: nil)
                     return
                 }
             }
@@ -110,24 +116,29 @@ class PaymentViewController: UIViewController {
     
     lazy private var handleApplePayAuthorization: OnAuthorizeApplePayCallback  = {
         [unowned self] payment, completion in
-        self.transactionService.postApplePayResponse(for: self.order,
-                                                     with: payment,
-                                                     using: self.accessToken!, on: {
-            [unowned self] data, response, error in
-            if let data = data {
-                do {
-                    let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
-                    if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED") {
-                        completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
-                    } else {
-                        completion(PKPaymentAuthorizationResult(status: .failure, errors: nil))
+        if let payment = payment, let completion = completion {
+            self.transactionService.postApplePayResponse(for: self.order,
+                 with: payment,
+                 using: self.accessToken!, on: {
+                    [unowned self] data, response, error in
+                    if let data = data {
+                        do {
+                            let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                            if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED") {
+                                completion(PKPaymentAuthorizationResult(status: .success, errors: nil))
+                            } else {
+                                completion(PKPaymentAuthorizationResult(status: .failure, errors: nil))
+                            }
+                            self.handlePaymentResponse(paymentResponse)
+                        } catch let error {
+                            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil))
+                            self.handlePaymentResponse(nil)
+                        }
                     }
-                    self.handlePaymentResponse(paymentResponse)
-                } catch let error {
-                    self.handlePaymentResponse(nil)
-                }
-            }
-        })
+            })
+        } else {
+             self.handlePaymentResponse(nil)
+        }
     }
     
     lazy private var makePayment = { [unowned self] paymentRequest in
@@ -219,7 +230,6 @@ private extension PaymentViewController {
         case authorizing
         case renderCardPaymentForm(UIViewController)
         case renderThreeDSChallengeForm(UIViewController)
-        case renderApplePaySheet(UIViewController)
     }
     
     private func transition(to newState: State) {
@@ -236,8 +246,7 @@ private extension PaymentViewController {
             return AuthorizationViewController()
             
         case .renderCardPaymentForm(let viewController),
-             .renderThreeDSChallengeForm(let viewController),
-             .renderApplePaySheet(let viewController):
+             .renderThreeDSChallengeForm(let viewController):
             return viewController
         }
     }
