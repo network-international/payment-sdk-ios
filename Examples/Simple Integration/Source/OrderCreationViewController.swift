@@ -47,7 +47,7 @@ class OrderCreationViewController: UIViewController {
     
     func dismissVC() {
         DispatchQueue.main.async {
-            self.dismiss(animated: true, completion: nil)
+            self.dismiss(animated: false, completion: nil)
         }
     }
     
