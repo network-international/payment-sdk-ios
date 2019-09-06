@@ -24,7 +24,7 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        panTextField.placeholder = "Card Number"
+        panTextField.placeholder = "Card Number".localized
         panTextField.keyboardType = .numberPad
         panTextField.text = ""
         panTextField.borderStyle = .none
@@ -35,7 +35,7 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         panTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
 
         let label = UILabel()
-        label.text = "Number"
+        label.text = "Number".localized
         
         let hStack = UIStackView(arrangedSubviews: [label, panTextField])
         hStack.axis = .horizontal

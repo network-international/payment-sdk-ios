@@ -20,7 +20,7 @@ private class NISdkBundleLocator {}
         UIFont.RegisterFont(withFilenameString: "OCRA.otf", in: bundle)
     }
     
-    private func getBundle() -> Bundle {
+    func getBundle() -> Bundle {
         if let bundle = Bundle(path: "NISdk.bundle") {
             return bundle
         } else if let path = Bundle(for: NISdkBundleLocator.self).path(forResource: "NISdk", ofType: "bundle"),
