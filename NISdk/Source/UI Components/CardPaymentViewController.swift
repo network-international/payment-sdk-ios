@@ -322,6 +322,6 @@ class CardPaymentViewController: UIViewController {
                 }
             }
         }
-        errorLabel.text = "There are \(errors.count) issues above"
+        errorLabel.text = "All fields are mandatory"
     }
 }
