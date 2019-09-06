@@ -1,5 +1,0 @@
-{
-    "orderReference": "123456",
-    "paymentAuthorizationUrl": "http://localhost:3000/paymentAuthorizationUrl",
-    "code": "xyz"
-}

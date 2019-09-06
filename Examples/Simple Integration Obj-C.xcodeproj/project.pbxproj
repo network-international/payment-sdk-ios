@@ -1,0 +1,501 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		862F841B2317D8520085E0AA /* UIView+Border.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862F84182317D8520085E0AA /* UIView+Border.swift */; };
+		862F841C2317D8520085E0AA /* UIView+AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862F84192317D8520085E0AA /* UIView+AutoLayout.swift */; };
+		862F841D2317D8520085E0AA /* UICollectionView+DeselectAll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862F841A2317D8520085E0AA /* UICollectionView+DeselectAll.swift */; };
+		869DDD7D23170D520020CB20 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD7C23170D520020CB20 /* AppDelegate.m */; };
+		869DDD8023170D520020CB20 /* StoreFrontViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD7F23170D520020CB20 /* StoreFrontViewController.m */; };
+		869DDD8323170D520020CB20 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 869DDD8123170D520020CB20 /* Main.storyboard */; };
+		869DDD8523170D530020CB20 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 869DDD8423170D530020CB20 /* Assets.xcassets */; };
+		869DDD8823170D530020CB20 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 869DDD8623170D530020CB20 /* LaunchScreen.storyboard */; };
+		869DDD8B23170D530020CB20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD8A23170D530020CB20 /* main.m */; };
+		869DDD9823170ED70020CB20 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 869DDD9723170ED70020CB20 /* NISdk.framework */; };
+		869DDD9923170ED70020CB20 /* NISdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 869DDD9723170ED70020CB20 /* NISdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		869DDDB923177A5B0020CB20 /* OrderCreationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDB823177A5B0020CB20 /* OrderCreationViewController.m */; };
+		869DDDBC23177AE60020CB20 /* Product.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDBB23177AE60020CB20 /* Product.m */; };
+		869DDDC223177B400020CB20 /* OrderAmount.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDC123177B400020CB20 /* OrderAmount.m */; };
+		869DDDC423177B4E0020CB20 /* OrderRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDC323177B4E0020CB20 /* OrderRequest.m */; };
+		869DDDCB23177C0A0020CB20 /* ProductViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDCA23177C0A0020CB20 /* ProductViewCell.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		869DDD9A23170ED70020CB20 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				869DDD9923170ED70020CB20 /* NISdk.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		862F84172317D8510085E0AA /* Simple Integration Obj-C-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Simple Integration Obj-C-Bridging-Header.h"; sourceTree = "<group>"; };
+		862F84182317D8520085E0AA /* UIView+Border.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+Border.swift"; sourceTree = "<group>"; };
+		862F84192317D8520085E0AA /* UIView+AutoLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+AutoLayout.swift"; sourceTree = "<group>"; };
+		862F841A2317D8520085E0AA /* UICollectionView+DeselectAll.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UICollectionView+DeselectAll.swift"; sourceTree = "<group>"; };
+		862F841E2318276D0085E0AA /* PaymentMethod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PaymentMethod.h; sourceTree = "<group>"; };
+		862F841F23191D020085E0AA /* Simple Integration Obj-C.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Simple Integration Obj-C.entitlements"; sourceTree = "<group>"; };
+		869DDD7823170D520020CB20 /* Simple Integration Obj-C.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Simple Integration Obj-C.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		869DDD7B23170D520020CB20 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		869DDD7C23170D520020CB20 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		869DDD7E23170D520020CB20 /* StoreFrontViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StoreFrontViewController.h; sourceTree = "<group>"; };
+		869DDD7F23170D520020CB20 /* StoreFrontViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StoreFrontViewController.m; sourceTree = "<group>"; };
+		869DDD8223170D520020CB20 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		869DDD8423170D530020CB20 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		869DDD8723170D530020CB20 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		869DDD8923170D530020CB20 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		869DDD8A23170D530020CB20 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		869DDD9723170ED70020CB20 /* NISdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = NISdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		869DDDB723177A5B0020CB20 /* OrderCreationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OrderCreationViewController.h; sourceTree = "<group>"; };
+		869DDDB823177A5B0020CB20 /* OrderCreationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OrderCreationViewController.m; sourceTree = "<group>"; };
+		869DDDBA23177AD90020CB20 /* Product.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Product.h; sourceTree = "<group>"; };
+		869DDDBB23177AE60020CB20 /* Product.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Product.m; sourceTree = "<group>"; };
+		869DDDC023177B320020CB20 /* OrderAmount.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OrderAmount.h; sourceTree = "<group>"; };
+		869DDDC123177B400020CB20 /* OrderAmount.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OrderAmount.m; sourceTree = "<group>"; };
+		869DDDC323177B4E0020CB20 /* OrderRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OrderRequest.m; sourceTree = "<group>"; };
+		869DDDC523177B6A0020CB20 /* OrderRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OrderRequest.h; sourceTree = "<group>"; };
+		869DDDC923177C0A0020CB20 /* ProductViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProductViewCell.h; sourceTree = "<group>"; };
+		869DDDCA23177C0A0020CB20 /* ProductViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProductViewCell.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		869DDD7523170D520020CB20 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				869DDD9823170ED70020CB20 /* NISdk.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		862F84162317D8300085E0AA /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				862F841A2317D8520085E0AA /* UICollectionView+DeselectAll.swift */,
+				862F84192317D8520085E0AA /* UIView+AutoLayout.swift */,
+				862F84182317D8520085E0AA /* UIView+Border.swift */,
+				862F84172317D8510085E0AA /* Simple Integration Obj-C-Bridging-Header.h */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		869DDD6F23170D520020CB20 = {
+			isa = PBXGroup;
+			children = (
+				869DDD7A23170D520020CB20 /* Simple Integration Obj-C */,
+				869DDD7923170D520020CB20 /* Products */,
+				869DDD9723170ED70020CB20 /* NISdk.framework */,
+			);
+			sourceTree = "<group>";
+		};
+		869DDD7923170D520020CB20 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				869DDD7823170D520020CB20 /* Simple Integration Obj-C.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		869DDD7A23170D520020CB20 /* Simple Integration Obj-C */ = {
+			isa = PBXGroup;
+			children = (
+				862F841F23191D020085E0AA /* Simple Integration Obj-C.entitlements */,
+				869DDD9F231776AF0020CB20 /* Resources */,
+				869DDD9C231775340020CB20 /* Source */,
+				869DDD9B2317751D0020CB20 /* Supporting Files */,
+			);
+			path = "Simple Integration Obj-C";
+			sourceTree = "<group>";
+		};
+		869DDD9B2317751D0020CB20 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				869DDD8923170D530020CB20 /* Info.plist */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		869DDD9C231775340020CB20 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				869DDD8A23170D530020CB20 /* main.m */,
+				869DDD9D231775460020CB20 /* Models */,
+				869DDD7B23170D520020CB20 /* AppDelegate.h */,
+				869DDD7C23170D520020CB20 /* AppDelegate.m */,
+				869DDD7E23170D520020CB20 /* StoreFrontViewController.h */,
+				869DDD7F23170D520020CB20 /* StoreFrontViewController.m */,
+				869DDDC923177C0A0020CB20 /* ProductViewCell.h */,
+				869DDDCA23177C0A0020CB20 /* ProductViewCell.m */,
+				869DDDB723177A5B0020CB20 /* OrderCreationViewController.h */,
+				869DDDB823177A5B0020CB20 /* OrderCreationViewController.m */,
+				862F84162317D8300085E0AA /* Protocols */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		869DDD9D231775460020CB20 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				869DDDB6231779A90020CB20 /* Product */,
+				869DDDB4231779950020CB20 /* OrderAmount */,
+				869DDDB32317798C0020CB20 /* OrderRequest */,
+				862F841E2318276D0085E0AA /* PaymentMethod.h */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		869DDD9F231776AF0020CB20 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				869DDD8123170D520020CB20 /* Main.storyboard */,
+				869DDD8423170D530020CB20 /* Assets.xcassets */,
+				869DDD8623170D530020CB20 /* LaunchScreen.storyboard */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		869DDDB32317798C0020CB20 /* OrderRequest */ = {
+			isa = PBXGroup;
+			children = (
+				869DDDC523177B6A0020CB20 /* OrderRequest.h */,
+				869DDDC323177B4E0020CB20 /* OrderRequest.m */,
+			);
+			path = OrderRequest;
+			sourceTree = "<group>";
+		};
+		869DDDB4231779950020CB20 /* OrderAmount */ = {
+			isa = PBXGroup;
+			children = (
+				869DDDC023177B320020CB20 /* OrderAmount.h */,
+				869DDDC123177B400020CB20 /* OrderAmount.m */,
+			);
+			path = OrderAmount;
+			sourceTree = "<group>";
+		};
+		869DDDB6231779A90020CB20 /* Product */ = {
+			isa = PBXGroup;
+			children = (
+				869DDDBA23177AD90020CB20 /* Product.h */,
+				869DDDBB23177AE60020CB20 /* Product.m */,
+			);
+			path = Product;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		869DDD7723170D520020CB20 /* Simple Integration Obj-C */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 869DDD8E23170D530020CB20 /* Build configuration list for PBXNativeTarget "Simple Integration Obj-C" */;
+			buildPhases = (
+				869DDD7423170D520020CB20 /* Sources */,
+				869DDD7523170D520020CB20 /* Frameworks */,
+				869DDD7623170D520020CB20 /* Resources */,
+				869DDD9A23170ED70020CB20 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Simple Integration Obj-C";
+			productName = "Simple Integration Obj-C";
+			productReference = 869DDD7823170D520020CB20 /* Simple Integration Obj-C.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		869DDD7023170D520020CB20 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1030;
+				ORGANIZATIONNAME = "Network International";
+				TargetAttributes = {
+					869DDD7723170D520020CB20 = {
+						CreatedOnToolsVersion = 10.3;
+						LastSwiftMigration = 1030;
+						SystemCapabilities = {
+							com.apple.ApplePay = {
+								enabled = 1;
+							};
+						};
+					};
+				};
+			};
+			buildConfigurationList = 869DDD7323170D520020CB20 /* Build configuration list for PBXProject "Simple Integration Obj-C" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 869DDD6F23170D520020CB20;
+			productRefGroup = 869DDD7923170D520020CB20 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				869DDD7723170D520020CB20 /* Simple Integration Obj-C */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		869DDD7623170D520020CB20 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				869DDD8823170D530020CB20 /* LaunchScreen.storyboard in Resources */,
+				869DDD8523170D530020CB20 /* Assets.xcassets in Resources */,
+				869DDD8323170D520020CB20 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		869DDD7423170D520020CB20 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				869DDDC223177B400020CB20 /* OrderAmount.m in Sources */,
+				869DDDB923177A5B0020CB20 /* OrderCreationViewController.m in Sources */,
+				869DDDBC23177AE60020CB20 /* Product.m in Sources */,
+				869DDDCB23177C0A0020CB20 /* ProductViewCell.m in Sources */,
+				869DDD8023170D520020CB20 /* StoreFrontViewController.m in Sources */,
+				869DDD8B23170D530020CB20 /* main.m in Sources */,
+				869DDDC423177B4E0020CB20 /* OrderRequest.m in Sources */,
+				862F841B2317D8520085E0AA /* UIView+Border.swift in Sources */,
+				862F841C2317D8520085E0AA /* UIView+AutoLayout.swift in Sources */,
+				869DDD7D23170D520020CB20 /* AppDelegate.m in Sources */,
+				862F841D2317D8520085E0AA /* UICollectionView+DeselectAll.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		869DDD8123170D520020CB20 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				869DDD8223170D520020CB20 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		869DDD8623170D530020CB20 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				869DDD8723170D530020CB20 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		869DDD8C23170D530020CB20 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		869DDD8D23170D530020CB20 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		869DDD8F23170D530020CB20 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Simple Integration Obj-C/Simple Integration Obj-C.entitlements";
+				CODE_SIGN_STYLE = Manual;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/**",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration Obj-C/Supporting Files/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.Simple-Integration-Obj-C";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Simple Integration Obj-C/Source/Protocols/Simple Integration Obj-C-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		869DDD9023170D530020CB20 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "Simple Integration Obj-C/Simple Integration Obj-C.entitlements";
+				CODE_SIGN_STYLE = Manual;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/**",
+				);
+				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration Obj-C/Supporting Files/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.example.Simple-Integration-Obj-C";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Simple Integration Obj-C/Source/Protocols/Simple Integration Obj-C-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		869DDD7323170D520020CB20 /* Build configuration list for PBXProject "Simple Integration Obj-C" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				869DDD8C23170D530020CB20 /* Debug */,
+				869DDD8D23170D530020CB20 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		869DDD8E23170D530020CB20 /* Build configuration list for PBXNativeTarget "Simple Integration Obj-C" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				869DDD8F23170D530020CB20 /* Debug */,
+				869DDD9023170D530020CB20 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 869DDD7023170D520020CB20 /* Project object */;
+}
