@@ -29,8 +29,10 @@ class OrderCreationViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         if(paymentMethod == .ApplePay) {
+            let merchantId = ""
+            assert(!merchantId.isEmpty, "You need to add your apple pay merchant ID above")
             paymentRequest = PKPaymentRequest()
-            paymentRequest?.merchantIdentifier = "merchant.com.mu1ex"
+            paymentRequest?.merchantIdentifier = merchantId
             paymentRequest?.countryCode = "AE"
             paymentRequest?.currencyCode = "AED"
             paymentRequest?.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
