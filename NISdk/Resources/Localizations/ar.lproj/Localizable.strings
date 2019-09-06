@@ -1,0 +1,21 @@
+/* 
+  Localizable.strings
+  NISdk
+
+  Created by Johnny Peter on 06/09/19.
+  Copyright © 2019 Network International. All rights reserved.
+*/
+
+"Expires" = "تاريخ الانتهاء شهر/سنة";
+"MM" = "شهر";
+"YY" = "عام";
+"Number" = "رقم";
+"Card Number" = "رقم البطاقة";
+"Cardholder Name" = "اسم حامل البطاقة";
+"Name" = "اسم";
+"CVV" = "رقم التحقق";
+"Secure Code" = "رقم التحقق";
+"Pay" = "ادفع الآن";
+"Make Payment" = "الدفع";
+"Processing Payment..." = "جاري التحميل";
+"Pay Button Title" = "%.2f %@ الدفع";

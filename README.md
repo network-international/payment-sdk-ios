@@ -1,151 +1,26 @@
-# Payment SDK for iOS
+# Network International iOS SDK
 
-[![Build Status](https://travis-ci.com/network-international/payment-sdk-ios.svg?branch=master)](https://travis-ci.com/network-international/payment-sdk-ios)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
 ![Banner](assets/banner.jpg)
 
-### Specifications
-The target iOS version of the SDK is 11.0. It is built using Swift 4.2.
+The NI-payment-sdk-ios allows you to quickly integrate a payment checkout experience in your iOS app.
 
-### Localization
-iOS SDK supports English and Arabic.
+## Requirements
+The Network International iOS payment SDK requires Xcode 10.1 and later and works with iOS versions 11 and above
 
-***
-### Installation
-## [Carthage](http://github.com/Carthage/Carthage)
-Simply add the following line to your `Cartfile`:
-```ruby
-github "network-international/payment-sdk-ios" >= 2.0.0
-```
-Then add the `PaymentSDK.framework` to your frameworks list in the Xcode project.
+## Getting Started
 
-Then import it where you use it:
+### Integration
 
-```swift
-import PaymentSDK
-```
+We support all the popular iOS dependency management tools. The SDK can be added via [CocoaPods](https://cocoapods.org/) or [Carthage](https://github.com/Carthage/Carthage).
 
-<details>
-<summary>In Objective-C</summary>
+Head over to our [iOS Integration Docs](https://docs.ngenius-payments.com/reference#ios-sdk), which explain in detail the payment-sdk integration flow.
 
-```objective-c
-#import <PaymentSDK/PaymentSDK.h>
-```
-***
-</details>
+### Examples
 
-## Card Integration
-Configure the SDK:
+There are 2 example apps, one written in swift and the other in Objective-C included in this repository, which can be used as a reference for integrating the sdk into your app.
 
-```swift
-import PaymentSDK
-// ...
-let sdk = PaymentSDK.Interface.sharedInstance
-sdk.configure()
-```
+- [**Simple Integration** -  Examples/Simple Integration](/Examples/Simple%20Integration/)
+- [**Simple Integration Obj-C** - Examples/Simple Integration Obj-C](/Examples/Simple%20Integration%20Obj-C/)
 
-<details>
-<summary>In Objective-C</summary>
-
-```objective-c
-#import <PaymentSDK/PaymentSDK.h>
-// ...
-Interface *sdk = [Interface sharedInstance];
-[_sdk configure];
-
-```
-</details>
-
-Once its configure, create a PaymentSDK delegate file which will implement `PaymentDelegate`
-
-```swift
-final class PaymentSDKDelegate : PaymentDelegate {
-// Implement methods from PaymentDelegate to conform the protocol
-}
-```
-
-<details>
-<summary>In Objective-C</summary>
-
-```objective-c
-@interface PaymentSDKDelegate : NSObject <PaymentDelegate>
-@end
-```
-</details>
-
-Once the SDK is configured you can call the card payment method on tap of the Pay button in your app:
-
-```swift
-guard let paymentHandler = PaymentSDKHandler.sdk.paymentAuthorizationHandler else
-{
-return
-}
-paymentHandler.presentCardView(overParent: parent, withDelegate: paymentDelegate, completion: completion)
-```
-
-<details>
-<summary>In Objective-C</summary>
-
-```objective-c
-
-PaymentAuthorizationHandler *paymentHandler = handler.sdk.paymentAuthorizationHandler;
-if (paymentHandler == nil) { return; }
-[paymentHandler presentCardViewWithOverParent:parent withDelegate:delegate completion:completionBlock];
-
-```
-</details>
-
-Above:
-- `overParent` will be your controller on which the card view will appear
-- `withDelegate` should be your delegate instance which was created in previous step
-- `completion` completion block.
-
-Above step will call `beginAuthorization` method in the delegate. In this method, app should call `merchant-server` to create the order in gateway and get the `PaymentAuthorization` link & code.
-
-```swift
-// Pseudo code to create order
-OrderService.create(amount: amount, action: "AUTH"){
-(orderCreateResponse) in
-if let order = orderCreateResponse {
-// Create auth link by URL & code
-let authLink = PaymentAuthorizationLink(href: order.paymentAuthorizationUrl, code: order.code)
-completion(authLink)
-}
-}
-```
-<details>
-<summary>In Objective-C</summary>
-
-```objective-c
-[OrderService create: amount withAction: @"AUTH" withCompletion:^(OrderResponse * _Nonnull order, NSError * _Nonnull error) {
-if (error == nil) {
-if (order) {
-PaymentAuthorizationLink *authLink = [[PaymentAuthorizationLink alloc]initWithHref:order.paymentAuthorizationUrl code:order.code];
-completion(authLink);
-}
-} else {
-NSLog(@"Failed to get authorization link with error : %@", error);
-completion(nil);
-s}
-}];
-
-```
-</details>
-
-
-Now the card payment UI will appear and once the transaction is processing/processed, delegate methods like `authorizationCompleted`, `paymentStarted`, `paymentCompleted` will be called respectively.
-***
-
-## Card payment process
-This section shows the possible steps that card payment contains.
-
-1. The merchant app requests for payment authorization URL from the merchant server.
-2. The merchant server returns the required information.
-3. Merchant app passes the payment authorization URL to the SDK.
-4. SDK launches the card payment screen.
-5. SDK gets the card details (PAN, CVV, expiry date and card holder) from the user, and make a http call to make payment.
-6. The payment gateway starts a 3D secure flow if required.
-7. The payment result is returned to SDK, and then to the merchant app in order.
-
-![Payment Process](assets/payment_process.png)
