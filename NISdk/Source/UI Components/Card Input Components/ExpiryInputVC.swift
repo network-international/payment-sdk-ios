@@ -29,14 +29,15 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.setup(textField: monthTextField, placeholder: "MM", huggingPriority: nil)
+        self.setup(textField: monthTextField, placeholder: "MM".localized, huggingPriority: nil)
         monthTextField.addTarget(self, action: #selector(onMonthChangeCallback), for: .editingChanged)
         
-        self.setup(textField: yearTextField, placeholder: "YY", huggingPriority: 249)
+        self.setup(textField: yearTextField, placeholder: "YY".localized, huggingPriority: 249)
         yearTextField.addTarget(self, action: #selector(onYearChangeCallback), for: .editingChanged)
         
         let label = UILabel()
-        label.text = "Expires"
+        
+        label.text = "Expires".localized
         
         let seperatorLabel = UILabel()
         seperatorLabel.textColor = UIColor(hexString: "#dbdbdc")

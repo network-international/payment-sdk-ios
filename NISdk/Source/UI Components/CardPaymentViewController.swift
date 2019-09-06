@@ -31,7 +31,7 @@ class CardPaymentViewController: UIViewController {
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         payButton.setTitleColor(UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
         payButton.layer.cornerRadius = 5
-        payButton.setTitle("Processing Payment...", for: .disabled)
+        payButton.setTitle("Processing Payment...".localized, for: .disabled)
         return payButton
     }()
     var errorLabel: UILabel = {
@@ -72,7 +72,8 @@ class CardPaymentViewController: UIViewController {
             self.makePaymentCallback = makePaymentCallback
             self.orderAmount = order.amount
             self.allowedCardProviders = order.paymentMethods?.card
-            self.payButton.setTitle("Pay   \(orderAmount.currencyCode ?? "") \(String(format: "%.2f", orderAmountValue))", for: .normal)
+            let payButtonTitle = String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.currencyCode ?? "", orderAmountValue)
+            self.payButton.setTitle(payButtonTitle, for: .normal)
         }
         self.onCancel = onCancel
         super.init(nibName: nil, bundle: nil)
@@ -100,7 +101,7 @@ class CardPaymentViewController: UIViewController {
     
     private func setupCancelButton() {
         self.parent?.navigationController?.setNavigationBarHidden(false, animated: false)
-        self.parent?.navigationItem.title = "Make Payment"
+        self.parent?.navigationItem.title = "Make Payment".localized
         self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel", style: .done, target: self, action: #selector(self.cancelAction))
     }
     
@@ -169,7 +170,10 @@ class CardPaymentViewController: UIViewController {
                       trailing: contentView.trailingAnchor,
                       padding:  UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0),
                       size: CGSize(width: 0, height: 0))
-        vStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
+        let stackLayoutDirection = vStack.getUILayoutDirection()
+        vStack.layoutMargins = stackLayoutDirection == .leftToRight
+            ? UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
+            : UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 20)
         vStack.isLayoutMarginsRelativeArrangement = true
         
         let stackBackgroundView = UIView()

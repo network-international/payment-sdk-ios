@@ -24,7 +24,7 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        nameTextField.placeholder = "Cardholder Name"
+        nameTextField.placeholder = "Cardholder Name".localized
         nameTextField.text = ""
         nameTextField.borderStyle = .none
         nameTextField.backgroundColor = .white
@@ -34,7 +34,7 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
         nameTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
         
         let label = UILabel()
-        label.text = "Name"
+        label.text = "Name".localized
         
         let hStack = UIStackView(arrangedSubviews: [label, nameTextField])
         hStack.axis = .horizontal

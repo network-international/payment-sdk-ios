@@ -26,7 +26,7 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        cvvTextField.placeholder = "Secure Code"
+        cvvTextField.placeholder = "Secure Code".localized
         cvvTextField.text = ""
         cvvTextField.keyboardType = .numberPad
         cvvTextField.borderStyle = .none
@@ -38,7 +38,7 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
         cvvTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
         
         let label = UILabel()
-        label.text = "CVV"
+        label.text = "CVV".localized
         
         let hStack = UIStackView(arrangedSubviews: [label, cvvTextField])
         hStack.axis = .horizontal

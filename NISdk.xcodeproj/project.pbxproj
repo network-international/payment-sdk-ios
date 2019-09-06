@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		860CCD9222FC212A00B85096 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 860CCD9122FC212A00B85096 /* Localizable.strings */; };
 		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
 		860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */; };
 		860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0422FC933200B85096 /* PaymentRequest.swift */; };
@@ -64,6 +63,9 @@
 		86D2FB5E22FC1AE700CF1FA1 /* NISdkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D2FB5D22FC1AE700CF1FA1 /* NISdkTests.swift */; };
 		86D2FB6022FC1AE700CF1FA1 /* NISdk.h in Headers */ = {isa = PBXBuildFile; fileRef = 86D2FB5222FC1AE700CF1FA1 /* NISdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		86ECAFD023210FCD008FDDDC /* String+URLEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86ECAFCF23210FCD008FDDDC /* String+URLEncode.swift */; };
+		86ECAFD723223056008FDDDC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86ECAFD923223056008FDDDC /* Localizable.strings */; };
+		86ECAFDF23223E92008FDDDC /* String+Localized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86ECAFDE23223E92008FDDDC /* String+Localized.swift */; };
+		86ECAFE323225949008FDDDC /* UIView+InterfaceLayoutDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86ECAFE223225949008FDDDC /* UIView+InterfaceLayoutDirection.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,7 +79,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		860CCD9122FC212A00B85096 /* Localizable.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
 		860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentDelegate.swift; sourceTree = "<group>"; };
 		860CCE0422FC933200B85096 /* PaymentRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentRequest.swift; sourceTree = "<group>"; };
@@ -137,6 +138,10 @@
 		86D2FB5D22FC1AE700CF1FA1 /* NISdkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdkTests.swift; sourceTree = "<group>"; };
 		86D2FB5F22FC1AE700CF1FA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		86ECAFCF23210FCD008FDDDC /* String+URLEncode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+URLEncode.swift"; sourceTree = "<group>"; };
+		86ECAFD823223056008FDDDC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		86ECAFDB232238CA008FDDDC /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
+		86ECAFDE23223E92008FDDDC /* String+Localized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Localized.swift"; sourceTree = "<group>"; };
+		86ECAFE223225949008FDDDC /* UIView+InterfaceLayoutDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+InterfaceLayoutDirection.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,7 +216,7 @@
 		860CCD8F22FC20F700B85096 /* Localizations */ = {
 			isa = PBXGroup;
 			children = (
-				860CCD9122FC212A00B85096 /* Localizable.strings */,
+				86ECAFD923223056008FDDDC /* Localizable.strings */,
 			);
 			path = Localizations;
 			sourceTree = "<group>";
@@ -276,6 +281,7 @@
 				86710F4B230FE47600259AE9 /* Encodable+PrettyPrint.swift */,
 				86710F4D230FEB5100259AE9 /* URLResponse+Any.swift */,
 				86710F542311C59900259AE9 /* Collection+Pairs.swift */,
+				86ECAFE223225949008FDDDC /* UIView+InterfaceLayoutDirection.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -319,6 +325,7 @@
 				862CBE7C230E8C3B00767774 /* String+Luhn.swift */,
 				86710F562311C5FD00259AE9 /* String+RemoveWhitespace.swift */,
 				86ECAFCF23210FCD008FDDDC /* String+URLEncode.swift */,
+				86ECAFDE23223E92008FDDDC /* String+Localized.swift */,
 			);
 			path = String;
 			sourceTree = "<group>";
@@ -451,6 +458,8 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				ar,
+				Base,
 			);
 			mainGroup = 86D2FB4522FC1AE700CF1FA1;
 			productRefGroup = 86D2FB5022FC1AE700CF1FA1 /* Products */;
@@ -468,8 +477,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				860CCD9222FC212A00B85096 /* Localizable.strings in Resources */,
 				862CBE6D230D2A0E00767774 /* CardLogos.xcassets in Resources */,
+				86ECAFD723223056008FDDDC /* Localizable.strings in Resources */,
 				862CBE3A230678F000767774 /* OCRA.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -492,6 +501,7 @@
 				862CBE57230A63F300767774 /* PaymentViewController.swift in Sources */,
 				862CBE4D2307F9D600767774 /* UIView+AutoLayout.swift in Sources */,
 				862CBE492307443400767774 /* UIColor+Hex.swift in Sources */,
+				86ECAFE323225949008FDDDC /* UIView+InterfaceLayoutDirection.swift in Sources */,
 				862CBDEC23054C9800767774 /* OrderSummary.swift in Sources */,
 				86710F572311C5FD00259AE9 /* String+RemoveWhitespace.swift in Sources */,
 				869DDD6923157E3A0020CB20 /* CardProvider.swift in Sources */,
@@ -518,6 +528,7 @@
 				862CBE7B230E85D500767774 /* String+Insert.swift in Sources */,
 				862CBE69230C8C2C00767774 /* Cvv.swift in Sources */,
 				862CBDF123058F4200767774 /* PaymentMethods.swift in Sources */,
+				86ECAFDF23223E92008FDDDC /* String+Localized.swift in Sources */,
 				860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */,
 				862CBE55230A5F0C00767774 /* URL+QueryParams.swift in Sources */,
 				862CBDEA23054C7000767774 /* BillingAddress.swift in Sources */,
@@ -560,11 +571,24 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		86ECAFD923223056008FDDDC /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				86ECAFD823223056008FDDDC /* en */,
+				86ECAFDB232238CA008FDDDC /* ar */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
 		86D2FB6122FC1AE700CF1FA1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -629,6 +653,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -688,8 +713,9 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -704,6 +730,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ae.network.gateway.sdk;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
@@ -716,8 +743,9 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -732,6 +760,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = ae.network.gateway.sdk;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
