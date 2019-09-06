@@ -34,7 +34,9 @@
     
     if(self.paymentMethod == ApplePay) {
         self.paymentRequest = [[PKPaymentRequest alloc] init];
-        self.paymentRequest.merchantIdentifier = @"merchant.com.mu1ex";
+        NSString *merchantId = @"";
+        NSAssert(merchantId.length > 0, @"You need to add your apple pay merchant ID above");
+        self.paymentRequest.merchantIdentifier = merchantId;
         self.paymentRequest.countryCode = @"AE";
         self.paymentRequest.currencyCode = @"AED";
         self.paymentRequest.requiredShippingContactFields = [[NSSet alloc] initWithObjects: PKContactFieldPostalAddress, PKContactFieldEmailAddress, PKContactFieldPhoneNumber, nil];
