@@ -97,6 +97,8 @@ class StoreFrontViewController:
     
     @objc func applePayButtonTapped(applePayPaymentRequest: PKPaymentRequest) {
         let orderCreationViewController = OrderCreationViewController(paymentAmount: total, and: self, using: .ApplePay, with: selectedItems)
+        orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+        orderCreationViewController.modalPresentationStyle = .overCurrentContext
         self.present(orderCreationViewController, animated: true, completion: nil)
     }
     

@@ -100,7 +100,9 @@
                                                                                                                       and: self
                                                                                                                     using: ApplePay
                                                                                                                      with: self.selectedItems];
-    [self presentViewController: orderCreationViewController animated: YES completion: nil];
+    [orderCreationViewController.view setBackgroundColor: [UIColor colorWithRed:0 green:0 blue:0 alpha:0.7]];
+    [orderCreationViewController setModalPresentationStyle:UIModalPresentationOverCurrentContext];
+    [self presentViewController: orderCreationViewController animated: NO completion: nil];
 }
 
 - (void)add:(int)amount emoji:(NSString *)emoji {
