@@ -15,7 +15,7 @@ The Network International iOS payment SDK requires Xcode 10.1 and later and work
 
 We support all the popular iOS dependency management tools. The SDK can be added via [CocoaPods](https://cocoapods.org/) or [Carthage](https://github.com/Carthage/Carthage).
 
-Head over to our [iOS Integration Docs](https://docs.ngenius-payments.com/reference#ios-sdk), which explain in detail the payment-sdk integration flow.
+Head over to our [iOS Integration Docs](https://docs.ngenius-payments.com/reference#ios-sdk-integration-guide), which explain in detail the payment-sdk integration flow.
 
 ### Examples
 
