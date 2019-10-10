@@ -9,12 +9,12 @@
 import Foundation
 
 @objc public class PaymentResponse: NSObject, Codable {
-    let _id: String?
-    let state: String
-    let amount: Amount?
-    let embeddedData: EmbeddedData?
-    let paymentLinks: PaymentLinks?
-    let threeDSConfig: ThreeDSConfig?
+    public let _id: String?
+    public let state: String
+    public let amount: Amount?
+    public let embeddedData: EmbeddedData?
+    public let paymentLinks: PaymentLinks?
+    public let threeDSConfig: ThreeDSConfig?
     
     private enum PaymentResponseCodingKeys: String, CodingKey {
         case _id
