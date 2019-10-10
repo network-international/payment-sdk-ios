@@ -9,11 +9,11 @@
 import Foundation
 
 public struct BillingAddress: Codable {
-    let firstName: String?
-    let lastName: String?
-    let address1: String?
-    let city: String?
-    let countryCode: String?
+    public let firstName: String?
+    public let lastName: String?
+    public let address1: String?
+    public let city: String?
+    public let countryCode: String?
     
     private enum  BillingAddressCodingKeys: String, CodingKey {
         case firstName
