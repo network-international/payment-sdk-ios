@@ -18,6 +18,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private var acsMd: String
     private var threeDSTermURL: String
     private var completionHandler: (Bool) -> Void
+    private var hasClosedWebView: Bool = false
     
     
     init(with acsUrl: String, acsPaReq: String, acsMd: String, threeDSTermURL: String, completion: @escaping (Bool) -> Void) {
@@ -93,12 +94,16 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
             // Failed
             self.completionHandler(false)
         }
+        hasClosedWebView = true
     }
     
     // Gets called when the 3ds page fails to load
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         // 3ds Failed due to some error
         webView.stopLoading()
-        self.completionHandler(false)
+        if(!hasClosedWebView) {
+            hasClosedWebView = true;
+            self.completionHandler(false)
+        }
     }
 }
