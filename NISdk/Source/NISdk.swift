@@ -46,6 +46,13 @@ private class NISdkBundleLocator {}
         
         paymentViewController.view.backgroundColor = .clear
         paymentViewController.modalPresentationStyle = .overCurrentContext
+
+        if #available(iOS 13.0, *) {
+            navController.isModalInPresentation = true
+        } else {
+            // Fallback on earlier versions
+        }
+
         parentViewController.present(navController, animated: true)
     }
     
