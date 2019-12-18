@@ -19,6 +19,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private var threeDSTermURL: String
     private var completionHandler: (Bool) -> Void
     private var hasClosedWebView: Bool = false
+    private var hasInitialisedRequest: Bool = false
     
     
     init(with acsUrl: String, acsPaReq: String, acsMd: String, threeDSTermURL: String, completion: @escaping (Bool) -> Void) {
@@ -58,13 +59,17 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        var request = URLRequest(url: URL(string: acsUrl)!)
-        request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        request.httpMethod = "POST"
-        request.httpBody   = "PaReq=\(acsPaReq.encodeAsURL())&TermUrl=\(threeDSTermURL.encodeAsURL())&MD=\(acsMd.encodeAsURL())".data(using: .utf8)
-        
-        webView.load(request)
-        showActivityIndicator()
+        // Adding this check to prevent multiple requests
+        if(!hasInitialisedRequest) {
+            hasInitialisedRequest = true
+            var request = URLRequest(url: URL(string: acsUrl)!)
+            request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+            request.httpMethod = "POST"
+            request.httpBody   = "PaReq=\(acsPaReq.encodeAsURL())&TermUrl=\(threeDSTermURL.encodeAsURL())&MD=\(acsMd.encodeAsURL())".data(using: .utf8)
+            
+            webView.load(request)
+            showActivityIndicator()
+        }
     }
     
     private func showActivityIndicator() {
@@ -86,15 +91,17 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     
     // Gets called after 3ds is performed and a 302 redirect is received from txn service
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
-        webView.stopLoading()
-        if(webView.url?.queryParameters?["3ds_status"] == "SUCCESS") {
-            // Success
-            self.completionHandler(true)
-        } else {
-            // Failed
-            self.completionHandler(false)
+        if let threeDSStatus = webView.url?.queryParameters?["3ds_status"] {
+            hasClosedWebView = true
+            webView.stopLoading()
+            if(threeDSStatus == "SUCCESS") {
+                // Success
+                self.completionHandler(true)
+            } else {
+                // Failed
+                self.completionHandler(false)
+            }
         }
-        hasClosedWebView = true
     }
     
     // Gets called when the 3ds page fails to load
