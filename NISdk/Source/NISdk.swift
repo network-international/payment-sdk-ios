@@ -46,6 +46,9 @@ private class NISdkBundleLocator {}
         
         paymentViewController.view.backgroundColor = .clear
         paymentViewController.modalPresentationStyle = .overCurrentContext
+        if #available(iOS 13.0, *) {
+            paymentViewController.isModalInPresentation = true
+        }
         parentViewController.present(navController, animated: true)
     }
     
@@ -60,6 +63,9 @@ private class NISdkBundleLocator {}
         paymentViewController.applePayRequest = applePayRequest
         paymentViewController.view.backgroundColor = .clear
         paymentViewController.modalPresentationStyle = .overCurrentContext
+        if #available(iOS 13.0, *) {
+            paymentViewController.isModalInPresentation = true
+        }
         parentViewController.present(paymentViewController, animated: true)
     }
 }
