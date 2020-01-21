@@ -10,7 +10,8 @@ import Foundation
 
 extension String {
     var localized: String {
-        let bundle = NISdk.sharedInstance.getBundle()
+        let language = NISdk.sharedInstance.sdkLanguage
+        let bundle = NISdk.sharedInstance.getBundleFor(language: language)
         return NSLocalizedString(self, tableName: nil, bundle: bundle, value: "", comment: "")
     }
     
