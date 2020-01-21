@@ -16,11 +16,13 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
     let onAuthorizeApplePayCallback: OnAuthorizeApplePayCallback
     let order: OrderResponse
     let onDismissCallback: (PaymentResponse?) -> Void
+    let applePayDelegate: ApplePayDelegate
     
     init(applePayDelegate: ApplePayDelegate,
          order: OrderResponse,
          onDismissCallback: @escaping (PaymentResponse?) -> Void,
          onAuthorizeApplePayCallback: @escaping OnAuthorizeApplePayCallback) {
+        self.applePayDelegate = applePayDelegate
         self.order = order
         self.onAuthorizeApplePayCallback = onAuthorizeApplePayCallback
         self.onDismissCallback = onDismissCallback
@@ -30,21 +32,33 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didSelect paymentMethod: PKPaymentMethod,
                                             handler completion: @escaping (PKPaymentRequestPaymentMethodUpdate) -> Void) {
-        completion(PKPaymentRequestPaymentMethodUpdate(paymentSummaryItems: []))
+        if let newPaymentMethod = applePayDelegate.didSelectPaymentMethod?(paymentMethod: paymentMethod) {
+            completion(newPaymentMethod)
+        } else {
+            completion(PKPaymentRequestPaymentMethodUpdate(errors: nil, paymentSummaryItems: []))
+        }
     }
     
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didSelect shippingMethod: PKShippingMethod,
                                             handler completion: @escaping (PKPaymentRequestShippingMethodUpdate) -> Void) {
-        completion(PKPaymentRequestShippingMethodUpdate(paymentSummaryItems: []))
+        if let newShippingMethod = applePayDelegate.didSelectShippingMethod?(shippingMethod: shippingMethod) {
+            completion(newShippingMethod)
+        } else {
+            completion(PKPaymentRequestShippingMethodUpdate(paymentSummaryItems: []))
+        }
     }
     
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didSelectShippingContact contact: PKContact,
                                             handler completion: @escaping (PKPaymentRequestShippingContactUpdate) -> Void) {
-        completion(PKPaymentRequestShippingContactUpdate(errors: nil,
-                                                         paymentSummaryItems: [],
-                                                         shippingMethods: []))
+        if let newShippingContact = applePayDelegate.didSelectShippingContact?(shippingContact: contact) {
+            completion(newShippingContact)
+        } else {
+            completion(PKPaymentRequestShippingContactUpdate(errors: nil,
+            paymentSummaryItems: [],
+            shippingMethods: []))
+        }
     }
     
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
