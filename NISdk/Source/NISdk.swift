@@ -13,6 +13,7 @@ private class NISdkBundleLocator {}
 
 @objc public final class NISdk: NSObject {
     @objc public static let sharedInstance = NISdk()
+    var sdkLanguage = "en"
     
     private override init() {
         super.init()
@@ -32,14 +33,34 @@ private class NISdkBundleLocator {}
         }
     }
     
+    func getBundleFor(language: String) -> Bundle {
+        if let path = Bundle(for: NISdkBundleLocator.self).path(forResource: language, ofType: "lproj"),
+            let bundle = Bundle(path: path)  {
+            return bundle
+        } else {
+            let bundle = Bundle(for: NISdkBundleLocator.self)
+            return bundle
+        }
+    }
+    
     @objc public func deviceSupportsApplePay() -> Bool {
         return PKPaymentAuthorizationViewController.canMakePayments()
+    }
+    
+    @objc public func setSDKLanguage(language: String) {
+        sdkLanguage = language
+        let direction = Locale.characterDirection(forLanguage: language)
+        if (direction == .rightToLeft) {
+            UIView.appearance().semanticContentAttribute = .forceRightToLeft
+        } else {
+             UIView.appearance().semanticContentAttribute = .forceLeftToRight
+        }
+        
     }
     
     @objc public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
                              overParent parentViewController: UIViewController,
                              for order: OrderResponse) {
-        
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
                                                           applePayDelegate: nil, paymentMedium: .Card)
         let navController = UINavigationController(rootViewController: paymentViewController)
