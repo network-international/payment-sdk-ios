@@ -102,7 +102,7 @@ class CardPaymentViewController: UIViewController {
     private func setupCancelButton() {
         self.parent?.navigationController?.setNavigationBarHidden(false, animated: false)
         self.parent?.navigationItem.title = "Make Payment".localized
-        self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel", style: .done, target: self, action: #selector(self.cancelAction))
+        self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
     }
     
     private func tearDownCancelButton() {
@@ -269,30 +269,30 @@ class CardPaymentViewController: UIViewController {
         
         let isPanValid = pan.validate()
         if(!isPanValid) {
-            errors["pan"] = "Invalid pan number"
+            errors["pan"] = "Invalid pan number".localized
         }
         
         if let allowedCardProviders = allowedCardProviders {
             let panProvider = pan.getCardProvider()
             let allowedCardProvidersSet: Set<CardProvider> = Set(allowedCardProviders)
             if(panProvider != .unknown && !allowedCardProvidersSet.contains(panProvider)) {
-                errors["card-provider"] = "This card provider is not allowed"
+                errors["card-provider"] = "Invalid card provider".localized
             }
         }
         
         let isExpiryValid = expiryDate.validate()
         if(!isExpiryValid) {
-            errors["expiryDate"] = "Invalid expiry date"
+            errors["expiryDate"] = "Invalid expiry date".localized
         }
         
         let isCvvValid = cvv.validate()
         if(!isCvvValid) {
-            errors["cvv"] = "Invalid CVV Field"
+            errors["cvv"] = "Invalid CVV Field".localized
         }
         
         let isNameValid = cardHolderName.validate()
         if(!isNameValid) {
-            errors["cardHolderName"] = "Invalid card holder name"
+            errors["cardHolderName"] = "Invalid card holder name".localized
         }
         
         return (errors.isEmpty, errors)
@@ -322,6 +322,6 @@ class CardPaymentViewController: UIViewController {
                 }
             }
         }
-        errorLabel.text = "All fields are mandatory"
+        errorLabel.text = "All fields are mandatory".localized
     }
 }
