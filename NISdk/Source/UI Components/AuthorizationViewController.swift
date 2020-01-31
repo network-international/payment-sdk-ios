@@ -14,7 +14,7 @@ class AuthorizationViewController: UIViewController {
         view.backgroundColor = .white
         
         let authorizationLabel = UILabel()
-        authorizationLabel.text = "Authenticating Payment..."
+        authorizationLabel.text = "Authenticating Payment".localized
         
         let spinner = UIActivityIndicatorView(style: .gray)
         spinner.isHidden = false

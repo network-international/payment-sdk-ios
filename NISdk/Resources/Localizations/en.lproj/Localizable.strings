@@ -19,4 +19,11 @@
 "Make Payment" = "Make Payment";
 "Processing Payment..." = "Processing Payment...";
 "Pay Button Title" = "Pay  %@ %.2f";
-
+"Invalid pan number" = "Invalid pan number";
+"Invalid card provider" = "This card provider is not allowed";
+"Invalid expiry date" = "Invalid expiry date";
+"Invalid CVV Field" = "Invalid CVV Field";
+"Invalid card holder name" = "Invalid card holder name";
+"All fields are mandatory" = "All fields are mandatory";
+"Cancel" = "Cancel";
+"Authenticating Payment" = "Authenticating Payment";
