@@ -9,12 +9,15 @@
 import Foundation
 
 class AuthorizationViewController: UIViewController {
+    var authorizationLabel: UILabel {
+        let authLabel = UILabel()
+        authLabel.text = "Authenticating Payment".localized
+        return authLabel
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        
-        let authorizationLabel = UILabel()
-        authorizationLabel.text = "Authenticating Payment".localized
         
         let spinner = UIActivityIndicatorView(style: .gray)
         spinner.isHidden = false

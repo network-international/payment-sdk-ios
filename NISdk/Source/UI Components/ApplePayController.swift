@@ -66,11 +66,13 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
                                             handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
         self.onAuthorizeApplePayCallback(payment, {
             authorizationResult, paymentResponse in
-            completion(authorizationResult)
-            controller.dismiss(animated: false, completion: {
-                [weak self] in
-                self?.onDismissCallback(paymentResponse)
-            })
+            DispatchQueue.main.async {
+                completion(authorizationResult)
+                controller.dismiss(animated: false, completion: {
+                    [weak self] in
+                    self?.onDismissCallback(paymentResponse)
+                })
+            }
         })
     }
     
