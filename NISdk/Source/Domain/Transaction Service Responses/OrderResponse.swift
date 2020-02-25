@@ -9,24 +9,24 @@
 import Foundation
 
 @objc public class OrderResponse: NSObject, Codable {
-    public let _id: String
-    public let type: String?
-    public let action: String?
-    public let amount: Amount?
-    public let formattedAmount: String?
-    public let language: String?
-    public let merchantAttributes: [String:String]?
-    public let emailAddress: String?
-    public let reference: String?
-    public let outletId: String?
-    public let createDateTime: String?
-    public let referrer: String?
-    public let orderSummary: OrderSummary?
-    public let formattedOrderSummary: FormattedOrderSummary?
-    public let billingAddress: BillingAddress?
-    public let paymentMethods: PaymentMethods?
-    public let orderLinks: OrderLinks?
-    public let embeddedData: EmbeddedData?
+    public var _id: String?
+    public var type: String?
+    public var action: String?
+    public var amount: Amount?
+    public var formattedAmount: String?
+    public var language: String?
+    public var merchantAttributes: [String:String]?
+    public var emailAddress: String?
+    public var reference: String?
+    public var outletId: String?
+    public var createDateTime: String?
+    public var referrer: String?
+    public var orderSummary: OrderSummary?
+    public var formattedOrderSummary: FormattedOrderSummary?
+    public var billingAddress: BillingAddress?
+    public var paymentMethods: PaymentMethods?
+    public var orderLinks: OrderLinks?
+    public var embeddedData: EmbeddedData?
     
     public enum OrderCodingKeys: String, CodingKey {
         case _id
@@ -66,6 +66,10 @@ import Foundation
         }
     }
     
+    override required init() {
+        super.init()
+    }
+    
     public required init(from decoder: Decoder) throws {
         let OrderResponseContainer = try decoder.container(keyedBy: OrderCodingKeys.self)
 
@@ -87,5 +91,24 @@ import Foundation
         paymentMethods = try OrderResponseContainer.decodeIfPresent(PaymentMethods.self, forKey: .paymentMethods)
         orderLinks = try OrderResponseContainer.decodeIfPresent(OrderLinks.self, forKey:.orderLinks)
         embeddedData = try OrderResponseContainer.decodeIfPresent(EmbeddedData.self, forKey: .embeddedData)
+    }
+    
+    class Builder {
+        private var orderResponse = OrderResponse()
+        
+        func withId(_id: String) -> Builder {
+            orderResponse._id = _id
+            return self
+        }
+        
+        func withAction(action: String) -> Builder {
+            orderResponse.action = action
+            return self
+        }
+        
+        func build() -> OrderResponse {
+            return orderResponse
+        }
+        
     }
 }
