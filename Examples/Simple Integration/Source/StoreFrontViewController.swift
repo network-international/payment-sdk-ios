@@ -48,6 +48,9 @@ class StoreFrontViewController:
         collectionView?.allowsMultipleSelection = true
         collectionView?.dataSource = self
         collectionView?.backgroundColor = UIColor.white
+        if #available(iOS 13, *) {
+            collectionView?.backgroundColor = UIColor.systemBackground
+        }
         view.addSubview(collectionView!)
     }
     

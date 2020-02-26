@@ -27,8 +27,8 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
         nameTextField.placeholder = "Cardholder Name".localized
         nameTextField.text = ""
         nameTextField.borderStyle = .none
-        nameTextField.backgroundColor = .white
-        nameTextField.textColor = .black
+        nameTextField.backgroundColor = ColorCompatibility.systemBackground
+        nameTextField.textColor = ColorCompatibility.label
         nameTextField.delegate = self
         nameTextField.addTarget(self, action: #selector(onNameChangeCallback), for: .editingChanged)
         nameTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
