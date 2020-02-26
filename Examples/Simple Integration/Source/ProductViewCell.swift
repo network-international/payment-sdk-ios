@@ -28,9 +28,13 @@ class ProductViewCell: UICollectionViewCell {
     }
     
     func updateBorder(selected: Bool) {
+        var nonSelectedColor: UIColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
+        if #available(iOS 13, *) {
+            nonSelectedColor = UIColor.secondarySystemBackground
+        }
         let borderColor = selected
             ? UIColor(red:0.40, green:0.73, blue:0.40, alpha:1.0)
-            : UIColor(red:0.98, green:0.98, blue:0.98, alpha:1.0)
+            : nonSelectedColor
         updateWith(borderColor: borderColor)
     }
     

@@ -65,9 +65,9 @@ private class NISdkBundleLocator {}
                                                           applePayDelegate: nil, paymentMedium: .Card)
         let navController = UINavigationController(rootViewController: paymentViewController)
         
-        if #available(iOS 13.0, *) {
-            navController.overrideUserInterfaceStyle = .light
-        }
+//        if #available(iOS 13.0, *) {
+//            navController.overrideUserInterfaceStyle = .light
+//        }
         
         paymentViewController.view.backgroundColor = .clear
         paymentViewController.modalPresentationStyle = .overCurrentContext

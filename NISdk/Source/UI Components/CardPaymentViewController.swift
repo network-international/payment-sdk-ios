@@ -26,7 +26,7 @@ class CardPaymentViewController: UIViewController {
     var allowedCardProviders: [CardProvider]?
     let payButton: UIButton = {
         let payButton = UIButton()
-        payButton.backgroundColor = .black
+        payButton.backgroundColor = ColorCompatibility.link
         payButton.setTitleColor(.white, for: .normal)
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         payButton.setTitleColor(UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
@@ -85,7 +85,7 @@ class CardPaymentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(hexString: "#EFEFF4")
+        view.backgroundColor = ColorCompatibility.systemBackground
         setupScrollView()
         setupCardPreviewComponent()
         setupCardInputForm()
@@ -177,7 +177,7 @@ class CardPaymentViewController: UIViewController {
         vStack.isLayoutMarginsRelativeArrangement = true
         
         let stackBackgroundView = UIView()
-        stackBackgroundView.backgroundColor = .white
+        stackBackgroundView.backgroundColor = ColorCompatibility.systemBackground
         stackBackgroundView.addBorder(.top, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
         stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
         stackBackgroundView.pinAsBackground(to: vStack)
