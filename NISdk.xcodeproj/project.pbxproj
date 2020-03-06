@@ -57,8 +57,6 @@
 		86710F572311C5FD00259AE9 /* String+RemoveWhitespace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F562311C5FD00259AE9 /* String+RemoveWhitespace.swift */; };
 		86875E1923FA7C4700076BDF /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86875E1723FA7C4700076BDF /* Quick.framework */; platformFilter = ios; };
 		86875E1A23FA7C4700076BDF /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86875E1823FA7C4700076BDF /* Nimble.framework */; platformFilter = ios; };
-		86875E1E23FA7CA900076BDF /* Nimble.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 86875E1C23FA7CA900076BDF /* Nimble.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		86875E1F23FA7CA900076BDF /* Quick.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 86875E1D23FA7CA900076BDF /* Quick.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		869DDD5D23146F010020CB20 /* ApplePayDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD5C23146F010020CB20 /* ApplePayDelegate.swift */; };
 		869DDD61231473720020CB20 /* PaymentMediums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD60231473720020CB20 /* PaymentMediums.swift */; };
 		869DDD6923157E3A0020CB20 /* CardProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD6823157E3A0020CB20 /* CardProvider.swift */; };
@@ -90,8 +88,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				86875E1E23FA7CA900076BDF /* Nimble.framework in CopyFiles */,
-				86875E1F23FA7CA900076BDF /* Quick.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -148,8 +144,6 @@
 		86710F562311C5FD00259AE9 /* String+RemoveWhitespace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+RemoveWhitespace.swift"; sourceTree = "<group>"; };
 		86875E1723FA7C4700076BDF /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/iOS/Quick.framework; sourceTree = "<group>"; };
 		86875E1823FA7C4700076BDF /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Build/iOS/Nimble.framework; sourceTree = "<group>"; };
-		86875E1C23FA7CA900076BDF /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Build/iOS/Nimble.framework; sourceTree = "<group>"; };
-		86875E1D23FA7CA900076BDF /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/iOS/Quick.framework; sourceTree = "<group>"; };
 		869DDD5C23146F010020CB20 /* ApplePayDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplePayDelegate.swift; sourceTree = "<group>"; };
 		869DDD60231473720020CB20 /* PaymentMediums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMediums.swift; sourceTree = "<group>"; };
 		869DDD6823157E3A0020CB20 /* CardProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardProvider.swift; sourceTree = "<group>"; };
@@ -385,8 +379,6 @@
 		86D2FB4522FC1AE700CF1FA1 = {
 			isa = PBXGroup;
 			children = (
-				86875E1C23FA7CA900076BDF /* Nimble.framework */,
-				86875E1D23FA7CA900076BDF /* Quick.framework */,
 				86D2FB5122FC1AE700CF1FA1 /* NISdk */,
 				86D2FB5C22FC1AE700CF1FA1 /* NISdkTests */,
 				86D2FB5022FC1AE700CF1FA1 /* Products */,

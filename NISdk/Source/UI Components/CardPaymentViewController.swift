@@ -65,14 +65,9 @@ class CardPaymentViewController: UIViewController {
     
     init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse, onCancel: @escaping () -> Void) {
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
-            var orderAmountValue = 0.0
-            if let amountValue = orderAmount.value {
-                orderAmountValue = amountValue > 0 ? Double(amountValue) / 100 : 0.0;
-            }
             self.makePaymentCallback = makePaymentCallback
-            self.orderAmount = order.amount
             self.allowedCardProviders = order.paymentMethods?.card
-            let payButtonTitle = String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.currencyCode ?? "", orderAmountValue)
+            let payButtonTitle: String = String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.getFormattedAmount())
             self.payButton.setTitle(payButtonTitle, for: .normal)
         }
         self.onCancel = onCancel
