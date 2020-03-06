@@ -17,6 +17,14 @@ public struct Amount: Codable {
         case value
     }
     
+    func getFormattedAmount() -> String {
+        var orderAmountValue = ""
+        if let value = value {
+            orderAmountValue = String(value > 0 ? Double(value) / 100 : 0.0);
+        }
+        return "\(orderAmountValue) \(currencyCode ?? "")"
+    }
+    
     public init(from decoder: Decoder) throws {
         let AmountContainer = try decoder.container(keyedBy: AmountCodingKeys.self)
         currencyCode = try AmountContainer.decodeIfPresent(String.self, forKey: .currencyCode)
