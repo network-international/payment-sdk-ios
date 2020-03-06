@@ -100,6 +100,10 @@ class CardPaymentViewController: UIViewController {
         self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
     }
     
+    private func updateCancelButtonWith(status: Bool) {
+        self.parent?.navigationItem.rightBarButtonItem?.isEnabled = status
+    }
+    
     private func tearDownCancelButton() {
         self.parent?.navigationController?.setNavigationBarHidden(true, animated: true)
         self.parent?.navigationItem.title = nil
@@ -308,6 +312,7 @@ class CardPaymentViewController: UIViewController {
                                                     cvv: cvv,
                                                     cardHolderName: cardHolderName)
                 paymentInProgress = true
+                updateCancelButtonWith(status: false)
                 makePaymentCallback?(paymentRequest)
                 return
             } else {
