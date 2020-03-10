@@ -28,8 +28,8 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         panTextField.keyboardType = .numberPad
         panTextField.text = ""
         panTextField.borderStyle = .none
-        panTextField.backgroundColor = .white
-        panTextField.textColor = .black
+        panTextField.backgroundColor = ColorCompatibility.systemBackground
+        panTextField.textColor = ColorCompatibility.label
         panTextField.delegate = self
         panTextField.addTarget(self, action: #selector(onPanFieldChange), for: .editingChanged)
         panTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)

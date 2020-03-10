@@ -6,29 +6,46 @@
 //  Copyright © 2019 Network International. All rights reserved.
 //
 
-import XCTest
+import Quick
+import Nimble
 @testable import NISdk
 
-class NISdkTests: XCTestCase {
-
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+class TestCardPaymentDelegate: CardPaymentDelegate {
+    func paymentDidComplete(with status: PaymentStatus) {
+        print("Payment did complete called")
     }
+    
+    
+}
 
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+class NISdkTests: QuickSpec {
+    override func spec() {
+        describe("SDK Tests") {
+            let vc = UIViewController()
+            let window = UIWindow(frame: UIScreen.main.bounds)
+            window.makeKeyAndVisible()
+            window.rootViewController = vc
+            beforeEach {
+                let orderResponse = OrderResponse.Builder()
+                    .withId(_id: "aabc")
+                    .withAction(action: "sale")
+                    .build()
+                let cardPaymentDelegate = TestCardPaymentDelegate()
+                NISdk.sharedInstance.showCardPaymentViewWith(cardPaymentDelegate: cardPaymentDelegate,
+                                                             overParent: vc,
+                                                             for: orderResponse)
+                let _ = vc.view
+            }
+            
+            it("Should load and show the authorization label") {
+                // Navigation controller is the presentedViewController
+                let paymentViewController: PaymentViewController = (
+                    (vc.presentedViewController as! UINavigationController)
+                        .visibleViewController as! PaymentViewController);
+                let authorizationViewController = paymentViewController.children[0] as! AuthorizationViewController
+                expect(authorizationViewController.authorizationLabel.text).to(equal("Authenticating Payment"))
+            }
+            
         }
     }
-
 }

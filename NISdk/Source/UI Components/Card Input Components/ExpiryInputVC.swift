@@ -80,8 +80,8 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         textField.keyboardType = .numberPad
         textField.text = ""
         textField.borderStyle = UITextField.BorderStyle.none
-        textField.backgroundColor = .white
-        textField.textColor = .black
+        textField.backgroundColor = ColorCompatibility.systemBackground
+        textField.textColor = ColorCompatibility.label
         textField.delegate = self
         
         if let huggingPriority = huggingPriority {

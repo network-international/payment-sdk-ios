@@ -34,13 +34,13 @@ private class NISdkBundleLocator {}
     }
     
     func getBundleFor(language: String) -> Bundle {
-        if let path = Bundle(for: NISdkBundleLocator.self).path(forResource: language, ofType: "lproj"),
-            let bundle = Bundle(path: path)  {
-            return bundle
-        } else {
-            let bundle = Bundle(for: NISdkBundleLocator.self)
-            return bundle
+        let sdkResourceBundle = getBundle()
+        if let languageFilePath = sdkResourceBundle.path(forResource: language, ofType: "lproj") {
+            if let languageFile = Bundle(path: languageFilePath) {
+                return languageFile
+            }
         }
+        return sdkResourceBundle
     }
     
     @objc public func deviceSupportsApplePay() -> Bool {
@@ -65,9 +65,9 @@ private class NISdkBundleLocator {}
                                                           applePayDelegate: nil, paymentMedium: .Card)
         let navController = UINavigationController(rootViewController: paymentViewController)
         
-        if #available(iOS 13.0, *) {
-            navController.overrideUserInterfaceStyle = .light
-        }
+//        if #available(iOS 13.0, *) {
+//            navController.overrideUserInterfaceStyle = .light
+//        }
         
         paymentViewController.view.backgroundColor = .clear
         paymentViewController.modalPresentationStyle = .overCurrentContext

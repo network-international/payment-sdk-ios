@@ -22,6 +22,7 @@
     StoreFrontViewController *firstScreen = [[StoreFrontViewController alloc] init];
     UINavigationController * navigationController = [[UINavigationController alloc] initWithRootViewController: firstScreen];
     
+    [[NISdk sharedInstance] setSDKLanguageWithLanguage:@"en"];
     self.window = [[UIWindow alloc] initWithFrame: UIScreen.mainScreen.bounds];
     self.window.rootViewController = navigationController;
     [self.window makeKeyAndVisible];

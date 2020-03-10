@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7F2B32DE23F55B960001EFEE /* ColorCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */; };
 		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
 		860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */; };
 		860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0422FC933200B85096 /* PaymentRequest.swift */; };
@@ -54,12 +55,14 @@
 		86710F5323104F3200259AE9 /* ThreeDSViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F5223104F3200259AE9 /* ThreeDSViewController.swift */; };
 		86710F552311C59900259AE9 /* Collection+Pairs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F542311C59900259AE9 /* Collection+Pairs.swift */; };
 		86710F572311C5FD00259AE9 /* String+RemoveWhitespace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F562311C5FD00259AE9 /* String+RemoveWhitespace.swift */; };
+		86875E1923FA7C4700076BDF /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86875E1723FA7C4700076BDF /* Quick.framework */; platformFilter = ios; };
+		86875E1A23FA7C4700076BDF /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86875E1823FA7C4700076BDF /* Nimble.framework */; platformFilter = ios; };
 		869DDD5D23146F010020CB20 /* ApplePayDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD5C23146F010020CB20 /* ApplePayDelegate.swift */; };
 		869DDD61231473720020CB20 /* PaymentMediums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD60231473720020CB20 /* PaymentMediums.swift */; };
 		869DDD6923157E3A0020CB20 /* CardProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD6823157E3A0020CB20 /* CardProvider.swift */; };
 		869DDD6B23157E9F0020CB20 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD6A23157E9F0020CB20 /* WalletProvider.swift */; };
 		869DDD6E231680AB0020CB20 /* TokenUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD6D231680AB0020CB20 /* TokenUtils.swift */; };
-		86D2FB5922FC1AE700CF1FA1 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */; };
+		86D2FB5922FC1AE700CF1FA1 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */; platformFilter = ios; };
 		86D2FB5E22FC1AE700CF1FA1 /* NISdkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D2FB5D22FC1AE700CF1FA1 /* NISdkTests.swift */; };
 		86D2FB6022FC1AE700CF1FA1 /* NISdk.h in Headers */ = {isa = PBXBuildFile; fileRef = 86D2FB5222FC1AE700CF1FA1 /* NISdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		86ECAFD023210FCD008FDDDC /* String+URLEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86ECAFCF23210FCD008FDDDC /* String+URLEncode.swift */; };
@@ -78,7 +81,20 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		86875E1B23FA7C6600076BDF /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCompatibility.swift; sourceTree = "<group>"; };
 		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
 		860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentDelegate.swift; sourceTree = "<group>"; };
 		860CCE0422FC933200B85096 /* PaymentRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentRequest.swift; sourceTree = "<group>"; };
@@ -126,6 +142,8 @@
 		86710F5223104F3200259AE9 /* ThreeDSViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSViewController.swift; sourceTree = "<group>"; };
 		86710F542311C59900259AE9 /* Collection+Pairs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Pairs.swift"; sourceTree = "<group>"; };
 		86710F562311C5FD00259AE9 /* String+RemoveWhitespace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+RemoveWhitespace.swift"; sourceTree = "<group>"; };
+		86875E1723FA7C4700076BDF /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/iOS/Quick.framework; sourceTree = "<group>"; };
+		86875E1823FA7C4700076BDF /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Build/iOS/Nimble.framework; sourceTree = "<group>"; };
 		869DDD5C23146F010020CB20 /* ApplePayDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplePayDelegate.swift; sourceTree = "<group>"; };
 		869DDD60231473720020CB20 /* PaymentMediums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMediums.swift; sourceTree = "<group>"; };
 		869DDD6823157E3A0020CB20 /* CardProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardProvider.swift; sourceTree = "<group>"; };
@@ -157,6 +175,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				86D2FB5922FC1AE700CF1FA1 /* NISdk.framework in Frameworks */,
+				86875E1923FA7C4700076BDF /* Quick.framework in Frameworks */,
+				86875E1A23FA7C4700076BDF /* Nimble.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +350,15 @@
 			path = String;
 			sourceTree = "<group>";
 		};
+		86875E0F23FA7ACA00076BDF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				86875E1823FA7C4700076BDF /* Nimble.framework */,
+				86875E1723FA7C4700076BDF /* Quick.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		869DDD5F2314734C0020CB20 /* Constants */ = {
 			isa = PBXGroup;
 			children = (
@@ -342,6 +371,7 @@
 			isa = PBXGroup;
 			children = (
 				869DDD6D231680AB0020CB20 /* TokenUtils.swift */,
+				7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -352,6 +382,7 @@
 				86D2FB5122FC1AE700CF1FA1 /* NISdk */,
 				86D2FB5C22FC1AE700CF1FA1 /* NISdkTests */,
 				86D2FB5022FC1AE700CF1FA1 /* Products */,
+				86875E0F23FA7ACA00076BDF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -422,6 +453,7 @@
 				86D2FB5422FC1AE700CF1FA1 /* Sources */,
 				86D2FB5522FC1AE700CF1FA1 /* Frameworks */,
 				86D2FB5622FC1AE700CF1FA1 /* Resources */,
+				86875E1B23FA7C6600076BDF /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -541,6 +573,7 @@
 				862CBE75230DD19F00767774 /* ExpiryDate.swift in Sources */,
 				86710F552311C59900259AE9 /* Collection+Pairs.swift in Sources */,
 				862CBE67230C8C1800767774 /* Pan.swift in Sources */,
+				7F2B32DE23F55B960001EFEE /* ColorCompatibility.swift in Sources */,
 				86710F4E230FEB5100259AE9 /* URLResponse+Any.swift in Sources */,
 				862CBE59230A641E00767774 /* AuthorizationViewController.swift in Sources */,
 				860CCE1522FD3B9C00B85096 /* TransactionServiceAdapter.swift in Sources */,
@@ -566,6 +599,7 @@
 /* Begin PBXTargetDependency section */
 		86D2FB5B22FC1AE700CF1FA1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilter = ios;
 			target = 86D2FB4E22FC1AE700CF1FA1 /* NISdk */;
 			targetProxy = 86D2FB5A22FC1AE700CF1FA1 /* PBXContainerItemProxy */;
 		};
@@ -719,7 +753,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/NISdk/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11;
@@ -749,7 +786,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/NISdk/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 11;
@@ -772,6 +812,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = NISdkTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -790,6 +834,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
 				INFOPLIST_FILE = NISdkTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
