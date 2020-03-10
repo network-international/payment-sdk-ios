@@ -65,6 +65,8 @@ class CardPreviewController: UIViewController {
         
         let stackBackgroundView = UIView()
         stackBackgroundView.backgroundColor = UIColor(hexString: "#171618")
+        stackBackgroundView.layer.borderColor = ColorCompatibility.label.cgColor
+        stackBackgroundView.layer.borderWidth = 1.0
         stackBackgroundView.pinAsBackground(to: vStack)
         stackBackgroundView.layer.cornerRadius = 16
         

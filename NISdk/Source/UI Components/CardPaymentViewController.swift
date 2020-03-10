@@ -26,7 +26,7 @@ class CardPaymentViewController: UIViewController {
     var allowedCardProviders: [CardProvider]?
     let payButton: UIButton = {
         let payButton = UIButton()
-        payButton.backgroundColor = .black
+        payButton.backgroundColor = ColorCompatibility.link
         payButton.setTitleColor(.white, for: .normal)
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         payButton.setTitleColor(UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
@@ -65,14 +65,9 @@ class CardPaymentViewController: UIViewController {
     
     init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse, onCancel: @escaping () -> Void) {
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
-            var orderAmountValue = 0.0
-            if let amountValue = orderAmount.value {
-                orderAmountValue = amountValue > 0 ? Double(amountValue) / 100 : 0.0;
-            }
             self.makePaymentCallback = makePaymentCallback
-            self.orderAmount = order.amount
             self.allowedCardProviders = order.paymentMethods?.card
-            let payButtonTitle = String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.currencyCode ?? "", orderAmountValue)
+            let payButtonTitle: String = String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.getFormattedAmount())
             self.payButton.setTitle(payButtonTitle, for: .normal)
         }
         self.onCancel = onCancel
@@ -85,7 +80,7 @@ class CardPaymentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(hexString: "#EFEFF4")
+        view.backgroundColor = ColorCompatibility.systemBackground
         setupScrollView()
         setupCardPreviewComponent()
         setupCardInputForm()
@@ -103,6 +98,10 @@ class CardPaymentViewController: UIViewController {
         self.parent?.navigationController?.setNavigationBarHidden(false, animated: false)
         self.parent?.navigationItem.title = "Make Payment".localized
         self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
+    }
+    
+    private func updateCancelButtonWith(status: Bool) {
+        self.parent?.navigationItem.rightBarButtonItem?.isEnabled = status
     }
     
     private func tearDownCancelButton() {
@@ -177,7 +176,7 @@ class CardPaymentViewController: UIViewController {
         vStack.isLayoutMarginsRelativeArrangement = true
         
         let stackBackgroundView = UIView()
-        stackBackgroundView.backgroundColor = .white
+        stackBackgroundView.backgroundColor = ColorCompatibility.systemBackground
         stackBackgroundView.addBorder(.top, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
         stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
         stackBackgroundView.pinAsBackground(to: vStack)
@@ -313,6 +312,7 @@ class CardPaymentViewController: UIViewController {
                                                     cvv: cvv,
                                                     cardHolderName: cardHolderName)
                 paymentInProgress = true
+                updateCancelButtonWith(status: false)
                 makePaymentCallback?(paymentRequest)
                 return
             } else {
