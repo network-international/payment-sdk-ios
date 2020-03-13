@@ -241,7 +241,7 @@ class CardPaymentViewController: UIViewController {
         loadingSpinner.anchor(top: payButtonLabel?.topAnchor,
                               leading: payButtonLabel?.trailingAnchor,
                               bottom: nil, trailing: nil,
-                              padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0))
+                              padding: UIEdgeInsets(top: 3, left: 10, bottom: 0, right: 0))
     }
     
     @objc lazy private var onChangePan: onChangeTextClosure = { [weak self] textField in
