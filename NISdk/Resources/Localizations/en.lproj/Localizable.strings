@@ -17,7 +17,7 @@
 "Secure Code" = "Secure Code";
 "Pay" = "Pay";
 "Make Payment" = "Make Payment";
-"Processing Payment..." = "Processing Payment...";
+"Processing Payment" = "Processing Payment";
 "Pay Button Title" = "Pay  %@";
 "Invalid pan number" = "Invalid pan number";
 "Invalid card provider" = "This card provider is not allowed";
