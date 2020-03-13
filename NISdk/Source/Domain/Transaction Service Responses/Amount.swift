@@ -17,10 +17,20 @@ public struct Amount: Codable {
         case value
     }
     
+    func getMinorUnit() -> Int {
+        let formatter = NumberFormatter()
+        formatter.locale = Locale(identifier: NISdk.sharedInstance.sdkLanguage)
+        formatter.currencyCode = self.currencyCode
+        formatter.numberStyle = .currency
+        let minorUnit = formatter.maximumFractionDigits
+        return minorUnit
+    }
+    
     func getFormattedAmount() -> String {
         var orderAmountValue = ""
         if let value = value {
-            orderAmountValue = String(value > 0 ? Double(value) / 100 : 0.0);
+            let minorUnit = self.getMinorUnit()
+            orderAmountValue = String(value > 0 ? Double(value / Int(pow(10.00, Double(minorUnit)))) : 0.0);
         }
         return "\(orderAmountValue) \(currencyCode ?? "")"
     }
