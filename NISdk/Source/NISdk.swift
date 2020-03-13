@@ -55,7 +55,6 @@ private class NISdkBundleLocator {}
         } else {
              UIView.appearance().semanticContentAttribute = .forceLeftToRight
         }
-        
     }
     
     @objc public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
@@ -64,10 +63,6 @@ private class NISdkBundleLocator {}
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
                                                           applePayDelegate: nil, paymentMedium: .Card)
         let navController = UINavigationController(rootViewController: paymentViewController)
-        
-//        if #available(iOS 13.0, *) {
-//            navController.overrideUserInterfaceStyle = .light
-//        }
         
         paymentViewController.view.backgroundColor = .clear
         paymentViewController.modalPresentationStyle = .overCurrentContext

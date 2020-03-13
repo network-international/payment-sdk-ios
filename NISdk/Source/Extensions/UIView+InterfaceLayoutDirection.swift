@@ -10,6 +10,18 @@ import Foundation
 
 extension UIView {
     func getUILayoutDirection() -> UIUserInterfaceLayoutDirection {
-        return UIView.userInterfaceLayoutDirection(for: self.semanticContentAttribute)
+        let language = NISdk.sharedInstance.sdkLanguage
+        let direction = Locale.characterDirection(forLanguage: language)
+        return direction == .leftToRight ? UIUserInterfaceLayoutDirection.leftToRight : UIUserInterfaceLayoutDirection.rightToLeft
+    }
+    
+    func setInterfaceLayoutDirection() {
+        let language = NISdk.sharedInstance.sdkLanguage
+        let direction = Locale.characterDirection(forLanguage: language)
+        if (direction == .rightToLeft) {
+            self.semanticContentAttribute = .forceRightToLeft
+        } else {
+             self.semanticContentAttribute = .forceLeftToRight
+        }
     }
 }

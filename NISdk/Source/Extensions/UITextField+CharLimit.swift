@@ -23,4 +23,14 @@ extension UITextField {
         let characterSet = CharacterSet(charactersIn: string)
         return allowedCharacters.isSuperset(of: characterSet)
     }
+    
+    func alignForCurrentLanguage() {
+        let language = NISdk.sharedInstance.sdkLanguage
+        let direction = Locale.characterDirection(forLanguage: language)
+        if (direction == .rightToLeft) {
+            self.textAlignment = .right
+        } else {
+            self.textAlignment = .left
+        }
+    }
 }

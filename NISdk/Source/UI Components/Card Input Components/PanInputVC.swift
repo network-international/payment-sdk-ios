@@ -27,6 +27,7 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         panTextField.placeholder = "Card Number".localized
         panTextField.keyboardType = .numberPad
         panTextField.text = ""
+        panTextField.alignForCurrentLanguage()
         panTextField.borderStyle = .none
         panTextField.backgroundColor = ColorCompatibility.systemBackground
         panTextField.textColor = ColorCompatibility.label
@@ -41,7 +42,11 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         hStack.axis = .horizontal
         hStack.alignment = .center
         hStack.distribution = .fill
-        hStack.spacing = 50
+        if (hStack.getUILayoutDirection() == .rightToLeft) {
+            hStack.spacing = 20
+        } else {
+            hStack.spacing = 50
+        }
         
         view.addSubview(hStack)
         
