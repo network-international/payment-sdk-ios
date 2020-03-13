@@ -28,6 +28,7 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
         
         cvvTextField.placeholder = "Secure Code".localized
         cvvTextField.text = ""
+        cvvTextField.alignForCurrentLanguage()
         cvvTextField.keyboardType = .numberPad
         cvvTextField.borderStyle = .none
         cvvTextField.backgroundColor = ColorCompatibility.systemBackground
@@ -44,7 +45,11 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
         hStack.axis = .horizontal
         hStack.alignment = .center
         hStack.distribution = .fill
-        hStack.spacing = 80
+        if (hStack.getUILayoutDirection() == .rightToLeft) {
+            hStack.spacing = 20
+        } else {
+            hStack.spacing = 80
+        }
         
         view.addSubview(hStack)
         

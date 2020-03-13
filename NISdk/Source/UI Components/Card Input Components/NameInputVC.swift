@@ -26,6 +26,7 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
         
         nameTextField.placeholder = "Cardholder Name".localized
         nameTextField.text = ""
+        nameTextField.alignForCurrentLanguage()
         nameTextField.borderStyle = .none
         nameTextField.backgroundColor = ColorCompatibility.systemBackground
         nameTextField.textColor = ColorCompatibility.label
@@ -40,7 +41,11 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
         hStack.axis = .horizontal
         hStack.alignment = .center
         hStack.distribution = .fill
-        hStack.spacing = 70
+        if (hStack.getUILayoutDirection() == .rightToLeft) {
+            hStack.spacing = 20
+        } else {
+            hStack.spacing = 70
+        }
         
         view.addSubview(hStack)
         
