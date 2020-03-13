@@ -54,7 +54,11 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         rootHStack.axis = .horizontal
         rootHStack.alignment = .center
         rootHStack.distribution = .fill
-        rootHStack.spacing = 60
+        if(rootHStack.getUILayoutDirection() == .rightToLeft) {
+            rootHStack.spacing = 20
+        } else {
+            rootHStack.spacing = 60
+        }
         
         view.addSubview(rootHStack)
         
@@ -82,6 +86,7 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         textField.borderStyle = UITextField.BorderStyle.none
         textField.backgroundColor = ColorCompatibility.systemBackground
         textField.textColor = ColorCompatibility.label
+        textField.alignForCurrentLanguage()
         textField.delegate = self
         
         if let huggingPriority = huggingPriority {

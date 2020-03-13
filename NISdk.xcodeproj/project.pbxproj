@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		7F2B32DE23F55B960001EFEE /* ColorCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */; };
+		860A6043241B81C50067A75B /* UIScreen+Bounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860A6042241B81C40067A75B /* UIScreen+Bounds.swift */; };
 		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
 		860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */; };
 		860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0422FC933200B85096 /* PaymentRequest.swift */; };
@@ -95,6 +96,7 @@
 
 /* Begin PBXFileReference section */
 		7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCompatibility.swift; sourceTree = "<group>"; };
+		860A6042241B81C40067A75B /* UIScreen+Bounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIScreen+Bounds.swift"; sourceTree = "<group>"; };
 		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
 		860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentDelegate.swift; sourceTree = "<group>"; };
 		860CCE0422FC933200B85096 /* PaymentRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentRequest.swift; sourceTree = "<group>"; };
@@ -302,6 +304,7 @@
 				86710F4D230FEB5100259AE9 /* URLResponse+Any.swift */,
 				86710F542311C59900259AE9 /* Collection+Pairs.swift */,
 				86ECAFE223225949008FDDDC /* UIView+InterfaceLayoutDirection.swift */,
+				860A6042241B81C40067A75B /* UIScreen+Bounds.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -534,6 +537,7 @@
 				862CBE4D2307F9D600767774 /* UIView+AutoLayout.swift in Sources */,
 				862CBE492307443400767774 /* UIColor+Hex.swift in Sources */,
 				86ECAFE323225949008FDDDC /* UIView+InterfaceLayoutDirection.swift in Sources */,
+				860A6043241B81C50067A75B /* UIScreen+Bounds.swift in Sources */,
 				862CBDEC23054C9800767774 /* OrderSummary.swift in Sources */,
 				86710F572311C5FD00259AE9 /* String+RemoveWhitespace.swift in Sources */,
 				869DDD6923157E3A0020CB20 /* CardProvider.swift in Sources */,

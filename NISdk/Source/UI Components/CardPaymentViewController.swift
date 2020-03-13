@@ -31,7 +31,7 @@ class CardPaymentViewController: UIViewController {
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         payButton.setTitleColor(UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
         payButton.layer.cornerRadius = 5
-        payButton.setTitle("Processing Payment...".localized, for: .disabled)
+        payButton.setTitle("Processing Payment".localized, for: .disabled)
         return payButton
     }()
     var errorLabel: UILabel = {
@@ -228,6 +228,7 @@ class CardPaymentViewController: UIViewController {
         payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
 
         contentView.addSubview(payButton)
+        payButton.contentHorizontalAlignment = .center
         payButton.anchor(top: errorContainer.bottomAnchor,
                          leading: contentView.leadingAnchor,
                          bottom: contentView.bottomAnchor,
@@ -240,7 +241,7 @@ class CardPaymentViewController: UIViewController {
         loadingSpinner.anchor(top: payButtonLabel?.topAnchor,
                               leading: payButtonLabel?.trailingAnchor,
                               bottom: nil, trailing: nil,
-                              padding: UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0))
+                              padding: UIEdgeInsets(top: 3, left: 10, bottom: 0, right: 0))
     }
     
     @objc lazy private var onChangePan: onChangeTextClosure = { [weak self] textField in

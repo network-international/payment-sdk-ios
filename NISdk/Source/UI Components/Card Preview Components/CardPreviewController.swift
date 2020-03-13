@@ -160,13 +160,15 @@ class CardPreviewController: UIViewController {
         cardHolderNameLabel.font = UIFont(name: "OCRA", size: 13.0)
         cardHolderNameLabel.textColor = .white
         cardHolderNameLabel.text = defaultNameLabelText
+        cardHolderNameLabel.adjustsFontSizeToFitWidth = false;
+        cardHolderNameLabel.lineBreakMode = .byTruncatingTail;
         containerView.addSubview(cardHolderNameLabel)
-        
         cardHolderNameLabel.anchor(top: containerView.topAnchor,
                          leading: containerView.leadingAnchor,
                          bottom: containerView.bottomAnchor,
                          trailing: nil,
-                         padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
+                         padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10),
+                         size: CGSize(width: UIScreen().deviceScreenWidth * 0.45, height: 0))
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didChangeCardHolderName(_:)),
                                                name: .didChangeCardHolderName, object: nil)
