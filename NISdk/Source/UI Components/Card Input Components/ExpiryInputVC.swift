@@ -81,7 +81,7 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
             placeholder: String,
             huggingPriority: Float?) {
         textField.placeholder = placeholder
-        textField.keyboardType = .numberPad
+        textField.keyboardType = .asciiCapableNumberPad
         textField.text = ""
         textField.borderStyle = UITextField.BorderStyle.none
         textField.backgroundColor = ColorCompatibility.systemBackground
