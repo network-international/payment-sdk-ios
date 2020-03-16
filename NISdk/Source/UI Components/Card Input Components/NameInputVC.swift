@@ -28,6 +28,7 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
         nameTextField.text = ""
         nameTextField.alignForCurrentLanguage()
         nameTextField.borderStyle = .none
+        nameTextField.keyboardType = .asciiCapable
         nameTextField.backgroundColor = ColorCompatibility.systemBackground
         nameTextField.textColor = ColorCompatibility.label
         nameTextField.delegate = self

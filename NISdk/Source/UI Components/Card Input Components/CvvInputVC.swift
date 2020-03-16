@@ -29,7 +29,7 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
         cvvTextField.placeholder = "Secure Code".localized
         cvvTextField.text = ""
         cvvTextField.alignForCurrentLanguage()
-        cvvTextField.keyboardType = .numberPad
+        cvvTextField.keyboardType = .asciiCapableNumberPad
         cvvTextField.borderStyle = .none
         cvvTextField.backgroundColor = ColorCompatibility.systemBackground
         cvvTextField.textColor = ColorCompatibility.label

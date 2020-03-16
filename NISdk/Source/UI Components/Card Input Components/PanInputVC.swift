@@ -25,7 +25,7 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         panTextField.placeholder = "Card Number".localized
-        panTextField.keyboardType = .numberPad
+        panTextField.keyboardType = .asciiCapableNumberPad
         panTextField.text = ""
         panTextField.alignForCurrentLanguage()
         panTextField.borderStyle = .none
