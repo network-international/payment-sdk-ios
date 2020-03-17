@@ -19,7 +19,7 @@
 "Make Payment" = "Make Payment";
 "Processing Payment" = "Processing Payment";
 "Pay Button Title" = "Pay  %@";
-"Invalid pan number" = "Invalid pan number";
+"Invalid pan number" = "Invalid card number";
 "Invalid card provider" = "This card provider is not allowed";
 "Invalid expiry date" = "Invalid expiry date";
 "Invalid CVV Field" = "Invalid CVV Field";

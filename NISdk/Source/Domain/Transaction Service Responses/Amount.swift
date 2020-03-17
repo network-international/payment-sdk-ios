@@ -32,7 +32,14 @@ public struct Amount: Codable {
             let minorUnit = self.getMinorUnit()
             orderAmountValue = String(value > 0 ? Double(value / Int(pow(10.00, Double(minorUnit)))) : 0.0);
         }
-        return "\(orderAmountValue) \(currencyCode ?? "")"
+        
+        let language = NISdk.sharedInstance.sdkLanguage
+        let direction = Locale.characterDirection(forLanguage: language)
+        if (direction == .rightToLeft) {
+            return "\(currencyCode ?? "") \(orderAmountValue)"
+        } else {
+            return "\(orderAmountValue) \(currencyCode ?? "")"
+        }
     }
     
     public init(from decoder: Decoder) throws {
