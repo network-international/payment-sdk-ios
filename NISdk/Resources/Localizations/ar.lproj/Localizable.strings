@@ -18,7 +18,7 @@
 "Pay" = "ادفع الآن";
 "Make Payment" = "الدفع";
 "Processing Payment" = "جاري التحميل";
-"Pay Button Title" = "%@ الدفع";
+"Pay Button Title" = "%@ إدفع";
 "Invalid pan number" = "رقم البطاقة غير صحيح";
 "Invalid card provider" = "مصدر البطاقة غير مسموح";
 "Invalid expiry date" = "تاريخ الصلاحية منتهي";
