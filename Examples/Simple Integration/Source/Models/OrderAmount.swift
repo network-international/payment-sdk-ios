@@ -10,7 +10,7 @@ import Foundation
 
 struct OrderAmount: Encodable {
     let currencyCode: String?
-    let value: Int?
+    let value: Double?
     
     private enum AmountCodingKeys: String, CodingKey {
         case currencyCode

@@ -12,13 +12,13 @@ import NISdk
 import PassKit
 
 class OrderCreationViewController: UIViewController {
-    let paymentAmount: Int
+    let paymentAmount: Double
     let cardPaymentDelegate: CardPaymentDelegate?
     let paymentMethod: PaymentMethod?
     let purchasedItems: [Product]
     var paymentRequest: PKPaymentRequest?
     
-    init(paymentAmount: Int, and cardPaymentDelegate: CardPaymentDelegate,
+    init(paymentAmount: Double, and cardPaymentDelegate: CardPaymentDelegate,
          using paymentMethod: PaymentMethod = .Card,
          with purchasedItems: [Product]) {
         
