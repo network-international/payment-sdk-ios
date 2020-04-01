@@ -31,7 +31,7 @@ class StoreFrontViewController:
         return stack
     }()
     let pets = ["🐊", "🐅", "🐆", "🦓", "🦏", "🦠", "🐙", "🐡", "🐋", "🐳"]
-    var total: Int = 0 {
+    var total: Double = 0 {
         didSet { showHidePayButtonStack() }
     }
     var selectedItems: [Product] = []
@@ -150,12 +150,12 @@ class StoreFrontViewController:
         }
     }
     
-    func add(amount: Int, emoji: String) {
+    func add(amount: Double, emoji: String) {
         total += amount
         selectedItems.append(Product(name: emoji, amount: amount))
     }
     
-    func remove(amount: Int, emoji: String) {
+    func remove(amount: Double, emoji: String) {
         total -= amount
         selectedItems = selectedItems.filter { $0.name != emoji}
     }
