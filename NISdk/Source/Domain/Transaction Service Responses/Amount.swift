@@ -10,7 +10,7 @@ import Foundation
 
 public struct Amount: Codable {
     public let currencyCode: String?
-    public let value: Int?
+    public let value: Double?
     
     private enum AmountCodingKeys: String, CodingKey {
         case currencyCode
@@ -30,7 +30,9 @@ public struct Amount: Codable {
         var orderAmountValue = ""
         if let value = value {
             let minorUnit = self.getMinorUnit()
-            orderAmountValue = String(value > 0 ? Double(value / Int(pow(10.00, Double(minorUnit)))) : 0.0);
+            let exponent: Decimal = pow(10.00, minorUnit)
+            let roundedValue = Decimal(value) / exponent
+            orderAmountValue = "\(roundedValue)";
         }
         
         let language = NISdk.sharedInstance.sdkLanguage
@@ -45,6 +47,6 @@ public struct Amount: Codable {
     public init(from decoder: Decoder) throws {
         let AmountContainer = try decoder.container(keyedBy: AmountCodingKeys.self)
         currencyCode = try AmountContainer.decodeIfPresent(String.self, forKey: .currencyCode)
-        value = try AmountContainer.decodeIfPresent(Int.self, forKey: .value)
+        value = try AmountContainer.decodeIfPresent(Double.self, forKey: .value)
     }
 }

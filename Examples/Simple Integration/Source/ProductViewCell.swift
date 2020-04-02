@@ -12,7 +12,7 @@ import UIKit
 class ProductViewCell: UICollectionViewCell {
     let productLabel = UILabel()
     let priceLabel = UILabel()
-    let price = Int.random(in: 10...50)
+    let price = Double.random(in: 0.10...2.9).round(to: 2)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
