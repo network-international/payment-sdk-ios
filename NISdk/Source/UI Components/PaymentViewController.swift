@@ -191,12 +191,37 @@ class PaymentViewController: UIViewController {
         }
     }
     
-    lazy private var onThreeDSCompletion: (Bool) -> Void = { [weak self] isthreeDSCompletedSuccessfully in
-        if(isthreeDSCompletedSuccessfully) {
-            self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: .ThreeDSSuccess, and: nil)
-            return
-        }
-        self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: nil)
+    lazy private var onThreeDSCompletion: () -> Void = { [weak self] in
+        self?.transactionService.getOrder(for: (self?.order.orderLinks?.orderLink)!, using: self!.accessToken!, with:
+            { (data, response, error) in
+                if let data = data {
+                    do {
+                        let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
+                        var successfulPayments: [PaymentResponse] = []
+                        var awaitThreedsPayments: [PaymentResponse] = []
+                        if let paymentResponses = orderResponse.embeddedData?.payment {
+                            successfulPayments = paymentResponses.filter({ (paymentAttempt: PaymentResponse) -> Bool in
+                                return paymentAttempt.state == "CAPTURED" || paymentAttempt.state == "AUTHORISED"
+                            })
+                            
+                            awaitThreedsPayments = paymentResponses.filter({ (paymentAttempt: PaymentResponse) -> Bool in
+                                return paymentAttempt.state == "AWAIT_3DS"
+                            })
+                        }
+                        
+                        if(successfulPayments.count > 0) {
+                            self?.handlePaymentResponse(successfulPayments[0])
+                        } else if(awaitThreedsPayments.count > 0) {
+                            // we are still waiting for 3ds to complete
+                            return
+                        } else {
+                            self?.handlePaymentResponse(nil)
+                        }
+                    } catch let error {
+                        self?.handlePaymentResponse(nil)
+                    }
+                }
+        })
     }
     
     // This is called when payment is done(fail or success) with 3ds(fail or success) or without 3ds

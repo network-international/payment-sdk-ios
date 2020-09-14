@@ -15,9 +15,9 @@ import PassKit
                                 using authorizationLink: String,
                                 on completion: @escaping ([String: String]) -> Void)
     
-    @objc func getOrder(with orderId: String,
-                        under outlet: String,
-                        using paymentToken: String)
+    @objc func getOrder(for orderLink: String,
+                        using accessToken: String,
+                        with completion: @escaping (HttpResponseCallback))
     
     @objc func makePayment(for order: OrderResponse,
                            with paymentInfo: PaymentRequest,
