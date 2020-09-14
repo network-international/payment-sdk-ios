@@ -43,10 +43,16 @@ import PassKit
             })
     }
     
-    // Use this to fetch order details TODO
-    public func getOrder(with orderId: String, under outlet: String, using paymentToken: String) {
-        // _links.self.href
-        // "https://api-gateway-dev.ngenius-payments.com/transactions/outlets/0411acca-92f2-4305-a732-ac0f105d2a40/orders/403eeb5f-9987-4a91-9a18-03ee189f0a08"
+    // Use this to fetch order details
+    public func getOrder(for orderLink: String,
+                         using accessToken: String,
+                         with completion: @escaping (HttpResponseCallback)) {
+        let orderRequestHeaders = ["Authorization": "Bearer \(accessToken)", "Content-Type": "application/vnd.ni-payment.v2+json"]
+        
+        HTTPClient(url: orderLink)?
+            .withMethod(method: "GET")
+            .withHeaders(headers: orderRequestHeaders)
+            .makeRequest(with: completion)
     }
     
     // Use this to make payment against an order
