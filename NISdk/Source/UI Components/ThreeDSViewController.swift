@@ -17,12 +17,12 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private var acsPaReq: String
     private var acsMd: String
     private var threeDSTermURL: String
-    private var completionHandler: (Bool) -> Void
+    private var completionHandler: () -> Void
     private var hasClosedWebView: Bool = false
     private var hasInitialisedRequest: Bool = false
     
     
-    init(with acsUrl: String, acsPaReq: String, acsMd: String, threeDSTermURL: String, completion: @escaping (Bool) -> Void) {
+    init(with acsUrl: String, acsPaReq: String, acsMd: String, threeDSTermURL: String, completion: @escaping () -> Void) {
         self.acsUrl = acsUrl
         self.acsPaReq = acsPaReq
         self.acsMd = acsMd
@@ -91,16 +91,10 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     
     // Gets called after 3ds is performed and a 302 redirect is received from txn service
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
-        if let threeDSStatus = webView.url?.queryParameters?["3ds_status"] {
+        if (webView.url?.queryParameters?["3ds_status"]) != nil {
             hasClosedWebView = true
             webView.stopLoading()
-            if(threeDSStatus == "SUCCESS") {
-                // Success
-                self.completionHandler(true)
-            } else {
-                // Failed
-                self.completionHandler(false)
-            }
+            self.completionHandler()
         }
     }
     
@@ -110,7 +104,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
         webView.stopLoading()
         if(!hasClosedWebView) {
             hasClosedWebView = true;
-            self.completionHandler(false)
+            self.completionHandler()
         }
     }
 }
