@@ -14,11 +14,14 @@ import PassKit
 class OrderCreationViewController: UIViewController {
     let paymentAmount: Double
     let cardPaymentDelegate: CardPaymentDelegate?
+    let storeFrontDelegate: StoreFrontDelegate
     let paymentMethod: PaymentMethod?
     let purchasedItems: [Product]
     var paymentRequest: PKPaymentRequest?
     
-    init(paymentAmount: Double, and cardPaymentDelegate: CardPaymentDelegate,
+    init(paymentAmount: Double,
+         cardPaymentDelegate: CardPaymentDelegate,
+         storeFrontDelegate: StoreFrontDelegate,
          using paymentMethod: PaymentMethod = .Card,
          with purchasedItems: [Product]) {
         
@@ -26,8 +29,9 @@ class OrderCreationViewController: UIViewController {
         self.paymentAmount = paymentAmount
         self.paymentMethod = paymentMethod
         self.purchasedItems = purchasedItems
+        self.storeFrontDelegate = storeFrontDelegate
         super.init(nibName: nil, bundle: nil)
-        
+                
         if(paymentMethod == .ApplePay) {
             let merchantId = ""
             assert(!merchantId.isEmpty, "You need to add your apple pay merchant ID above")
@@ -39,7 +43,8 @@ class OrderCreationViewController: UIViewController {
             paymentRequest?.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
             paymentRequest?.requiredBillingContactFields = [.postalAddress, .name]
             paymentRequest?.paymentSummaryItems = self.purchasedItems.map { PKPaymentSummaryItem(label: $0.name, amount: NSDecimalNumber(value: $0.amount)) }
-            paymentRequest?.paymentSummaryItems.append(PKPaymentSummaryItem(label: "Total", amount: NSDecimalNumber(value: paymentAmount)))
+            paymentRequest?.paymentSummaryItems.append(PKPaymentSummaryItem(label: "NGenius merchant", amount: NSDecimalNumber(value: paymentAmount)))
+            storeFrontDelegate.updatePKPaymentRequestObject(paymentRequest: paymentRequest!)
         }
     }
     

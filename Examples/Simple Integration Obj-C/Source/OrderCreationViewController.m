@@ -49,7 +49,7 @@
                                       amount: [[NSDecimalNumber alloc] initWithFloat: item.amount]]];
         }
         [summaryItems addObject: [PKPaymentSummaryItem
-                                  summaryItemWithLabel: @"Total"
+                                  summaryItemWithLabel: @"NGenius merchant"
                                   amount: [[NSDecimalNumber alloc] initWithFloat: amount]]];
         self.paymentRequest.paymentSummaryItems = summaryItems;
     }
