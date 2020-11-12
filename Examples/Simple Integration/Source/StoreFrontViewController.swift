@@ -17,6 +17,7 @@ class StoreFrontViewController:
     UICollectionViewDelegateFlowLayout,
     UICollectionViewDelegate,
     CardPaymentDelegate,
+    StoreFrontDelegate,
     ApplePayDelegate {
     
     var collectionView: UICollectionView?
@@ -35,6 +36,7 @@ class StoreFrontViewController:
         didSet { showHidePayButtonStack() }
     }
     var selectedItems: [Product] = []
+    var paymentRequest: PKPaymentRequest?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -91,18 +93,31 @@ class StoreFrontViewController:
          print("Auth Passed :)")
     }
     
+    @objc func didSelectPaymentMethod(paymentMethod: PKPaymentMethod) -> PKPaymentRequestPaymentMethodUpdate {
+        if let paymentRequest = self.paymentRequest {
+            return PKPaymentRequestPaymentMethodUpdate(paymentSummaryItems: paymentRequest.paymentSummaryItems)
+        }
+        let summaryItem = [PKPaymentSummaryItem(label: "NGenius merchant", amount: NSDecimalNumber(value: 0))]
+        return PKPaymentRequestPaymentMethodUpdate(paymentSummaryItems: summaryItem)
+    }
+    
     @objc func payButtonTapped() {
-        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, and: self, using: .Card, with: selectedItems)
+        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .Card, with: selectedItems)
         orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
         orderCreationViewController.modalPresentationStyle = .overCurrentContext
         self.present(orderCreationViewController, animated: false, completion: nil)
     }
     
     @objc func applePayButtonTapped(applePayPaymentRequest: PKPaymentRequest) {
-        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, and: self, using: .ApplePay, with: selectedItems)
+        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .ApplePay, with: selectedItems)
         orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
         orderCreationViewController.modalPresentationStyle = .overCurrentContext
         self.present(orderCreationViewController, animated: true, completion: nil)
+    }
+    
+    // Used to update the paymentRequest object
+    func updatePKPaymentRequestObject(paymentRequest: PKPaymentRequest) {
+        self.paymentRequest = paymentRequest
     }
     
     func setupPaymentButtons() {
@@ -205,4 +220,8 @@ class StoreFrontViewController:
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 0, left: 15, bottom: 80, right: 15)
     }
+}
+
+protocol StoreFrontDelegate {
+    func updatePKPaymentRequestObject(paymentRequest: PKPaymentRequest)
 }
