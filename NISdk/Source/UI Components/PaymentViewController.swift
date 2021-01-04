@@ -143,8 +143,10 @@ class PaymentViewController: UIViewController {
     lazy private var makePayment = { [unowned self] paymentRequest in
         // 3. Make Payment
         self.transactionService.makePayment(for: self.order, with: paymentRequest, using: self.paymentToken!, on: {
-            data, response, error in
-            if let data = data {
+            data, response, err in
+            if err != nil {
+                self.handlePaymentResponse(nil)
+            } else if let data = data {
                 do {
                     let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
                     // 4. Intermediatory checks for payment failure attempts and anything else
