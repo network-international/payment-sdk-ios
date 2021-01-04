@@ -21,7 +21,7 @@ public class HTTPClient {
     public init?(url: String) {
         if let url = URL(string: url) {
             self.session = URLSession(configuration: URLSessionConfiguration.default)
-            self.request = NSMutableURLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
+            self.request = NSMutableURLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 60.0)
             self.request.httpMethod = "GET" // default value
         } else {
             print("Invalid url")
