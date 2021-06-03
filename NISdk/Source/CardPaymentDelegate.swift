@@ -24,12 +24,12 @@ import Foundation
     @objc optional func threeDSChallengeDidComplete(with status: ThreeDSStatus)
 }
 
-public typealias RawValue = String
+public typealias NIRawValue = String
 @objc public enum AuthorizationStatus: Int, RawRepresentable  {
     case AuthSuccess
     case AuthFailed
     
-    public var rawValue: RawValue {
+    public var value: NIRawValue {
         switch self {
         case .AuthSuccess:
             return "AuthSuccess"
@@ -38,8 +38,8 @@ public typealias RawValue = String
         }
     }
     
-    public init?(rawValue: RawValue) {
-        switch rawValue {
+    public init?(value: NIRawValue) {
+        switch value {
         case "AuthSuccess":
             self = .AuthSuccess
         case "AuthFailed":
@@ -55,7 +55,7 @@ public typealias RawValue = String
     case PaymentFailed
     case PaymentCancelled
     
-    public var rawValue: RawValue {
+    public var value: NIRawValue {
         switch self {
         case.PaymentSuccess:
             return "PaymentSuccess"
@@ -66,8 +66,8 @@ public typealias RawValue = String
         }
     }
     
-    public init?(rawValue: RawValue) {
-        switch rawValue {
+    public init?(value: NIRawValue) {
+        switch value {
         case "PaymentSuccess":
             self = .PaymentSuccess
         case "PaymentFailed":
@@ -84,7 +84,7 @@ public typealias RawValue = String
     case ThreeDSSuccess
     case ThreeDSFailed
     
-    public var rawValue: RawValue {
+    public var value: NIRawValue {
         switch self {
         case.ThreeDSSuccess:
             return "ThreeDSSuccess"
@@ -93,8 +93,8 @@ public typealias RawValue = String
         }
     }
     
-    public init?(rawValue: RawValue) {
-        switch rawValue {
+    public init?(value: NIRawValue) {
+        switch value {
         case "ThreeDSSuccess":
             self = .ThreeDSSuccess
         case "ThreeDSFailed":

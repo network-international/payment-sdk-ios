@@ -12,7 +12,7 @@ import Foundation
     case ApplePay
     case Card
     
-    public var rawValue: RawValue {
+    public var value: NIRawValue {
         switch self {
         case .ApplePay:
             return "ApplePay"
@@ -21,8 +21,8 @@ import Foundation
         }
     }
     
-    public init?(rawValue: RawValue) {
-        switch rawValue {
+    public init?(value: NIRawValue) {
+        switch value {
         case "ApplePay":
             self = .ApplePay
         case "Card":
