@@ -29,7 +29,7 @@ public typealias RawValue = String
     case AuthSuccess
     case AuthFailed
     
-    public var rawValue: RawValue {
+    public var rawVal: RawValue {
         switch self {
         case .AuthSuccess:
             return "AuthSuccess"
@@ -38,8 +38,8 @@ public typealias RawValue = String
         }
     }
     
-    public init?(rawValue: RawValue) {
-        switch rawValue {
+    public init?(rawVal: RawValue) {
+        switch rawVal {
         case "AuthSuccess":
             self = .AuthSuccess
         case "AuthFailed":
@@ -55,7 +55,7 @@ public typealias RawValue = String
     case PaymentFailed
     case PaymentCancelled
     
-    public var rawValue: RawValue {
+    public var rawVal: RawValue {
         switch self {
         case.PaymentSuccess:
             return "PaymentSuccess"
@@ -66,8 +66,8 @@ public typealias RawValue = String
         }
     }
     
-    public init?(rawValue: RawValue) {
-        switch rawValue {
+    public init?(rawVal: RawValue) {
+        switch rawVal {
         case "PaymentSuccess":
             self = .PaymentSuccess
         case "PaymentFailed":
@@ -84,7 +84,7 @@ public typealias RawValue = String
     case ThreeDSSuccess
     case ThreeDSFailed
     
-    public var rawValue: RawValue {
+    public var rawVal: RawValue {
         switch self {
         case.ThreeDSSuccess:
             return "ThreeDSSuccess"
@@ -93,8 +93,8 @@ public typealias RawValue = String
         }
     }
     
-    public init?(rawValue: RawValue) {
-        switch rawValue {
+    public init?(rawVal: RawValue) {
+        switch rawVal {
         case "ThreeDSSuccess":
             self = .ThreeDSSuccess
         case "ThreeDSFailed":
