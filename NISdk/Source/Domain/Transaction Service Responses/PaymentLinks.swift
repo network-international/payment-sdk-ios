@@ -13,6 +13,8 @@ public struct PaymentLinks {
     public let cardPaymentLink: String?
     public let savedCardPaymentLink: String?
     public let threeDSTermURL: String?
+    public let threeDSTwoAuthenticationURL: String?
+    public let threeDSTwoChallengeResponseURL: String?
     public let applePayLink: String?
 }
 
@@ -23,6 +25,8 @@ extension PaymentLinks: Codable {
         case cardPaymentLink = "payment:card"
         case savedCardPaymentLink = "payment:saved-card"
         case threeDSTermURL = "cnp:3ds"
+        case threeDSTwoAuthenticationURL = "cnp:3ds2-authentication"
+        case threeDSTwoChallengeResponseURL = "cnp:3ds2-challenge-response"
         case applePayLink = "payment:apple_pay"
     }
     
@@ -59,6 +63,20 @@ extension PaymentLinks: Codable {
             threeDSTermURL = try threeDSTermURLContainer.decodeIfPresent(String.self, forKey: .href)
         } catch {
             self.threeDSTermURL = nil
+        }
+        
+        do {
+            let threeDSTwoAuthURLContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .threeDSTwoAuthenticationURL)
+            threeDSTwoAuthenticationURL = try threeDSTwoAuthURLContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.threeDSTwoAuthenticationURL = nil
+        }
+
+        do {
+            let threeDSTwoAuthURLContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .threeDSTwoChallengeResponseURL)
+            threeDSTwoChallengeResponseURL = try threeDSTwoAuthURLContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.threeDSTwoChallengeResponseURL = nil
         }
         
         do {

@@ -3,29 +3,66 @@
 //  NISdk
 //
 //  Created by Johnny Peter on 08/08/19.
-//  Copyright © 2019 Network International. All rights reserved.
+//  Copyright © 2022 Network International. All rights reserved.
 //
 
 import Foundation
 import PassKit
+import uSDK
 
 private class NISdkBundleLocator {}
 
 @objc public final class NISdk: NSObject {
     @objc public static let sharedInstance = NISdk()
     var sdkLanguage = "en"
+    private var isSDKInitialized = false
+    
+    private func getConfigParamsForServer() -> UConfigParameters {
+//        var configParams: UConfigParameters {
+//            let params = UConfigParameters()
+//            let directoryServer = UDirectoryServer(
+//                dsid: Constants.MC_MTF_DIRECTORY_SERVER_ID, publicKey: Constants.MC_MTF_DIRECTORY_SERVER_PUBLIC_KEY,
+//                keyID: Constants.MC_MTF_DIRECTORY_SERVER_KEY_ID, dsCACertificate: Constants.MC_MTF_DIRECTORY_SERVER_CERT,
+//                providerName: Constants.MC_DIRECTORY_SERVER_PROVIDER_NAME, dsLogo: nil)
+//            params.add(directoryServer)
+//            return params
+//        }
+        var configParams: UConfigParameters {
+            let params = UConfigParameters()
+            let directoryServer = UDirectoryServer(
+                dsid: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_ID, publicKey: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_PUBLIC_KEY,
+                keyID: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_KEY_ID, dsCACertificate: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_CERT,
+                providerName: Constants.MC_DIRECTORY_SERVER_PROVIDER_NAME, dsLogo: nil)
+            params.add(directoryServer)
+            return params
+        }
+        return configParams
+    }
     
     private override init() {
         super.init()
         let bundle = getBundle()
         UIFont.RegisterFont(withFilenameString: "OCRA.otf", in: bundle)
+        UThreeDS2ServiceImpl.shared().u_initialize(self.getConfigParamsForServer(),  locale: "us", uiCustomization: UUiCustomization()) { error in
+            if let error = error {
+                #if DEBUG
+                print(error.localizedDescription)
+                #endif
+            } else {
+                self.isSDKInitialized = true
+                guard let sdkVersion = UThreeDS2ServiceImpl.shared().getSDKVersion() else { return }
+                #if DEBUG
+                print("SDK Initialized successfully \(sdkVersion)")
+                #endif
+            }
+        }
     }
     
     func getBundle() -> Bundle {
         if let bundle = Bundle(path: "NISdk.bundle") {
             return bundle
         } else if let path = Bundle(for: NISdkBundleLocator.self).path(forResource: "NISdk", ofType: "bundle"),
-            let bundle = Bundle(path: path)  {
+                  let bundle = Bundle(path: path)  {
             return bundle
         } else {
             let bundle = Bundle(for: NISdkBundleLocator.self)
@@ -53,13 +90,13 @@ private class NISdkBundleLocator {}
         if (direction == .rightToLeft) {
             UIView.appearance().semanticContentAttribute = .forceRightToLeft
         } else {
-             UIView.appearance().semanticContentAttribute = .forceLeftToRight
+            UIView.appearance().semanticContentAttribute = .forceLeftToRight
         }
     }
     
     @objc public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
-                             overParent parentViewController: UIViewController,
-                             for order: OrderResponse) {
+                                              overParent parentViewController: UIViewController,
+                                              for order: OrderResponse) {
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
                                                           applePayDelegate: nil, paymentMedium: .Card)
         let navController = UINavigationController(rootViewController: paymentViewController)
@@ -73,10 +110,10 @@ private class NISdkBundleLocator {}
     }
     
     @objc public func initiateApplePayWith(applePayDelegate: ApplePayDelegate?,
-                                     cardPaymentDelegate: CardPaymentDelegate,
-                                     overParent parentViewController: UIViewController,
-                                     for order: OrderResponse,
-                                     with applePayRequest: PKPaymentRequest) {
+                                           cardPaymentDelegate: CardPaymentDelegate,
+                                           overParent parentViewController: UIViewController,
+                                           for order: OrderResponse,
+                                           with applePayRequest: PKPaymentRequest) {
         
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
                                                           applePayDelegate: applePayDelegate, paymentMedium: .ApplePay)
