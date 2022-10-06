@@ -5,7 +5,7 @@
 Pod::Spec.new do |spec|
 
   spec.name = "NISdk"
-  spec.version = "4.0.1"
+  spec.version = "4.0.2"
   spec.summary = "Network International's Payment gateway sdk for iOS"
 
   spec.homepage = "https://docs.ngenius-payments.com/reference#ios-sdk"
@@ -23,6 +23,4 @@ Pod::Spec.new do |spec|
   spec.frameworks = 'Foundation', 'Security', 'WebKit', 'PassKit'
   spec.requires_arc = true
   spec.ios.dependency 'NI-Three-DS-Two-iOS-SDK', '~> 1.0.0'
-  spec.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
-  spec.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 end
