@@ -9,10 +9,14 @@
 import Foundation
 
 extension Encodable {
-    func prettyPrint() {
+    func prettyPrint() throws {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
-        let prettyPrintedOutput = try! encoder.encode(self)
-        print(String(data: prettyPrintedOutput, encoding: .utf8)!)
+        do {
+            let prettyPrintedOutput = try encoder.encode(self)
+            print(String(data: prettyPrintedOutput, encoding: .utf8)!)
+        } catch let error {
+            throw error
+        }
     }
 }

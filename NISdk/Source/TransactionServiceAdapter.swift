@@ -94,4 +94,46 @@ import PassKit
             completion(nil, nil, nil)
         }
     }
+    
+    func postThreeDSAuthentications(for paymentResponse: PaymentResponse,
+                                    with threeDSAuthenticationsRequest: ThreeDSAuthenticationsRequest,
+                                    using paymentToken: String,
+                                    on completion: @escaping (HttpResponseCallback)) {
+        
+        let authRequestHeaders = ["Authorization": "Bearer \(paymentToken)",
+            "Content-Type": "application/vnd.ni-payment.v2+json"]
+        
+        let threeDSAuthData = try! JSONEncoder().encode(threeDSAuthenticationsRequest)
+        
+        if let authenticationsLink = paymentResponse.paymentLinks?.threeDSTwoAuthenticationURL {
+            HTTPClient(url: authenticationsLink)?
+                .withMethod(method: "POST")
+                .withHeaders(headers: authRequestHeaders)
+                .withBodyData(data: threeDSAuthData)
+                .makeRequest(with: completion)
+        } else {
+            completion(nil, nil, nil)
+            print("No threeDs authentication link found")
+        }
+    }
+    
+    func postThreeDSTwoChallengeResponse(for paymentResponse: PaymentResponse,
+                                         using paymentToken: String,
+                                         on completion: @escaping (HttpResponseCallback)) {
+        let authRequestHeaders = ["Authorization": "Bearer \(paymentToken)",
+            "Content-Type": "application/vnd.ni-payment.v2+json"]
+        
+//        let cResBody = try! JSONEncoder().encode(Data("{\"cRes\":\"cRes\"}".utf8))
+        
+        if let authenticationsLink = paymentResponse.paymentLinks?.threeDSTwoChallengeResponseURL {
+            HTTPClient(url: authenticationsLink)?
+                .withMethod(method: "POST")
+                .withHeaders(headers: authRequestHeaders)
+//                .withBodyData(data: cResBody)
+                .makeRequest(with: completion)
+        } else {
+            completion(nil, nil, nil)
+            print("No threeDs authentication link found")
+        }
+    }
 }
