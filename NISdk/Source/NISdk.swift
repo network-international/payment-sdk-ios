@@ -18,17 +18,11 @@ private class NISdkBundleLocator {}
     private var isSDKInitialized = false
     
     private func getConfigParamsForServer() -> UConfigParameters {
-//        var configParams: UConfigParameters {
-//            let params = UConfigParameters()
-//            let directoryServer = UDirectoryServer(
-//                dsid: Constants.MC_MTF_DIRECTORY_SERVER_ID, publicKey: Constants.MC_MTF_DIRECTORY_SERVER_PUBLIC_KEY,
-//                keyID: Constants.MC_MTF_DIRECTORY_SERVER_KEY_ID, dsCACertificate: Constants.MC_MTF_DIRECTORY_SERVER_CERT,
-//                providerName: Constants.MC_DIRECTORY_SERVER_PROVIDER_NAME, dsLogo: nil)
-//            params.add(directoryServer)
-//            return params
-//        }
         var configParams: UConfigParameters {
             let params = UConfigParameters()
+            if self.paymentResponse.paymentLinks?.paymentLink?.ngenEnv() == .PROD {
+                return params
+            }
             let directoryServer = UDirectoryServer(
                 dsid: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_ID, publicKey: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_PUBLIC_KEY,
                 keyID: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_KEY_ID, dsCACertificate: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_CERT,
