@@ -51,13 +51,20 @@
 		862CBE79230E6D6D00767774 /* UITextField+CharLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE78230E6D6D00767774 /* UITextField+CharLimit.swift */; };
 		862CBE7B230E85D500767774 /* String+Insert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE7A230E85D500767774 /* String+Insert.swift */; };
 		862CBE7D230E8C3B00767774 /* String+Luhn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE7C230E8C3B00767774 /* String+Luhn.swift */; };
+		8631DA042835F83600441801 /* ChallengeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8631DA032835F83600441801 /* ChallengeConstants.swift */; };
+		863FC9B227F436D700692767 /* ThreeDSTwoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */; };
+		863FC9B427F4413700692767 /* ThreeDSTwoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */; };
+		863FC9B627F4486E00692767 /* ThreeDSAuthenticationsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B527F4486E00692767 /* ThreeDSAuthenticationsRequest.swift */; };
+		863FC9B927F450A300692767 /* SDKInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B827F450A300692767 /* SDKInfo.swift */; };
+		863FC9BB27F450F500692767 /* SDKEphemPubKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9BA27F450F500692767 /* SDKEphemPubKey.swift */; };
+		863FC9BD27F4517400692767 /* DeviceRenderOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9BC27F4517400692767 /* DeviceRenderOptions.swift */; };
+		863FC9CC27FEB13600692767 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9CB27FEB13600692767 /* Constants.swift */; };
+		863FC9CE27FECFC800692767 /* ThreeDSTwoAuthenticationsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9CD27FECFC700692767 /* ThreeDSTwoAuthenticationsResponse.swift */; };
 		86710F4C230FE47600259AE9 /* Encodable+PrettyPrint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F4B230FE47600259AE9 /* Encodable+PrettyPrint.swift */; };
 		86710F4E230FEB5100259AE9 /* URLResponse+Any.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F4D230FEB5100259AE9 /* URLResponse+Any.swift */; };
 		86710F5323104F3200259AE9 /* ThreeDSViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F5223104F3200259AE9 /* ThreeDSViewController.swift */; };
 		86710F552311C59900259AE9 /* Collection+Pairs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F542311C59900259AE9 /* Collection+Pairs.swift */; };
 		86710F572311C5FD00259AE9 /* String+RemoveWhitespace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F562311C5FD00259AE9 /* String+RemoveWhitespace.swift */; };
-		86875E1923FA7C4700076BDF /* Quick.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86875E1723FA7C4700076BDF /* Quick.framework */; platformFilter = ios; };
-		86875E1A23FA7C4700076BDF /* Nimble.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86875E1823FA7C4700076BDF /* Nimble.framework */; platformFilter = ios; };
 		869DDD5D23146F010020CB20 /* ApplePayDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD5C23146F010020CB20 /* ApplePayDelegate.swift */; };
 		869DDD61231473720020CB20 /* PaymentMediums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD60231473720020CB20 /* PaymentMediums.swift */; };
 		869DDD6923157E3A0020CB20 /* CardProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD6823157E3A0020CB20 /* CardProvider.swift */; };
@@ -139,13 +146,20 @@
 		862CBE78230E6D6D00767774 /* UITextField+CharLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+CharLimit.swift"; sourceTree = "<group>"; };
 		862CBE7A230E85D500767774 /* String+Insert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Insert.swift"; sourceTree = "<group>"; };
 		862CBE7C230E8C3B00767774 /* String+Luhn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Luhn.swift"; sourceTree = "<group>"; };
+		8631DA032835F83600441801 /* ChallengeConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeConstants.swift; sourceTree = "<group>"; };
+		863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSTwoConfig.swift; sourceTree = "<group>"; };
+		863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSTwoViewController.swift; sourceTree = "<group>"; };
+		863FC9B527F4486E00692767 /* ThreeDSAuthenticationsRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSAuthenticationsRequest.swift; sourceTree = "<group>"; };
+		863FC9B827F450A300692767 /* SDKInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKInfo.swift; sourceTree = "<group>"; };
+		863FC9BA27F450F500692767 /* SDKEphemPubKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKEphemPubKey.swift; sourceTree = "<group>"; };
+		863FC9BC27F4517400692767 /* DeviceRenderOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceRenderOptions.swift; sourceTree = "<group>"; };
+		863FC9CB27FEB13600692767 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		863FC9CD27FECFC700692767 /* ThreeDSTwoAuthenticationsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSTwoAuthenticationsResponse.swift; sourceTree = "<group>"; };
 		86710F4B230FE47600259AE9 /* Encodable+PrettyPrint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Encodable+PrettyPrint.swift"; sourceTree = "<group>"; };
 		86710F4D230FEB5100259AE9 /* URLResponse+Any.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLResponse+Any.swift"; sourceTree = "<group>"; };
 		86710F5223104F3200259AE9 /* ThreeDSViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSViewController.swift; sourceTree = "<group>"; };
 		86710F542311C59900259AE9 /* Collection+Pairs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Pairs.swift"; sourceTree = "<group>"; };
 		86710F562311C5FD00259AE9 /* String+RemoveWhitespace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+RemoveWhitespace.swift"; sourceTree = "<group>"; };
-		86875E1723FA7C4700076BDF /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/iOS/Quick.framework; sourceTree = "<group>"; };
-		86875E1823FA7C4700076BDF /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Build/iOS/Nimble.framework; sourceTree = "<group>"; };
 		869DDD5C23146F010020CB20 /* ApplePayDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplePayDelegate.swift; sourceTree = "<group>"; };
 		869DDD60231473720020CB20 /* PaymentMediums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMediums.swift; sourceTree = "<group>"; };
 		869DDD6823157E3A0020CB20 /* CardProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardProvider.swift; sourceTree = "<group>"; };
@@ -177,8 +191,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				86D2FB5922FC1AE700CF1FA1 /* NISdk.framework in Frameworks */,
-				86875E1923FA7C4700076BDF /* Quick.framework in Frameworks */,
-				86875E1A23FA7C4700076BDF /* Nimble.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,6 +241,7 @@
 				862CBE2E2305D75D00767774 /* CardPaymentViewController.swift */,
 				862CBDDC2303EFC800767774 /* ApplePayController.swift */,
 				86710F5223104F3200259AE9 /* ThreeDSViewController.swift */,
+				863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */,
 				862CBE3E2306898900767774 /* Card Input Components */,
 				862CBE3B23067BE800767774 /* Card Preview Components */,
 			);
@@ -246,6 +259,7 @@
 		860CCE0222FC928500B85096 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				863FC9B727F4506000692767 /* ThreeDSTwo */,
 				862CBE65230C8C0500767774 /* Payment Fields */,
 				862CBE61230C7F9100767774 /* Transaction Service Responses */,
 				860CCE0822FC945F00B85096 /* TransactionService.swift */,
@@ -325,6 +339,7 @@
 				862CBDF023058F4200767774 /* PaymentMethods.swift */,
 				869DDD6823157E3A0020CB20 /* CardProvider.swift */,
 				869DDD6A23157E9F0020CB20 /* WalletProvider.swift */,
+				863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */,
 			);
 			path = "Transaction Service Responses";
 			sourceTree = "<group>";
@@ -339,6 +354,18 @@
 				862CBE72230DCF6300767774 /* CardDataNotificationTypes.swift */,
 			);
 			path = "Payment Fields";
+			sourceTree = "<group>";
+		};
+		863FC9B727F4506000692767 /* ThreeDSTwo */ = {
+			isa = PBXGroup;
+			children = (
+				863FC9B527F4486E00692767 /* ThreeDSAuthenticationsRequest.swift */,
+				863FC9B827F450A300692767 /* SDKInfo.swift */,
+				863FC9BA27F450F500692767 /* SDKEphemPubKey.swift */,
+				863FC9BC27F4517400692767 /* DeviceRenderOptions.swift */,
+				863FC9CD27FECFC700692767 /* ThreeDSTwoAuthenticationsResponse.swift */,
+			);
+			path = ThreeDSTwo;
 			sourceTree = "<group>";
 		};
 		86710F582311C63D00259AE9 /* String */ = {
@@ -356,8 +383,6 @@
 		86875E0F23FA7ACA00076BDF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				86875E1823FA7C4700076BDF /* Nimble.framework */,
-				86875E1723FA7C4700076BDF /* Quick.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -366,6 +391,8 @@
 			isa = PBXGroup;
 			children = (
 				869DDD60231473720020CB20 /* PaymentMediums.swift */,
+				863FC9CB27FEB13600692767 /* Constants.swift */,
+				8631DA032835F83600441801 /* ChallengeConstants.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -532,13 +559,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				863FC9B427F4413700692767 /* ThreeDSTwoViewController.swift in Sources */,
 				862CBE53230A4F4D00767774 /* OrderLinks.swift in Sources */,
 				862CBE57230A63F300767774 /* PaymentViewController.swift in Sources */,
 				862CBE4D2307F9D600767774 /* UIView+AutoLayout.swift in Sources */,
 				862CBE492307443400767774 /* UIColor+Hex.swift in Sources */,
 				86ECAFE323225949008FDDDC /* UIView+InterfaceLayoutDirection.swift in Sources */,
+				863FC9B927F450A300692767 /* SDKInfo.swift in Sources */,
 				860A6043241B81C50067A75B /* UIScreen+Bounds.swift in Sources */,
 				862CBDEC23054C9800767774 /* OrderSummary.swift in Sources */,
+				863FC9CC27FEB13600692767 /* Constants.swift in Sources */,
 				86710F572311C5FD00259AE9 /* String+RemoveWhitespace.swift in Sources */,
 				869DDD6923157E3A0020CB20 /* CardProvider.swift in Sources */,
 				862CBE73230DCF6300767774 /* CardDataNotificationTypes.swift in Sources */,
@@ -549,6 +579,7 @@
 				862CBE71230D7AC800767774 /* UIFont+RegisterFromBundle.swift in Sources */,
 				860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */,
 				862CBE4623068C2900767774 /* NameInputVC.swift in Sources */,
+				863FC9BD27F4517400692767 /* DeviceRenderOptions.swift in Sources */,
 				862CBE7D230E8C3B00767774 /* String+Luhn.swift in Sources */,
 				862CBE5123089EDB00767774 /* UIView+Border.swift in Sources */,
 				862CBDEE23054E1500767774 /* FormattedOrderSummary.swift in Sources */,
@@ -556,6 +587,7 @@
 				862CBE79230E6D6D00767774 /* UITextField+CharLimit.swift in Sources */,
 				860CCE0922FC945F00B85096 /* TransactionService.swift in Sources */,
 				869DDD61231473720020CB20 /* PaymentMediums.swift in Sources */,
+				863FC9B227F436D700692767 /* ThreeDSTwoConfig.swift in Sources */,
 				860CCDFF22FC473800B85096 /* NISdk.swift in Sources */,
 				862CBE4223068C0400767774 /* ExpiryInputVC.swift in Sources */,
 				862CBDE82305493700767774 /* Amount.swift in Sources */,
@@ -572,14 +604,18 @@
 				869DDD5D23146F010020CB20 /* ApplePayDelegate.swift in Sources */,
 				862CBDDD2303EFC800767774 /* ApplePayController.swift in Sources */,
 				862CBE4023068BD700767774 /* PanInputVC.swift in Sources */,
+				863FC9CE27FECFC800692767 /* ThreeDSTwoAuthenticationsResponse.swift in Sources */,
 				869DDD6B23157E9F0020CB20 /* WalletProvider.swift in Sources */,
 				860CCE0722FC934700B85096 /* OrderResponse.swift in Sources */,
 				862CBE75230DD19F00767774 /* ExpiryDate.swift in Sources */,
 				86710F552311C59900259AE9 /* Collection+Pairs.swift in Sources */,
 				862CBE67230C8C1800767774 /* Pan.swift in Sources */,
+				8631DA042835F83600441801 /* ChallengeConstants.swift in Sources */,
 				7F2B32DE23F55B960001EFEE /* ColorCompatibility.swift in Sources */,
 				86710F4E230FEB5100259AE9 /* URLResponse+Any.swift in Sources */,
+				863FC9B627F4486E00692767 /* ThreeDSAuthenticationsRequest.swift in Sources */,
 				862CBE59230A641E00767774 /* AuthorizationViewController.swift in Sources */,
+				863FC9BB27F450F500692767 /* SDKEphemPubKey.swift in Sources */,
 				860CCE1522FD3B9C00B85096 /* TransactionServiceAdapter.swift in Sources */,
 				869DDD6E231680AB0020CB20 /* TokenUtils.swift in Sources */,
 				86710F5323104F3200259AE9 /* ThreeDSViewController.swift in Sources */,
@@ -760,6 +796,8 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/NISdk/Frameworks",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/NISdk/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -793,6 +831,8 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/NISdk/Frameworks",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/NISdk/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
