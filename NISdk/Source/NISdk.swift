@@ -17,10 +17,10 @@ private class NISdkBundleLocator {}
     var sdkLanguage = "en"
     private var isSDKInitialized = false
     
-    private func getConfigParamsForServer() -> UConfigParameters {
+    private func getConfigParamsForServer(env: NGeniusEnvironments?) -> UConfigParameters {
         var configParams: UConfigParameters {
             let params = UConfigParameters()
-            if self.paymentResponse.paymentLinks?.paymentLink?.ngenEnv() == .PROD {
+            if env == .PROD {
                 return params
             }
             let directoryServer = UDirectoryServer(
@@ -37,19 +37,6 @@ private class NISdkBundleLocator {}
         super.init()
         let bundle = getBundle()
         UIFont.RegisterFont(withFilenameString: "OCRA.otf", in: bundle)
-        UThreeDS2ServiceImpl.shared().u_initialize(self.getConfigParamsForServer(),  locale: "us", uiCustomization: UUiCustomization()) { error in
-            if let error = error {
-                #if DEBUG
-                print(error.localizedDescription)
-                #endif
-            } else {
-                self.isSDKInitialized = true
-                guard let sdkVersion = UThreeDS2ServiceImpl.shared().getSDKVersion() else { return }
-                #if DEBUG
-                print("SDK Initialized successfully \(sdkVersion)")
-                #endif
-            }
-        }
     }
     
     func getBundle() -> Bundle {
@@ -100,7 +87,25 @@ private class NISdkBundleLocator {}
         if #available(iOS 13.0, *) {
             paymentViewController.isModalInPresentation = true
         }
-        parentViewController.present(navController, animated: true)
+        UThreeDS2ServiceImpl.shared().u_initialize(
+            self.getConfigParamsForServer(env: order.orderLinks?.payPageLink?.ngenEnv()),
+            locale: "us",
+            uiCustomization: UUiCustomization()) { error in
+            if let error = error {
+                #if DEBUG
+                print(error.localizedDescription)
+                #endif
+            } else {
+                self.isSDKInitialized = true
+                guard let sdkVersion = UThreeDS2ServiceImpl.shared().getSDKVersion() else { return }
+                #if DEBUG
+                print("SDK Initialized successfully \(sdkVersion)")
+                #endif
+                DispatchQueue.main.async {
+                    parentViewController.present(navController, animated: true)
+                }
+            }
+        }
     }
     
     @objc public func initiateApplePayWith(applePayDelegate: ApplePayDelegate?,

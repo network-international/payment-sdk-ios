@@ -1,0 +1,23 @@
+PODS:
+  - NI-Three-DS-Two-iOS-SDK (1.0.0)
+  - NISdk (4.0.0):
+    - NI-Three-DS-Two-iOS-SDK (~> 1.0.0)
+
+DEPENDENCIES:
+  - NISdk (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - NI-Three-DS-Two-iOS-SDK
+
+EXTERNAL SOURCES:
+  NISdk:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  NI-Three-DS-Two-iOS-SDK: 48c97670c746b259bcfd337c74de6ccec336482b
+  NISdk: 15343dba676cca1610868fe57d5ff9ff0b897b8f
+
+PODFILE CHECKSUM: d41d5fbde7569b6661d4fa148159b2d5d22aec6e
+
+COCOAPODS: 1.11.2
