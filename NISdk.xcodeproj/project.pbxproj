@@ -70,6 +70,7 @@
 		869DDD6923157E3A0020CB20 /* CardProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD6823157E3A0020CB20 /* CardProvider.swift */; };
 		869DDD6B23157E9F0020CB20 /* WalletProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD6A23157E9F0020CB20 /* WalletProvider.swift */; };
 		869DDD6E231680AB0020CB20 /* TokenUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD6D231680AB0020CB20 /* TokenUtils.swift */; };
+		86C2DFE328EE8C5000E02659 /* String+Env.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86C2DFE228EE8C5000E02659 /* String+Env.swift */; };
 		86D2FB5922FC1AE700CF1FA1 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */; platformFilter = ios; };
 		86D2FB5E22FC1AE700CF1FA1 /* NISdkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D2FB5D22FC1AE700CF1FA1 /* NISdkTests.swift */; };
 		86D2FB6022FC1AE700CF1FA1 /* NISdk.h in Headers */ = {isa = PBXBuildFile; fileRef = 86D2FB5222FC1AE700CF1FA1 /* NISdk.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -165,6 +166,7 @@
 		869DDD6823157E3A0020CB20 /* CardProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardProvider.swift; sourceTree = "<group>"; };
 		869DDD6A23157E9F0020CB20 /* WalletProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletProvider.swift; sourceTree = "<group>"; };
 		869DDD6D231680AB0020CB20 /* TokenUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenUtils.swift; sourceTree = "<group>"; };
+		86C2DFE228EE8C5000E02659 /* String+Env.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Env.swift"; sourceTree = "<group>"; };
 		86D2FB4F22FC1AE700CF1FA1 /* NISdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NISdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		86D2FB5222FC1AE700CF1FA1 /* NISdk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NISdk.h; sourceTree = "<group>"; };
 		86D2FB5322FC1AE700CF1FA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -376,6 +378,7 @@
 				86710F562311C5FD00259AE9 /* String+RemoveWhitespace.swift */,
 				86ECAFCF23210FCD008FDDDC /* String+URLEncode.swift */,
 				86ECAFDE23223E92008FDDDC /* String+Localized.swift */,
+				86C2DFE228EE8C5000E02659 /* String+Env.swift */,
 			);
 			path = String;
 			sourceTree = "<group>";
@@ -598,6 +601,7 @@
 				862CBDF123058F4200767774 /* PaymentMethods.swift in Sources */,
 				86ECAFDF23223E92008FDDDC /* String+Localized.swift in Sources */,
 				860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */,
+				86C2DFE328EE8C5000E02659 /* String+Env.swift in Sources */,
 				862CBE55230A5F0C00767774 /* URL+QueryParams.swift in Sources */,
 				862CBDEA23054C7000767774 /* BillingAddress.swift in Sources */,
 				862CBE77230DD1BB00767774 /* CardHolderName.swift in Sources */,
