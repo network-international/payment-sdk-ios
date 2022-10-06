@@ -8,6 +8,7 @@
 
 import Foundation
 import PassKit
+import uSDK
 
 typealias MakePaymentCallback = (PaymentRequest) -> Void
 
@@ -60,7 +61,7 @@ class PaymentViewController: UIViewController {
         cardPaymentDelegate?.authorizationDidBegin?()
         self.transition(to: .authorizing)
         if let authCode = order.getAuthCode(),
-            let paymentLink = order.orderLinks?.paymentAuthorizationLink {
+           let paymentLink = order.orderLinks?.paymentAuthorizationLink {
             transactionService.authorizePayment(for: authCode, using: paymentLink, on: {
                 [weak self] tokens in
                 if let paymentToken = tokens["payment-token"], let accessToken = tokens["access-token"] {
@@ -68,7 +69,7 @@ class PaymentViewController: UIViewController {
                     self?.paymentToken = paymentToken
                     self?.accessToken = accessToken
                     // 2. Show card payment screen after authorization (payment token is received)
-                     DispatchQueue.main.async { // Use the main thread to update any UI
+                    DispatchQueue.main.async { // Use the main thread to update any UI
                         self?.cardPaymentDelegate?.authorizationDidComplete?(with: .AuthSuccess)
                         self?.cardPaymentDelegate?.paymentDidBegin?()
                         self?.initiatePaymentForm()
@@ -79,7 +80,7 @@ class PaymentViewController: UIViewController {
             })
         } else {
             // Close payment view controller if authCode or payment link is broken
-           self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
+            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
         }
     }
     
@@ -119,24 +120,24 @@ class PaymentViewController: UIViewController {
         [unowned self] payment, completion in
         if let payment = payment, let completion = completion {
             self.transactionService.postApplePayResponse(for: self.order,
-                 with: payment,
-                 using: self.accessToken!, on: {
-                    [unowned self] data, response, error in
-                    if let data = data {
-                        do {
-                            let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
-                            if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED") {
-                                completion(PKPaymentAuthorizationResult(status: .success, errors: nil), paymentResponse)
-                            } else {
-                                completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
-                            }
-                        } catch let error {
-                            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
+                                                            with: payment,
+                                                            using: self.accessToken!, on: {
+                [unowned self] data, response, error in
+                if let data = data {
+                    do {
+                        let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                        if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED") {
+                            completion(PKPaymentAuthorizationResult(status: .success, errors: nil), paymentResponse)
+                        } else {
+                            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
                         }
+                    } catch let error {
+                        completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                     }
+                }
             })
         } else {
-             self.handlePaymentResponse(nil)
+            self.handlePaymentResponse(nil)
         }
     }
     
@@ -161,33 +162,45 @@ class PaymentViewController: UIViewController {
     lazy private var handlePaymentResponse: (PaymentResponse?) -> Void = {
         paymentResponse in
         DispatchQueue.main.async {
-            if let paymentResponse = paymentResponse {
-                if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED") {
-                    // 5. Close Screen if payment is done
-                    self.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
-                } else if(paymentResponse.state == "AWAIT_3DS") {
-                    self.cardPaymentDelegate?.threeDSChallengeDidBegin?()
-                    self.initiateThreeDS(with: paymentResponse)
-                } else {
-                    self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
-                }
-            } else {
+            guard let paymentResponse = paymentResponse else {
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                return
             }
+            if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED") {
+                // 5. Close Screen if payment is done
+                self.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                return
+            }
+            if(paymentResponse.state == "AWAIT_3DS") {
+                self.cardPaymentDelegate?.threeDSChallengeDidBegin?()
+                self.initiateThreeDS(with: paymentResponse)
+                return
+            }
+            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
         }
     }
     
     private func initiateThreeDS(with paymentRepsonse: PaymentResponse) {
         if let acsUrl = paymentRepsonse.threeDSConfig?.acsUrl,
-            let acsPaReq = paymentRepsonse.threeDSConfig?.acsPaReq,
-            let acsMd = paymentRepsonse.threeDSConfig?.acsMd,
-            let threeDSTermURL = paymentRepsonse.paymentLinks?.threeDSTermURL {
+           let acsPaReq = paymentRepsonse.threeDSConfig?.acsPaReq,
+           let acsMd = paymentRepsonse.threeDSConfig?.acsMd,
+           let threeDSTermURL = paymentRepsonse.paymentLinks?.threeDSTermURL {
             let threeDSViewController = ThreeDSViewController(with: acsUrl,
                                                               acsPaReq: acsPaReq,
                                                               acsMd: acsMd,
                                                               threeDSTermURL: threeDSTermURL,
                                                               completion: onThreeDSCompletion)
             self.transition(to: .renderThreeDSChallengeForm(threeDSViewController))
+        } else if let directoryServerID = paymentRepsonse.threeDSTwoConfig?.directoryServerID,
+                  let threeDSMessageVersion = paymentRepsonse.threeDSTwoConfig?.messageVersion {
+            // Start threeds two
+            let threeDSTwoViewController = ThreeDSTwoViewController(with: directoryServerID,
+                                                                    threeDSMessageVersion: threeDSMessageVersion,
+                                                                    completion: onThreeDSCompletion,
+                                                                    transactionService: self.transactionService,
+                                                                    accessToken: self.accessToken!,
+                                                                    paymentResponse: paymentRepsonse)
+            self.transition(to: .renderThreeDSChallengeForm(threeDSTwoViewController))
         } else {
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: nil)
         }
@@ -195,34 +208,39 @@ class PaymentViewController: UIViewController {
     
     lazy private var onThreeDSCompletion: () -> Void = { [weak self] in
         self?.transactionService.getOrder(for: (self?.order.orderLinks?.orderLink)!, using: self!.accessToken!, with:
-            { (data, response, error) in
-                if let data = data {
-                    do {
-                        let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
-                        var successfulPayments: [PaymentResponse] = []
-                        var awaitThreedsPayments: [PaymentResponse] = []
-                        if let paymentResponses = orderResponse.embeddedData?.payment {
-                            successfulPayments = paymentResponses.filter({ (paymentAttempt: PaymentResponse) -> Bool in
-                                return paymentAttempt.state == "CAPTURED" || paymentAttempt.state == "AUTHORISED" || paymentAttempt.state == "PURCHASED"
-                            })
-                            
-                            awaitThreedsPayments = paymentResponses.filter({ (paymentAttempt: PaymentResponse) -> Bool in
-                                return paymentAttempt.state == "AWAIT_3DS"
-                            })
-                        }
+                                                { (data, response, error) in
+            do {
+                try UThreeDS2ServiceImpl.shared().u_cleanup()
+            } catch let error {
+                print(error)
+            }
+            if let data = data {
+                do {
+                    let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
+                    var successfulPayments: [PaymentResponse] = []
+                    var awaitThreedsPayments: [PaymentResponse] = []
+                    if let paymentResponses = orderResponse.embeddedData?.payment {
+                        successfulPayments = paymentResponses.filter({ (paymentAttempt: PaymentResponse) -> Bool in
+                            return paymentAttempt.state == "CAPTURED" || paymentAttempt.state == "AUTHORISED" || paymentAttempt.state == "PURCHASED"
+                        })
                         
-                        if(successfulPayments.count > 0) {
-                            self?.handlePaymentResponse(successfulPayments[0])
-                        } else if(awaitThreedsPayments.count > 0) {
-                            // we are still waiting for 3ds to complete
-                            return
-                        } else {
-                            self?.handlePaymentResponse(nil)
-                        }
-                    } catch let error {
+                        awaitThreedsPayments = paymentResponses.filter({ (paymentAttempt: PaymentResponse) -> Bool in
+                            return paymentAttempt.state == "AWAIT_3DS"
+                        })
+                    }
+                    
+                    if(successfulPayments.count > 0) {
+                        self?.handlePaymentResponse(successfulPayments[0])
+                    } else if(awaitThreedsPayments.count > 0) {
+                        // we are still waiting for 3ds to complete
+                        return
+                    } else {
                         self?.handlePaymentResponse(nil)
                     }
+                } catch let error {
+                    self?.handlePaymentResponse(nil)
                 }
+            }
         })
     }
     
@@ -272,7 +290,7 @@ private extension PaymentViewController {
             return AuthorizationViewController()
             
         case .renderCardPaymentForm(let viewController),
-             .renderThreeDSChallengeForm(let viewController):
+                .renderThreeDSChallengeForm(let viewController):
             return viewController
         }
     }
