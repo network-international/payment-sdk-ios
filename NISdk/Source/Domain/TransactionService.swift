@@ -28,4 +28,13 @@ import PassKit
                                     with applePayPaymentResponse: PKPayment,
                                     using paymentToken: String,
                                     on completion: @escaping (HttpResponseCallback))
+   
+    @objc func postThreeDSAuthentications(for paymentResponse: PaymentResponse,
+                                    with threeDSAuthenticationsRequest: ThreeDSAuthenticationsRequest,
+                                    using paymentToken: String,
+                                    on completion: @escaping (HttpResponseCallback))
+    
+    @objc func postThreeDSTwoChallengeResponse(for paymentResponse: PaymentResponse,
+                                               using paymentToken: String,
+                                               on completion: @escaping (HttpResponseCallback))
 }

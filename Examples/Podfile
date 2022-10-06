@@ -1,0 +1,6 @@
+platform :ios, '11'
+project 'Simple Integration.xcodeproj'
+target 'Simple Integration' do
+  use_frameworks!
+  pod 'NISdk', :path => '../'
+end
