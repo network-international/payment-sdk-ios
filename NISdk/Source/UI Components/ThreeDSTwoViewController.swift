@@ -98,16 +98,14 @@ class ThreeDSTwoViewController: UIViewController, UChallengeStatusReceiver {
         vStack.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         
         do {
-            // TODO: fix messageVersion
             guard let directoryServerID = self.directoryServerID else {
                 // unable to parse data
                 completeThreeDSJourney()
                 return
             }
-//            let transaction = try UThreeDS2ServiceImpl.shared().u_createTransaction(
-//                directoryServerID, messageVersion: threeDSMessageVersion)
+            let directoryServerId = self.paymentResponse.paymentLinks?.threeDSTwoAuthenticationURL?.ngenEnv() == .PROD ? directoryServerID : "SANDBOX_DS"
             let txn = try UThreeDS2ServiceImpl.shared().u_createTransaction(
-                            "SANDBOX_DS", messageVersion: threeDSMessageVersion)
+                directoryServerId, messageVersion: threeDSMessageVersion)
             self.transaction = txn
             let response = try txn.u_getAuthenticationRequestParameters()
             self.activityIndicator.stopAnimating()
@@ -160,14 +158,9 @@ class ThreeDSTwoViewController: UIViewController, UChallengeStatusReceiver {
                                   let acsRefNumber = threeDSTwoAuthenticationsResponse.threeDSTwo?.acsReferenceNumber,
                                   let acsSignedContent = threeDSTwoAuthenticationsResponse.threeDSTwo?.acsSignedContent else {
                                       // Unable to get details required to open the challenge frame
-                                      return
-                                  }
-//                            let challengeParams = try UChallengeParameters(
-//                                threeDSTransID: Constants.serverTransactionID,
-//                                acsTransactionID: Constants.acsTransactionID,
-//                                acsRefNumber: Constants.acsRefNumber,
-//                                acsSignedContent: Constants.acsSignedContent)
-                            
+                                self.completeThreeDSJourney()
+                                return
+                            }
                             let challengeParams = try UChallengeParameters(
                                 threeDSTransID: threeDSTransID,
                                 acsTransactionID: acsTransactionID,
