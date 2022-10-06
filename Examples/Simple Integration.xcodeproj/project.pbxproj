@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		862CBE312305DA8200767774 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 862CBE302305DA8200767774 /* NISdk.framework */; };
-		862CBE322305DA8200767774 /* NISdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 862CBE302305DA8200767774 /* NISdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1D468C67F7DEA4F901E57B77 /* Pods_Simple_Integration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80591F9DC5559F5D478F3935 /* Pods_Simple_Integration.framework */; };
 		862CBE81230EE14F00767774 /* StoreFrontViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE80230EE14F00767774 /* StoreFrontViewController.swift */; };
 		862CBE83230EF13700767774 /* ProductViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE82230EF13700767774 /* ProductViewCell.swift */; };
 		862CBE85230EF89100767774 /* UIView+AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE84230EF89100767774 /* UIView+AutoLayout.swift */; };
@@ -25,22 +24,10 @@
 		86EA223B230F2BDE00B46FF9 /* OrderAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		862CBE332305DA8200767774 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				862CBE322305DA8200767774 /* NISdk.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		862CBE302305DA8200767774 /* NISdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = NISdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A0EF805E82AC3F6D28308A4 /* Pods-Simple Integration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Simple Integration.debug.xcconfig"; path = "Target Support Files/Pods-Simple Integration/Pods-Simple Integration.debug.xcconfig"; sourceTree = "<group>"; };
+		1042A53F78898626517C10BE /* Pods-Simple Integration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Simple Integration.release.xcconfig"; path = "Target Support Files/Pods-Simple Integration/Pods-Simple Integration.release.xcconfig"; sourceTree = "<group>"; };
+		80591F9DC5559F5D478F3935 /* Pods_Simple_Integration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Simple_Integration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		862CBE80230EE14F00767774 /* StoreFrontViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreFrontViewController.swift; sourceTree = "<group>"; };
 		862CBE82230EF13700767774 /* ProductViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductViewCell.swift; sourceTree = "<group>"; };
 		862CBE84230EF89100767774 /* UIView+AutoLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+AutoLayout.swift"; sourceTree = "<group>"; };
@@ -66,13 +53,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				862CBE312305DA8200767774 /* NISdk.framework in Frameworks */,
+				1D468C67F7DEA4F901E57B77 /* Pods_Simple_Integration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		627C1409D86C6E52A4443AC3 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0A0EF805E82AC3F6D28308A4 /* Pods-Simple Integration.debug.xcconfig */,
+				1042A53F78898626517C10BE /* Pods-Simple Integration.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		860CCD8822FC1D2B00B85096 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -125,12 +122,21 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		863FC9A027F175B600692767 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				80591F9DC5559F5D478F3935 /* Pods_Simple_Integration.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		86D2FB6922FC1B3300CF1FA1 = {
 			isa = PBXGroup;
 			children = (
 				86D2FB7422FC1B3300CF1FA1 /* Simple Integration */,
 				86D2FB7322FC1B3300CF1FA1 /* Products */,
-				862CBE302305DA8200767774 /* NISdk.framework */,
+				863FC9A027F175B600692767 /* Frameworks */,
+				627C1409D86C6E52A4443AC3 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -160,10 +166,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 86D2FB8422FC1B3300CF1FA1 /* Build configuration list for PBXNativeTarget "Simple Integration" */;
 			buildPhases = (
+				E7DA372E0FFB99596537AF04 /* [CP] Check Pods Manifest.lock */,
 				86D2FB6E22FC1B3300CF1FA1 /* Sources */,
 				86D2FB6F22FC1B3300CF1FA1 /* Frameworks */,
 				86D2FB7022FC1B3300CF1FA1 /* Resources */,
-				862CBE332305DA8200767774 /* Embed Frameworks */,
+				A373F4C335542BF66B84B3F7 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -181,7 +188,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1030;
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1320;
 				ORGANIZATIONNAME = "Network International";
 				TargetAttributes = {
 					86D2FB7122FC1B3300CF1FA1 = {
@@ -224,6 +231,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A373F4C335542BF66B84B3F7 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Simple Integration/Pods-Simple Integration-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Simple Integration/Pods-Simple Integration-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Simple Integration/Pods-Simple Integration-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E7DA372E0FFB99596537AF04 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Simple Integration-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		86D2FB6E22FC1B3300CF1FA1 /* Sources */ = {
@@ -287,6 +336,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -349,6 +399,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -380,20 +431,24 @@
 		};
 		86D2FB8522FC1B3300CF1FA1 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0A0EF805E82AC3F6D28308A4 /* Pods-Simple Integration.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X6Z794U7BF;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "ae.network.Simple-Integration";
+				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.simpleintegration.johnny;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -403,20 +458,24 @@
 		};
 		86D2FB8622FC1B3300CF1FA1 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1042A53F78898626517C10BE /* Pods-Simple Integration.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = X6Z794U7BF;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration/Supporting Files/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "ae.network.Simple-Integration";
+				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.simpleintegration.johnny;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
