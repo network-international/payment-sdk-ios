@@ -16,28 +16,12 @@
 		869DDD8523170D530020CB20 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 869DDD8423170D530020CB20 /* Assets.xcassets */; };
 		869DDD8823170D530020CB20 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 869DDD8623170D530020CB20 /* LaunchScreen.storyboard */; };
 		869DDD8B23170D530020CB20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD8A23170D530020CB20 /* main.m */; };
-		869DDD9823170ED70020CB20 /* NISdk.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 869DDD9723170ED70020CB20 /* NISdk.framework */; };
-		869DDD9923170ED70020CB20 /* NISdk.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 869DDD9723170ED70020CB20 /* NISdk.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		869DDDB923177A5B0020CB20 /* OrderCreationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDB823177A5B0020CB20 /* OrderCreationViewController.m */; };
 		869DDDBC23177AE60020CB20 /* Product.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDBB23177AE60020CB20 /* Product.m */; };
 		869DDDC223177B400020CB20 /* OrderAmount.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDC123177B400020CB20 /* OrderAmount.m */; };
 		869DDDC423177B4E0020CB20 /* OrderRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDC323177B4E0020CB20 /* OrderRequest.m */; };
 		869DDDCB23177C0A0020CB20 /* ProductViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 869DDDCA23177C0A0020CB20 /* ProductViewCell.m */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		869DDD9A23170ED70020CB20 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				869DDD9923170ED70020CB20 /* NISdk.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		862F84172317D8510085E0AA /* Simple Integration Obj-C-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Simple Integration Obj-C-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -56,7 +40,6 @@
 		869DDD8723170D530020CB20 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		869DDD8923170D530020CB20 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		869DDD8A23170D530020CB20 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		869DDD9723170ED70020CB20 /* NISdk.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = NISdk.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		869DDDB723177A5B0020CB20 /* OrderCreationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OrderCreationViewController.h; sourceTree = "<group>"; };
 		869DDDB823177A5B0020CB20 /* OrderCreationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OrderCreationViewController.m; sourceTree = "<group>"; };
 		869DDDBA23177AD90020CB20 /* Product.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Product.h; sourceTree = "<group>"; };
@@ -74,7 +57,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				869DDD9823170ED70020CB20 /* NISdk.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,7 +79,6 @@
 			children = (
 				869DDD7A23170D520020CB20 /* Simple Integration Obj-C */,
 				869DDD7923170D520020CB20 /* Products */,
-				869DDD9723170ED70020CB20 /* NISdk.framework */,
 			);
 			sourceTree = "<group>";
 		};
@@ -204,7 +185,6 @@
 				869DDD7423170D520020CB20 /* Sources */,
 				869DDD7523170D520020CB20 /* Frameworks */,
 				869DDD7623170D520020CB20 /* Resources */,
-				869DDD9A23170ED70020CB20 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
