@@ -30,7 +30,7 @@ class ThreeDSTwoViewController: UIViewController, UChallengeStatusReceiver {
          completion: @escaping () -> Void,
          transactionService: TransactionServiceAdapter,
          accessToken: String, paymentResponse: PaymentResponse) {
-        self.directoryServerID = Constants.MC_MTF_DIRECTORY_SERVER_ID
+        self.directoryServerID = directoryServerID
         self.threeDSMessageVersion = paymentResponse.threeDSTwoConfig?.messageVersion
         self.completionHandler = completion
         self.transactionService = transactionService
