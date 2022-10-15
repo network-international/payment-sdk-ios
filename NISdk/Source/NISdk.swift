@@ -96,21 +96,21 @@ private class NISdkBundleLocator {}
                 self.getConfigParamsForServer(env: order.orderLinks?.payPageLink?.ngenEnv()),
                 locale: "us",
                 uiCustomization: UUiCustomization()) { error in
-                if let error = error {
-                    #if DEBUG
-                    print(error.localizedDescription)
-                    #endif
-                } else {
-                    self.isSDKInitialized = true
-                    guard let sdkVersion = UThreeDS2ServiceImpl.shared().getSDKVersion() else { return }
-                    #if DEBUG
-                    print("SDK Initialized successfully \(sdkVersion)")
-                    #endif
-                    DispatchQueue.main.async {
-                        parentViewController.present(navController, animated: true)
+                    if let error = error {
+                        #if DEBUG
+                        print(error.localizedDescription)
+                        #endif
+                    } else {
+                        self.isSDKInitialized = true
+                        guard let sdkVersion = UThreeDS2ServiceImpl.shared().getSDKVersion() else { return }
+                        #if DEBUG
+                        print("SDK Initialized successfully \(sdkVersion)")
+                        #endif
+                        DispatchQueue.main.async {
+                            parentViewController.present(navController, animated: true)
+                        }
                     }
                 }
-            }
         }
     }
     
@@ -129,5 +129,37 @@ private class NISdkBundleLocator {}
             paymentViewController.isModalInPresentation = true
         }
         parentViewController.present(paymentViewController, animated: true)
+    }
+    
+    @objc public func executeThreeDSTwo(cardPaymentDelegate: CardPaymentDelegate,
+                                   overParent parentViewController: UIViewController,
+                                   for paymentResponse: PaymentResponse) {
+        let paymentViewController = PaymentViewController(paymentResponse: paymentResponse, cardPaymentDelegate: cardPaymentDelegate)
+        let navController = UINavigationController(rootViewController: paymentViewController)
+        if(self.isSDKInitialized) {
+            DispatchQueue.main.async {
+                parentViewController.present(navController, animated: true)
+            }
+        } else {
+            UThreeDS2ServiceImpl.shared().u_initialize(
+                self.getConfigParamsForServer(env: paymentResponse.paymentLinks?.threeDSTwoAuthenticationURL?.ngenEnv()),
+                locale: "us",
+                uiCustomization: UUiCustomization()) { error in
+                    if let error = error {
+                        #if DEBUG
+                        print(error.localizedDescription)
+                        #endif
+                    } else {
+                        self.isSDKInitialized = true
+                        guard let sdkVersion = UThreeDS2ServiceImpl.shared().getSDKVersion() else { return }
+                        #if DEBUG
+                        print("SDK Initialized successfully \(sdkVersion)")
+                        #endif
+                        DispatchQueue.main.async {
+                            parentViewController.present(navController, animated: true)
+                        }
+                    }
+                }
+        }
     }
 }

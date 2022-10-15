@@ -19,12 +19,14 @@ class PaymentViewController: UIViewController {
     private let transactionService = TransactionServiceAdapter()
     private weak var cardPaymentDelegate: CardPaymentDelegate?
     private let order: OrderResponse
+    private var paymentResponse: PaymentResponse?
     private var paymentToken: String?
     private var accessToken: String?
     private let paymentMedium: PaymentMedium
     private var applePayController: ApplePayController?
     private var applePayDelegate: ApplePayDelegate?
     var applePayRequest: PKPaymentRequest?
+    private var host: String?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -34,6 +36,14 @@ class PaymentViewController: UIViewController {
         if let applePayDelegate = applePayDelegate {
             self.applePayDelegate = applePayDelegate
         }
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    init(paymentResponse: PaymentResponse, cardPaymentDelegate: CardPaymentDelegate) {
+        self.order = OrderResponse()
+        self.paymentMedium = .ThreeDSTwo
+        self.cardPaymentDelegate = cardPaymentDelegate
+        self.paymentResponse = paymentResponse
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -48,6 +58,33 @@ class PaymentViewController: UIViewController {
     
     // Perform any checks that need to be done before auth
     private func performPreAuthChecksAndBeginAuth() {
+        if(self.paymentMedium == .ThreeDSTwo ) {
+            guard let authenticationCode = self.paymentResponse?.authenticationCode else {
+                self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
+                return
+            }
+            
+            guard let threeDSTwoAuthenticationURL = self.paymentResponse?.paymentLinks?.paymentLink else {
+                self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
+                return
+            }
+            
+            let authUrl = URL(string: threeDSTwoAuthenticationURL)
+            
+            guard let authUrlHost = authUrl?.host,
+                    let outletId = paymentResponse?.outletId,
+                    let orderReference = paymentResponse?.orderReference else {
+                self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
+                return
+            }
+            self.order.orderLinks = OrderLinks(paymentLink: "",
+                                               paymentAuthorizationLink: "",
+                                               orderLink: "https://\(authUrlHost)/transactions/outlets/\(outletId)/orders/\(orderReference)",
+                                               payPageLink: "")
+            self.execThreeDSTwo(using: authenticationCode, domain: authUrlHost)
+            return
+        }
+        
         // Apple pay is not enabled by merchant, hence abort payment flow
         if(self.paymentMedium == .ApplePay && (self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink) == nil) {
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
@@ -55,6 +92,23 @@ class PaymentViewController: UIViewController {
         }
         // 1. Perform authorization by aquiring a payment token
         self.authorizePayment()
+    }
+    
+    private func execThreeDSTwo(using code: String, domain: String) {
+        let authUrl = "https://\(domain)/transactions/paymentAuthorization"
+        transactionService.authorizePayment(for: code, using: authUrl, on: {
+            [weak self] tokens in
+            if let paymentToken = tokens["payment-token"], let accessToken = tokens["access-token"] {
+                self?.paymentToken = paymentToken
+                self?.accessToken = accessToken
+                DispatchQueue.main.async { // Use the main thread to update any UI
+                    self?.initiatePaymentForm()
+                }
+            } else {
+                self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
+            }
+        })
+        
     }
     
     private func authorizePayment() {
@@ -92,7 +146,7 @@ class PaymentViewController: UIViewController {
                 self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
             })
             self.transition(to: .renderCardPaymentForm(cardPaymentViewController))
-            break;
+            break
         case .ApplePay:
             if let applePayRequest = applePayRequest {
                 applePayController = ApplePayController(applePayDelegate: self.applePayDelegate!,
@@ -112,6 +166,9 @@ class PaymentViewController: UIViewController {
                 }
             }
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+            break
+        case .ThreeDSTwo:
+            self.handlePaymentResponse(self.paymentResponse)
             break
         }
     }
