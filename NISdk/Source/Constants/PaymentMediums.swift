@@ -11,6 +11,7 @@ import Foundation
 @objc public enum PaymentMedium: Int, RawRepresentable  {
     case ApplePay
     case Card
+    case ThreeDSTwo
     
     public var rawVal: RawValue {
         switch self {
@@ -18,6 +19,8 @@ import Foundation
             return "ApplePay"
         case .Card:
             return "Card"
+        case .ThreeDSTwo:
+            return "ThreeDSTwo"
         }
     }
     
@@ -27,6 +30,8 @@ import Foundation
             self = .ApplePay
         case "Card":
             self = .Card
+        case "ThreeDSTwo":
+            self = .ThreeDSTwo
         default:
             self = .Card
         }

@@ -90,3 +90,6 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+
+# private libraries used during development
+NISdk/Frameworks/uSDK.framework
