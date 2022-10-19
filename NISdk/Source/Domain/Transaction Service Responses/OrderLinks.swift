@@ -11,7 +11,7 @@ import Foundation
 public struct OrderLinks {
     public let paymentLink: String?
     public let paymentAuthorizationLink: String?
-    public let orderLink: String?
+    public var orderLink: String?
     public let payPageLink: String?
 }
 
