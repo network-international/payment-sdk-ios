@@ -16,6 +16,9 @@ import Foundation
     public let paymentLinks: PaymentLinks?
     public let threeDSConfig: ThreeDSConfig?
     public let threeDSTwoConfig: ThreeDSTwoConfig?
+    public let authenticationCode: String?
+    public let orderReference: String?
+    public let outletId: String?
     
     private enum PaymentResponseCodingKeys: String, CodingKey {
         case _id
@@ -25,6 +28,9 @@ import Foundation
         case paymentLinks = "_links"
         case threeDSConfig = "3ds"
         case threeDSTwoConfig = "3ds2"
+        case authenticationCode = "authenticationCode"
+        case orderReference = "orderReference"
+        case outletId = "outletId"
     }
     
     required public init(from decoder: Decoder) throws {
@@ -36,5 +42,8 @@ import Foundation
         paymentLinks = try paymentResponseContainer.decodeIfPresent(PaymentLinks.self, forKey: .paymentLinks)
         threeDSConfig = try paymentResponseContainer.decodeIfPresent(ThreeDSConfig.self, forKey: .threeDSConfig)
         threeDSTwoConfig = try paymentResponseContainer.decodeIfPresent(ThreeDSTwoConfig.self, forKey: .threeDSTwoConfig)
+        authenticationCode = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .authenticationCode)
+        orderReference = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .orderReference)
+        outletId = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .outletId)
     }
 }
