@@ -33,6 +33,15 @@ import Foundation
         case outletId = "outletId"
     }
     
+    @objc public static func decodeFrom(data: Data) throws -> PaymentResponse {
+        do {
+            let paymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+            return paymentResponse
+        } catch let error {
+            throw error
+        }
+    }
+    
     required public init(from decoder: Decoder) throws {
         let paymentResponseContainer = try decoder.container(keyedBy: PaymentResponseCodingKeys.self)
         _id = try paymentResponseContainer.decodeIfPresent(String.self, forKey: ._id)
