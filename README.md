@@ -1,3 +1,5 @@
+:warning: Whilst we make some improvements to our mobile experiences, we’ve temporarily removed the EMV 3DS SDK. Please contact ecom-reintegration@network.global to obtain the files you need
+
 # Network International iOS SDK
 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
