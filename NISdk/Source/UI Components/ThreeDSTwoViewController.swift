@@ -22,6 +22,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
     private var transactionService: TransactionService
     private var accessToken: String
     private var paymentResponse: PaymentResponse
+    private var frictionlessTimer: Timer?
     
     private var authorizationLabel: UILabel {
         let authLabel = UILabel()
@@ -32,7 +33,6 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
     
     init(with paymentResponse: PaymentResponse, accessToken: String,
          transactionService: TransactionServiceAdapter, completion: @escaping (Bool) -> Void) {
-        
         self.completionHandler = completion
         self.transactionService = transactionService
         self.accessToken = accessToken
@@ -102,7 +102,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
            let threeDSMethodNotificationURL = paymentResponse.threeDSMethodNotificationURL,
            let threeDSMethodData = paymentResponse.threeDSMethodData,
            let threeDSMethodURL = paymentResponse.threeDSTwoConfig?.threeDSMethodURL,
-           let url = URL(string: threeDSMethodURL){
+           let url = URL(string: threeDSMethodURL) {
             // Adding this check to prevent multiple requests
             if(!hasInitialisedRequest) {
                 hasInitialisedRequest = true
@@ -113,9 +113,19 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                 
                 webView.load(request)
                 showActivityIndicator()
+                self.frictionlessTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) {
+                    timer in
+                    timer.invalidate()
+                    // frictionless has timedout. Proceed to Challenge
+                    self.fingerPrintCompleted = true
+                    self.onCompleteFingerPrint(threeDSCompInd: "N")
+                }
+                RunLoop.current.add(self.frictionlessTimer!, forMode: .common)
             }
         } else {
-            // Failed to init. Handle failure due to missing data points
+            // No method data and url found, continue to challenge
+            self.fingerPrintCompleted = true
+            onCompleteFingerPrint(threeDSCompInd: "U")
         }
     }
     
@@ -174,6 +184,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
     }
     
     func onCompleteFingerPrint(threeDSCompInd: String) {
+        self.frictionlessTimer?.invalidate()
         guard let authenticationsUrl = paymentResponse.paymentLinks?.threeDSTwoAuthenticationURL else {
             self.completionHandler(true)
             return
