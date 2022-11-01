@@ -8,7 +8,6 @@
 
 import Foundation
 import PassKit
-import uSDK
 
 typealias MakePaymentCallback = (PaymentRequest) -> Void
 
@@ -248,29 +247,25 @@ class PaymentViewController: UIViewController {
                                                               threeDSTermURL: threeDSTermURL,
                                                               completion: onThreeDSCompletion)
             self.transition(to: .renderThreeDSChallengeForm(threeDSViewController))
-        } else if let directoryServerID = paymentRepsonse.threeDSTwoConfig?.directoryServerID,
-                  let threeDSMessageVersion = paymentRepsonse.threeDSTwoConfig?.messageVersion {
+        } else if let accessToken = self.accessToken {
             // Start threeds two
-            let threeDSTwoViewController = ThreeDSTwoViewController(with: directoryServerID,
-                                                                    threeDSMessageVersion: threeDSMessageVersion,
-                                                                    completion: onThreeDSCompletion,
+            let threeDSTwoViewController = ThreeDSTwoViewController(with: paymentRepsonse,
+                                                                    accessToken: accessToken,
                                                                     transactionService: self.transactionService,
-                                                                    accessToken: self.accessToken!,
-                                                                    paymentResponse: paymentRepsonse)
+                                                                    completion: onThreeDSCompletion)
             self.transition(to: .renderThreeDSChallengeForm(threeDSTwoViewController))
         } else {
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: nil)
         }
     }
     
-    lazy private var onThreeDSCompletion: () -> Void = { [weak self] in
+    lazy private var onThreeDSCompletion: (Bool) -> Void = { [weak self] hasSDKError in
+        if(hasSDKError) {
+            self?.handlePaymentResponse(nil)
+            return
+        }
         self?.transactionService.getOrder(for: (self?.order.orderLinks?.orderLink)!, using: self!.accessToken!, with:
                                                 { (data, response, error) in
-            do {
-                try UThreeDS2ServiceImpl.shared().u_cleanup()
-            } catch let error {
-                print(error)
-            }
             if let data = data {
                 do {
                     let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
