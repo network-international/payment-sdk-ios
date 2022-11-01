@@ -3,11 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1D468C67F7DEA4F901E57B77 /* Pods_Simple_Integration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80591F9DC5559F5D478F3935 /* Pods_Simple_Integration.framework */; };
+		684ED4D7796DAEE4202DFA55 /* Pods_Simple_Integration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80591F9DC5559F5D478F3935 /* Pods_Simple_Integration.framework */; };
 		862CBE81230EE14F00767774 /* StoreFrontViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE80230EE14F00767774 /* StoreFrontViewController.swift */; };
 		862CBE83230EF13700767774 /* ProductViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE82230EF13700767774 /* ProductViewCell.swift */; };
 		862CBE85230EF89100767774 /* UIView+AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE84230EF89100767774 /* UIView+AutoLayout.swift */; };
@@ -53,7 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1D468C67F7DEA4F901E57B77 /* Pods_Simple_Integration.framework in Frameworks */,
+				684ED4D7796DAEE4202DFA55 /* Pods_Simple_Integration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,7 +66,6 @@
 				0A0EF805E82AC3F6D28308A4 /* Pods-Simple Integration.debug.xcconfig */,
 				1042A53F78898626517C10BE /* Pods-Simple Integration.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};

@@ -17,12 +17,12 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private var acsPaReq: String
     private var acsMd: String
     private var threeDSTermURL: String
-    private var completionHandler: () -> Void
+    private var completionHandler: (Bool) -> Void
     private var hasClosedWebView: Bool = false
     private var hasInitialisedRequest: Bool = false
     
     
-    init(with acsUrl: String, acsPaReq: String, acsMd: String, threeDSTermURL: String, completion: @escaping () -> Void) {
+    init(with acsUrl: String, acsPaReq: String, acsMd: String, threeDSTermURL: String, completion: @escaping (Bool) -> Void) {
         self.acsUrl = acsUrl
         self.acsPaReq = acsPaReq
         self.acsMd = acsMd
@@ -94,7 +94,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
         if (webView.url?.queryParameters?["3ds_status"]) != nil {
             hasClosedWebView = true
             webView.stopLoading()
-            self.completionHandler()
+            self.completionHandler(false)
         }
     }
     
@@ -104,7 +104,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
         webView.stopLoading()
         if(!hasClosedWebView) {
             hasClosedWebView = true;
-            self.completionHandler()
+            self.completionHandler(false)
         }
     }
 }
