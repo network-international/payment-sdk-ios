@@ -55,11 +55,9 @@
 		863FC9B227F436D700692767 /* ThreeDSTwoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */; };
 		863FC9B427F4413700692767 /* ThreeDSTwoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */; };
 		863FC9B627F4486E00692767 /* ThreeDSAuthenticationsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B527F4486E00692767 /* ThreeDSAuthenticationsRequest.swift */; };
-		863FC9B927F450A300692767 /* SDKInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B827F450A300692767 /* SDKInfo.swift */; };
-		863FC9BB27F450F500692767 /* SDKEphemPubKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9BA27F450F500692767 /* SDKEphemPubKey.swift */; };
-		863FC9BD27F4517400692767 /* DeviceRenderOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9BC27F4517400692767 /* DeviceRenderOptions.swift */; };
 		863FC9CC27FEB13600692767 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9CB27FEB13600692767 /* Constants.swift */; };
 		863FC9CE27FECFC800692767 /* ThreeDSTwoAuthenticationsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9CD27FECFC700692767 /* ThreeDSTwoAuthenticationsResponse.swift */; };
+		867102DB290FC520006265BC /* BrowserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867102DA290FC520006265BC /* BrowserInfo.swift */; };
 		86710F4C230FE47600259AE9 /* Encodable+PrettyPrint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F4B230FE47600259AE9 /* Encodable+PrettyPrint.swift */; };
 		86710F4E230FEB5100259AE9 /* URLResponse+Any.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F4D230FEB5100259AE9 /* URLResponse+Any.swift */; };
 		86710F5323104F3200259AE9 /* ThreeDSViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F5223104F3200259AE9 /* ThreeDSViewController.swift */; };
@@ -151,11 +149,9 @@
 		863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSTwoConfig.swift; sourceTree = "<group>"; };
 		863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSTwoViewController.swift; sourceTree = "<group>"; };
 		863FC9B527F4486E00692767 /* ThreeDSAuthenticationsRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSAuthenticationsRequest.swift; sourceTree = "<group>"; };
-		863FC9B827F450A300692767 /* SDKInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKInfo.swift; sourceTree = "<group>"; };
-		863FC9BA27F450F500692767 /* SDKEphemPubKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKEphemPubKey.swift; sourceTree = "<group>"; };
-		863FC9BC27F4517400692767 /* DeviceRenderOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceRenderOptions.swift; sourceTree = "<group>"; };
 		863FC9CB27FEB13600692767 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		863FC9CD27FECFC700692767 /* ThreeDSTwoAuthenticationsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSTwoAuthenticationsResponse.swift; sourceTree = "<group>"; };
+		867102DA290FC520006265BC /* BrowserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserInfo.swift; sourceTree = "<group>"; };
 		86710F4B230FE47600259AE9 /* Encodable+PrettyPrint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Encodable+PrettyPrint.swift"; sourceTree = "<group>"; };
 		86710F4D230FEB5100259AE9 /* URLResponse+Any.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLResponse+Any.swift"; sourceTree = "<group>"; };
 		86710F5223104F3200259AE9 /* ThreeDSViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSViewController.swift; sourceTree = "<group>"; };
@@ -362,10 +358,8 @@
 			isa = PBXGroup;
 			children = (
 				863FC9B527F4486E00692767 /* ThreeDSAuthenticationsRequest.swift */,
-				863FC9B827F450A300692767 /* SDKInfo.swift */,
-				863FC9BA27F450F500692767 /* SDKEphemPubKey.swift */,
-				863FC9BC27F4517400692767 /* DeviceRenderOptions.swift */,
 				863FC9CD27FECFC700692767 /* ThreeDSTwoAuthenticationsResponse.swift */,
+				867102DA290FC520006265BC /* BrowserInfo.swift */,
 			);
 			path = ThreeDSTwo;
 			sourceTree = "<group>";
@@ -566,9 +560,9 @@
 				862CBE53230A4F4D00767774 /* OrderLinks.swift in Sources */,
 				862CBE57230A63F300767774 /* PaymentViewController.swift in Sources */,
 				862CBE4D2307F9D600767774 /* UIView+AutoLayout.swift in Sources */,
+				867102DB290FC520006265BC /* BrowserInfo.swift in Sources */,
 				862CBE492307443400767774 /* UIColor+Hex.swift in Sources */,
 				86ECAFE323225949008FDDDC /* UIView+InterfaceLayoutDirection.swift in Sources */,
-				863FC9B927F450A300692767 /* SDKInfo.swift in Sources */,
 				860A6043241B81C50067A75B /* UIScreen+Bounds.swift in Sources */,
 				862CBDEC23054C9800767774 /* OrderSummary.swift in Sources */,
 				863FC9CC27FEB13600692767 /* Constants.swift in Sources */,
@@ -582,7 +576,6 @@
 				862CBE71230D7AC800767774 /* UIFont+RegisterFromBundle.swift in Sources */,
 				860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */,
 				862CBE4623068C2900767774 /* NameInputVC.swift in Sources */,
-				863FC9BD27F4517400692767 /* DeviceRenderOptions.swift in Sources */,
 				862CBE7D230E8C3B00767774 /* String+Luhn.swift in Sources */,
 				862CBE5123089EDB00767774 /* UIView+Border.swift in Sources */,
 				862CBDEE23054E1500767774 /* FormattedOrderSummary.swift in Sources */,
@@ -619,7 +612,6 @@
 				86710F4E230FEB5100259AE9 /* URLResponse+Any.swift in Sources */,
 				863FC9B627F4486E00692767 /* ThreeDSAuthenticationsRequest.swift in Sources */,
 				862CBE59230A641E00767774 /* AuthorizationViewController.swift in Sources */,
-				863FC9BB27F450F500692767 /* SDKEphemPubKey.swift in Sources */,
 				860CCE1522FD3B9C00B85096 /* TransactionServiceAdapter.swift in Sources */,
 				869DDD6E231680AB0020CB20 /* TokenUtils.swift in Sources */,
 				86710F5323104F3200259AE9 /* ThreeDSViewController.swift in Sources */,
@@ -816,9 +808,12 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -852,8 +847,11 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

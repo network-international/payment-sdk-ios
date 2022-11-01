@@ -27,3 +27,4 @@
 "All fields are mandatory" = "كل الحقول مطلوبة";
 "Cancel" = "إلغاء";
 "Authenticating Payment" = "التحقق من الدفع";
+"Authenticating using 3DS" = "التحقق من الدفع";
