@@ -9,10 +9,35 @@
 import Foundation
 
 class ThreeDSAuthenticationsRequest: NSObject, Codable {
-    var deviceChannel = "APP"
-    var sdkInfo: SDKInfo
+    var deviceChannel = "BRW"
+    var threeDSCompInd: String?
+    var notificationURL: String?
+    var browserInfo: BrowserInfo
     
-    init(sdkInfo: SDKInfo) {
-        self.sdkInfo = sdkInfo
+    override init() {
+        self.threeDSCompInd = ""
+        self.notificationURL = ""
+        self.browserInfo = BrowserInfo()
+    }
+    
+    init(threeDSCompInd: String, notificationURL: String, browserInfo: BrowserInfo) {
+        self.threeDSCompInd = threeDSCompInd
+        self.notificationURL = notificationURL
+        self.browserInfo = browserInfo
+    }
+    
+    func with(threeDSCompInd: String) -> ThreeDSAuthenticationsRequest {
+        self.threeDSCompInd = threeDSCompInd
+        return self
+    }
+    
+    func with(notificationUrl: String) -> ThreeDSAuthenticationsRequest {
+        self.notificationURL = notificationUrl
+        return self
+    }
+    
+    func with(browserInfo: BrowserInfo) -> ThreeDSAuthenticationsRequest {
+        self.browserInfo = browserInfo
+        return self
     }
 }

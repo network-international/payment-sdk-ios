@@ -37,4 +37,6 @@ import PassKit
     @objc func postThreeDSTwoChallengeResponse(for paymentResponse: PaymentResponse,
                                                using paymentToken: String,
                                                on completion: @escaping (HttpResponseCallback))
+    
+    @objc func getPayerIp(with url: String, using paymentToken: String, on completion: @escaping(HttpResponseCallback))
 }

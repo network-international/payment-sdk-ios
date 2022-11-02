@@ -5,7 +5,7 @@
 Pod::Spec.new do |spec|
 
   spec.name = "NISdk"
-  spec.version = "4.0.5"
+  spec.version = "5.0.0"
   spec.summary = "Network International's Payment gateway sdk for iOS"
 
   spec.homepage = "https://docs.ngenius-payments.com/reference#ios-sdk"
@@ -22,5 +22,4 @@ Pod::Spec.new do |spec|
   }
   spec.frameworks = 'Foundation', 'Security', 'WebKit', 'PassKit'
   spec.requires_arc = true
-  spec.ios.dependency 'NI-Three-DS-Two-iOS-SDK', '~> 1.0.0'
 end
