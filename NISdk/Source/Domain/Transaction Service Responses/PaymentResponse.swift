@@ -20,6 +20,33 @@ import Foundation
     public let orderReference: String?
     public let outletId: String?
     
+    public var threeDSMethodNotificationURL: String? {
+        get {
+            if let uriStr = paymentLinks?.threeDSTwoAuthenticationURL,
+               let uri = URL(string: uriStr),
+               let host = uri.host {
+                return "https://\(host)/api/outlets/\(outletId!)/orders/\(orderReference!)" +
+                "/payments/\(_id!)/3ds2/method/notification"
+            }
+            return nil
+        }
+    }
+    
+    public var threeDSMethodData: String? {
+        get {
+            if let threeDSMethodNotificationURL = threeDSMethodNotificationURL,
+               let threeDSServerTransID = threeDSTwoConfig?.threeDSServerTransID {
+                let threeDSMethodDataDict:[String: String] =
+                ["threeDSMethodNotificationURL": threeDSMethodNotificationURL,
+                 "threeDSServerTransID": threeDSServerTransID]
+                let jsonData: Data? = try? JSONSerialization.data(withJSONObject: threeDSMethodDataDict)
+                let base64Encoded = jsonData?.base64EncodedString()
+                return base64Encoded
+            }
+            return nil
+        }
+    }
+    
     private enum PaymentResponseCodingKeys: String, CodingKey {
         case _id
         case state
