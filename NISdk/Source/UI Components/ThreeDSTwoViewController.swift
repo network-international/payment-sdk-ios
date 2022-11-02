@@ -117,6 +117,8 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                     timer in
                     timer.invalidate()
                     // frictionless has timedout. Proceed to Challenge
+                    self.webView.stopLoading()
+                    self.webView.load(URLRequest(url: URL(string: "about:blank")!))
                     self.fingerPrintCompleted = true
                     self.onCompleteFingerPrint(threeDSCompInd: "N")
                 }
