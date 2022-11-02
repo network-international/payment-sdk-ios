@@ -17,6 +17,8 @@ public struct ThreeDSTwoConfig: Codable {
     var acsTransID: String?
     var acsReferenceNumber: String?
     var acsSignedContent: String?
+    var base64EncodedCReq: String?
+    var acsURL: String?
     
     private enum ThreeDSTwoConfigCodingKeys: String, CodingKey {
         case directoryServerID
@@ -27,6 +29,8 @@ public struct ThreeDSTwoConfig: Codable {
         case acsTransID
         case acsReferenceNumber
         case acsSignedContent
+        case base64EncodedCReq
+        case acsURL
     }
     
     public init(from decoder: Decoder) throws {
@@ -78,6 +82,18 @@ public struct ThreeDSTwoConfig: Codable {
             self.acsSignedContent = try threeDSTwoConfigContainer.decodeIfPresent(String.self, forKey: .acsSignedContent)
         } catch {
             self.acsSignedContent = nil
+        }
+        
+        do {
+            self.base64EncodedCReq = try threeDSTwoConfigContainer.decodeIfPresent(String.self, forKey: .base64EncodedCReq)
+        } catch {
+            self.base64EncodedCReq = nil
+        }
+        
+        do {
+            self.acsURL = try threeDSTwoConfigContainer.decodeIfPresent(String.self, forKey: .acsURL)
+        } catch {
+            self.acsURL = nil
         }
     }
 }

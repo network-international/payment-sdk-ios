@@ -1,22 +1,15 @@
 PODS:
-  - NI-Three-DS-Two-iOS-SDK (1.0.0)
-  - NISdk (4.0.4):
-    - NI-Three-DS-Two-iOS-SDK (~> 1.0.0)
+  - NISdk (4.0.5)
 
 DEPENDENCIES:
   - NISdk (from `../`)
-
-SPEC REPOS:
-  trunk:
-    - NI-Three-DS-Two-iOS-SDK
 
 EXTERNAL SOURCES:
   NISdk:
     :path: "../"
 
 SPEC CHECKSUMS:
-  NI-Three-DS-Two-iOS-SDK: 48c97670c746b259bcfd337c74de6ccec336482b
-  NISdk: 3eebdc9c86ff1ad5fd418f27c20650f5b01bd784
+  NISdk: 82f3f7840d02e8c2bc09908f561b65d65b05761f
 
 PODFILE CHECKSUM: d41d5fbde7569b6661d4fa148159b2d5d22aec6e
 

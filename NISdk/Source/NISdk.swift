@@ -8,30 +8,12 @@
 
 import Foundation
 import PassKit
-import uSDK
 
 private class NISdkBundleLocator {}
 
 @objc public final class NISdk: NSObject {
     @objc public static let sharedInstance = NISdk()
     var sdkLanguage = "en"
-    private var isSDKInitialized = false
-    
-    private func getConfigParamsForServer(env: NGeniusEnvironments?) -> UConfigParameters {
-        var configParams: UConfigParameters {
-            let params = UConfigParameters()
-            if env == .PROD {
-                return params
-            }
-            let directoryServer = UDirectoryServer(
-                dsid: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_ID, publicKey: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_PUBLIC_KEY,
-                keyID: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_KEY_ID, dsCACertificate: ChallengeConstants.MC_MTF_DIRECTORY_SERVER_CERT,
-                providerName: Constants.MC_DIRECTORY_SERVER_PROVIDER_NAME, dsLogo: nil)
-            params.add(directoryServer)
-            return params
-        }
-        return configParams
-    }
     
     private override init() {
         super.init()
@@ -87,30 +69,8 @@ private class NISdkBundleLocator {}
         if #available(iOS 13.0, *) {
             paymentViewController.isModalInPresentation = true
         }
-        if(self.isSDKInitialized) {
-            DispatchQueue.main.async {
-                parentViewController.present(navController, animated: true)
-            }
-        } else {
-            UThreeDS2ServiceImpl.shared().u_initialize(
-                self.getConfigParamsForServer(env: order.orderLinks?.payPageLink?.ngenEnv()),
-                locale: "us",
-                uiCustomization: UUiCustomization()) { error in
-                    if let error = error {
-                        #if DEBUG
-                        print(error.localizedDescription)
-                        #endif
-                    } else {
-                        self.isSDKInitialized = true
-                        guard let sdkVersion = UThreeDS2ServiceImpl.shared().getSDKVersion() else { return }
-                        #if DEBUG
-                        print("SDK Initialized successfully \(sdkVersion)")
-                        #endif
-                        DispatchQueue.main.async {
-                            parentViewController.present(navController, animated: true)
-                        }
-                    }
-                }
+        DispatchQueue.main.async {
+            parentViewController.present(navController, animated: true)
         }
     }
     
@@ -132,34 +92,17 @@ private class NISdkBundleLocator {}
     }
     
     @objc public func executeThreeDSTwo(cardPaymentDelegate: CardPaymentDelegate,
-                                   overParent parentViewController: UIViewController,
-                                   for paymentResponse: PaymentResponse) {
+                                        overParent parentViewController: UIViewController,
+                                        for paymentResponse: PaymentResponse) {
         let paymentViewController = PaymentViewController(paymentResponse: paymentResponse, cardPaymentDelegate: cardPaymentDelegate)
         let navController = UINavigationController(rootViewController: paymentViewController)
-        if(self.isSDKInitialized) {
-            DispatchQueue.main.async {
-                parentViewController.present(navController, animated: true)
-            }
-        } else {
-            UThreeDS2ServiceImpl.shared().u_initialize(
-                self.getConfigParamsForServer(env: paymentResponse.paymentLinks?.threeDSTwoAuthenticationURL?.ngenEnv()),
-                locale: "us",
-                uiCustomization: UUiCustomization()) { error in
-                    if let error = error {
-                        #if DEBUG
-                        print(error.localizedDescription)
-                        #endif
-                    } else {
-                        self.isSDKInitialized = true
-                        guard let sdkVersion = UThreeDS2ServiceImpl.shared().getSDKVersion() else { return }
-                        #if DEBUG
-                        print("SDK Initialized successfully \(sdkVersion)")
-                        #endif
-                        DispatchQueue.main.async {
-                            parentViewController.present(navController, animated: true)
-                        }
-                    }
-                }
+        paymentViewController.view.backgroundColor = .clear
+        paymentViewController.modalPresentationStyle = .overCurrentContext
+        if #available(iOS 13.0, *) {
+            paymentViewController.isModalInPresentation = true
+        }
+        DispatchQueue.main.async {
+            parentViewController.present(navController, animated: true)
         }
     }
 }
