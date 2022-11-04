@@ -319,13 +319,8 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                         self.completionHandler(true)
                     }
                     break
-                    
-                case "Y":
-                    // Frictionless is complete
-                    self.completionHandler(false)
-                    break;
                 default:
-                    self.completionHandler(true)
+                    self.completionHandler(false)
                     break
                 }
             })
