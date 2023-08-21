@@ -1,5 +1,5 @@
 PODS:
-  - NISdk (5.0.1)
+  - NISdk (5.0.2)
 
 DEPENDENCIES:
   - NISdk (from `../`)
@@ -13,4 +13,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: d41d5fbde7569b6661d4fa148159b2d5d22aec6e
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1
