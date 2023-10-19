@@ -11,6 +11,8 @@ import PassKit
 
 typealias MakePaymentCallback = (PaymentRequest) -> Void
 
+typealias MakeSaveCardPaymentCallback = (SavedCardRequest) -> Void
+
 class PaymentViewController: UIViewController {
     private var state: State?
     private weak var shownViewController: UIViewController?
@@ -25,6 +27,7 @@ class PaymentViewController: UIViewController {
     private var applePayController: ApplePayController?
     private var applePayDelegate: ApplePayDelegate?
     var applePayRequest: PKPaymentRequest?
+    private let cvv: String?
     private var host: String?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
@@ -35,6 +38,7 @@ class PaymentViewController: UIViewController {
         if let applePayDelegate = applePayDelegate {
             self.applePayDelegate = applePayDelegate
         }
+        self.cvv = nil
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -43,6 +47,23 @@ class PaymentViewController: UIViewController {
         self.paymentMedium = .ThreeDSTwo
         self.cardPaymentDelegate = cardPaymentDelegate
         self.paymentResponse = paymentResponse
+        self.cvv = nil
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    init(order: OrderResponse,
+         cardPaymentDelegate: CardPaymentDelegate,
+         applePayDelegate: ApplePayDelegate?,
+         paymentMedium: PaymentMedium,
+         cvv: String?
+    ) {
+        self.order = order
+        self.cardPaymentDelegate = cardPaymentDelegate
+        self.paymentMedium = paymentMedium
+        if let applePayDelegate = applePayDelegate {
+            self.applePayDelegate = applePayDelegate
+        }
+        self.cvv = cvv
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -169,6 +190,28 @@ class PaymentViewController: UIViewController {
         case .ThreeDSTwo:
             self.handlePaymentResponse(self.paymentResponse)
             break
+        case .SavedCard:
+            if let savedCard = order.savedCard, let amount = order.amount {
+                if savedCard.recaptureCsc {
+                    let savedCardViewController = SavedCardViewController(
+                        makeSaveCardPaymentCallback: self.makeSavedCardPayment,
+                        savedCard: savedCard,
+                        orderAmount: amount,
+                        onCancel: {
+                            [weak self] in
+                            self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+                        })
+                    self.transition(to: .renderCardPaymentForm(savedCardViewController))
+                } else {
+                    makeSavedCardPayment(
+                        SavedCardRequest(
+                            expiry: savedCard.expiry,
+                            cardholderName: savedCard.cardholderName,
+                            cardToken: savedCard.cardToken,
+                            cvv: nil))
+                }
+            }
+            break
         }
     }
     
@@ -213,6 +256,29 @@ class PaymentViewController: UIViewController {
                 }
             }
         })
+    }
+    
+    lazy private var makeSavedCardPayment = { [unowned self] savedCardRequest in
+        // 3. Make Payment
+        if let savedCardUrl = self.order.embeddedData?.getSavedCardLink(), let accessToken = self.accessToken {
+            self.transactionService.doSavedCardPayment(
+                for: savedCardUrl,
+                with: savedCardRequest,
+                using: accessToken,
+                on: {
+                    data, response, error in
+                    if error != nil {
+                        self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                    } else if let data = data {
+                        do {
+                            let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                            self.handlePaymentResponse(paymentResponse)
+                        } catch _ {
+                            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                        }
+                    }
+                })
+        }
     }
     
     lazy private var handlePaymentResponse: (PaymentResponse?) -> Void = {
