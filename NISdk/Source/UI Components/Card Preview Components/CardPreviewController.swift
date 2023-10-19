@@ -187,4 +187,24 @@ class CardPreviewController: UIViewController {
                                                name: .didChangeExpiryDate, object: nil)
         return containerView
     }
+    
+    func setSavedCard(savedCard: SavedCard) {
+        cardHolderNameLabel.text = savedCard.cardholderName
+        if let maskedPan = savedCard.maskedPan {
+            let newPan = maskedPan.removeWhitespace().inserting(separator: " ", every: 4)
+            panLabel.text = newPan
+        }
+        if let expiry = savedCard.expiry {
+            let expiryComponents = expiry.components(separatedBy: "-")
+            let year = expiryComponents[0].suffix(2)
+            
+            let month = expiryComponents[1]
+            
+            expiryDateLabel.text = "\(month)/\(year)"
+        }
+        if let scheme = savedCard.scheme {
+            cardProvider = CardProvider(rawValue: scheme)
+            updateCardLogo()
+        }
+    }
 }
