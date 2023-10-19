@@ -7,12 +7,14 @@
 //
 
 import Foundation
+import NISdk
 
 // This is just a sample order request class
 // Check docs for all possible fields available
 struct OrderRequest: Encodable {
     let action: String
     let amount: OrderAmount
+    var savedCard: SavedCard?
     
     private enum  OrderRequestCodingKeys: String, CodingKey {
         case action

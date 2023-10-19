@@ -18,6 +18,8 @@ class OrderCreationViewController: UIViewController {
     let paymentMethod: PaymentMethod?
     let purchasedItems: [Product]
     var paymentRequest: PKPaymentRequest?
+    var savedCard: SavedCard?
+    var cvv: String?
     
     init(paymentAmount: Double,
          cardPaymentDelegate: CardPaymentDelegate,
@@ -48,6 +50,23 @@ class OrderCreationViewController: UIViewController {
         }
     }
     
+    init(paymentAmount: Double,
+         cardPaymentDelegate: CardPaymentDelegate,
+         storeFrontDelegate: StoreFrontDelegate,
+         using paymentMethod: PaymentMethod,
+         with purchasedItems: [Product], 
+         savedCard: SavedCard?,
+         cvv: String?) {
+        self.paymentAmount = paymentAmount
+        self.storeFrontDelegate = storeFrontDelegate
+        self.cardPaymentDelegate = cardPaymentDelegate
+        self.paymentMethod = paymentMethod
+        self.savedCard = savedCard
+        self.purchasedItems = purchasedItems
+        self.cvv = cvv
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -72,10 +91,11 @@ class OrderCreationViewController: UIViewController {
         }
     }
     
-    func createOrder() {
+    func createOrder(savedCard: SavedCard? = nil) {
         // Multiply amount always by 100 while creating an order
         let orderRequest = OrderRequest(action: "SALE",
-                                        amount: OrderAmount(currencyCode: "AED", value: paymentAmount * 100))
+                                        amount: OrderAmount(currencyCode: "AED", value: paymentAmount * 100),
+                                        savedCard: savedCard)
         let encoder = JSONEncoder()
         let orderRequestData = try! encoder.encode(orderRequest)
         let headers = ["Content-Type": "application/json"]
@@ -95,12 +115,22 @@ class OrderCreationViewController: UIViewController {
                 do {
                     let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
                     let sharedSDKInstance = NISdk.sharedInstance
+                    if (self?.paymentMethod == .Card) {
+                        self?.storeFrontDelegate.updateOrderId(orderId: orderResponse.reference ?? "")
+                    }
                     DispatchQueue.main.async {
                         self?.dismiss(animated: false, completion: { [weak self] in
                             if(self?.paymentMethod == .Card) {
                                 sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
                                                                           overParent: self?.cardPaymentDelegate as! UIViewController,
                                                                         for: orderResponse)
+                            } else if (self?.paymentMethod == .SavedCard) {
+                                sharedSDKInstance.launchSavedCardPayment(
+                                    cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
+                                    overParent: self?.cardPaymentDelegate as! UIViewController,
+                                    for: orderResponse,
+                                    with: self?.cvv
+                                )
                             } else {
                                 sharedSDKInstance.initiateApplePayWith(applePayDelegate: self?.cardPaymentDelegate as? ApplePayDelegate,
                                                                        cardPaymentDelegate: (self?.cardPaymentDelegate)!,
@@ -146,7 +176,6 @@ class OrderCreationViewController: UIViewController {
         
         vStack.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         vStack.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        
-        self.createOrder()
+        self.createOrder(savedCard: savedCard)
     }
 }
