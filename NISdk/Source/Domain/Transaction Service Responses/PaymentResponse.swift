@@ -19,6 +19,7 @@ import Foundation
     public let authenticationCode: String?
     public let orderReference: String?
     public let outletId: String?
+    public let savedCard: SavedCard?
     
     public var threeDSMethodNotificationURL: String? {
         get {
@@ -58,6 +59,7 @@ import Foundation
         case authenticationCode = "authenticationCode"
         case orderReference = "orderReference"
         case outletId = "outletId"
+        case savedCard
     }
     
     @objc public static func decodeFrom(data: Data) throws -> PaymentResponse {
@@ -81,5 +83,6 @@ import Foundation
         authenticationCode = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .authenticationCode)
         orderReference = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .orderReference)
         outletId = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .outletId)
+        savedCard = try paymentResponseContainer.decodeIfPresent(SavedCard.self, forKey: .savedCard)
     }
 }
