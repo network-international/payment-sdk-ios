@@ -12,6 +12,7 @@ import Foundation
     case ApplePay
     case Card
     case ThreeDSTwo
+    case SavedCard
     
     public var rawVal: RawValue {
         switch self {
@@ -21,6 +22,8 @@ import Foundation
             return "Card"
         case .ThreeDSTwo:
             return "ThreeDSTwo"
+        case .SavedCard:
+            return "SavedCard"
         }
     }
     

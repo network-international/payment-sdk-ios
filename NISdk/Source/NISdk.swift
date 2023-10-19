@@ -74,6 +74,47 @@ private class NISdkBundleLocator {}
         }
     }
     
+    @objc public func launchSavedCardPayment(cardPaymentDelegate: CardPaymentDelegate,
+                                             overParent parentViewController: UIViewController,
+                                             for order: OrderResponse,
+                                             with cvv: String?) {
+        let paymentViewController = PaymentViewController(order: order, 
+                                                          cardPaymentDelegate: cardPaymentDelegate,
+                                                          applePayDelegate: nil,
+                                                          paymentMedium: .SavedCard,
+                                                          cvv: cvv)
+        let navController = UINavigationController(rootViewController: paymentViewController)
+        
+        paymentViewController.view.backgroundColor = .clear
+        paymentViewController.modalPresentationStyle = .overCurrentContext
+        if #available(iOS 13.0, *) {
+            paymentViewController.isModalInPresentation = true
+        }
+        DispatchQueue.main.async {
+            parentViewController.present(navController, animated: true)
+        }
+    }
+    
+    @objc public func launchSavedCardPayment(cardPaymentDelegate: CardPaymentDelegate,
+                                             overParent parentViewController: UIViewController,
+                                             for order: OrderResponse) {
+        let paymentViewController = PaymentViewController(order: order,
+                                                          cardPaymentDelegate: cardPaymentDelegate,
+                                                          applePayDelegate: nil,
+                                                          paymentMedium: .SavedCard,
+                                                          cvv: nil)
+        let navController = UINavigationController(rootViewController: paymentViewController)
+        
+        paymentViewController.view.backgroundColor = .clear
+        paymentViewController.modalPresentationStyle = .overCurrentContext
+        if #available(iOS 13.0, *) {
+            paymentViewController.isModalInPresentation = true
+        }
+        DispatchQueue.main.async {
+            parentViewController.present(navController, animated: true)
+        }
+    }
+    
     @objc public func initiateApplePayWith(applePayDelegate: ApplePayDelegate?,
                                            cardPaymentDelegate: CardPaymentDelegate,
                                            overParent parentViewController: UIViewController,
