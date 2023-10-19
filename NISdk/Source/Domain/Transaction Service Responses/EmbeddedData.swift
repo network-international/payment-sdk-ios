@@ -11,6 +11,10 @@ import Foundation
 public struct EmbeddedData {
     public let order: [OrderResponse]?
     public let payment: [PaymentResponse]?
+    
+    func getSavedCardLink() -> String? {
+        return payment?.first?.paymentLinks?.savedCardPaymentLink
+    }
 }
 
 
