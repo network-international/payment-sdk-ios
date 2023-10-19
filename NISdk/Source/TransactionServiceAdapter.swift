@@ -143,4 +143,19 @@ import PassKit
             .withHeaders(headers: headers)
             .makeRequest(with: completion)
     }
+    
+    func doSavedCardPayment(for url: String, with savedCardInfo: SavedCardRequest, using accessToken:String, on completion: @escaping(HttpResponseCallback)) {
+        
+        let authorizationRequestHeaders = ["Accept": "application/vnd.ni-payment.v2+json",
+                                           "Media-Type": "application/x-www-form-urlencoded",
+                                           "Content-Type": "application/vnd.ni-payment.v2+json",
+                                           "Authorization": "payment \(accessToken)"]
+        
+        let data = try! JSONEncoder().encode(savedCardInfo)
+        HTTPClient(url: url)?
+            .withMethod(method: "PUT")
+            .withHeaders(headers: authorizationRequestHeaders)
+            .withBodyData(data: data)
+            .makeRequest(with: completion)
+    }
 }

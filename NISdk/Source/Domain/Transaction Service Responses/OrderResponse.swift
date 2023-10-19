@@ -27,6 +27,7 @@ import Foundation
     public var paymentMethods: PaymentMethods?
     public var orderLinks: OrderLinks?
     public var embeddedData: EmbeddedData?
+    public var savedCard: SavedCard?
     
     public enum OrderCodingKeys: String, CodingKey {
         case _id
@@ -38,6 +39,7 @@ import Foundation
         case merchantAttributes
         case emailAddress
         case reference
+        case savedCard
         case outletId
         case createDateTime
         case referrer
@@ -91,6 +93,7 @@ import Foundation
         paymentMethods = try OrderResponseContainer.decodeIfPresent(PaymentMethods.self, forKey: .paymentMethods)
         orderLinks = try OrderResponseContainer.decodeIfPresent(OrderLinks.self, forKey:.orderLinks)
         embeddedData = try OrderResponseContainer.decodeIfPresent(EmbeddedData.self, forKey: .embeddedData)
+        savedCard = try OrderResponseContainer.decodeIfPresent(SavedCard.self, forKey: .savedCard)
     }
     
     class Builder {
