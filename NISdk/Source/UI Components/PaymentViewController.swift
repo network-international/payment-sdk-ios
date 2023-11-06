@@ -182,7 +182,7 @@ class PaymentViewController: UIViewController {
                 if let data = data {
                     do {
                         let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
-                        if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED") {
+                        if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED") {
                             completion(PKPaymentAuthorizationResult(status: .success, errors: nil), paymentResponse)
                         } else {
                             completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
@@ -222,7 +222,7 @@ class PaymentViewController: UIViewController {
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
                 return
             }
-            if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED") {
+            if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED") {
                 // 5. Close Screen if payment is done
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
                 return
@@ -273,7 +273,7 @@ class PaymentViewController: UIViewController {
                     var awaitThreedsPayments: [PaymentResponse] = []
                     if let paymentResponses = orderResponse.embeddedData?.payment {
                         successfulPayments = paymentResponses.filter({ (paymentAttempt: PaymentResponse) -> Bool in
-                            return paymentAttempt.state == "CAPTURED" || paymentAttempt.state == "AUTHORISED" || paymentAttempt.state == "PURCHASED"
+                            return paymentAttempt.state == "CAPTURED" || paymentAttempt.state == "AUTHORISED" || paymentAttempt.state == "PURCHASED" || paymentAttempt.state == "VERIFIED"
                         })
                         
                         awaitThreedsPayments = paymentResponses.filter({ (paymentAttempt: PaymentResponse) -> Bool in
