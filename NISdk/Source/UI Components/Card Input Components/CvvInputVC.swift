@@ -25,20 +25,24 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        cvvTextField.placeholder = "Secure Code".localized
+        view.backgroundColor = .clear
+        cvvTextField.attributedPlaceholder = NSAttributedString(
+            string: "Secure Code".localized,
+            attributes: [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.textFieldPlaceholderColor]
+        )
         cvvTextField.text = ""
         cvvTextField.alignForCurrentLanguage()
         cvvTextField.keyboardType = .asciiCapableNumberPad
         cvvTextField.borderStyle = .none
         cvvTextField.backgroundColor = ColorCompatibility.systemBackground
-        cvvTextField.textColor = ColorCompatibility.label
+        cvvTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         cvvTextField.delegate = self
         cvvTextField.isSecureTextEntry = true;
         cvvTextField.addTarget(self, action: #selector(onCVVChangeCallback), for: .editingChanged)
         cvvTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
         
         let label = UILabel()
+        label.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         label.text = "CVV".localized
         
         let hStack = UIStackView(arrangedSubviews: [label, cvvTextField])
@@ -54,7 +58,8 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
         view.addSubview(hStack)
         
         let stackBackgroundView = UIView()
-        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc"), thickness: 1)
+        stackBackgroundView.backgroundColor = UIColor.clear
+        stackBackgroundView.addBorder(.bottom, color: NISdk.sharedInstance.niSdkColors.payPageDividerColor, thickness: 1)
         stackBackgroundView.pinAsBackground(to: hStack)
         
         hStack.bindFrameToSuperviewBounds()
