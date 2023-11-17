@@ -23,19 +23,22 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        nameTextField.placeholder = "Cardholder Name".localized
+        nameTextField.attributedPlaceholder = NSAttributedString(
+            string:"Cardholder Name".localized,
+            attributes: [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.textFieldPlaceholderColor]
+        )
         nameTextField.text = ""
         nameTextField.alignForCurrentLanguage()
         nameTextField.borderStyle = .none
         nameTextField.keyboardType = .asciiCapable
         nameTextField.backgroundColor = ColorCompatibility.systemBackground
-        nameTextField.textColor = ColorCompatibility.label
+        nameTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         nameTextField.delegate = self
         nameTextField.addTarget(self, action: #selector(onNameChangeCallback), for: .editingChanged)
         nameTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
         
         let label = UILabel()
+        label.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         label.text = "Name".localized
         
         let hStack = UIStackView(arrangedSubviews: [label, nameTextField])
@@ -51,7 +54,7 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
         view.addSubview(hStack)
         
         let stackBackgroundView = UIView()
-        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc"), thickness: 1)
+        stackBackgroundView.addBorder(.bottom, color: NISdk.sharedInstance.niSdkColors.payPageDividerColor, thickness: 1)
         stackBackgroundView.pinAsBackground(to: hStack)
         
         hStack.bindFrameToSuperviewBounds()

@@ -5,7 +5,7 @@
 Pod::Spec.new do |spec|
 
   spec.name = "NISdk"
-  spec.version = "5.1.1"
+  spec.version = "5.1.2"
   spec.summary = "Network International's Payment gateway sdk for iOS"
 
   spec.homepage = "https://docs.ngenius-payments.com/reference#ios-sdk"

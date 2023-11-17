@@ -24,18 +24,23 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        panTextField.placeholder = "Card Number".localized
+        panTextField.attributedPlaceholder = NSAttributedString(
+            string:"Card Number".localized,
+            attributes: [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.textFieldPlaceholderColor]
+        )
+
         panTextField.keyboardType = .asciiCapableNumberPad
         panTextField.text = ""
         panTextField.alignForCurrentLanguage()
         panTextField.borderStyle = .none
         panTextField.backgroundColor = ColorCompatibility.systemBackground
-        panTextField.textColor = ColorCompatibility.label
+        panTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         panTextField.delegate = self
         panTextField.addTarget(self, action: #selector(onPanFieldChange), for: .editingChanged)
         panTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
 
         let label = UILabel()
+        label.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         label.text = "Number".localized
         
         let hStack = UIStackView(arrangedSubviews: [label, panTextField])
@@ -51,7 +56,7 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         view.addSubview(hStack)
         
         let stackBackgroundView = UIView()
-        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
+        stackBackgroundView.addBorder(.bottom, color: NISdk.sharedInstance.niSdkColors.payPageDividerColor , thickness: 1)
         stackBackgroundView.pinAsBackground(to: hStack)
         
         hStack.bindFrameToSuperviewBounds()

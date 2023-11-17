@@ -26,10 +26,10 @@ class CardPaymentViewController: UIViewController {
     var allowedCardProviders: [CardProvider]?
     let payButton: UIButton = {
         let payButton = UIButton()
-        payButton.backgroundColor = ColorCompatibility.link
-        payButton.setTitleColor(.white, for: .normal)
+        payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
+        payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-        payButton.setTitleColor(UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
+        payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColorHighlighted, for: .highlighted)
         payButton.layer.cornerRadius = 5
         payButton.setTitle("Processing Payment".localized, for: .disabled)
         return payButton
@@ -58,6 +58,7 @@ class CardPaymentViewController: UIViewController {
     let cardPreviewContainer = UIView()
     let loadingSpinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .white)
+        spinner.color = NISdk.sharedInstance.niSdkColors.payButtonActivityIndicatorColor
         spinner.isHidden = true
         spinner.hidesWhenStopped = true
         return spinner
@@ -80,7 +81,7 @@ class CardPaymentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = ColorCompatibility.systemBackground
+        view.backgroundColor = NISdk.sharedInstance.niSdkColors.payPageBackgroundColor
         setupScrollView()
         setupCardPreviewComponent()
         setupCardInputForm()
@@ -97,6 +98,8 @@ class CardPaymentViewController: UIViewController {
     private func setupCancelButton() {
         self.parent?.navigationController?.setNavigationBarHidden(false, animated: false)
         self.parent?.navigationItem.title = "Make Payment".localized
+        let textAttributes = [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.payPageTitleColor]
+        navigationController?.navigationBar.titleTextAttributes = textAttributes
         self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
     }
     
@@ -169,16 +172,13 @@ class CardPaymentViewController: UIViewController {
                       trailing: contentView.trailingAnchor,
                       padding:  UIEdgeInsets(top: 50, left: 0, bottom: 0, right: 0),
                       size: CGSize(width: 0, height: 0))
-        let stackLayoutDirection = vStack.getUILayoutDirection()
-        vStack.layoutMargins = stackLayoutDirection == .leftToRight
-            ? UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
-            : UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 20)
+        vStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
         vStack.isLayoutMarginsRelativeArrangement = true
         
         let stackBackgroundView = UIView()
-        stackBackgroundView.backgroundColor = ColorCompatibility.systemBackground
-        stackBackgroundView.addBorder(.top, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
-        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
+        stackBackgroundView.backgroundColor = .clear
+        stackBackgroundView.addBorder(.top, color: NISdk.sharedInstance.niSdkColors.payPageDividerColor , thickness: 1)
+        stackBackgroundView.addBorder(.bottom, color: NISdk.sharedInstance.niSdkColors.payPageDividerColor , thickness: 1)
         stackBackgroundView.pinAsBackground(to: vStack)
         
         // Setup Pan field
