@@ -36,7 +36,7 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         yearTextField.addTarget(self, action: #selector(onYearChangeCallback), for: .editingChanged)
         
         let label = UILabel()
-        
+        label.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         label.text = "Expires".localized
         
         let seperatorLabel = UILabel()
@@ -63,7 +63,7 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         view.addSubview(rootHStack)
         
         let stackBackgroundView = UIView()
-        stackBackgroundView.addBorder(.bottom, color: UIColor(hexString: "#dbdbdc") , thickness: 1)
+        stackBackgroundView.addBorder(.bottom, color: NISdk.sharedInstance.niSdkColors.payPageDividerColor , thickness: 1)
         stackBackgroundView.pinAsBackground(to: rootHStack)
         
         rootHStack.bindFrameToSuperviewBounds()
@@ -80,12 +80,15 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
     func setup(textField: UITextField,
             placeholder: String,
             huggingPriority: Float?) {
-        textField.placeholder = placeholder
+        textField.attributedPlaceholder = NSAttributedString(
+            string: placeholder,
+            attributes: [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.textFieldPlaceholderColor]
+        )
         textField.keyboardType = .asciiCapableNumberPad
         textField.text = ""
         textField.borderStyle = UITextField.BorderStyle.none
         textField.backgroundColor = ColorCompatibility.systemBackground
-        textField.textColor = ColorCompatibility.label
+        textField.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         textField.alignForCurrentLanguage()
         textField.delegate = self
         
