@@ -64,7 +64,7 @@ class CardPreviewController: UIViewController {
         vStack.isLayoutMarginsRelativeArrangement = true
         
         let stackBackgroundView = UIView()
-        stackBackgroundView.backgroundColor = UIColor(hexString: "#171618")
+        stackBackgroundView.backgroundColor = NISdk.sharedInstance.niSdkColors.cardPreviewColor
         stackBackgroundView.layer.borderColor = ColorCompatibility.label.cgColor
         stackBackgroundView.layer.borderWidth = 1.0
         stackBackgroundView.pinAsBackground(to: vStack)
@@ -114,7 +114,7 @@ class CardPreviewController: UIViewController {
         let containerView = UIView()
         panLabel.font = UIFont(name: "OCRA", size: 20.0)
         
-        panLabel.textColor = .white
+        panLabel.textColor = NISdk.sharedInstance.niSdkColors.cardPreviewLabelColor
         panLabel.text = defaultPanText
         panLabel.adjustsFontSizeToFitWidth = true
         panLabel.numberOfLines = 1
@@ -158,7 +158,7 @@ class CardPreviewController: UIViewController {
     func setupNameAndExpiryView() -> UIView {
         let containerView = UIView()
         cardHolderNameLabel.font = UIFont(name: "OCRA", size: 13.0)
-        cardHolderNameLabel.textColor = .white
+        cardHolderNameLabel.textColor = NISdk.sharedInstance.niSdkColors.cardPreviewLabelColor
         cardHolderNameLabel.text = defaultNameLabelText
         cardHolderNameLabel.adjustsFontSizeToFitWidth = false;
         cardHolderNameLabel.lineBreakMode = .byTruncatingTail;
@@ -174,7 +174,7 @@ class CardPreviewController: UIViewController {
                                                name: .didChangeCardHolderName, object: nil)
         
         expiryDateLabel.font = UIFont(name: "OCRA", size: 13.0)
-        expiryDateLabel.textColor = .white
+        expiryDateLabel.textColor = NISdk.sharedInstance.niSdkColors.cardPreviewLabelColor
         expiryDateLabel.text = defaultExpiryLabelText
         containerView.addSubview(expiryDateLabel)
         

@@ -13,6 +13,8 @@ private class NISdkBundleLocator {}
 
 @objc public final class NISdk: NSObject {
     @objc public static let sharedInstance = NISdk()
+    
+    var niSdkColors = NISdkColors()
     var sdkLanguage = "en"
     
     private override init() {
@@ -55,6 +57,10 @@ private class NISdkBundleLocator {}
         } else {
             UIView.appearance().semanticContentAttribute = .forceLeftToRight
         }
+    }
+    
+    @objc public func setSDKColors(sdkColors: NISdkColors) {
+        self.niSdkColors = sdkColors
     }
     
     @objc public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
