@@ -10,6 +10,7 @@
 		597641682AD8FB2B004AA08F /* SavedCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597641672AD8FB2B004AA08F /* SavedCardViewController.swift */; };
 		59ED19AA2AD11B3D0000E024 /* SavedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19A92AD11B3D0000E024 /* SavedCard.swift */; };
 		59ED19AC2AD11B860000E024 /* SavedCardRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */; };
+		59214BE02AFCE509006EE4E6 /* SDKColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59214BDF2AFCE509006EE4E6 /* SDKColors.swift */; };
 		7F2B32DE23F55B960001EFEE /* ColorCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */; };
 		860A6043241B81C50067A75B /* UIScreen+Bounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860A6042241B81C40067A75B /* UIScreen+Bounds.swift */; };
 		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
@@ -107,6 +108,7 @@
 		597641672AD8FB2B004AA08F /* SavedCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCardViewController.swift; sourceTree = "<group>"; };
 		59ED19A92AD11B3D0000E024 /* SavedCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCard.swift; sourceTree = "<group>"; };
 		59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCardRequest.swift; sourceTree = "<group>"; };
+		59214BDF2AFCE509006EE4E6 /* SDKColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKColors.swift; sourceTree = "<group>"; };
 		7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCompatibility.swift; sourceTree = "<group>"; };
 		860A6042241B81C40067A75B /* UIScreen+Bounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIScreen+Bounds.swift"; sourceTree = "<group>"; };
 		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
@@ -408,6 +410,7 @@
 			children = (
 				869DDD6D231680AB0020CB20 /* TokenUtils.swift */,
 				7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */,
+				59214BDF2AFCE509006EE4E6 /* SDKColors.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -630,6 +633,7 @@
 				862CBE64230C800900767774 /* PaymentLinks.swift in Sources */,
 				862CBE4423068C1E00767774 /* CvvInputVC.swift in Sources */,
 				86ECAFD023210FCD008FDDDC /* String+URLEncode.swift in Sources */,
+				59214BE02AFCE509006EE4E6 /* SDKColors.swift in Sources */,
 				86710F4C230FE47600259AE9 /* Encodable+PrettyPrint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
