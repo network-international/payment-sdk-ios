@@ -117,6 +117,8 @@ class StoreFrontViewController:
             showAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.")
         } else if(status == .PaymentCancelled) {
             showAlertWith(title: "Payment Aborted", message: "You cancelled the payment request. You can try again!")
+        } else if (status == .PaymentPostAuthReview) {
+            showAlertWith(title: "Payment In Auth Review", message: "Payment is in review will need to be approved via portal")
         }
     }
     
