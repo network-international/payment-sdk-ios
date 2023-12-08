@@ -7,6 +7,7 @@
 The NI-payment-sdk-ios allows you to quickly integrate a payment checkout experience in your iOS app.
 
 ## Requirements
+
 The Network International iOS payment SDK requires Xcode 10.1 and later and works with iOS versions 11 and above
 
 ## Getting Started
@@ -21,6 +22,13 @@ Head over to our [iOS Integration Docs](https://docs.ngenius-payments.com/refere
 
 There are 2 example apps, one written in swift and the other in Objective-C included in this repository, which can be used as a reference for integrating the sdk into your app.
 
-- [**Simple Integration** -  Examples/Simple Integration](/Examples/Simple%20Integration/)
+- [**Simple Integration** - Examples/Simple Integration](/Examples/Simple%20Integration/)
 - [**Simple Integration Obj-C** - Examples/Simple Integration Obj-C](/Examples/Simple%20Integration%20Obj-C/)
 
+### Saved Card Payment
+
+The saved card token serves as a secure means to facilitate payments through the SDK. For comprehensive instructions and illustrative code samples, please refer to the detailed guide available [here](https://github.com/network-international/payment-sdk-ios/wiki/Saved-Card-payment).
+
+### Customizing Colors in Payment SDK
+
+The Payment SDK provides a convenient way for developers to customize the color scheme of the payment page to match their application's design. refer to the detailed guide available [here](https://github.com/network-international/payment-sdk-ios/wiki/Customizing-Colors-in-Payment-SDK-for-iOS)

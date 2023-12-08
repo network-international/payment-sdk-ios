@@ -55,6 +55,7 @@ public typealias RawValue = String
     case PaymentFailed
     case PaymentCancelled
     case InValidRequest
+    case PaymentPostAuthReview
     
     public var rawVal: RawValue {
         switch self {
@@ -66,6 +67,8 @@ public typealias RawValue = String
             return "PaymentCancelled"
         case .InValidRequest:
             return "InValidRequest"
+        case .PaymentPostAuthReview:
+            return "PaymentPostAuthReview"
         }
     }
     
@@ -79,6 +82,8 @@ public typealias RawValue = String
             self = .PaymentCancelled
         case "InValidRequest":
             self = .InValidRequest
+        case "PaymentPostAuthReview":
+            self = .PaymentPostAuthReview
         default:
             self = .PaymentCancelled
         }
