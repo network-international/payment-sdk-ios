@@ -52,15 +52,6 @@ class StoreFrontViewController:
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
-        guard let data = UserDefaults.standard.data(forKey: "SavedCard") else {
-            return
-        }
-        do {
-            self.savedCard = try JSONDecoder().decode(SavedCard.self, from: data)
-        } catch _ {
-            print("error getting saved card")
-        }
-        
         setupPaymentButtons()
         setupCardInfoView()
         
@@ -76,6 +67,15 @@ class StoreFrontViewController:
             collectionView?.backgroundColor = UIColor.systemBackground
         }
         view.addSubview(collectionView!)
+        
+        guard let data = UserDefaults.standard.data(forKey: "SavedCard") else {
+            return
+        }
+        do {
+            self.savedCard = try JSONDecoder().decode(SavedCard.self, from: data)
+        } catch _ {
+            print("error getting saved card")
+        }
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
