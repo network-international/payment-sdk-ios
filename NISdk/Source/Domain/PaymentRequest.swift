@@ -23,6 +23,7 @@ class PaymentRequest: NSObject, Codable {
             }
         }
     }
+    var payerIp: String?
     
     override init() {
         pan = nil
@@ -61,10 +62,15 @@ class PaymentRequest: NSObject, Codable {
         self.cvv = cvv
     }
     
+    func setPayerIp(payerIp: String) {
+        self.payerIp = payerIp
+    }
+    
     enum CodingKeys: String, CodingKey {
         case pan
         case expiry
         case cvv
+        case payerIp
         case cardHolderName = "cardholderName"
     }
     
@@ -73,6 +79,7 @@ class PaymentRequest: NSObject, Codable {
         pan = try container.decode(String.self, forKey: .pan)
         cvv = try container.decode(String.self, forKey: .cvv)
         cardHolderName = try container.decode(String.self, forKey: .cardHolderName)
+        payerIp = try container.decode(String.self, forKey: .payerIp)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -81,5 +88,6 @@ class PaymentRequest: NSObject, Codable {
         try container.encode(cvv, forKey: .cvv)
         try container.encode(cardHolderName, forKey: .cardHolderName)
         try container.encode(expiry, forKey: .expiry)
+        try container.encode(payerIp, forKey: .payerIp)
     }
 }

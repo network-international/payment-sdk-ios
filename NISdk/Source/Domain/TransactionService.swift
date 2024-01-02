@@ -39,4 +39,6 @@ import PassKit
                                                on completion: @escaping (HttpResponseCallback))
     
     @objc func getPayerIp(with url: String, using paymentToken: String, on completion: @escaping(HttpResponseCallback))
+    
+    @objc func getPayerIp(with url: String, on completion: @escaping(HttpResponseCallback))
 }
