@@ -240,45 +240,71 @@ class PaymentViewController: UIViewController {
         }
     }
     
-    lazy private var makePayment = { [unowned self] paymentRequest in
+    lazy private var makePayment = { (paymentRequest: PaymentRequest) in
         // 3. Make Payment
-        self.transactionService.makePayment(for: self.order, with: paymentRequest, using: self.paymentToken!, on: {
-            data, response, err in
-            if err != nil {
-                self.handlePaymentResponse(nil)
-            } else if let data = data {
-                do {
-                    let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
-                    // 4. Intermediatory checks for payment failure attempts and anything else
-                    self.handlePaymentResponse(paymentResponse)
-                } catch let error {
+        self.getPayerIp() { (payerIp) -> () in
+            paymentRequest.payerIp = payerIp
+            self.transactionService.makePayment(for: self.order, with: paymentRequest, using: self.paymentToken!, on: {
+                data, response, err in
+                if err != nil {
                     self.handlePaymentResponse(nil)
+                } else if let data = data {
+                    do {
+                        let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                        // 4. Intermediatory checks for payment failure attempts and anything else
+                        self.handlePaymentResponse(paymentResponse)
+                    } catch let error {
+                        self.handlePaymentResponse(nil)
+                    }
                 }
-            }
-        })
+            })
+        }
     }
     
-    lazy private var makeSavedCardPayment = { [unowned self] savedCardRequest in
+    lazy private var makeSavedCardPayment = { (savedCardRequest: SavedCardRequest) in
         // 3. Make Payment
-        if let savedCardUrl = self.order.embeddedData?.getSavedCardLink(), let accessToken = self.accessToken {
-            self.transactionService.doSavedCardPayment(
-                for: savedCardUrl,
-                with: savedCardRequest,
-                using: accessToken,
-                on: {
-                    data, response, error in
-                    if error != nil {
-                        self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
-                    } else if let data = data {
-                        do {
-                            let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
-                            self.handlePaymentResponse(paymentResponse)
-                        } catch _ {
+        self.getPayerIp() { (payerIp) -> () in
+            savedCardRequest.payerIp = payerIp
+            if let savedCardUrl = self.order.embeddedData?.getSavedCardLink(), let accessToken = self.accessToken {
+                self.transactionService.doSavedCardPayment(
+                    for: savedCardUrl,
+                    with: savedCardRequest,
+                    using: accessToken,
+                    on: {
+                        data, response, error in
+                        if error != nil {
                             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                        } else if let data = data {
+                            do {
+                                let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                                self.handlePaymentResponse(paymentResponse)
+                            } catch _ {
+                                self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                            }
                         }
-                    }
-                })
+                    })
+            }
         }
+    }
+    
+    func getPayerIp(onCompletion: @escaping (String?) -> ()) {
+        guard let url = order.orderLinks?.payPageLink, let urlHost = URL(string: url)?.host else {
+            onCompletion(nil)
+            return
+        }
+        let ipUrl = "https://\(urlHost)/api/requester-ip"
+        self.transactionService.getPayerIp(with: ipUrl, on: { payerIPData, _, _ in
+            if let payerIPData = payerIPData {
+                do {
+                    let payerIpDict: [String: String] = try JSONDecoder().decode([String: String].self, from: payerIPData)
+                    onCompletion(payerIpDict["requesterIp"])
+                } catch {
+                    onCompletion(nil)
+                }
+            } else {
+                onCompletion(nil)
+            }
+        })
     }
     
     lazy private var handlePaymentResponse: (PaymentResponse?) -> Void = {
