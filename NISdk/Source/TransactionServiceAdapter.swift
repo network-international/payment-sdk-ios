@@ -144,6 +144,12 @@ import PassKit
             .makeRequest(with: completion)
     }
     
+    func getPayerIp(with url: String, on completion: @escaping (HttpResponseCallback)) {
+        HTTPClient(url: url)?
+            .withMethod(method: "GET")
+            .makeRequest(with: completion)
+    }
+    
     func doSavedCardPayment(for url: String, with savedCardInfo: SavedCardRequest, using accessToken:String, on completion: @escaping(HttpResponseCallback)) {
         
         let authorizationRequestHeaders = ["Accept": "application/vnd.ni-payment.v2+json",
