@@ -217,26 +217,29 @@ class PaymentViewController: UIViewController {
     
     lazy private var handleApplePayAuthorization: OnAuthorizeApplePayCallback  = {
         [unowned self] payment, completion in
-        if let payment = payment, let completion = completion {
-            self.transactionService.postApplePayResponse(for: self.order,
-                                                            with: payment,
-                                                            using: self.accessToken!, on: {
-                [unowned self] data, response, error in
-                if let data = data {
-                    do {
-                        let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
-                        if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED" || paymentResponse.state == "POST_AUTH_REVIEW") {
-                            completion(PKPaymentAuthorizationResult(status: .success, errors: nil), paymentResponse)
-                        } else {
-                            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
+        self.getPayerIp() { (payerIp) -> () in
+            if let payment = payment, let completion = completion {
+                self.transactionService.postApplePayResponse(for: self.order,
+                                                             with: payment,
+                                                             using: self.accessToken!,
+                                                             payerIp: payerIp, on: {
+                    [unowned self] data, response, error in
+                    if let data = data {
+                        do {
+                            let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                            if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED" || paymentResponse.state == "POST_AUTH_REVIEW") {
+                                completion(PKPaymentAuthorizationResult(status: .success, errors: nil), paymentResponse)
+                            } else {
+                                completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
+                            }
+                        } catch let error {
+                            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                         }
-                    } catch let error {
-                        completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                     }
-                }
-            })
-        } else {
-            self.handlePaymentResponse(nil)
+                })
+            } else {
+                self.handlePaymentResponse(nil)
+            }
         }
     }
     
