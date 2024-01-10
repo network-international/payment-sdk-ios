@@ -86,7 +86,7 @@ import PassKit
             "Content-Type": "application/vnd.ni-payment.v2+json"]
         var queryParams: [String: String] = [:]
         if let payerIp = payerIp {
-            queryParams = ["payerIp": payerIp]
+            queryParams = ["payer_ip": payerIp]
         }
         
         if let applePayLink = order.embeddedData?.payment?[0].paymentLinks?.applePayLink {
