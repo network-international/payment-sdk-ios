@@ -27,6 +27,7 @@ import PassKit
     @objc func postApplePayResponse(for order: OrderResponse,
                                     with applePayPaymentResponse: PKPayment,
                                     using paymentToken: String,
+                                    payerIp: String?,
                                     on completion: @escaping (HttpResponseCallback))
    
     @objc func postThreeDSAuthentications(for paymentResponse: PaymentResponse,
@@ -39,4 +40,6 @@ import PassKit
                                                on completion: @escaping (HttpResponseCallback))
     
     @objc func getPayerIp(with url: String, using paymentToken: String, on completion: @escaping(HttpResponseCallback))
+    
+    @objc func getPayerIp(with url: String, on completion: @escaping(HttpResponseCallback))
 }

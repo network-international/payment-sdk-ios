@@ -51,6 +51,22 @@ public class HTTPClient {
         return self
     }
     
+    public func withQueryParams(queries: [String: String]) -> HTTPClient {
+        if queries.isEmpty {
+            return self
+        }
+        guard var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: true) else {
+            return self
+        }
+        let queryItems: [URLQueryItem] = queries.map { key, value in
+            return URLQueryItem(name: key, value: value)
+        }
+        
+        components.queryItems = (components.queryItems ?? []) + queryItems
+        request.url = components.url
+        return self
+    }
+    
     public func makeRequest(with completionHandler: @escaping (HttpResponseCallback)) {
             let task = session.dataTask(with: self.request as URLRequest, completionHandler: completionHandler)
             task.resume()

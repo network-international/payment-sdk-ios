@@ -79,15 +79,21 @@ import PassKit
     public func postApplePayResponse(for order: OrderResponse,
                                      with applePayPaymentResponse: PKPayment,
                                      using accessToken: String,
+                                     payerIp: String?,
                                      on completion: @escaping (HttpResponseCallback)) {
         
         let paymentRequestHeaders = ["Authorization": "Bearer \(accessToken)",
             "Content-Type": "application/vnd.ni-payment.v2+json"]
+        var queryParams: [String: String] = [:]
+        if let payerIp = payerIp {
+            queryParams = ["payer_ip": payerIp]
+        }
         
         if let applePayLink = order.embeddedData?.payment?[0].paymentLinks?.applePayLink {
             HTTPClient(url: applePayLink)?
                 .withMethod(method: "PUT")
                 .withHeaders(headers: paymentRequestHeaders)
+                .withQueryParams(queries: queryParams)
                 .withBodyData(data: applePayPaymentResponse.token.paymentData)
                 .makeRequest(with: completion)
         } else {
@@ -141,6 +147,12 @@ import PassKit
         HTTPClient(url: url)?
             .withMethod(method: "GET")
             .withHeaders(headers: headers)
+            .makeRequest(with: completion)
+    }
+    
+    func getPayerIp(with url: String, on completion: @escaping (HttpResponseCallback)) {
+        HTTPClient(url: url)?
+            .withMethod(method: "GET")
             .makeRequest(with: completion)
     }
     
