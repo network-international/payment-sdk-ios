@@ -13,13 +13,14 @@ class SavedCardRequest: NSObject, Codable {
     var cardholderName: String?
     var cardToken: String?
     var cvv: String?
-    
+    var payerIp: String?
     
     enum CodingKeys: String, CodingKey {
         case expiry
         case cardholderName
         case cardToken
         case cvv
+        case payerIp
     }
     
     override init() {
@@ -27,6 +28,7 @@ class SavedCardRequest: NSObject, Codable {
         cardToken = nil
         cvv = nil
         cardholderName = nil
+        payerIp = nil
     }
     
     init(expiry: String?, cardholderName: String?, cardToken: String?,
@@ -43,6 +45,7 @@ class SavedCardRequest: NSObject, Codable {
         cardholderName = try container.decode(String.self, forKey: .cardholderName)
         cardToken = try container.decode(String.self, forKey: .cardToken)
         cvv = try container.decode(String.self, forKey: .cvv)
+        payerIp = try container.decode(String.self, forKey: .payerIp)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -51,5 +54,6 @@ class SavedCardRequest: NSObject, Codable {
         try container.encode(cvv, forKey: .cvv)
         try container.encode(cardholderName, forKey: .cardholderName)
         try container.encode(cardToken, forKey: .cardToken)
+        try container.encode(payerIp, forKey: .payerIp)
     }
 }
