@@ -68,7 +68,11 @@ class CardPaymentViewController: UIViewController {
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
             self.makePaymentCallback = makePaymentCallback
             self.allowedCardProviders = order.paymentMethods?.card
-            let payButtonTitle: String = String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.getFormattedAmount())
+            let payButtonTitle: String = if NISdk.sharedInstance.shouldShowOrderAmount {
+                 String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.getFormattedAmount())
+            } else {
+                "Pay".localized
+            }
             self.payButton.setTitle(payButtonTitle, for: .normal)
         }
         self.onCancel = onCancel
