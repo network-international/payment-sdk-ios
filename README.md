@@ -29,13 +29,13 @@ There are 2 example apps, one written in swift and the other in Objective-C incl
 
 The saved card token serves as a secure means to facilitate payments through the SDK. For comprehensive instructions and illustrative code samples, please refer to the detailed guide available [here](https://github.com/network-international/payment-sdk-ios/wiki/Saved-Card-payment).
 
-## SDK config
+## SDK Configuration
 
-### Customizing Colors in Payment SDK
+#### Customizing Colors in Payment SDK
 
 The Payment SDK provides a convenient way for developers to customize the color scheme of the payment page to match their application's design. refer to the detailed guide available [here](https://github.com/network-international/payment-sdk-ios/wiki/Customizing-Colors-in-Payment-SDK-for-iOS)
 
-### Customize pay button
+#### Customize pay button
 
 You can utilize the `shouldShowOrderAmount` property to control the visibility of the amount on the pay button. The default value is set to true.
 
@@ -43,7 +43,15 @@ You can utilize the `shouldShowOrderAmount` property to control the visibility o
 NISdk.sharedInstance.shouldShowOrderAmount = false
 ```
 
-### Customize language
+#### Optional Alert dialog
+
+To enhance user experience, you can prompt an alert dialog when users attempt to close the payment page. This feature can be enabled or disabled using the `shouldShowCancelAlert` configuration property.
+
+```kotlin
+NISdk.sharedInstance.shouldShowCancelAlert = false
+```
+
+#### Customize language
 
 Set the language for the SDK using the setSDKLanguage method. Currently, the SDK supports English and Arabic.
 
