@@ -28,3 +28,8 @@
 "Cancel" = "Cancel";
 "Authenticating Payment" = "Authenticating Payment";
 "Authenticating using 3DS" = "Authenticating using 3DS";
+"Cancel Payment Title" = "Cancel Payment";
+"Cancel Payment Message" = "Are you sure you want to cancel the payment?";
+"Cancel Alert" = "No";
+"Cancel Confirm" = "Yes, Cancel";
+
