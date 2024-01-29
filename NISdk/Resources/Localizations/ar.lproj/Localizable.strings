@@ -28,3 +28,7 @@
 "Cancel" = "إلغاء";
 "Authenticating Payment" = "التحقق من الدفع";
 "Authenticating using 3DS" = "التحقق من الدفع";
+"Cancel Payment Title" = "إلغاء الدفع";
+"Cancel Payment Message" = "هل أنت متأكد أنك تريد إلغاء الدفع؟";
+"Cancel Alert" = "لا";
+"Cancel Confirm" = "نعم، ألغِ";
