@@ -163,7 +163,11 @@ class PaymentViewController: UIViewController {
         case .Card:
             let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment, order: order, onCancel: {
                 [weak self] in
-                self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+                if NISdk.sharedInstance.shouldShowCancelAlert {
+                    self?.showCancelPaymentAlert(with: .PaymentCancelled, and: nil, and: nil)
+                } else {
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+                }
             })
             self.transition(to: .renderCardPaymentForm(cardPaymentViewController))
             break
@@ -199,7 +203,11 @@ class PaymentViewController: UIViewController {
                         orderAmount: amount,
                         onCancel: {
                             [weak self] in
-                            self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+                            if NISdk.sharedInstance.shouldShowCancelAlert {
+                                self?.showCancelPaymentAlert(with: .PaymentCancelled, and: nil, and: nil)
+                            } else {
+                                self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+                            }
                         })
                     self.transition(to: .renderCardPaymentForm(savedCardViewController))
                 } else {
@@ -444,5 +452,25 @@ private extension PaymentViewController {
                 .renderThreeDSChallengeForm(let viewController):
             return viewController
         }
+    }
+}
+
+private extension PaymentViewController {
+    private func showCancelPaymentAlert(with paymentStatus: PaymentStatus,
+                                        and threeDSStatus: ThreeDSStatus?,
+                                        and authStatus: AuthorizationStatus?) {
+        let alertController = UIAlertController(
+            title: "Cancel Payment Title".localized,
+            message: "Cancel Payment Message".localized,
+            preferredStyle: .alert
+        )
+        
+        alertController.addAction(UIAlertAction(title: "Cancel Alert".localized, style: .cancel))
+        alertController.addAction(UIAlertAction(title: "Cancel Confirm".localized, style: .destructive) { _ in
+            self.finishPaymentAndClosePaymentViewController(with: paymentStatus, and: threeDSStatus, and: authStatus)
+            self.dismiss(animated: true, completion: nil)
+        })
+        
+        present(alertController, animated: true, completion: nil)
     }
 }
