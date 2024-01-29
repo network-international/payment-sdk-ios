@@ -17,6 +17,7 @@ private class NISdkBundleLocator {}
     var niSdkColors = NISdkColors()
     var sdkLanguage = "en"
     public var shouldShowOrderAmount = true
+    public var shouldShowCancelAlert = false
     
     private override init() {
         super.init()
