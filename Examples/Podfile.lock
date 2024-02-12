@@ -1,5 +1,5 @@
 PODS:
-  - NISdk (5.1.5)
+  - NISdk (5.1.6)
 
 DEPENDENCIES:
   - NISdk (from `../`)
