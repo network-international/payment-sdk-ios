@@ -17,6 +17,11 @@ public struct Amount: Codable {
         case value
     }
     
+    public init(currencyCode: String?, value: Double?) {
+        self.currencyCode = currencyCode
+        self.value = value
+    }
+    
     func getMinorUnit() -> Int {
         let formatter = NumberFormatter()
         formatter.locale = Locale(identifier: NISdk.sharedInstance.sdkLanguage)

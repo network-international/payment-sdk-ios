@@ -32,3 +32,21 @@
 "Cancel Payment Message" = "هل أنت متأكد أنك تريد إلغاء الدفع؟";
 "Cancel Alert" = "لا";
 "Cancel Confirm" = "نعم، ألغِ";
+
+"Visa Instalment Eligible" = "مؤهلة للتقسيط";
+"Visa Monthly Instalment" = "%@ القسط الشهري";
+"Visa Bi Monthly Instalment" = "%@ القسط كل شهرين";
+"Visa Weekly Instalment" = "%@ القسط الأسبوعي";
+"Visa Bi Weekly Instalment" = "%@ القسط كل أسبوعين";
+
+"Visa Monthly Rate" = "%% %@ :السعر الشهري:";
+"Visa Bi Monthly Rate" = "%% %@ :السعر كل شهرين:";
+"Visa Weekly Rate" = "%% %@ :السعر الأسبوعي";
+"Visa Bi Weekly Rate" = "%% %@ :السعر كل أسبوعين";
+
+"Visa Processing Fee" = "%@ رسوم المعالجة";
+"Visa Terms And Conditions" = "البنود والشروط";
+"Visa Read Less" = "اقرأ أقل";
+"Visa Read More" = "اقرأ المزيد";
+"Visa Pay In Instalment" = "%@ الدفع بمقدار";
+"Visa Pay In Full" = "الدفع بالكامل";
