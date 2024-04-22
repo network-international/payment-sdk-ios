@@ -38,7 +38,17 @@ class StoreFrontViewController:
     }()
     
     let cardInfoView = CreditCardInfoView()
-    let pets = ["🐊", "🐅", "🐆", "🦓", "🦏", "🦠", "🐙", "🐡", "🐋", "🐳"]
+    let pets: [Product] = [
+        Product(name: "🐊", amount: 1),
+        Product(name: "🐅", amount: 2),
+        Product(name: "🐆", amount: 5),
+        Product(name: "🦓", amount: 10),
+        Product(name: "🦏", amount: 450),
+        Product(name: "🦠", amount: 700),
+        Product(name: "🐙", amount: 1500),
+        Product(name: "🐡", amount: 2200),
+        Product(name: "🐋", amount: 3000)
+    ]
     var total: Double = 0 {
         didSet { showHidePayButtonStack() }
     }
@@ -324,8 +334,7 @@ class StoreFrontViewController:
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath as IndexPath) as! ProductViewCell
-        
-        cell.productLabel.text = pets[indexPath.item]
+        cell.setProduct(product: pets[indexPath.item])
         return cell
     }
     
@@ -333,7 +342,7 @@ class StoreFrontViewController:
         let screenRect = UIScreen.main.bounds
         let screenWidth = screenRect.size.width
         let length = (screenWidth / 2) - 20
-        return CGSize(width: length, height: length)
+        return CGSize(width: length, height: (screenWidth / 2.5) - 20)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
