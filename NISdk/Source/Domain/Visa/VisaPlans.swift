@@ -27,8 +27,8 @@ extension VisaPlans {
             let frequency = getPlanFrequency(frequency: matchedPlan.installmentFrequency ?? "")
             
             let currency: String? = matchedPlan.costInfo?.currency
-            let totalUpFrontFees: String = Amount(currencyCode: currency, value: matchedPlan.costInfo?.totalUpfrontFees).getFormattedAmount()
-            let amount: String = Amount(currencyCode: currency, value: matchedPlan.costInfo?.lastInstallment?.totalAmount).getFormattedAmount()
+            let totalUpFrontFees: String = Amount(currencyCode: currency, value: matchedPlan.costInfo?.totalUpfrontFees).getFormattedAmount2Decimal()
+            let amount: String = Amount(currencyCode: currency, value: matchedPlan.costInfo?.lastInstallment?.totalAmount).getFormattedAmount2Decimal()
             
             let rate = String(format: "%.2f", ((matchedPlan.costInfo?.annualPercentageRate ?? 0.0) / 100.00))
             

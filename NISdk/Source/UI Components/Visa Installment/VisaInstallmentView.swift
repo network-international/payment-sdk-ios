@@ -12,11 +12,12 @@ struct VisaInstallmentView: View {
         VStack(alignment: .center) {
             let termsAccepted = selectedPlan?.termsAccepted ?? false
             let termsExpanded = selectedPlan?.termsExpanded ?? false
+            Divider()
             VisaHeaderView(cardNumber: cardNumber)
+            Divider()
             
             ScrollView {
                 VStack {
-                    
                     ForEach(plans, id: \.self.vPlanId) { plan in
                         let isSelected = if (selectedPlan != nil && selectedPlan?.vPlanId == plan.vPlanId) {
                             true
@@ -74,13 +75,9 @@ struct VisaInstallmentView: View {
                                 HStack {
                                     if termsExpanded || termsAccepted {
                                         Button(action: {
-                                            selectedPlan?.termsAccepted = !termsAccepted
+                                            selectedPlan?.termsAccepted.toggle()
                                         }) {
-                                            if termsAccepted {
-                                                Image(systemName: "checkmark.square")
-                                            } else {
-                                                Image(systemName: "square")
-                                            }
+                                            Image(systemName: termsAccepted ? "checkmark.square" : "square")
                                         }.buttonStyle(.borderless)
                                     } else {
                                         Image(systemName: "square.fill").foregroundColor(.gray)
@@ -90,7 +87,7 @@ struct VisaInstallmentView: View {
                                         .font(.subheadline)
                                     
                                     Button(termsExpanded ? "Visa Read Less".localized :"Visa Read More".localized) {
-                                        selectedPlan?.termsExpanded = !termsExpanded
+                                        selectedPlan?.termsExpanded.toggle()
                                     }.buttonStyle(.borderless)
                                         .font(.subheadline)
                                 }
@@ -104,30 +101,27 @@ struct VisaInstallmentView: View {
                                 }
                             }
                         }
-                        .padding(10)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            selectedPlan = plan
-                        }
+                        .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 10)
-                                .foregroundColor(Color.white)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(isSelected ? Color.blue : Color.gray, lineWidth: 2)
-                                )
+                                .stroke(isSelected ? Color.blue : Color.gray, lineWidth: 2)
                         )
+                        .padding(2)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            if (selectedPlan?.vPlanId != plan.vPlanId) {
+                                selectedPlan = plan
+                            }
+                        }
                     }
                     
                 }.disabled(paymentProcessing)
-                    .padding(10)
-                    .edgesIgnoringSafeArea(.all)
-                    .listStyle(GroupedListStyle())
             }
             
             let buttonEnable = !paymentProcessing && (termsAccepted || (selectedPlan != nil && selectedPlan!.frequency == .PayInFull))
             
             VStack(alignment: .leading) {
+                Divider()
                 Button(action: {
                     if let selectedPlan = selectedPlan {
                         paymentProcessing = true
@@ -143,18 +137,17 @@ struct VisaInstallmentView: View {
                         Text("Make Payment".localized)
                     }
                 }
-                .frame(height: 50)
-                .padding(EdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20))
                 .buttonStyle(PaymentButtonStyle(enabled: buttonEnable))
                 
                 Image("visaInstallment", bundle: NISdk.sharedInstance.getBundle())
                     .resizable(resizingMode: /*@START_MENU_TOKEN@*/.stretch/*@END_MENU_TOKEN@*/)
                     .scaledToFit()
                     .frame(height: 12)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 10)
+                Divider()
                 
             }
-        }
+        }.padding(10)
     }
 }
 
@@ -184,14 +177,13 @@ struct VisaHeaderView: View {
             
             VStack(alignment: .leading) {
                 Text(getMaskedCardNumber(cardNumber: cardNumber))
-                    .padding(EdgeInsets(top: 0, leading: 0, bottom: 2, trailing: 0))
                     .font(.headline)
                 Text("Visa Instalment Eligible".localized)
                     .foregroundColor(.green)
                     .font(.headline)
             }
-        }
-        .padding()
+            .frame(maxWidth: .infinity)
+        }.padding(8)
     }
     
     func getMaskedCardNumber(cardNumber: String) -> String {
@@ -213,8 +205,8 @@ struct PaymentButtonStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .frame(maxWidth: .infinity)
-            .padding()
+            .padding(.horizontal, 10)
+            .frame(maxWidth: .infinity, maxHeight: 50)
             .foregroundColor(.white)
             .background(enabled ? Color.blue : Color.gray)
             .cornerRadius(5)
@@ -224,11 +216,11 @@ struct PaymentButtonStyle: ButtonStyle {
 struct VisaInstallmentView_Previews: PreviewProvider {
     static var previews: some View {
         VisaInstallmentView(plans: [
-            InstallmentPlan(vPlanId: "1", amount: "$1000", totalUpFrontFees: "$50", rate: "5.0", numberOfInstallments: 12, frequency: .Monthly, termsAndConditions: TermsAndConditions(text: "These terms of use constitute an agreement between you and X Pay Pvt Ltd ABN 123456", version: 1, languageCode: "end", url: ""), termsAccepted: false, termsExpanded: false),
+            InstallmentPlan(vPlanId: "1", amount: "$1000", totalUpFrontFees: "$50", rate: "5.0", numberOfInstallments: 12, frequency: .Monthly, termsAndConditions: TermsAndConditions(text: "These terms of use constitute an agreement between https://www.google.com you and X Pay Pvt Ltd ABN 123456", version: 1, languageCode: "end", url: ""), termsAccepted: false, termsExpanded: false),
             InstallmentPlan(vPlanId: "2", amount: "$500", totalUpFrontFees: "$25", rate: "2.5", numberOfInstallments: 24, frequency: .Monthly, termsAndConditions: TermsAndConditions(text: "sometext", version: 1, languageCode: "end", url: ""), termsAccepted: false, termsExpanded: false),
             InstallmentPlan(vPlanId: "3", amount: "$250", totalUpFrontFees: "$15", rate: "1.0", numberOfInstallments: 36, frequency: .Monthly, termsAndConditions: TermsAndConditions(text: "sometext", version: 1, languageCode: "end", url: ""), termsAccepted: false, termsExpanded: false)], cardNumber: "476108******2022", onMakePayment: { _ in
                 
-            }).environment(\.locale, .init(identifier: "ar"))
+            })
     }
 }
 
