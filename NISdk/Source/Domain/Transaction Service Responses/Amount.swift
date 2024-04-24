@@ -49,6 +49,25 @@ public struct Amount: Codable {
         }
     }
     
+    func getFormattedAmount2Decimal() -> String {
+        var orderAmountValue = ""
+        if let value = value {
+            let minorUnit = self.getMinorUnit()
+            let exponent: Decimal = pow(10.00, minorUnit)
+            let roundedValue = Decimal(value) / exponent
+            let doubleValue = NSDecimalNumber(decimal: roundedValue).doubleValue
+            orderAmountValue = String(format: "%.2f", doubleValue);
+        }
+        
+        let language = NISdk.sharedInstance.sdkLanguage
+        let direction = Locale.characterDirection(forLanguage: language)
+        if (direction == .rightToLeft) {
+            return "\(currencyCode ?? "") \(orderAmountValue)"
+        } else {
+            return "\(orderAmountValue) \(currencyCode ?? "")"
+        }
+    }
+    
     public init(from decoder: Decoder) throws {
         let AmountContainer = try decoder.container(keyedBy: AmountCodingKeys.self)
         currencyCode = try AmountContainer.decodeIfPresent(String.self, forKey: .currencyCode)
