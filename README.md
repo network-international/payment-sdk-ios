@@ -8,7 +8,7 @@ The NI-payment-sdk-ios allows you to quickly integrate a payment checkout experi
 
 ## Requirements
 
-The Network International iOS payment SDK requires Xcode 10.1 and later and works with iOS versions 11 and above
+The Network International iOS payment SDK requires Xcode 13.0 and later and works with iOS versions 13 and above
 
 ## Getting Started
 
