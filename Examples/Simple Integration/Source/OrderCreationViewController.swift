@@ -20,6 +20,9 @@ class OrderCreationViewController: UIViewController {
     var paymentRequest: PKPaymentRequest?
     var savedCard: SavedCard?
     var cvv: String?
+    var orderId: String = ""
+    
+    let apiService = ApiService()
     
     init(paymentAmount: Double,
          cardPaymentDelegate: CardPaymentDelegate,
@@ -96,57 +99,40 @@ class OrderCreationViewController: UIViewController {
         let orderRequest = OrderRequest(action: "SALE",
                                         amount: OrderAmount(currencyCode: "AED", value: paymentAmount * 100),
                                         savedCard: savedCard)
-        let encoder = JSONEncoder()
-        let orderRequestData = try! encoder.encode(orderRequest)
-        let headers = ["Content-Type": "application/json"]
-        let request = NSMutableURLRequest(url: NSURL(string: "http://localhost:3000/api/createOrder")! as URL,
-                                          cachePolicy: .useProtocolCachePolicy,
-                                          timeoutInterval: 10.0)
-        request.httpMethod = "POST"
-        request.allHTTPHeaderFields = headers
-        request.httpBody = orderRequestData
-
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { [weak self] (data, response, error) in
-            if (error != nil) {
-                self?.displayErrorAndClose(error: error)
-            }
-            if let data = data {
-                do {
-                    let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
-                    let sharedSDKInstance = NISdk.sharedInstance
-                    if (self?.paymentMethod == .Card) {
-                        self?.storeFrontDelegate.updateOrderId(orderId: orderResponse.reference ?? "")
-                    }
-                    DispatchQueue.main.async {
-                        self?.dismiss(animated: false, completion: { [weak self] in
-                            if(self?.paymentMethod == .Card) {
-                                sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
-                                                                          overParent: self?.cardPaymentDelegate as! UIViewController,
-                                                                        for: orderResponse)
-                            } else if (self?.paymentMethod == .SavedCard) {
-                                sharedSDKInstance.launchSavedCardPayment(
-                                    cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
-                                    overParent: self?.cardPaymentDelegate as! UIViewController,
-                                    for: orderResponse,
-                                    with: self?.cvv
-                                )
-                            } else {
-                                sharedSDKInstance.initiateApplePayWith(applePayDelegate: self?.cardPaymentDelegate as? ApplePayDelegate,
-                                                                       cardPaymentDelegate: (self?.cardPaymentDelegate)!,
-                                                                       overParent: self?.cardPaymentDelegate as!UIViewController,
-                                                                       for: orderResponse, with: self!.paymentRequest!)
-                            }
-                        })
-                    }
-                } catch let error {
-                    self?.displayErrorAndClose(error: error)
+        
+        apiService.createOrder(orderData: orderRequest) { result in
+            switch result {
+            case .success(let orderResponse):
+                let sharedSDKInstance = NISdk.sharedInstance
+                if (self.paymentMethod == .Card) {
+                    self.storeFrontDelegate.updateOrderId(orderId: orderResponse.reference ?? "")
                 }
+                DispatchQueue.main.async {
+                    self.dismiss(animated: false, completion: { [weak self] in
+                        if(self?.paymentMethod == .Card) {
+                            sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
+                                                                      overParent: self?.cardPaymentDelegate as! UIViewController,
+                                                                    for: orderResponse)
+                        } else if (self?.paymentMethod == .SavedCard) {
+                            sharedSDKInstance.launchSavedCardPayment(
+                                cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
+                                overParent: self?.cardPaymentDelegate as! UIViewController,
+                                for: orderResponse,
+                                with: self?.cvv
+                            )
+                        } else {
+                            sharedSDKInstance.initiateApplePayWith(applePayDelegate: self?.cardPaymentDelegate as? ApplePayDelegate,
+                                                                   cardPaymentDelegate: (self?.cardPaymentDelegate)!,
+                                                                   overParent: self?.cardPaymentDelegate as!UIViewController,
+                                                                   for: orderResponse, with: self!.paymentRequest!)
+                        }
+                    })
+                }
+            case .failure(let error):
+                self.displayErrorAndClose(error: error)
             }
-        })
-        dataTask.resume()
+        }
     }
-
     
     override func viewDidLoad() {
         super.viewDidLoad()
