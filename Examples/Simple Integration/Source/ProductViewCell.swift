@@ -40,7 +40,7 @@ class ProductViewCell: UICollectionViewCell {
     func setProduct(product: Product) {
         productLabel.text = product.name
         price = product.amount
-        priceLabel.text = "AED \(price)"
+        priceLabel.text = "AED \(String(format: "%.2f",price))"
     }
     
     func addViews() {
