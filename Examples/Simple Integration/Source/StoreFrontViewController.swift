@@ -44,10 +44,12 @@ class StoreFrontViewController:
         Product(name: "🐆", amount: 5),
         Product(name: "🦓", amount: 10),
         Product(name: "🦏", amount: 450),
+        Product(name: "🐋", amount: 450.12),
         Product(name: "🦠", amount: 700),
         Product(name: "🐙", amount: 1500),
         Product(name: "🐡", amount: 2200),
-        Product(name: "🐋", amount: 3000)
+        Product(name: "🐋", amount: 3000),
+        Product(name: "🐋", amount: 3000.12)
     ]
     var total: Double = 0 {
         didSet { showHidePayButtonStack() }
@@ -204,12 +206,12 @@ class StoreFrontViewController:
     }
     
     func checkForEnvironemnt() {
-        guard let _ = ApiService().getEnvironment() else {
+        if Environment.getEnvironments().isEmpty {
             showAlertWith(title: "Environment Not Configured", message: "You will need to create an environment before you create an order")
             return
         }
         
-        guard let _ = Environment.getSelectedEnvironment() else {
+        guard let _ = ApiService().getEnvironment() else {
             showAlertWith(title: "Environment Not Set", message: "You will need to select an environment before you create an order")
             return
         }
@@ -237,7 +239,7 @@ class StoreFrontViewController:
         payButton.setTitleColor(.white, for: .normal)
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         payButton.setTitleColor(UIColor(red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
-        payButton.setTitle("Pay", for: .normal)
+        payButton.setTitle("Pay \(String(format: "%.2f",total))", for: .normal)
         payButton.layer.cornerRadius = 5
         payButton.addTarget(self, action: #selector(payButtonTapped), for: .touchUpInside)
         buttonStack.addArrangedSubview(payButton)
@@ -287,7 +289,7 @@ class StoreFrontViewController:
                 cardInfoView.setCard(savedCard: savedCard)
                 cardInfoView.isHidden = false
             }
-            payButton.setTitle("Pay Aed \(total)", for: .normal)
+            payButton.setTitle("Pay Aed \(String(format: "%.2f",total))", for: .normal)
         } else {
             buttonStack.isHidden = true
             cardInfoView.isHidden = true
