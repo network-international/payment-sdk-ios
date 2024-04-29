@@ -55,9 +55,9 @@ struct VisaInstallmentView: View {
                         
                         VStack(alignment: .leading) {
                             let headerTitle =  if (plan.frequency == .PayInFull) {
-                                "Visa Pay In Full".localized
+                                "Visa Pay In Full".localized.uppercased()
                             } else {
-                                String.localizedStringWithFormat("Visa Pay In Instalment".localized, String(plan.numberOfInstallments))
+                                String.localizedStringWithFormat("Visa Pay In Instalment".localized.uppercased(), String(plan.numberOfInstallments))
                             }
                             Text(headerTitle)
                                 .font(.headline)
