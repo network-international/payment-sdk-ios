@@ -79,7 +79,7 @@ struct Environment: Codable {
         case .DEV:
             "https://api-gateway-dev.ngenius-payments.com/identity/auth/access-token"
         case .UAT:
-            "https://api-gateway-sandbox.platform.network.ae/identity/auth/access-token"
+            "https://api-gateway-uat.ngenius-payments.com/identity/auth/access-token"
         case .PROD:
             "https://api-gateway.ngenius-payments.com/identity/auth/access-token"
         }
