@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		592A15D72BD9013C00986490 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D62BD9013C00986490 /* EnvironmentView.swift */; };
+		592A15D92BD9878900986490 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D82BD9878900986490 /* Environment.swift */; };
+		592A15DB2BDA326100986490 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15DA2BDA326100986490 /* ApiService.swift */; };
 		59ED19AE2AD401960000E024 /* CreditCardInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */; };
 		684ED4D7796DAEE4202DFA55 /* Pods_Simple_Integration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80591F9DC5559F5D478F3935 /* Pods_Simple_Integration.framework */; };
 		862CBE81230EE14F00767774 /* StoreFrontViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE80230EE14F00767774 /* StoreFrontViewController.swift */; };
@@ -28,6 +31,9 @@
 /* Begin PBXFileReference section */
 		0A0EF805E82AC3F6D28308A4 /* Pods-Simple Integration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Simple Integration.debug.xcconfig"; path = "Target Support Files/Pods-Simple Integration/Pods-Simple Integration.debug.xcconfig"; sourceTree = "<group>"; };
 		1042A53F78898626517C10BE /* Pods-Simple Integration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Simple Integration.release.xcconfig"; path = "Target Support Files/Pods-Simple Integration/Pods-Simple Integration.release.xcconfig"; sourceTree = "<group>"; };
+		592A15D62BD9013C00986490 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
+		592A15D82BD9878900986490 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
+		592A15DA2BDA326100986490 /* ApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiService.swift; sourceTree = "<group>"; };
 		59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditCardInfoView.swift; sourceTree = "<group>"; };
 		80591F9DC5559F5D478F3935 /* Pods_Simple_Integration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Simple_Integration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		862CBE80230EE14F00767774 /* StoreFrontViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreFrontViewController.swift; sourceTree = "<group>"; };
@@ -90,6 +96,8 @@
 				862CBE82230EF13700767774 /* ProductViewCell.swift */,
 				86EA2236230F204B00B46FF9 /* OrderCreationViewController.swift */,
 				862CBE86230EF9DB00767774 /* Extensions */,
+				592A15D62BD9013C00986490 /* EnvironmentView.swift */,
+				592A15DA2BDA326100986490 /* ApiService.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -101,6 +109,7 @@
 				86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */,
 				869DDD6323152BC80020CB20 /* PaymentMethods.swift */,
 				869DDD6523153A2D0020CB20 /* Product.swift */,
+				592A15D82BD9878900986490 /* Environment.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -282,10 +291,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				86EA2239230F2AA300B46FF9 /* OrderRequest.swift in Sources */,
+				592A15D92BD9878900986490 /* Environment.swift in Sources */,
 				862CBE85230EF89100767774 /* UIView+AutoLayout.swift in Sources */,
 				86710F502310206300259AE9 /* UICollectionView+DeselectAll.swift in Sources */,
 				862CBE83230EF13700767774 /* ProductViewCell.swift in Sources */,
 				862CBE88230EF9F700767774 /* UIView+Border.swift in Sources */,
+				592A15DB2BDA326100986490 /* ApiService.swift in Sources */,
 				869DDD6623153A2D0020CB20 /* Product.swift in Sources */,
 				869DDD6423152BC80020CB20 /* PaymentMethods.swift in Sources */,
 				8677558B2434523500A76C61 /* Double+Round.swift in Sources */,
@@ -293,6 +304,7 @@
 				86EA223B230F2BDE00B46FF9 /* OrderAmount.swift in Sources */,
 				862CBE81230EE14F00767774 /* StoreFrontViewController.swift in Sources */,
 				86D2FB7622FC1B3300CF1FA1 /* AppDelegate.swift in Sources */,
+				592A15D72BD9013C00986490 /* EnvironmentView.swift in Sources */,
 				86EA2237230F204B00B46FF9 /* OrderCreationViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -446,7 +458,7 @@
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration/Supporting Files/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -473,7 +485,7 @@
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration/Supporting Files/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
