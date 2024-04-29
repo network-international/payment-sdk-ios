@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import NISdk
 import PassKit
+import SwiftUI
 
 class StoreFrontViewController:
     UIViewController,
@@ -67,6 +68,7 @@ class StoreFrontViewController:
             collectionView?.backgroundColor = UIColor.systemBackground
         }
         view.addSubview(collectionView!)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Environment", style: .plain, target: self, action: #selector(environmentSetup))
         
         guard let data = UserDefaults.standard.data(forKey: "SavedCard") else {
             return
@@ -76,6 +78,23 @@ class StoreFrontViewController:
         } catch _ {
             print("error getting saved card")
         }
+    }
+    
+    @objc func environmentSetup() {
+        let environmentViewModel = EnvironmentViewModel()
+        let environmentView = EnvironmentView(viewModel: environmentViewModel)
+        
+        let navigationController = UINavigationController(rootViewController: UIHostingController(rootView: environmentView))
+        
+        navigationController.topViewController?.navigationItem.title = "Environment"
+        navigationController.topViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelButtonTapped))
+        
+        navigationController.modalPresentationStyle = .fullScreen
+        present(navigationController, animated: false, completion: nil)
+    }
+    
+    @objc func cancelButtonTapped() {
+        dismiss(animated: true, completion: nil)
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -132,35 +151,21 @@ class StoreFrontViewController:
     
     private func getSavedCard() {
         if let orderId = self.orderId {
-            
-            let baseUrl = "http://localhost:3000/order/\(orderId)"
-            let url = URL(string: baseUrl)!
-            
-            let session = URLSession.shared
-            
-            let task = session.dataTask(with: url) { (data, response, error) in
-                if let error = error {
-                    print("Error: \(error)")
-                    return
-                }
-                
-                guard let data = data else {
-                    print("No data received")
-                    return
-                }
-                
-                do {
-                    let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
-                    if let savedCard = orderResponse.embeddedData?.payment?.first?.savedCard {
+            ApiService().saveCardForOrder(orderId: orderId) { result in
+                switch result {
+                case .success(let savedCard):
+                    do {
                         let json = try JSONEncoder().encode(savedCard)
                         self.savedCard = savedCard
                         UserDefaults.standard.set(json, forKey: "SavedCard")
+                    } catch {
+                        print("Error parsing JSON: \(error)")
                     }
-                } catch {
-                    print("Error parsing JSON: \(error)")
+                case .failure(let error):
+                    // Handle error
+                    print("Error saving card: \(error)")
                 }
             }
-            task.resume()
         }
     }
     
@@ -173,6 +178,7 @@ class StoreFrontViewController:
     }
     
     @objc func payButtonTapped() {
+        checkForEnvironemnt()
         let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .Card, with: selectedItems)
         orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
         orderCreationViewController.modalPresentationStyle = .overCurrentContext
@@ -180,10 +186,18 @@ class StoreFrontViewController:
     }
     
     @objc func applePayButtonTapped(applePayPaymentRequest: PKPaymentRequest) {
+        checkForEnvironemnt()
         let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .ApplePay, with: selectedItems)
         orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
         orderCreationViewController.modalPresentationStyle = .overCurrentContext
         self.present(orderCreationViewController, animated: true, completion: nil)
+    }
+    
+    func checkForEnvironemnt() {
+        guard let _ = ApiService().getEnvironment() else {
+            showAlertWith(title: "Environment Not Configured", message: "You will need to create an environment before you create an order")
+            return
+        }
     }
     
     // Used to update the paymentRequest object
@@ -236,6 +250,7 @@ class StoreFrontViewController:
     }
     
     func didTapPayButton(withCVV cvv: String?) {
+        checkForEnvironemnt()
         let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .SavedCard, with: selectedItems, savedCard: self.savedCard, cvv: cvv)
         orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
         orderCreationViewController.modalPresentationStyle = .overCurrentContext
