@@ -107,6 +107,7 @@ class OrderCreationViewController: UIViewController {
                 if (self.paymentMethod == .Card) {
                     self.storeFrontDelegate.updateOrderId(orderId: orderResponse.reference ?? "")
                 }
+                NISdk.sharedInstance.setSDKLanguage(language: Environment.getLanguage())
                 DispatchQueue.main.async {
                     self.dismiss(animated: false, completion: { [weak self] in
                         if(self?.paymentMethod == .Card) {

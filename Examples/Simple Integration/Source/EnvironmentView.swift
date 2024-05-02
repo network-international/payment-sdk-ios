@@ -11,6 +11,7 @@ import SwiftUI
 class EnvironmentViewModel: ObservableObject {
     @Published var environments: [Environment] = []
     @Published var action: String = ""
+    @Published var language: String = ""
     
     func addEnvironment(name: String, apiKey: String, outletReference: String, realm: String, type: EnvironmentType) {
         let environment = Environment(type:type, name: name, apiKey: apiKey, outletReference: outletReference, realm: realm)
@@ -22,6 +23,7 @@ class EnvironmentViewModel: ObservableObject {
     init() {
         updateEnvironment()
         action = getOrderAction()
+        language = getLangugae()
     }
     
     func saveEnviroments() {
@@ -54,6 +56,14 @@ class EnvironmentViewModel: ObservableObject {
     func getOrderAction() -> String {
         return Environment.getOrderAction()
     }
+    
+    func setLanguage(language: String) {
+        Environment.setLanguage(language: language)
+    }
+    
+    func getLangugae() -> String {
+        return Environment.getLanguage()
+    }
 }
 
 struct EnvironmentView: View {
@@ -70,9 +80,16 @@ struct EnvironmentView: View {
         viewModel.setOrderAction(action: tag)
     }
     
+    func languageChange(_ tag: String) {
+        viewModel.setLanguage(language: tag)
+    }
+    
     var body: some View {
-        VStack {
-
+        VStack(alignment: .leading) {
+            Divider()
+            
+            Text("Order Action")
+            
             Picker("Order action", selection: $viewModel.action.onChange(actionChange)) {
                 Text("PURCHASE").tag("PURCHASE")
                 Text("SALE").tag("SALE")
@@ -81,58 +98,80 @@ struct EnvironmentView: View {
             .pickerStyle(SegmentedPickerStyle())
             .padding(8)
             
-            Button("Add Environment") {
-                isAddingEnvironment.toggle()
+            Divider()
+            
+            Text("SDK Language")
+            Picker("Select Language", selection: $viewModel.language.onChange(languageChange)) {
+                Text("English").tag("en")
+                Text("Arabic").tag("ar")
             }
-            .sheet(isPresented: $isAddingEnvironment, content: {
-                Form {
-                    Picker("Select Environment", selection: $selectedEnvironment) {
-                        Text("DEV").tag("DEV")
-                        Text("UAT").tag("UAT")
-                        Text("PROD").tag("PROD")
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    
-                    TextField("Name", text: $name)
-                    TextField("API Key", text: $apiKey)
-                    TextField("Outlet Reference", text: $outletReference)
-                    TextField("Realm", text: $realm)
-                    
-                    if let errorMessage = errorMessage {
-                        Text(errorMessage)
-                            .foregroundColor(.red)
-                    }
-                    Button("Save") {
-                        if selectedEnvironment.isEmpty || apiKey.isEmpty || outletReference.isEmpty || realm.isEmpty {
-                            errorMessage = "Please fill in all fields"
-                        } else {
-                            let env = switch(selectedEnvironment) {
-                            case "DEV":
-                                EnvironmentType.DEV
-                            case "UAT":
-                                EnvironmentType.UAT
-                            case "PROD":
-                                EnvironmentType.PROD
-                            default:
-                                EnvironmentType.DEV
-                            }
-                            viewModel.addEnvironment(name: name, apiKey: apiKey, outletReference: outletReference, realm: realm, type: env)
-                            
-                            name = ""
-                            apiKey = ""
-                            outletReference = ""
-                            realm = ""
-                            isAddingEnvironment.toggle()
-                            errorMessage = nil
-                        }
-                    }.frame(maxWidth: .infinity)
-                        .foregroundColor(.white)
-                        .padding(8)
-                        .background(Color.green)
-                        .cornerRadius(6)
+            .pickerStyle(SegmentedPickerStyle())
+            .padding(8)
+            
+            Divider()
+            HStack {
+                Spacer()
+                Button("Add Environment") {
+                    isAddingEnvironment.toggle()
                 }
-            })
-
+                .padding(10)
+                .foregroundColor(.blue)
+                .background(Color.white)
+                .cornerRadius(4)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(Color.blue, lineWidth: 2)
+                )
+                .sheet(isPresented: $isAddingEnvironment, content: {
+                    Form {
+                        Picker("Select Environment", selection: $selectedEnvironment) {
+                            Text("DEV").tag("DEV")
+                            Text("UAT").tag("UAT")
+                            Text("PROD").tag("PROD")
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        
+                        TextField("Name", text: $name)
+                        TextField("API Key", text: $apiKey)
+                        TextField("Outlet Reference", text: $outletReference)
+                        TextField("Realm", text: $realm)
+                        
+                        if let errorMessage = errorMessage {
+                            Text(errorMessage)
+                                .foregroundColor(.red)
+                        }
+                        Button("Save") {
+                            if selectedEnvironment.isEmpty || apiKey.isEmpty || outletReference.isEmpty || realm.isEmpty {
+                                errorMessage = "Please fill in all fields"
+                            } else {
+                                let env = switch(selectedEnvironment) {
+                                case "DEV":
+                                    EnvironmentType.DEV
+                                case "UAT":
+                                    EnvironmentType.UAT
+                                case "PROD":
+                                    EnvironmentType.PROD
+                                default:
+                                    EnvironmentType.DEV
+                                }
+                                viewModel.addEnvironment(name: name, apiKey: apiKey, outletReference: outletReference, realm: realm, type: env)
+                                
+                                name = ""
+                                apiKey = ""
+                                outletReference = ""
+                                realm = ""
+                                isAddingEnvironment.toggle()
+                                errorMessage = nil
+                            }
+                        }.frame(maxWidth: .infinity)
+                            .foregroundColor(.white)
+                            .padding(8)
+                            .background(Color.green)
+                            .cornerRadius(6)
+                    }
+                })
+                Spacer()
+            }
             ScrollView {
                 VStack {
                     ForEach(viewModel.environments, id: \.id) { environment in
@@ -163,8 +202,8 @@ struct EnvironmentView: View {
                         }
                     }
                 }
-            }.padding(10)
-        }
+            }
+        }.padding(10)
     }
 }
 
@@ -184,6 +223,6 @@ extension Binding {
             set: { selection in
                 self.wrappedValue = selection
                 handler(selection)
-        })
+            })
     }
 }
