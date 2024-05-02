@@ -20,7 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let firstScreen = StoreFrontViewController();
         let navigationController = UINavigationController(rootViewController: firstScreen)
-        NISdk.sharedInstance.setSDKLanguage(language: "en")
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()

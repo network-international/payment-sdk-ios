@@ -9,6 +9,11 @@ struct VisaInstallmentView: View {
     let onMakePayment: (InstallmentPlan) -> Void?
     
     var body: some View {
+        let direction: LayoutDirection = if (Locale.characterDirection(forLanguage: NISdk.sharedInstance.sdkLanguage) == .rightToLeft) {
+            .rightToLeft
+        } else {
+            .leftToRight
+        }
         VStack(alignment: .center) {
             let termsAccepted = selectedPlan?.termsAccepted ?? false
             let termsExpanded = selectedPlan?.termsExpanded ?? false
@@ -148,6 +153,7 @@ struct VisaInstallmentView: View {
                 
             }
         }.padding(10)
+            .environment(\.layoutDirection, direction)
     }
 }
 
