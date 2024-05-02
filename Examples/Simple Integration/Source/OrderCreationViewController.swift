@@ -96,7 +96,7 @@ class OrderCreationViewController: UIViewController {
     
     func createOrder(savedCard: SavedCard? = nil) {
         // Multiply amount always by 100 while creating an order
-        let orderRequest = OrderRequest(action: "PURCHASE",
+        let orderRequest = OrderRequest(action: Environment.getOrderAction(),
                                         amount: OrderAmount(currencyCode: "AED", value: paymentAmount * 100),
                                         savedCard: savedCard)
         
