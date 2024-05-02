@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import NISdk
 
 class EnvironmentViewModel: ObservableObject {
     @Published var environments: [Environment] = []
@@ -87,6 +88,12 @@ struct EnvironmentView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Divider()
+            Text("Version: \(Bundle.main.appVersionLong) (\(Bundle.main.appBuild)) SDK-v\(NISdk.sharedInstance.version)")
+                .frame(maxWidth: .infinity)
+                .font(.caption)
+                .multilineTextAlignment(.trailing)
+
+            Divider()
             
             Text("Order Action")
             
@@ -114,7 +121,7 @@ struct EnvironmentView: View {
                 Button("Add Environment") {
                     isAddingEnvironment.toggle()
                 }
-                .padding(10)
+                .padding(8)
                 .foregroundColor(.blue)
                 .background(Color.white)
                 .cornerRadius(4)
@@ -165,7 +172,7 @@ struct EnvironmentView: View {
                             }
                         }.frame(maxWidth: .infinity)
                             .foregroundColor(.white)
-                            .padding(8)
+                            .padding(6)
                             .background(Color.green)
                             .cornerRadius(6)
                     }
