@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		591CC0B12BE3ED4B00FB6086 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 591CC0B02BE3ED4B00FB6086 /* Bundle.swift */; };
 		592A15D72BD9013C00986490 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D62BD9013C00986490 /* EnvironmentView.swift */; };
 		592A15D92BD9878900986490 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D82BD9878900986490 /* Environment.swift */; };
 		592A15DB2BDA326100986490 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15DA2BDA326100986490 /* ApiService.swift */; };
@@ -31,6 +32,7 @@
 /* Begin PBXFileReference section */
 		0A0EF805E82AC3F6D28308A4 /* Pods-Simple Integration.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Simple Integration.debug.xcconfig"; path = "Target Support Files/Pods-Simple Integration/Pods-Simple Integration.debug.xcconfig"; sourceTree = "<group>"; };
 		1042A53F78898626517C10BE /* Pods-Simple Integration.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Simple Integration.release.xcconfig"; path = "Target Support Files/Pods-Simple Integration/Pods-Simple Integration.release.xcconfig"; sourceTree = "<group>"; };
+		591CC0B02BE3ED4B00FB6086 /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		592A15D62BD9013C00986490 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
 		592A15D82BD9878900986490 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		592A15DA2BDA326100986490 /* ApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiService.swift; sourceTree = "<group>"; };
@@ -45,7 +47,7 @@
 		869DDD6223150E070020CB20 /* Simple Integration.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Simple Integration.entitlements"; sourceTree = "<group>"; };
 		869DDD6323152BC80020CB20 /* PaymentMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMethods.swift; sourceTree = "<group>"; };
 		869DDD6523153A2D0020CB20 /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
-		86D2FB7222FC1B3300CF1FA1 /* Simple Integration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Simple Integration.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		86D2FB7222FC1B3300CF1FA1 /* Demo App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Demo App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		86D2FB7522FC1B3300CF1FA1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		86D2FB7C22FC1B3300CF1FA1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		86D2FB7F22FC1B3300CF1FA1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 				862CBE84230EF89100767774 /* UIView+AutoLayout.swift */,
 				86710F4F2310206300259AE9 /* UICollectionView+DeselectAll.swift */,
 				8677558A2434523500A76C61 /* Double+Round.swift */,
+				591CC0B02BE3ED4B00FB6086 /* Bundle.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -154,7 +157,7 @@
 		86D2FB7322FC1B3300CF1FA1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				86D2FB7222FC1B3300CF1FA1 /* Simple Integration.app */,
+				86D2FB7222FC1B3300CF1FA1 /* Demo App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -173,9 +176,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		86D2FB7122FC1B3300CF1FA1 /* Simple Integration */ = {
+		86D2FB7122FC1B3300CF1FA1 /* Demo App */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 86D2FB8422FC1B3300CF1FA1 /* Build configuration list for PBXNativeTarget "Simple Integration" */;
+			buildConfigurationList = 86D2FB8422FC1B3300CF1FA1 /* Build configuration list for PBXNativeTarget "Demo App" */;
 			buildPhases = (
 				E7DA372E0FFB99596537AF04 /* [CP] Check Pods Manifest.lock */,
 				86D2FB6E22FC1B3300CF1FA1 /* Sources */,
@@ -187,9 +190,9 @@
 			);
 			dependencies = (
 			);
-			name = "Simple Integration";
+			name = "Demo App";
 			productName = "Simple Integration";
-			productReference = 86D2FB7222FC1B3300CF1FA1 /* Simple Integration.app */;
+			productReference = 86D2FB7222FC1B3300CF1FA1 /* Demo App.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -226,7 +229,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				86D2FB7122FC1B3300CF1FA1 /* Simple Integration */,
+				86D2FB7122FC1B3300CF1FA1 /* Demo App */,
 			);
 		};
 /* End PBXProject section */
@@ -303,6 +306,7 @@
 				59ED19AE2AD401960000E024 /* CreditCardInfoView.swift in Sources */,
 				86EA223B230F2BDE00B46FF9 /* OrderAmount.swift in Sources */,
 				862CBE81230EE14F00767774 /* StoreFrontViewController.swift in Sources */,
+				591CC0B12BE3ED4B00FB6086 /* Bundle.swift in Sources */,
 				86D2FB7622FC1B3300CF1FA1 /* AppDelegate.swift in Sources */,
 				592A15D72BD9013C00986490 /* EnvironmentView.swift in Sources */,
 				86EA2237230F204B00B46FF9 /* OrderCreationViewController.swift in Sources */,
@@ -452,18 +456,21 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = M9X7RF8HHH;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration/Supporting Files/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Demo App";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.simpleintegration.johnny;
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.payment.sdk.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -479,18 +486,21 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = M9X7RF8HHH;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration/Supporting Files/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Demo App";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.simpleintegration.johnny;
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.payment.sdk.demo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -510,7 +520,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		86D2FB8422FC1B3300CF1FA1 /* Build configuration list for PBXNativeTarget "Simple Integration" */ = {
+		86D2FB8422FC1B3300CF1FA1 /* Build configuration list for PBXNativeTarget "Demo App" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				86D2FB8522FC1B3300CF1FA1 /* Debug */,

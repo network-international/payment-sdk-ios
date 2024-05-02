@@ -79,9 +79,16 @@ class StoreFrontViewController:
         if #available(iOS 13, *) {
             collectionView?.backgroundColor = UIColor.systemBackground
         }
-        view.addSubview(collectionView!)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Environment", style: .plain, target: self, action: #selector(environmentSetup))
         
+        let gearIcon = UIImage(systemName: "gearshape.fill")
+        // Create a UIButton with the gear icon
+        let gearButton = UIButton(type: .custom)
+        gearButton.setImage(gearIcon, for: .normal)
+        gearButton.addTarget(self, action: #selector(environmentSetup), for: .touchUpInside)
+        gearButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35) // Adjust the size as needed
+
+        view.addSubview(collectionView!)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: gearButton)
         guard let data = UserDefaults.standard.data(forKey: "SavedCard") else {
             return
         }
@@ -98,8 +105,8 @@ class StoreFrontViewController:
         
         let navigationController = UINavigationController(rootViewController: UIHostingController(rootView: environmentView))
         
-        navigationController.topViewController?.navigationItem.title = "Environment"
-        navigationController.topViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelButtonTapped))
+        navigationController.topViewController?.navigationItem.title = "Configuration"
+        navigationController.topViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(cancelButtonTapped))
         
         navigationController.modalPresentationStyle = .fullScreen
         present(navigationController, animated: false, completion: nil)
