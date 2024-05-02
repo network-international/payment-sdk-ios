@@ -24,6 +24,7 @@ struct Environment: Codable {
     
     private static let KEY_SAVED_ENVIRONMENT_ID = "saved_env_id"
     private static let KEY_SAVED_ENVIRONMENTS = "saved_environments"
+    private static let KEY_ORDER_ACTION = "order_action"
     
     enum CodingKeys: String, CodingKey {
         case type
@@ -116,5 +117,19 @@ struct Environment: Codable {
     
     static func setSelectedEnvironment(environmentId: String) {
         UserDefaults.standard.set(environmentId, forKey: KEY_SAVED_ENVIRONMENT_ID)
+    }
+    
+    static func getOrderAction() -> String {
+        if let action = UserDefaults.standard.string(forKey: KEY_ORDER_ACTION) {
+            print("getOrderAction \(action)")
+            return action
+        } else {
+            return "SALE"
+        }
+    }
+    
+    static func setOrderAction(action: String) {
+        UserDefaults.standard.set(action, forKey: KEY_ORDER_ACTION)
+        print("getOrderAction \(getOrderAction())")
     }
 }
