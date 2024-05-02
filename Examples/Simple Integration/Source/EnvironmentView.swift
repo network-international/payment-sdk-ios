@@ -10,6 +10,7 @@ import SwiftUI
 
 class EnvironmentViewModel: ObservableObject {
     @Published var environments: [Environment] = []
+    @Published var action: String = ""
     
     func addEnvironment(name: String, apiKey: String, outletReference: String, realm: String, type: EnvironmentType) {
         let environment = Environment(type:type, name: name, apiKey: apiKey, outletReference: outletReference, realm: realm)
@@ -20,6 +21,7 @@ class EnvironmentViewModel: ObservableObject {
     
     init() {
         updateEnvironment()
+        action = getOrderAction()
     }
     
     func saveEnviroments() {
@@ -44,6 +46,14 @@ class EnvironmentViewModel: ObservableObject {
         saveEnviroments()
         updateEnvironment()
     }
+    
+    func setOrderAction(action: String) {
+        Environment.setOrderAction(action: action)
+    }
+    
+    func getOrderAction() -> String {
+        return Environment.getOrderAction()
+    }
 }
 
 struct EnvironmentView: View {
@@ -56,8 +66,21 @@ struct EnvironmentView: View {
     @State private var errorMessage: String?
     @State private var name: String = ""
     
+    func actionChange(_ tag: String) {
+        viewModel.setOrderAction(action: tag)
+    }
+    
     var body: some View {
         VStack {
+
+            Picker("Order action", selection: $viewModel.action.onChange(actionChange)) {
+                Text("PURCHASE").tag("PURCHASE")
+                Text("SALE").tag("SALE")
+                Text("AUTH").tag("AUTH")
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding(8)
+            
             Button("Add Environment") {
                 isAddingEnvironment.toggle()
             }
@@ -109,6 +132,7 @@ struct EnvironmentView: View {
                         .cornerRadius(6)
                 }
             })
+
             ScrollView {
                 VStack {
                     ForEach(viewModel.environments, id: \.id) { environment in
@@ -150,5 +174,16 @@ struct EnvironmentView_Previews: PreviewProvider {
         viewModel.addEnvironment(name: "DEV", apiKey: "api_key_123", outletReference: "outlet_ref_123", realm: "realm_123", type: EnvironmentType.DEV)
         
         return EnvironmentView(viewModel: viewModel)
+    }
+}
+
+extension Binding {
+    func onChange(_ handler: @escaping (Value) -> Void) -> Binding<Value> {
+        return Binding(
+            get: { self.wrappedValue },
+            set: { selection in
+                self.wrappedValue = selection
+                handler(selection)
+        })
     }
 }
