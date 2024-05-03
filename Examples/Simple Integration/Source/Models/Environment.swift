@@ -14,6 +14,38 @@ enum EnvironmentType:String, Codable {
     case PROD = "PROD"
 }
 
+struct MerchantAttribute: Codable {
+    let id: String
+    let key: String
+    let value: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case key
+        case value
+    }
+    
+    init(key: String, value: String) {
+        self.id = UUID().uuidString
+        self.key = key
+        self.value = value
+    }
+    
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.decode(String.self, forKey: .id)
+        key = try values.decode(String.self, forKey: .key)
+        value = try values.decode(String.self, forKey: .value)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(key, forKey: .key)
+        try container.encode(value, forKey: .value)
+    }
+}
+
 struct Environment: Codable {
     let type: EnvironmentType
     let id: String
@@ -26,6 +58,7 @@ struct Environment: Codable {
     private static let KEY_SAVED_ENVIRONMENTS = "saved_environments"
     private static let KEY_ORDER_ACTION = "order_action"
     private static let KEY_SAVED_LANGUAGE = "saved_language"
+    private static let KEY_SAVED_MERCHANT_ATTRIBUTES = "merchant_attributes"
     
     enum CodingKeys: String, CodingKey {
         case type
@@ -96,10 +129,31 @@ struct Environment: Codable {
         }
     }
     
+    static func saveMerchantAttributes(merchantAttributes: [MerchantAttribute]) {
+        let jsonEncoder = JSONEncoder()
+        if let encodedData = try? jsonEncoder.encode(merchantAttributes) {
+            UserDefaults.standard.set(encodedData, forKey: KEY_SAVED_MERCHANT_ATTRIBUTES)
+        } else {
+            print("Error encoding MerchantAttribute")
+        }
+    }
+    
     static func getEnvironments() -> [Environment] {
         if let data = UserDefaults.standard.data(forKey: KEY_SAVED_ENVIRONMENTS) {
             do {
                 return try JSONDecoder().decode([Environment].self, from: data)
+            } catch _ {
+                return []
+            }
+        } else {
+            return []
+        }
+    }
+    
+    static func getMerchantAttributes() -> [MerchantAttribute] {
+        if let data = UserDefaults.standard.data(forKey: KEY_SAVED_MERCHANT_ATTRIBUTES) {
+            do {
+                return try JSONDecoder().decode([MerchantAttribute].self, from: data)
             } catch _ {
                 return []
             }
