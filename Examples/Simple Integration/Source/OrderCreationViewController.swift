@@ -96,8 +96,18 @@ class OrderCreationViewController: UIViewController {
     
     func createOrder(savedCard: SavedCard? = nil) {
         // Multiply amount always by 100 while creating an order
+        let merchantAttributes = Environment.getMerchantAttributes()
+        let attributeDictionary: [String: String]? = if (merchantAttributes.isEmpty) {
+            nil
+        } else {
+            merchantAttributes.reduce(into: [String: String]()) { dict, attribute in
+                dict[attribute.key] = attribute.value
+            }
+        }
         let orderRequest = OrderRequest(action: Environment.getOrderAction(),
                                         amount: OrderAmount(currencyCode: "AED", value: paymentAmount * 100),
+                                        language: Environment.getLanguage(),
+                                        merchantAttributes: attributeDictionary,
                                         savedCard: savedCard)
         
         apiService.createOrder(orderData: orderRequest) { result in
@@ -164,5 +174,11 @@ class OrderCreationViewController: UIViewController {
         vStack.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         vStack.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         self.createOrder(savedCard: savedCard)
+    }
+}
+
+extension Data {
+    func toString(encoding: String.Encoding = .utf8) -> String? {
+        return String(data: self, encoding: encoding)
     }
 }

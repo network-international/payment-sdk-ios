@@ -217,11 +217,6 @@ class StoreFrontViewController:
             showAlertWith(title: "Environment Not Configured", message: "You will need to create an environment before you create an order")
             return
         }
-        
-        guard let _ = ApiService().getEnvironment() else {
-            showAlertWith(title: "Environment Not Set", message: "You will need to select an environment before you create an order")
-            return
-        }
     }
     
     // Used to update the paymentRequest object

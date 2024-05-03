@@ -12,6 +12,7 @@
 		592A15D92BD9878900986490 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D82BD9878900986490 /* Environment.swift */; };
 		592A15DB2BDA326100986490 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15DA2BDA326100986490 /* ApiService.swift */; };
 		59ED19AE2AD401960000E024 /* CreditCardInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */; };
+		59FEB0072BE49E410094C943 /* EnvironmentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */; };
 		684ED4D7796DAEE4202DFA55 /* Pods_Simple_Integration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 80591F9DC5559F5D478F3935 /* Pods_Simple_Integration.framework */; };
 		862CBE81230EE14F00767774 /* StoreFrontViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE80230EE14F00767774 /* StoreFrontViewController.swift */; };
 		862CBE83230EF13700767774 /* ProductViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE82230EF13700767774 /* ProductViewCell.swift */; };
@@ -37,6 +38,7 @@
 		592A15D82BD9878900986490 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		592A15DA2BDA326100986490 /* ApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiService.swift; sourceTree = "<group>"; };
 		59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditCardInfoView.swift; sourceTree = "<group>"; };
+		59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentViewModel.swift; sourceTree = "<group>"; };
 		80591F9DC5559F5D478F3935 /* Pods_Simple_Integration.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Simple_Integration.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		862CBE80230EE14F00767774 /* StoreFrontViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreFrontViewController.swift; sourceTree = "<group>"; };
 		862CBE82230EF13700767774 /* ProductViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductViewCell.swift; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 				862CBE86230EF9DB00767774 /* Extensions */,
 				592A15D62BD9013C00986490 /* EnvironmentView.swift */,
 				592A15DA2BDA326100986490 /* ApiService.swift */,
+				59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -295,6 +298,7 @@
 			files = (
 				86EA2239230F2AA300B46FF9 /* OrderRequest.swift in Sources */,
 				592A15D92BD9878900986490 /* Environment.swift in Sources */,
+				59FEB0072BE49E410094C943 /* EnvironmentViewModel.swift in Sources */,
 				862CBE85230EF89100767774 /* UIView+AutoLayout.swift in Sources */,
 				86710F502310206300259AE9 /* UICollectionView+DeselectAll.swift in Sources */,
 				862CBE83230EF13700767774 /* ProductViewCell.swift in Sources */,
