@@ -23,9 +23,7 @@ class VisaPlans: NSObject, Codable {
 extension VisaPlans {
     func toInstallmentPlans(fullAmount: Amount) -> [InstallmentPlan] {
         var plans: [InstallmentPlan] = [planPayInFull(fullAmount: fullAmount)]
-        for matchedPlan in matchedPlans {
-            let frequency = getPlanFrequency(frequency: matchedPlan.installmentFrequency ?? "")
-            
+        for matchedPlan in matchedPlans {            
             let currency: String? = matchedPlan.costInfo?.currency
             let totalUpFrontFees: String = Amount(currencyCode: currency, value: matchedPlan.costInfo?.totalUpfrontFees).getFormattedAmount2Decimal()
             let amount: String = Amount(currencyCode: currency, value: matchedPlan.costInfo?.lastInstallment?.totalAmount).getFormattedAmount2Decimal()
@@ -42,7 +40,7 @@ extension VisaPlans {
     }
     
     private func planPayInFull(fullAmount: Amount) -> InstallmentPlan {
-        return InstallmentPlan(vPlanId: UUID().uuidString, amount: fullAmount.getFormattedAmount(), totalUpFrontFees: "", rate: "", numberOfInstallments: 0, frequency: .PayInFull)
+        return InstallmentPlan(vPlanId: UUID().uuidString, amount: fullAmount.getFormattedAmount2Decimal(), totalUpFrontFees: "", rate: "", numberOfInstallments: 0, frequency: .PayInFull)
     }
     
     private func getPlanFrequency(frequency: String) -> PlanFrequency {
