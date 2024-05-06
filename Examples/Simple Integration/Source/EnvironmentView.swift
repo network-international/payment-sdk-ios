@@ -109,7 +109,7 @@ struct EnvironmentView: View {
                 }
                 Divider()
                 
-                if merchantAtrributesExpanded {
+                if merchantAtrributesExpanded && !viewModel.merchantAttributes.isEmpty {
                     VStack {
                         ForEach(viewModel.merchantAttributes, id: \.id) { attribute in
                             HStack {
