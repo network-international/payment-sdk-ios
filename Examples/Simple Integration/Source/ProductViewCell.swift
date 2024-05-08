@@ -12,11 +12,10 @@ import UIKit
 class ProductViewCell: UICollectionViewCell {
     let productLabel = UILabel()
     let priceLabel = UILabel()
-    let price = Double.random(in: 0.10...2.9).round(to: 2)
+    var price: Double = 0
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        priceLabel.text = "AED \(price)"
         addViews()
     }
     
@@ -36,6 +35,12 @@ class ProductViewCell: UICollectionViewCell {
             ? UIColor(red:0.40, green:0.73, blue:0.40, alpha:1.0)
             : nonSelectedColor
         updateWith(borderColor: borderColor)
+    }
+    
+    func setProduct(product: Product) {
+        productLabel.text = product.name
+        price = product.amount
+        priceLabel.text = "AED \(String(format: "%.2f",price))"
     }
     
     func addViews() {

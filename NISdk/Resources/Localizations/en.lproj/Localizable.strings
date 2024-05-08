@@ -33,3 +33,20 @@
 "Cancel Alert" = "No";
 "Cancel Confirm" = "Yes, Cancel";
 
+"Visa Instalment Eligible" = "Eligible for Installments";
+"Visa Monthly Instalment" = "Monthly Installment: %@";
+"Visa Bi Monthly Instalment" = "Bi-Monthly Installment: %@";
+"Visa Weekly Instalment" = "Weekly Installment: %@";
+"Visa Bi Weekly Instalment" = "Bi-Weekly Installment: %@";
+
+"Visa Monthly Rate" = "Monthly Rate: %@ %%";
+"Visa Bi Monthly Rate" = "Bi-Monthly Rate: %@ %%";
+"Visa Weekly Rate" = "Weekly Rate: %@ %%";
+"Visa Bi Weekly Rate" = "Bi-Weekly Rate: %@ %%";
+
+"Visa Processing Fee" = "Processing Fees: %@";
+"Visa Terms And Conditions" = "Terms and Conditions";
+"Visa Read Less" = "Read less";
+"Visa Read More" = "Read more";
+"Visa Pay In Instalment" = "Pay in %@";
+"Visa Pay In Full" = "Pay in Full";
