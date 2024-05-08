@@ -65,7 +65,6 @@ import PassKit
                                      "Content-Type": "application/vnd.ni-payment.v2+json"]
         
         let paymentData = try! JSONEncoder().encode(paymentInfo)
-        
         if let paymentLink = order.embeddedData?.payment?[0].paymentLinks?.cardPaymentLink {
             HTTPClient(url: paymentLink)?
                 .withMethod(method: "PUT")
@@ -166,6 +165,18 @@ import PassKit
         let data = try! JSONEncoder().encode(savedCardInfo)
         HTTPClient(url: url)?
             .withMethod(method: "PUT")
+            .withHeaders(headers: authorizationRequestHeaders)
+            .withBodyData(data: data)
+            .makeRequest(with: completion)
+    }
+    
+    func getVisaPlans(with url: String, using accessToken: String, cardToken: String?, cardNumber: String?, on completion: @escaping (HttpResponseCallback)) {
+        let authorizationRequestHeaders = ["Accept": "application/vnd.ni-payment.v2+json",
+                                           "Content-Type": "application/vnd.ni-payment.v2+json",
+                                           "Authorization": "Bearer \(accessToken)"]
+        let data = try! JSONEncoder().encode(VisaEligibilityRequets(cardToken: cardToken, pan: cardNumber))
+        HTTPClient(url: "\(url)/vis/eligibility-check")?
+            .withMethod(method: "POST")
             .withHeaders(headers: authorizationRequestHeaders)
             .withBodyData(data: data)
             .makeRequest(with: completion)

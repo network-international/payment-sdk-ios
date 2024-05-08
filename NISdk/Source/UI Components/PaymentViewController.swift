@@ -73,6 +73,7 @@ class PaymentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("orderRef \(self.order.reference ?? "")")
         self.performPreAuthChecksAndBeginAuth()
     }
     
@@ -255,47 +256,109 @@ class PaymentViewController: UIViewController {
         // 3. Make Payment
         self.getPayerIp() { (payerIp) -> () in
             paymentRequest.payerIp = payerIp
-            self.transactionService.makePayment(for: self.order, with: paymentRequest, using: self.paymentToken!, on: {
-                data, response, err in
-                if err != nil {
-                    self.handlePaymentResponse(nil)
-                } else if let data = data {
-                    do {
-                        let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
-                        // 4. Intermediatory checks for payment failure attempts and anything else
-                        self.handlePaymentResponse(paymentResponse)
-                    } catch let error {
-                        self.handlePaymentResponse(nil)
+            
+            self.getVisaPlans(visaEligibilityRequets: VisaEligibilityRequets(cardToken: nil, pan: paymentRequest.pan), onResponse: { visaPlan in
+                if let plans = visaPlan, let fullAmount = self.order.amount, let cardNumber = paymentRequest.pan {
+                    if (plans.matchedPlans.isEmpty) {
+                        self.makeCardPayment(paymentRequest: paymentRequest)
+                    } else {
+                        DispatchQueue.main.async {
+                            self.transition(to: .renderCardPaymentForm(VisaInstallmentViewController(visaPlan: plans, fullAmount: fullAmount, cardNumber: cardNumber, onMakePayment: { visaRequest in
+                                paymentRequest.visaRequest = visaRequest
+                                self.makeCardPayment(paymentRequest: paymentRequest)
+                            }, onCancel: {
+                                [weak self] in
+                                if NISdk.sharedInstance.shouldShowCancelAlert {
+                                    self?.showCancelPaymentAlert(with: .PaymentCancelled, and: nil, and: nil)
+                                } else {
+                                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+                                }
+                            })))
+                        }
                     }
+                } else {
+                    self.makeCardPayment(paymentRequest: paymentRequest)
                 }
             })
         }
+    }
+    
+    private func makeCardPayment(paymentRequest: PaymentRequest) {
+        self.transactionService.makePayment(for: self.order, with: paymentRequest, using: self.paymentToken!, on: {
+            data, response, err in
+            if err != nil {
+                self.handlePaymentResponse(nil)
+            } else if let data = data {
+                do {
+                    let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                    // 4. Intermediatory checks for payment failure attempts and anything else
+                    self.handlePaymentResponse(paymentResponse)
+                } catch _ {
+                    self.handlePaymentResponse(nil)
+                }
+            }
+        })
     }
     
     lazy private var makeSavedCardPayment = { (savedCardRequest: SavedCardRequest) in
         // 3. Make Payment
         self.getPayerIp() { (payerIp) -> () in
             savedCardRequest.payerIp = payerIp
-            if let savedCardUrl = self.order.embeddedData?.getSavedCardLink(), let accessToken = self.accessToken {
-                self.transactionService.doSavedCardPayment(
-                    for: savedCardUrl,
-                    with: savedCardRequest,
-                    using: accessToken,
-                    on: {
-                        data, response, error in
-                        if error != nil {
-                            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
-                        } else if let data = data {
-                            do {
-                                let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
-                                self.handlePaymentResponse(paymentResponse)
-                            } catch _ {
-                                self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+            
+            if let savedCardUrl = self.order.embeddedData?.getSavedCardLink(), let accessToken = self.accessToken, let cardToken = self.order.savedCard?.cardToken, let cardNumber = self.order.savedCard?.maskedPan {
+                if let matchedCandidates: [MatchedCandidate] = self.order.visSavedCardMatchedCandidates?.matchedCandidates, let candidate = matchedCandidates.first(where: { $0.cardToken == cardToken }) {
+                    if candidate.eligibilityStatus == "MATCHED" {
+                        self.getVisaPlans(visaEligibilityRequets: VisaEligibilityRequets(cardToken: cardToken, pan: nil), onResponse: { visaPlan in
+                            if let plans = visaPlan, let fullAmount = self.order.amount {
+                                if (plans.matchedPlans.isEmpty) {
+                                    self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
+                                } else {
+                                    DispatchQueue.main.async {
+                                        self.transition(to: .renderCardPaymentForm(VisaInstallmentViewController(visaPlan: plans, fullAmount: fullAmount, cardNumber: cardNumber, onMakePayment: { visaRequest in
+                                            savedCardRequest.visaRequest = visaRequest
+                                            self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
+                                        }, onCancel: {
+                                            [weak self] in
+                                            if NISdk.sharedInstance.shouldShowCancelAlert {
+                                                self?.showCancelPaymentAlert(with: .PaymentCancelled, and: nil, and: nil)
+                                            } else {
+                                                self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+                                            }
+                                        })))
+                                    }
+                                }
+                            } else {
+                                self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
                             }
-                        }
-                    })
+                        })
+                    } else {
+                        self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
+                    }
+                } else {
+                    self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
+                }
             }
         }
+    }
+    
+    private func doSavedCardPayment(savedCardUrl: String, savedCardRequest: SavedCardRequest, accessToken: String) {
+        self.transactionService.doSavedCardPayment(
+            for: savedCardUrl,
+            with: savedCardRequest,
+            using: accessToken,
+            on: {
+                data, response, error in
+                if error != nil {
+                    self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                } else if let data = data {
+                    do {
+                        let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                        self.handlePaymentResponse(paymentResponse)
+                    } catch _ {
+                        self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                    }
+                }
+            })
     }
     
     func getPayerIp(onCompletion: @escaping (String?) -> ()) {
@@ -472,5 +535,31 @@ private extension PaymentViewController {
         })
         
         present(alertController, animated: true, completion: nil)
+    }
+}
+
+private extension PaymentViewController {
+    func getVisaPlans(visaEligibilityRequets: VisaEligibilityRequets, onResponse: @escaping (VisaPlans?) -> Void) {
+        if let selfLink = self.order.embeddedData?.getSelfLink(), let accessToken = self.accessToken {
+            self.transactionService.getVisaPlans(
+                with: selfLink,
+                using: accessToken,
+                cardToken: visaEligibilityRequets.cardToken,
+                cardNumber: visaEligibilityRequets.pan,
+                on: { data, response, err in
+                    if err != nil {
+                        onResponse(nil)
+                    } else if let data = data {
+                        do {
+                            let visaPlans: VisaPlans = try JSONDecoder().decode(VisaPlans.self, from: data)
+                            onResponse(visaPlans)
+                        } catch _ {
+                            onResponse(nil)
+                        }
+                    }
+                })
+        } else {
+            onResponse(nil)
+        }
     }
 }

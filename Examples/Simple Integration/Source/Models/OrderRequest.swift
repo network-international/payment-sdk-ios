@@ -14,10 +14,15 @@ import NISdk
 struct OrderRequest: Encodable {
     let action: String
     let amount: OrderAmount
+    let language: String
+    let merchantAttributes: [String: String]?
     var savedCard: SavedCard?
     
     private enum  OrderRequestCodingKeys: String, CodingKey {
         case action
         case amount
+        case language
+        case merchantAttributes
+        case savedCard
     }
 }
