@@ -146,7 +146,7 @@ class CreditCardInfoView: UIView {
     }
     
     @objc private func payButtonTapped() {
-        guard let savedCard = self.savedCard else {
+        guard self.savedCard != nil else {
             return
         }
         delegate?.didTapPayButton(withCVV: nil)
@@ -156,7 +156,7 @@ class CreditCardInfoView: UIView {
         let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
         alertController.addAction(okAction)
-        if let topViewController = UIApplication.shared.keyWindow?.rootViewController {
+        if let topViewController = UIApplication.shared.windows.first?.rootViewController {
             topViewController.present(alertController, animated: true, completion: nil)
         }
     }

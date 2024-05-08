@@ -19,7 +19,8 @@ class AuthorizationViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        let spinner = UIActivityIndicatorView(style: .gray)
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.color = .gray
         spinner.isHidden = false
         spinner.startAnimating()
         
