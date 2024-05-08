@@ -11,7 +11,7 @@ import WebKit
 
 class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private var webView = WKWebView()
-    private let activityIndicator = UIActivityIndicatorView(style: .gray)
+    private let activityIndicator = UIActivityIndicatorView(style: .medium)
     
     private var acsUrl: String
     private var acsPaReq: String
@@ -29,6 +29,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
         self.threeDSTermURL = threeDSTermURL
         self.completionHandler = completion
         activityIndicator.hidesWhenStopped = true
+        activityIndicator.color = .white
         super.init(nibName: nil, bundle: nil)
     }
     
