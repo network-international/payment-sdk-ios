@@ -57,7 +57,7 @@ class CardPaymentViewController: UIViewController {
     
     let cardPreviewContainer = UIView()
     let loadingSpinner: UIActivityIndicatorView = {
-        let spinner = UIActivityIndicatorView(style: .white)
+        let spinner = UIActivityIndicatorView(style: .medium)
         spinner.color = NISdk.sharedInstance.niSdkColors.payButtonActivityIndicatorColor
         spinner.isHidden = true
         spinner.hidesWhenStopped = true
