@@ -38,7 +38,19 @@ class StoreFrontViewController:
     }()
     
     let cardInfoView = CreditCardInfoView()
-    let pets = ["🐊", "🐅", "🐆", "🦓", "🦏", "🦠", "🐙", "🐡", "🐋", "🐳"]
+    let pets: [Product] = [
+        Product(name: "🐊", amount: 1),
+        Product(name: "🐅", amount: 2),
+        Product(name: "🐆", amount: 5),
+        Product(name: "🦓", amount: 10),
+        Product(name: "🦏", amount: 450),
+        Product(name: "🐋", amount: 450.12),
+        Product(name: "🦠", amount: 700),
+        Product(name: "🐙", amount: 1500),
+        Product(name: "🐡", amount: 2200),
+        Product(name: "🐋", amount: 3000),
+        Product(name: "🐋", amount: 3000.12)
+    ]
     var total: Double = 0 {
         didSet { showHidePayButtonStack() }
     }
@@ -67,9 +79,16 @@ class StoreFrontViewController:
         if #available(iOS 13, *) {
             collectionView?.backgroundColor = UIColor.systemBackground
         }
-        view.addSubview(collectionView!)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Environment", style: .plain, target: self, action: #selector(environmentSetup))
         
+        let gearIcon = UIImage(systemName: "gearshape.fill")
+        // Create a UIButton with the gear icon
+        let gearButton = UIButton(type: .custom)
+        gearButton.setImage(gearIcon, for: .normal)
+        gearButton.addTarget(self, action: #selector(environmentSetup), for: .touchUpInside)
+        gearButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35) // Adjust the size as needed
+
+        view.addSubview(collectionView!)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: gearButton)
         guard let data = UserDefaults.standard.data(forKey: "SavedCard") else {
             return
         }
@@ -86,8 +105,8 @@ class StoreFrontViewController:
         
         let navigationController = UINavigationController(rootViewController: UIHostingController(rootView: environmentView))
         
-        navigationController.topViewController?.navigationItem.title = "Environment"
-        navigationController.topViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelButtonTapped))
+        navigationController.topViewController?.navigationItem.title = "Configuration"
+        navigationController.topViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(cancelButtonTapped))
         
         navigationController.modalPresentationStyle = .fullScreen
         present(navigationController, animated: false, completion: nil)
@@ -194,13 +213,8 @@ class StoreFrontViewController:
     }
     
     func checkForEnvironemnt() {
-        guard let _ = ApiService().getEnvironment() else {
+        if Environment.getEnvironments().isEmpty {
             showAlertWith(title: "Environment Not Configured", message: "You will need to create an environment before you create an order")
-            return
-        }
-        
-        guard let _ = Environment.getSelectedEnvironment() else {
-            showAlertWith(title: "Environment Not Set", message: "You will need to select an environment before you create an order")
             return
         }
     }
@@ -227,7 +241,7 @@ class StoreFrontViewController:
         payButton.setTitleColor(.white, for: .normal)
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         payButton.setTitleColor(UIColor(red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
-        payButton.setTitle("Pay", for: .normal)
+        payButton.setTitle("Pay \(String(format: "%.2f",total))", for: .normal)
         payButton.layer.cornerRadius = 5
         payButton.addTarget(self, action: #selector(payButtonTapped), for: .touchUpInside)
         buttonStack.addArrangedSubview(payButton)
@@ -277,7 +291,7 @@ class StoreFrontViewController:
                 cardInfoView.setCard(savedCard: savedCard)
                 cardInfoView.isHidden = false
             }
-            payButton.setTitle("Pay Aed \(total)", for: .normal)
+            payButton.setTitle("Pay Aed \(String(format: "%.2f",total))", for: .normal)
         } else {
             buttonStack.isHidden = true
             cardInfoView.isHidden = true
@@ -324,8 +338,7 @@ class StoreFrontViewController:
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath as IndexPath) as! ProductViewCell
-        
-        cell.productLabel.text = pets[indexPath.item]
+        cell.setProduct(product: pets[indexPath.item])
         return cell
     }
     
@@ -333,7 +346,7 @@ class StoreFrontViewController:
         let screenRect = UIScreen.main.bounds
         let screenWidth = screenRect.size.width
         let length = (screenWidth / 2) - 20
-        return CGSize(width: length, height: length)
+        return CGSize(width: length, height: (screenWidth / 2.5) - 20)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {

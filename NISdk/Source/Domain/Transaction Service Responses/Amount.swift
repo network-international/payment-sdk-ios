@@ -17,6 +17,11 @@ public struct Amount: Codable {
         case value
     }
     
+    public init(currencyCode: String?, value: Double?) {
+        self.currencyCode = currencyCode
+        self.value = value
+    }
+    
     func getMinorUnit() -> Int {
         let formatter = NumberFormatter()
         formatter.locale = Locale(identifier: NISdk.sharedInstance.sdkLanguage)
@@ -33,6 +38,25 @@ public struct Amount: Codable {
             let exponent: Decimal = pow(10.00, minorUnit)
             let roundedValue = Decimal(value) / exponent
             orderAmountValue = "\(roundedValue)";
+        }
+        
+        let language = NISdk.sharedInstance.sdkLanguage
+        let direction = Locale.characterDirection(forLanguage: language)
+        if (direction == .rightToLeft) {
+            return "\(currencyCode ?? "") \(orderAmountValue)"
+        } else {
+            return "\(orderAmountValue) \(currencyCode ?? "")"
+        }
+    }
+    
+    func getFormattedAmount2Decimal() -> String {
+        var orderAmountValue = ""
+        if let value = value {
+            let minorUnit = self.getMinorUnit()
+            let exponent: Decimal = pow(10.00, minorUnit)
+            let roundedValue = Decimal(value) / exponent
+            let doubleValue = NSDecimalNumber(decimal: roundedValue).doubleValue
+            orderAmountValue = String(format: "%.2f", doubleValue);
         }
         
         let language = NISdk.sharedInstance.sdkLanguage
