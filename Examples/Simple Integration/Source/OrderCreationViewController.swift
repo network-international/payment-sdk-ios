@@ -152,8 +152,7 @@ class OrderCreationViewController: UIViewController {
         let authorizationLabel = UILabel()
         authorizationLabel.textColor = .white
         authorizationLabel.text = "Creating Order..."
-        
-        let spinner = UIActivityIndicatorView(style: .gray)
+        let spinner = UIActivityIndicatorView(style: .medium)
         spinner.isHidden = false
         spinner.color = .white
         spinner.startAnimating()

@@ -18,7 +18,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
     private var fingerPrintCompleted: Bool = false
     
     private var completionHandler: (Bool) -> Void
-    private let activityIndicator = UIActivityIndicatorView(style: .gray)
+    private let activityIndicator = UIActivityIndicatorView(style: .medium)
     private var transactionService: TransactionService
     private var accessToken: String
     private var paymentResponse: PaymentResponse
@@ -36,6 +36,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
         self.completionHandler = completion
         self.transactionService = transactionService
         self.accessToken = accessToken
+        self.activityIndicator.color = .gray
         self.paymentResponse = paymentResponse
         activityIndicator.hidesWhenStopped = true
         super.init(nibName: nil, bundle: nil)
