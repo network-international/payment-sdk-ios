@@ -27,6 +27,7 @@ jobs:
 
       - name: Build and distribute to Firebase
         env:
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         run: bundle exec fastlane distribute_to_firebase

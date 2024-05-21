@@ -3,7 +3,10 @@ default_platform(:ios)
 platform :ios do
   desc "Distribute app to Firebase"
   lane :distribute_to_firebase do
+    version_code = ENV['GITHUB_RUN_NUMBER']
+
     increment_build_number(
+      build_number: version_code,
       xcodeproj: "Examples/Simple Integration.xcodeproj"
     )
     build_app(
