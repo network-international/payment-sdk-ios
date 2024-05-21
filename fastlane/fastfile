@@ -5,9 +5,9 @@ platform :ios do
   lane :distribute_to_firebase do
     version_code = ENV['GITHUB_RUN_NUMBER']
 
-    increment_build_number(
-      build_number: version_code,
-      xcodeproj: "Examples/Simple Integration.xcodeproj"
+    increment_version_number_in_plist(
+      version_number: version_code,
+      xcodeproj: "Examples/Simple Integration.xcodeproj" 
     )
     build_app(
       workspace: "Examples/Simple Integration.xcworkspace",
