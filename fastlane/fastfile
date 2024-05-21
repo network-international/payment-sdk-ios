@@ -1,0 +1,19 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Distribute app to Firebase"
+  lane :distribute_to_firebase do
+    increment_build_number(
+      xcodeproj: "Examples/Simple Integration.xcodeproj"
+    )
+    build_app(
+      workspace: "Example/Simple Integration.xcworkspace",
+      scheme: "Simple Integration"
+    )
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID"],
+      firebase_cli_token: ENV["FIREBASE_TOKEN"],
+      groups: "testers"
+    )
+  end
+end
