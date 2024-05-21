@@ -25,9 +25,6 @@ jobs:
       - name: Install dependencies
         run: bundle install
 
-      - name: Set up Fastlane
-        run: bundle exec fastlane install
-
       - name: Build and distribute to Firebase
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
