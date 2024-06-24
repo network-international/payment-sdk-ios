@@ -5,7 +5,7 @@
 Pod::Spec.new do |spec|
 
   spec.name = "NISdk"
-  spec.version = "5.1.7"
+  spec.version = ENV['LIB_VERSION'] || '1.0' # LIB_VERSION will be the name of the git tag
   spec.summary = "Network International's Payment gateway sdk for iOS"
 
   spec.homepage = "https://docs.ngenius-payments.com/reference#ios-sdk"
