@@ -14,7 +14,9 @@ platform :ios do
     )
     build_app(
       workspace: "Examples/Simple Integration.xcworkspace",
-      scheme: "Simple Integration"
+      scheme: "Simple Integration",
+      clean: true,
+      xcargs: "IPHONEOS_DEPLOYMENT_TARGET=13.0"
     )
     firebase_app_distribution(
       app: ENV["FIREBASE_APP_ID"],
