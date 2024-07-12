@@ -22,6 +22,7 @@ import Foundation
     // 3ds challenge cycles
     @objc optional func threeDSChallengeDidBegin()
     @objc optional func threeDSChallengeDidComplete(with status: ThreeDSStatus)
+    @objc optional func partialAuthBegin()
 }
 
 public typealias RawValue = String
@@ -56,6 +57,7 @@ public typealias RawValue = String
     case PaymentCancelled
     case InValidRequest
     case PaymentPostAuthReview
+    case PartialAuthDeclined
     
     public var rawVal: RawValue {
         switch self {
@@ -69,6 +71,8 @@ public typealias RawValue = String
             return "InValidRequest"
         case .PaymentPostAuthReview:
             return "PaymentPostAuthReview"
+        case .PartialAuthDeclined:
+            return "PARTIAL_AUTH_DECLINED"
         }
     }
     
@@ -84,6 +88,8 @@ public typealias RawValue = String
             self = .InValidRequest
         case "PaymentPostAuthReview":
             self = .PaymentPostAuthReview
+        case "PARTIAL_AUTH_DECLINED":
+            self = .PartialAuthDeclined
         default:
             self = .PaymentCancelled
         }

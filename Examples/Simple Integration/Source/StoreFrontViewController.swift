@@ -46,6 +46,7 @@ class StoreFrontViewController:
         Product(name: "🦏", amount: 450),
         Product(name: "🐋", amount: 450.12),
         Product(name: "🦠", amount: 700),
+        Product(name: "🐙", amount: 1000),
         Product(name: "🐙", amount: 1500),
         Product(name: "🐡", amount: 2200),
         Product(name: "🐋", amount: 3000),
@@ -157,6 +158,8 @@ class StoreFrontViewController:
             showAlertWith(title: "Payment Aborted", message: "You cancelled the payment request. You can try again!")
         } else if (status == .PaymentPostAuthReview) {
             showAlertWith(title: "Payment In Auth Review", message: "Payment is in review will need to be approved via portal")
+        } else if (status == .PartialAuthDeclined) {
+            showAlertWith(title: "Partial Auth Declined", message: "Sorry, your payment has not been accepted.")
         }
     }
     

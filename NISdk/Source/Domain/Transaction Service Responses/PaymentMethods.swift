@@ -20,7 +20,7 @@ import Foundation
     required public init(from decoder: Decoder) throws {
         let paymentTypesContainer = try decoder.container(keyedBy: PaymentMethodsCodingKeys.self)
 
-        card = try paymentTypesContainer.decodeIfPresent([CardProvider].self, forKey: .card)
-        wallet = try paymentTypesContainer.decodeIfPresent([WalletProvider].self, forKey: .wallet)
+        card = try paymentTypesContainer.decodeIfPresent([CardProvider].self, forKey: .card) ?? []
+        wallet = try paymentTypesContainer.decodeIfPresent([WalletProvider].self, forKey: .wallet) ?? []
     }
 }

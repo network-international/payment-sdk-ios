@@ -32,7 +32,7 @@
 "Cancel Payment Message" = "Are you sure you want to cancel the payment?";
 "Cancel Alert" = "No";
 "Cancel Confirm" = "Yes, Cancel";
-
+"Yes" = "Yes";
 "Visa Instalment Eligible" = "Eligible for Installments";
 "Visa Monthly Instalment" = "Monthly Installment: %@";
 "Visa Bi Monthly Instalment" = "Bi-Monthly Installment: %@";
@@ -50,3 +50,8 @@
 "Visa Read More" = "Read more";
 "Visa Pay In Instalment" = "Pay in %@";
 "Visa Pay In Full" = "Pay in Full";
+
+"Patial Auth Title" = "Customer confirmation";
+"Partial Auth Message With Org" = "Your issuing bank %@ has approved %@ instead of the full amount of %@.";
+"Partial Auth Message" = "Your issuing bank has approved %@ instead of the full amount of %@.";
+"Partial Auth Message Question" = "Do you wish to process the transaction with the reduced amount?";
