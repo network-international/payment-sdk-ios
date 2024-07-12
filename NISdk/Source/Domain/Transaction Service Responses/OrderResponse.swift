@@ -118,3 +118,44 @@ import Foundation
         
     }
 }
+
+extension OrderResponse {
+    internal func toPartialAuthArgs(accessToken: String?) throws -> PartialAuthArgs {
+        guard let payment = embeddedData?.payment?.first else {
+            throw NSError(domain: "argument payments missing", code: 99)
+        }
+        guard let partialAmount = payment.authResponse?.partialAmount else {
+            throw NSError(domain: "argument partialAmount missing", code: 99)
+        }
+        
+        guard let amount = payment.authResponse?.amount else {
+            throw NSError(domain: "argument amount missing", code: 99)
+        }
+        
+        guard let currency = self.amount?.currencyCode else {
+            throw NSError(domain: "argument currency missing", code: 99)
+        }
+        
+        guard let acceptUrl = payment.paymentLinks?.partialAuthAccept else {
+            throw NSError(domain: "argument partial Auth acceptUrl missing", code: 99)
+        }
+        
+        guard let declineUrl = payment.paymentLinks?.partialAuthDecline else {
+            throw NSError(domain: "argument partial Auth declineUrl missing", code: 99)
+        }
+        
+        guard let token = accessToken else {
+            throw NSError(domain: "payment token missing", code: 99)
+        }
+        
+        return PartialAuthArgs(
+            partialAmount: partialAmount,
+            amount: amount,
+            currency: currency,
+            acceptUrl: acceptUrl,
+            declineUrl: declineUrl,
+            issuingOrg: payment.paymentMethod?.issuingOrg,
+            accessToken: token
+        )
+    }
+}
