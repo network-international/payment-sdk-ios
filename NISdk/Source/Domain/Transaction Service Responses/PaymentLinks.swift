@@ -16,6 +16,8 @@ public struct PaymentLinks {
     public let threeDSTwoAuthenticationURL: String?
     public let threeDSTwoChallengeResponseURL: String?
     public let applePayLink: String?
+    public let partialAuthAccept: String?
+    public let partialAuthDecline: String?
 }
 
 extension PaymentLinks: Codable {
@@ -28,6 +30,8 @@ extension PaymentLinks: Codable {
         case threeDSTwoAuthenticationURL = "cnp:3ds2-authentication"
         case threeDSTwoChallengeResponseURL = "cnp:3ds2-challenge-response"
         case applePayLink = "payment:apple_pay"
+        case partialAuthAccept = "payment:partial-auth-accept"
+        case partialAuthDecline = "payment:partial-auth-decline"
     }
     
     private enum hrefCodingKeys: String, CodingKey {
@@ -84,6 +88,20 @@ extension PaymentLinks: Codable {
             applePayLink = try applePayLinkContainer.decodeIfPresent(String.self, forKey: .href)
         } catch {
             self.applePayLink = nil
+        }
+        
+        do {
+            let partialAuthAcceptContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .partialAuthAccept)
+            partialAuthAccept = try partialAuthAcceptContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.partialAuthAccept = nil
+        }
+        
+        do {
+            let partialAuthDeclineContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .partialAuthDecline)
+            partialAuthDecline = try partialAuthDeclineContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.partialAuthDecline = nil
         }
     }
 }
