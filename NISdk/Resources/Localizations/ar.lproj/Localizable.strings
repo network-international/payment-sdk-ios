@@ -52,8 +52,8 @@
 "Visa Pay In Full" = "الدفع بالكامل";
 
 "Patial Auth Title" = "تأكيد العميل";
-"Partial Auth Message With Org" = "تمت الموافقة من قبل البنك {i%@} على {p%@} بدلاً من المبلغ الكامل لـ %@";
-"Partial Auth Message" = "تمت الموافقة من قبل البنك على {p%@} بدلاً من المبلغ الكامل لـ {%@}";
+"Partial Auth Message With Org" = "تمت الموافقة من قبل البنك %@ على %@ بدلاً من المبلغ الكامل لـ %@";
+"Partial Auth Message" = "تمت الموافقة من قبل البنك على %@ بدلاً من المبلغ الكامل لـ %@";
 "Partial Auth Message Question" = "هل ترغب في المضي قدما مع المبلغ المخفض؟";
   
  

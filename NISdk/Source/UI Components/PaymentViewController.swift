@@ -424,10 +424,13 @@ class PaymentViewController: UIViewController {
                     self.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
                 },
                 onFailed: {
-                    self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                    self.finishPaymentAndClosePaymentViewController(with: .PartialAuthDeclineFailed, and: nil, and: nil)
                 },
                 onDecline: {
                     self.finishPaymentAndClosePaymentViewController(with: .PartialAuthDeclined, and: nil, and: nil)
+                },
+                onPartialAuth:  {
+                    self.finishPaymentAndClosePaymentViewController(with: .PartiallyAuthorised, and: nil, and: nil)
                 }
             )
         ))

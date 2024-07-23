@@ -58,6 +58,8 @@ public typealias RawValue = String
     case InValidRequest
     case PaymentPostAuthReview
     case PartialAuthDeclined
+    case PartialAuthDeclineFailed
+    case PartiallyAuthorised
     
     public var rawVal: RawValue {
         switch self {
@@ -73,6 +75,10 @@ public typealias RawValue = String
             return "PaymentPostAuthReview"
         case .PartialAuthDeclined:
             return "PARTIAL_AUTH_DECLINED"
+        case .PartialAuthDeclineFailed:
+            return "PARTIAL_AUTH_DECLINE_FAILED"
+        case .PartiallyAuthorised:
+            return "PARTIALLY_AUTHORISED"
         }
     }
     
@@ -90,6 +96,10 @@ public typealias RawValue = String
             self = .PaymentPostAuthReview
         case "PARTIAL_AUTH_DECLINED":
             self = .PartialAuthDeclined
+        case "PARTIAL_AUTH_DECLINE_FAILED":
+            self = .PartialAuthDeclineFailed
+        case "PARTIALLY_AUTHORISED":
+            self = .PartiallyAuthorised
         default:
             self = .PaymentCancelled
         }

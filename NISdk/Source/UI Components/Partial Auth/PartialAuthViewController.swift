@@ -16,16 +16,19 @@ class PartialAuthViewController: UIViewController {
     private let onSuccess: () -> Void?
     private let onDecline: () -> Void?
     private let onFailed: () -> Void?
+    private let onPartiallyAuthorised: () -> Void
     
     init(partialAuthArgs: PartialAuthArgs,
          onSuccess: @escaping () -> Void,
          onFailed: @escaping () -> Void,
-         onDecline: @escaping () -> Void
+         onDecline: @escaping () -> Void,
+         onPartialAuth: @escaping () -> Void
     ) {
         self.partialAuthArgs = partialAuthArgs
         self.onSuccess = onSuccess
         self.onFailed = onFailed
         self.onDecline = onDecline
+        self.onPartiallyAuthorised = onPartialAuth
         transectionService = TransactionServiceAdapter()
         super.init(nibName: nil, bundle: nil)
     }
@@ -44,10 +47,10 @@ class PartialAuthViewController: UIViewController {
                 partialAmount: partialAuthArgs.getPartialAmountFormatted(),
                 amount: partialAuthArgs.getAmountFormatted(),
                 onAccept: {
-                    self.partialAuthAccept()
+                    self.submitUserResponse(url: self.partialAuthArgs.acceptUrl)
                 },
                 onDecline: {
-                    self.partialAuthDecline()
+                    self.submitUserResponse(url: self.partialAuthArgs.declineUrl)
                 })
         )
         addChild(child)
@@ -61,33 +64,40 @@ class PartialAuthViewController: UIViewController {
         ])
     }
     
-    private func partialAuthAccept() {
+    private func submitUserResponse(url: String) {
         self.transectionService.partialAuthAccept(
-            with: partialAuthArgs.acceptUrl,
+            with: url,
             using: partialAuthArgs.accessToken,
-            on: { data, response, error in
+            on: {
+                data, response, error in
                 if error != nil {
                     self.onFailed()
-                } else if let _ = data {
-                    self.onSuccess()
+                } else if let data = data {
+                    do {
+                        let response = try JSONDecoder().decode(PartialAuthActionResponse.self, from: data)
+                        self.handleState(state: response.state)
+                    } catch {
+                        self.onFailed()
+                    }
                 } else {
                     self.onFailed()
                 }
-            }
-        )
+            })
     }
     
-    private func partialAuthDecline() {
-        self.transectionService.partialAuthAccept(
-            with: partialAuthArgs.declineUrl,
-            using: partialAuthArgs.accessToken,
-            on: { data , _, _  in
-                if let _ = data {
-                    self.onDecline()
-                }
-                self.onFailed()
-            }
-        )
+    private func handleState(state: String) {
+        switch state {
+        case "CAPTURED", "AUTHORISED", "VERIFIED", "PURCHASED":
+            self.onSuccess()
+        case "PARTIAL_AUTH_DECLINED":
+            self.onDecline()
+        case "PARTIAL_AUTH_DECLINE_FAILED":
+            self.onFailed()
+        case "PARTIALLY_AUTHORISED":
+            self.onPartiallyAuthorised()
+        default:
+            self.onFailed()
+        }
     }
     
     private func setupTitleButton() {
@@ -95,5 +105,15 @@ class PartialAuthViewController: UIViewController {
         self.parent?.navigationItem.title = "Patial Auth Title".localized
         let textAttributes = [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.payPageTitleColor]
         navigationController?.navigationBar.titleTextAttributes = textAttributes
+    }
+}
+
+
+class PartialAuthActionResponse: NSObject, Codable {
+    let state: String
+    
+    required public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.state = try container.decode(String.self, forKey: .state)
     }
 }
