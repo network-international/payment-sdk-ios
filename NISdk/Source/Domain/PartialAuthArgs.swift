@@ -34,10 +34,10 @@ class PartialAuthArgs {
     }
     
     func getPartialAmountFormatted() -> String {
-        return Amount(currencyCode: currency, value: partialAmount).getFormattedAmount()
+        return Amount(currencyCode: currency, value: partialAmount).getFormattedAmount2Decimal()
     }
     
     func getAmountFormatted() -> String {
-        return Amount(currencyCode: currency, value: amount).getFormattedAmount()
+        return Amount(currencyCode: currency, value: amount).getFormattedAmount2Decimal()
     }
 }
