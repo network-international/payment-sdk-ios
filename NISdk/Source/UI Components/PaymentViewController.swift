@@ -219,6 +219,8 @@ class PaymentViewController: UIViewController {
                             cardToken: savedCard.cardToken,
                             cvv: nil))
                 }
+            } else {
+                finishPaymentAndClosePaymentViewController(with: .InValidRequest, and: nil, and: .AuthFailed)
             }
             break
         }
@@ -402,8 +404,38 @@ class PaymentViewController: UIViewController {
                 self.initiateThreeDS(with: paymentResponse)
                 return
             }
+            if (paymentResponse.state == "AWAITING_PARTIAL_AUTH_APPROVAL") {
+                self.cardPaymentDelegate?.partialAuthBegin?()
+                do {
+                    let partialAuthArgs = try paymentResponse.toPartialAuthArgs(accessToken: self.accessToken)
+                    self.initiatePartialAuth(partialAuthArgs: partialAuthArgs)
+                } catch {
+                    self.cardPaymentDelegate?.paymentDidComplete(with: .InValidRequest)
+                }
+                return
+            }
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
         }
+    }
+    
+    private func initiatePartialAuth(partialAuthArgs: PartialAuthArgs) {
+        self.transition(to: .renderCardPaymentForm(
+            PartialAuthViewController(
+                partialAuthArgs: partialAuthArgs,
+                onSuccess: {
+                    self.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                },
+                onFailed: {
+                    self.finishPaymentAndClosePaymentViewController(with: .PartialAuthDeclineFailed, and: nil, and: nil)
+                },
+                onDecline: {
+                    self.finishPaymentAndClosePaymentViewController(with: .PartialAuthDeclined, and: nil, and: nil)
+                },
+                onPartialAuth:  {
+                    self.finishPaymentAndClosePaymentViewController(with: .PartiallyAuthorised, and: nil, and: nil)
+                }
+            )
+        ))
     }
     
     private func initiateThreeDS(with paymentRepsonse: PaymentResponse) {
@@ -439,6 +471,18 @@ class PaymentViewController: UIViewController {
             if let data = data {
                 do {
                     let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
+                    if let state = orderResponse.embeddedData?.payment?.first?.state {
+                        if state == "AWAITING_PARTIAL_AUTH_APPROVAL" {
+                            DispatchQueue.main.async {
+                                do {
+                                    self?.initiatePartialAuth(partialAuthArgs: try orderResponse.toPartialAuthArgs(accessToken: self?.accessToken))
+                                } catch {
+                                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                                }
+                            }
+                            return
+                        }
+                    }
                     var successfulPayments: [PaymentResponse] = []
                     var awaitThreedsPayments: [PaymentResponse] = []
                     if let paymentResponses = orderResponse.embeddedData?.payment {

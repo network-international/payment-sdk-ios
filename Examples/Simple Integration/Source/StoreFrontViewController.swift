@@ -46,6 +46,7 @@ class StoreFrontViewController:
         Product(name: "🦏", amount: 450),
         Product(name: "🐋", amount: 450.12),
         Product(name: "🦠", amount: 700),
+        Product(name: "🐙", amount: 1000),
         Product(name: "🐙", amount: 1500),
         Product(name: "🐡", amount: 2200),
         Product(name: "🐋", amount: 3000),
@@ -146,17 +147,25 @@ class StoreFrontViewController:
     }
     
     @objc func paymentDidComplete(with status: PaymentStatus) {
-        if(status == .PaymentSuccess) {
+        switch status {
+        case .PaymentSuccess:
             resetSelection()
             showAlertWith(title: "Payment Successfull", message: "Your Payment was successfull.")
             getSavedCard()
-            return
-        } else if(status == .PaymentFailed) {
+        case .PaymentFailed:
             showAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.")
-        } else if(status == .PaymentCancelled) {
+        case .PaymentCancelled:
             showAlertWith(title: "Payment Aborted", message: "You cancelled the payment request. You can try again!")
-        } else if (status == .PaymentPostAuthReview) {
+        case .InValidRequest:
+            showAlertWith(title: "Error", message: "Something went wrong")
+        case .PaymentPostAuthReview:
             showAlertWith(title: "Payment In Auth Review", message: "Payment is in review will need to be approved via portal")
+        case .PartialAuthDeclined:
+            showAlertWith(title: "Partial Auth Declined", message: "Customer declined partial auth")
+        case .PartialAuthDeclineFailed:
+            showAlertWith(title: "Sorry, your payment has not been accepted.", message: "Due to technical error, the refund was not processed. Please contact merchant for refund.")
+        case .PartiallyAuthorised:
+            showAlertWith(title: "Payment Partially Authorized", message: "Payment Partially Authorized")
         }
     }
     
