@@ -65,7 +65,7 @@ class PartialAuthViewController: UIViewController {
     }
     
     private func submitUserResponse(url: String) {
-        self.transectionService.partialAuthAccept(
+        self.transectionService.partialAuth(
             with: url,
             using: partialAuthArgs.accessToken,
             on: {
