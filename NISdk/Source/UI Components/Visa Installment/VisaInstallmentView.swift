@@ -212,7 +212,7 @@ struct PaymentButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding(.horizontal, 10)
-            .frame(maxWidth: .infinity, maxHeight: 50)
+            .frame(maxWidth: .infinity, maxHeight: 44)
             .foregroundColor(.white)
             .background(enabled ? Color.blue : Color.gray)
             .cornerRadius(5)

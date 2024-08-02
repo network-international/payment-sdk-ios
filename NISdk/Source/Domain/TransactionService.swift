@@ -44,4 +44,6 @@ import PassKit
     @objc func getPayerIp(with url: String, on completion: @escaping(HttpResponseCallback))
     
     @objc func getVisaPlans(with url: String, using accessToken: String, cardToken: String?, cardNumber: String?, on completion: @escaping(HttpResponseCallback))
+    
+    @objc func partialAuth(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
 }
