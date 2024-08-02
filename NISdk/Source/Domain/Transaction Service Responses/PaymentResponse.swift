@@ -20,6 +20,8 @@ import Foundation
     public let orderReference: String?
     public let outletId: String?
     public let savedCard: SavedCard?
+    public let authResponse: AuthResponse?
+    public let paymentMethod: PaymentMethod?
     
     public var threeDSMethodNotificationURL: String? {
         get {
@@ -60,6 +62,8 @@ import Foundation
         case orderReference = "orderReference"
         case outletId = "outletId"
         case savedCard
+        case authResponse
+        case paymentMethod
     }
     
     @objc public static func decodeFrom(data: Data) throws -> PaymentResponse {
@@ -84,5 +88,45 @@ import Foundation
         orderReference = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .orderReference)
         outletId = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .outletId)
         savedCard = try paymentResponseContainer.decodeIfPresent(SavedCard.self, forKey: .savedCard)
+        authResponse = try paymentResponseContainer.decodeIfPresent(AuthResponse.self, forKey: .authResponse)
+        paymentMethod = try paymentResponseContainer.decodeIfPresent(PaymentMethod.self, forKey: .paymentMethod)
+    }
+}
+
+extension PaymentResponse {
+    internal func toPartialAuthArgs(accessToken: String?) throws -> PartialAuthArgs {
+        guard let partialAmount = authResponse?.partialAmount else {
+            throw NSError(domain: "argument partialAmount missing", code: 99)
+        }
+        
+        guard let amount = authResponse?.amount else {
+            throw NSError(domain: "argument amount missing", code: 99)
+        }
+        
+        guard let currency = self.amount?.currencyCode else {
+            throw NSError(domain: "argument currency missing", code: 99)
+        }
+        
+        guard let acceptUrl = paymentLinks?.partialAuthAccept else {
+            throw NSError(domain: "argument partial Auth acceptUrl missing", code: 99)
+        }
+        
+        guard let declineUrl = paymentLinks?.partialAuthDecline else {
+            throw NSError(domain: "argument partial Auth declineUrl missing", code: 99)
+        }
+        
+        guard let token = accessToken else {
+            throw NSError(domain: "payment token missing", code: 99)
+        }
+        
+        return PartialAuthArgs(
+            partialAmount: partialAmount,
+            amount: amount,
+            currency: currency,
+            acceptUrl: acceptUrl,
+            declineUrl: declineUrl,
+            issuingOrg: paymentMethod?.issuingOrg,
+            accessToken: token
+        )
     }
 }
