@@ -219,6 +219,8 @@ class PaymentViewController: UIViewController {
                             cardToken: savedCard.cardToken,
                             cvv: nil))
                 }
+            } else {
+                finishPaymentAndClosePaymentViewController(with: .InValidRequest, and: nil, and: .AuthFailed)
             }
             break
         }
