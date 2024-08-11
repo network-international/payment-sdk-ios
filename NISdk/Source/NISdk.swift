@@ -125,6 +125,38 @@ private class NISdkBundleLocator {}
         }
     }
     
+    public func launchAaniPay(cardPaymentDelegate: CardPaymentDelegate,
+                                             overParent parentViewController: UIViewController,
+                                             for order: OrderResponse) {
+        do {
+            let aaniPayArgs = try order.toAaniPayArgs()
+            let paymentViewController = AaniPayViewController(aaniPayArgs: aaniPayArgs) { status in
+                switch status {
+                case .success:
+                    cardPaymentDelegate.paymentDidComplete(with: .PaymentSuccess)
+                case .failed:
+                    cardPaymentDelegate.paymentDidComplete(with: .PaymentFailed)
+                case .cancelled:
+                    cardPaymentDelegate.paymentDidComplete(with: .PaymentCancelled)
+                case .invalidRequest:
+                    cardPaymentDelegate.paymentDidComplete(with: .InValidRequest)
+                }
+            }
+            let navController = UINavigationController(rootViewController: paymentViewController)
+            
+            paymentViewController.view.backgroundColor = .clear
+            paymentViewController.modalPresentationStyle = .overCurrentContext
+            if #available(iOS 13.0, *) {
+                paymentViewController.isModalInPresentation = true
+            }
+            DispatchQueue.main.async {
+                parentViewController.present(navController, animated: true)
+            }
+        } catch {
+            print("ERROR")
+        }
+    }
+    
     @objc public func initiateApplePayWith(applePayDelegate: ApplePayDelegate?,
                                            cardPaymentDelegate: CardPaymentDelegate,
                                            overParent parentViewController: UIViewController,

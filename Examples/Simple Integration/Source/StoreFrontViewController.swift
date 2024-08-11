@@ -26,14 +26,24 @@ class StoreFrontViewController:
     
     var bottomConstraintCardInfoView: NSLayoutConstraint? = nil
     let payButton = UIButton()
+    let aaniPayButton: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .black
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        button.setTitleColor(UIColor(red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
+        button.setTitle("Aani Pay", for: .normal)
+        button.layer.cornerRadius = 5
+        return button
+    }()
     var orderId: String?
     lazy var applePayButton = PKPaymentButton(paymentButtonType: .buy , paymentButtonStyle: .black)
     let buttonStack: UIStackView = {
         let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.alignment = .center
-        stack.distribution = .fill
-        stack.spacing = 20
+        stack.axis = .vertical
+        stack.alignment = .fill
+        stack.distribution = .fillEqually
+        stack.spacing = 10
         return stack
     }()
     
@@ -213,6 +223,13 @@ class StoreFrontViewController:
         self.present(orderCreationViewController, animated: false, completion: nil)
     }
     
+    @objc func aaniPayButtonTapped() {
+        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .aaniPay, with: selectedItems)
+        orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+        orderCreationViewController.modalPresentationStyle = .overCurrentContext
+        self.present(orderCreationViewController, animated: false, completion: nil)
+    }
+    
     @objc func applePayButtonTapped(applePayPaymentRequest: PKPaymentRequest) {
         checkForEnvironemnt()
         let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .ApplePay, with: selectedItems)
@@ -240,7 +257,7 @@ class StoreFrontViewController:
             buttonStack.translatesAutoresizingMaskIntoConstraints = false
             buttonStack.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: 20).isActive = true
             buttonStack.trailingAnchor.constraint(equalTo: parentView.trailingAnchor, constant: -20).isActive = true
-            buttonStack.heightAnchor.constraint(equalToConstant: 50).isActive = true
+            buttonStack.heightAnchor.constraint(equalToConstant: 150).isActive = true
             buttonStack.bottomAnchor.constraint(equalTo: parentView.bottomAnchor, constant: -50).isActive = true
             buttonStack.isHidden = true
         }
@@ -254,6 +271,9 @@ class StoreFrontViewController:
         payButton.layer.cornerRadius = 5
         payButton.addTarget(self, action: #selector(payButtonTapped), for: .touchUpInside)
         buttonStack.addArrangedSubview(payButton)
+        
+        aaniPayButton.addTarget(self, action: #selector(aaniPayButtonTapped), for: .touchUpInside)
+        buttonStack.addArrangedSubview(aaniPayButton)
         
         // Pay button for Apple Pay
         if(NISdk.sharedInstance.deviceSupportsApplePay()) {
