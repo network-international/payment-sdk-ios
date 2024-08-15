@@ -31,6 +31,8 @@ class AaniPayViewController: UIViewController {
         let child = UIHostingController(rootView: AaniPayView(viewModel: AaniViewModel(aaniPayArgs: aaniPayArgs, onCompletion: { status in
             self.finish(with: status)
             
+        }, onPaymentProcessing: { status in
+            self.updateCancelButtonWith(status: status)
         })))
         
         addChild(child)
@@ -45,7 +47,7 @@ class AaniPayViewController: UIViewController {
     }
     
     private func updateCancelButtonWith(status: Bool) {
-        self.parent?.navigationItem.rightBarButtonItem?.isEnabled = status
+        self.navigationItem.rightBarButtonItem?.isEnabled = status
     }
     
     private func setupCancelButton() {

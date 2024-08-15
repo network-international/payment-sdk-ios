@@ -55,3 +55,14 @@
 "Partial Auth Message With Org" = "Your issuing bank %@ has approved %@ instead of the full amount of %@.";
 "Partial Auth Message" = "Your issuing bank has approved %@ instead of the full amount of %@.";
 "Partial Auth Message Question" = "Do you wish to process the transaction with the reduced amount?";
+
+
+"aani_paying_amount" = "Paying %@";
+"aani_tap_notification" = "Tap the notification received in your app to complete the payment.";
+"aani_note_do_not_close" = "Please do not close the app while the timer is running.";
+"aani" = "AANI";
+"aani_mobile_number" = "رقم الجوال";
+"aani_emirates_id" = "الهوية الإماراتية";
+"aani_passport_id" = "رقم جواز السفر";
+"aani_email_id" = "البريد الإلكتروني";
+"aani_alias_type" = "نوع الاسم المستعار";
