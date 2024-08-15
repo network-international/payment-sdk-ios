@@ -52,6 +52,15 @@ enum AaniIDType: String, CaseIterable, Identifiable, Equatable {
         }
     }
     
+    var text: String {
+        switch self {
+        case .mobileNumber: return "aani_mobile_number".localized
+        case .emiratesID: return "aani_emirates_id".localized
+        case .passportID: return "aani_passport_id".localized
+        case .emailID: return "aani_email_id".localized
+        }
+    }
+    
     func isValid(text: String) -> Bool {
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: text)
     }

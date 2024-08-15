@@ -27,16 +27,22 @@ class AaniViewModel: ObservableObject {
     private var serviceAdapter: TransactionService
     private var cancellable: AnyCancellable?
     private let onCompletion: (AaniPaymentStatus) -> Void?
+    private let onPaymentProccessing: (Bool) -> Void?
     private var remainingTime: Int = 180  // 3 minutes in seconds
     private var timer: AnyCancellable?
 
-    init(aaniPayArgs: AaniPayArgs, onCompletion: @escaping (AaniPaymentStatus) -> Void?) {
+    init(aaniPayArgs: AaniPayArgs,
+         onCompletion: @escaping (AaniPaymentStatus) -> Void?,
+         onPaymentProcessing: @escaping (Bool) -> Void?
+    ) {
         self.aaniPayArgs = aaniPayArgs
         self.onCompletion = onCompletion
+        self.onPaymentProccessing = onPaymentProcessing
         self.serviceAdapter = TransactionServiceAdapter()
     }
 
     func onSubmit(idType: AaniIDType, inputText: String) {
+        self.onPaymentProccessing(false)
         serviceAdapter.authorizePayment(
             for: aaniPayArgs.authCode,
             using: aaniPayArgs.authUrl,
@@ -46,7 +52,7 @@ class AaniViewModel: ObservableObject {
                         guard let ip = payerIp else {
                             return
                         }
-                        let request = AaniPayRequest(aliasType: idType.key, payerIp: ip, backLink: "https://paypage.ngenius-payments.com/?code=2891yekjnad")
+                        let request = AaniPayRequest(aliasType: idType.key, payerIp: ip, backLink: "niannipay://open")
                         
                         switch idType {
                         case .mobileNumber:
@@ -65,16 +71,23 @@ class AaniViewModel: ObservableObject {
                             using: accessToken,
                             on: { data, response, error in
                                 if error != nil {
+                                    self?.onPaymentProccessing(true)
                                     self?.onCompletion(.failed)
                                 } else if let data = data {
                                     do {
                                         let response = try JSONDecoder().decode(AaniPayResponse.self, from: data)
                                         self?.startPolling(accessToken: accessToken, url: response.links.aaniStatus ?? "")
-                                    } catch let e {
-                                        print("\(e)")
+                                        if let url = URL(string: response.aani.deepLinkUrl) {
+                                            DispatchQueue.main.async {
+                                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                                            }
+                                        }
+                                    } catch let _ {
+                                        self?.onPaymentProccessing(true)
                                         self?.onCompletion(.failed)
                                     }
                                 } else {
+                                    self?.onPaymentProccessing(true)
                                     self?.onCompletion(.failed)
                                 }
                             })
@@ -181,27 +194,5 @@ class AaniViewModel: ObservableObject {
 
     func getAmountFormatted() -> String {
         return Amount(currencyCode: aaniPayArgs.currencyCode, value: aaniPayArgs.amount).getFormattedAmount2Decimal()
-    }
-}
-
-
-
-extension Data {
-    
-    func printFormatedJSON() {
-        if let json = try? JSONSerialization.jsonObject(with: self, options: .mutableContainers),
-           let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) {
-            pringJSONData(jsonData)
-        } else {
-            assertionFailure("Malformed JSON")
-        }
-    }
-    
-    func printJSON() {
-        pringJSONData(self)
-    }
-    
-    private func pringJSONData(_ data: Data) {
-        print(String(decoding: data, as: UTF8.self))
     }
 }
