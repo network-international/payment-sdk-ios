@@ -17,18 +17,17 @@ struct AaniInputScreen: View {
     var body: some View {
         VStack {
             Image("aaniLogo", bundle: NISdk.sharedInstance.getBundle())
-                .resizable(resizingMode: /*@START_MENU_TOKEN@*/.stretch/*@END_MENU_TOKEN@*/)
                 .scaledToFit()
-                .frame(height: 50)
-                .padding(.horizontal, 10)
+                .frame(height: 100)
+                .padding(20)
             Divider()
             
             HStack {
-                Text("Alisa Type").font(.headline)
+                Text("aani_alias_type".localized).font(.headline)
                 Spacer()
                 Picker("Select ID Type", selection: $selectedIdType) {
                     ForEach(AaniIDType.allCases, id: \.self) { idType in
-                        Text(idType.rawValue).tag(idType).font(.subheadline)
+                        Text(idType.text).tag(idType).font(.subheadline)
                     }
                 }.accentColor(.black)
                     .disabled(paymentProcessing)
