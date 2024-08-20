@@ -47,12 +47,12 @@ class AaniViewModel: ObservableObject {
             for: aaniPayArgs.authCode,
             using: aaniPayArgs.authUrl,
             on: { [weak self] tokens in
-                if let accessToken = tokens["access-token"] {
+                if let accessToken = tokens["access-token"], let backLink = self?.aaniPayArgs.backLink {
                     self?.getPayerIp(payPageLink: self?.aaniPayArgs.payPageUrl) { payerIp in
                         guard let ip = payerIp else {
                             return
                         }
-                        let request = AaniPayRequest(aliasType: idType.key, payerIp: ip, backLink: "niannipay://open")
+                        let request = AaniPayRequest(aliasType: idType.key, payerIp: ip, backLink: backLink)
                         
                         switch idType {
                         case .mobileNumber:

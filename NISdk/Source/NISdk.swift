@@ -126,10 +126,11 @@ private class NISdkBundleLocator {}
     }
     
     public func launchAaniPay(cardPaymentDelegate: CardPaymentDelegate,
-                                             overParent parentViewController: UIViewController,
-                                             for order: OrderResponse) {
+                              overParent parentViewController: UIViewController,
+                              for order: OrderResponse,
+                              using backLink: String) {
         do {
-            let aaniPayArgs = try order.toAaniPayArgs()
+            let aaniPayArgs = try order.toAaniPayArgs(backLink)
             let paymentViewController = AaniPayViewController(aaniPayArgs: aaniPayArgs) { status in
                 switch status {
                 case .success:
