@@ -135,7 +135,8 @@ class OrderCreationViewController: UIViewController {
                             sharedSDKInstance.launchAaniPay(
                                 cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
                                 overParent: self?.cardPaymentDelegate as! UIViewController,
-                                for: orderResponse
+                                for: orderResponse,
+                                using: "demoApp://"
                             )
                         } else {
                             sharedSDKInstance.initiateApplePayWith(applePayDelegate: self?.cardPaymentDelegate as? ApplePayDelegate,
