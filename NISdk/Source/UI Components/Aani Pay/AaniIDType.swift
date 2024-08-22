@@ -18,7 +18,7 @@ enum AaniIDType: String, CaseIterable, Identifiable, Equatable {
     
     var regex: String {
         switch self {
-        case .mobileNumber: return "^[0-9]{10}$"
+        case .mobileNumber: return "\\d{5,13}$"
         case .emiratesID: return "^784-[0-9]{4}-[0-9]{7}-[0-9]$"
         case .passportID: return "^[0-9CFGHJKLMNPRTVWXYZ]{9}$"
         case .emailID: return "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
@@ -36,7 +36,7 @@ enum AaniIDType: String, CaseIterable, Identifiable, Equatable {
     
     var maxLength: Int {
         switch self {
-        case .mobileNumber: return 10
+        case .mobileNumber: return 13
         case .emiratesID: return 15
         case .passportID: return 9
         case .emailID: return Int.max
