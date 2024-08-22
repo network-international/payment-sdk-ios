@@ -1,10 +1,3 @@
-//
-//  AaniViewModel.swift
-//  NISdk
-//
-//  Created by Gautam Chibde on 02/08/24.
-//
-
 import Combine
 import SwiftUI
 
@@ -26,74 +19,100 @@ class AaniViewModel: ObservableObject {
     @Published var timeString: String = "03:00"
     private var serviceAdapter: TransactionService
     private var cancellable: AnyCancellable?
-    private let onCompletion: (AaniPaymentStatus) -> Void?
-    private let onPaymentProccessing: (Bool) -> Void?
-    private var remainingTime: Int = 180  // 3 minutes in seconds
+    private let onCompletion: (AaniPaymentStatus) -> Void
+    private let onPaymentProcessing: (Bool) -> Void
+    private var remainingTime: Int = 180
     private var timer: AnyCancellable?
 
-    init(aaniPayArgs: AaniPayArgs,
-         onCompletion: @escaping (AaniPaymentStatus) -> Void?,
-         onPaymentProcessing: @escaping (Bool) -> Void?
+    init(
+        aaniPayArgs: AaniPayArgs,
+        onCompletion: @escaping (AaniPaymentStatus) -> Void,
+        onPaymentProcessing: @escaping (Bool) -> Void
     ) {
         self.aaniPayArgs = aaniPayArgs
         self.onCompletion = onCompletion
-        self.onPaymentProccessing = onPaymentProcessing
+        self.onPaymentProcessing = onPaymentProcessing
         self.serviceAdapter = TransactionServiceAdapter()
     }
 
     func onSubmit(idType: AaniIDType, inputText: String) {
-        self.onPaymentProccessing(false)
+        onPaymentProcessing(false)
         serviceAdapter.authorizePayment(
             for: aaniPayArgs.authCode,
-            using: aaniPayArgs.authUrl,
-            on: { [weak self] tokens in
-                if let accessToken = tokens["access-token"], let backLink = self?.aaniPayArgs.backLink {
-                    self?.getPayerIp(payPageLink: self?.aaniPayArgs.payPageUrl) { payerIp in
-                        guard let ip = payerIp else {
-                            return
-                        }
-                        let request = AaniPayRequest(aliasType: idType.key, payerIp: ip, backLink: backLink)
-                        
-                        switch idType {
-                        case .mobileNumber:
-                            request.mobileNumber = MobileNumber(countryCode: "+971", number: inputText)
-                        case .emiratesID:
-                            request.emiratesId = inputText
-                        case .passportID:
-                            request.passportId = inputText
-                        case .emailID:
-                            request.emailId = inputText
-                        }
-                        
-                        self?.serviceAdapter.aaniPayment(
-                            for: self?.aaniPayArgs.anniPaymentLink ?? "",
-                            with: request,
-                            using: accessToken,
-                            on: { data, response, error in
-                                if error != nil {
-                                    self?.onPaymentProccessing(true)
-                                    self?.onCompletion(.failed)
-                                } else if let data = data {
-                                    do {
-                                        let response = try JSONDecoder().decode(AaniPayResponse.self, from: data)
-                                        self?.startPolling(accessToken: accessToken, url: response.links.aaniStatus ?? "")
-                                        if let url = URL(string: response.aani.deepLinkUrl) {
-                                            DispatchQueue.main.async {
-                                                UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                                            }
-                                        }
-                                    } catch let _ {
-                                        self?.onPaymentProccessing(true)
-                                        self?.onCompletion(.failed)
-                                    }
-                                } else {
-                                    self?.onPaymentProccessing(true)
-                                    self?.onCompletion(.failed)
-                                }
-                            })
-                    }
+            using: aaniPayArgs.authUrl
+        ) { [weak self] tokens in
+            guard let self = self, let accessToken = tokens["access-token"] else {
+                self?.handlePaymentFailure()
+                return
+            }
+            self.getPayerIp(payPageLink: self.aaniPayArgs.payPageUrl) { payerIp in
+                guard let ip = payerIp else {
+                    self.handlePaymentFailure()
+                    return
                 }
-            })
+                let request = self.createPaymentRequest(idType: idType, inputText: inputText, payerIp: ip, backLink: self.aaniPayArgs.backLink)
+                self.processPayment(request: request, accessToken: accessToken)
+            }
+        }
+    }
+
+    private func createPaymentRequest(idType: AaniIDType, inputText: String, payerIp: String, backLink: String) -> AaniPayRequest {
+        let request = AaniPayRequest(aliasType: idType.key, payerIp: payerIp, backLink: backLink)
+        
+        switch idType {
+        case .mobileNumber:
+            request.mobileNumber = MobileNumber(countryCode: "+971", number: inputText)
+        case .emiratesID:
+            request.emiratesId = inputText
+        case .passportID:
+            request.passportId = inputText
+        case .emailID:
+            request.emailId = inputText
+        }
+        
+        return request
+    }
+
+    private func processPayment(request: AaniPayRequest, accessToken: String) {
+        serviceAdapter.aaniPayment(
+            for: aaniPayArgs.anniPaymentLink,
+            with: request,
+            using: accessToken
+        ) { [weak self] data, response, error in
+            guard let self = self else { return }
+            if let _ = error {
+                self.handlePaymentFailure()
+                return
+            }
+            
+            guard let data = data else {
+                self.handlePaymentFailure()
+                return
+            }
+            
+            do {
+                let response = try JSONDecoder().decode(AaniPayResponse.self, from: data)
+                self.startPolling(accessToken: accessToken, url: response.links.aaniStatus ?? "")
+                self.openDeepLink(urlString: response.aani.deepLinkUrl)
+            } catch {
+                self.handlePaymentFailure()
+            }
+        }
+    }
+
+    private func handlePaymentFailure() {
+        DispatchQueue.main.async {
+            self.onPaymentProcessing(true)
+            self.onCompletion(.failed)
+        }
+    }
+
+    private func openDeepLink(urlString: String) {
+        if let url = URL(string: urlString) {
+            DispatchQueue.main.async {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
+        }
     }
 
     func startPolling(accessToken: String, url: String) {
@@ -117,51 +136,51 @@ class AaniViewModel: ObservableObject {
 
     private func callAPI(accessToken: String, url: String) {
         serviceAdapter.aaniPaymentPooling(with: url, using: accessToken) { [weak self] data, response, error in
+            guard let self = self else { return }
             DispatchQueue.main.async {
-                if error != nil {
-                    self?.stopPolling(.failed)
-                } else if let data = data {
-                    if let state = try? JSONDecoder().decode(AaniPoolingResponse.self, from: data).state {
-                        switch state {
-                        case "CAPTURED", "PURCHASED":
-                            print("success")
-                            self?.stopPolling(.success)
-                        case "FAILED":
-                            self?.stopPolling(.failed)
-                        default:
-                            break
-                        }
-                    } else {
-                        self?.stopPolling(.failed)
+                if let _ = error {
+                    self.stopPolling(.failed)
+                    return
+                }
+                
+                guard let data = data else {
+                    self.stopPolling(.failed)
+                    return
+                }
+                
+                do {
+                    let state = try JSONDecoder().decode(AaniPoolingResponse.self, from: data).state
+                    switch state {
+                    case "CAPTURED", "PURCHASED":
+                        self.stopPolling(.success)
+                    case "FAILED":
+                        self.stopPolling(.failed)
+                    default:
+                        break
                     }
-                } else {
-                    self?.stopPolling(.failed)
+                } catch {
+                    self.stopPolling(.failed)
                 }
             }
         }
     }
 
-    func getPayerIp(payPageLink: String?, onCompletion: @escaping (String?) -> ()) {
+    func getPayerIp(payPageLink: String?, onCompletion: @escaping (String?) -> Void) {
         guard let url = payPageLink, let urlHost = URL(string: url)?.host else {
             onCompletion(nil)
             return
         }
         let ipUrl = "https://\(urlHost)/api/requester-ip"
-        serviceAdapter.getPayerIp(with: ipUrl, on: { payerIPData, _, _ in
+        serviceAdapter.getPayerIp(with: ipUrl) { payerIPData, _, _ in
             if let payerIPData = payerIPData {
-                do {
-                    let payerIpDict: [String: String] = try JSONDecoder().decode([String: String].self, from: payerIPData)
-                    onCompletion(payerIpDict["requesterIp"])
-                } catch {
-                    onCompletion(nil)
-                }
+                let payerIpDict = try? JSONDecoder().decode([String: String].self, from: payerIPData)
+                onCompletion(payerIpDict?["requesterIp"])
             } else {
                 onCompletion(nil)
             }
-        })
+        }
     }
 
-    // Countdown Timer Methods
     func startTimer() {
         updateTimeString()
         timer = Timer.publish(every: 1, on: .main, in: .common)
@@ -182,7 +201,6 @@ class AaniViewModel: ObservableObject {
             updateTimeString()
         } else {
             stopTimer()
-            // Handle timer completion if needed
         }
     }
 

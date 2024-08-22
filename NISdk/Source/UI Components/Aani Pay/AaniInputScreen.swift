@@ -67,7 +67,7 @@ struct AaniInputScreen: View {
                         ActivityIndicator()
                     }
                 } else {
-                    Text("Submit".localized)
+                    Text("Make Payment".localized)
                 }
             }.buttonStyle(PaymentButtonStyle(enabled: !isButtonEnable))
         }
