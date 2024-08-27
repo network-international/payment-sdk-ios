@@ -37,7 +37,7 @@ enum AaniIDType: String, CaseIterable, Identifiable, Equatable {
     var maxLength: Int {
         switch self {
         case .mobileNumber: return 13
-        case .emiratesID: return 15
+        case .emiratesID: return 18
         case .passportID: return 9
         case .emailID: return Int.max
         }

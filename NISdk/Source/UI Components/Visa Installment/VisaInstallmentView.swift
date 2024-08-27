@@ -142,6 +142,7 @@ struct VisaInstallmentView: View {
                         Text("Make Payment".localized)
                     }
                 }
+                .disabled(!buttonEnable)
                 .buttonStyle(PaymentButtonStyle(enabled: buttonEnable))
                 
                 Image("visaInstallment", bundle: NISdk.sharedInstance.getBundle())
