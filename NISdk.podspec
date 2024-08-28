@@ -12,7 +12,7 @@ Pod::Spec.new do |spec|
   spec.license = "MIT"
   spec.author = "Network International"
 
-  spec.platform = :ios, "13.0"
+  spec.platform = :ios, "14.0"
   spec.swift_version = "4.2"
 
   spec.source = { :git => 'https://github.com/network-international/payment-sdk-ios.git', :tag => "v#{spec.version}" }
