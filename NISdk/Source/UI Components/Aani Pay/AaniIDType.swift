@@ -21,7 +21,7 @@ enum AaniIDType: String, CaseIterable, Identifiable, Equatable {
         case .mobileNumber: return "\\d{5,13}$"
         case .emiratesID: return "^784-[0-9]{4}-[0-9]{7}-[0-9]$"
         case .passportID: return "^[0-9CFGHJKLMNPRTVWXYZ]{9}$"
-        case .emailID: return "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        case .emailID: return "^[a-zA-Z][a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
         }
     }
     
