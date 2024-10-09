@@ -1,4 +1,4 @@
-platform :ios, '13'
+platform :ios, '14.0'
 project 'Simple Integration.xcodeproj'
 target 'Demo App' do
   use_frameworks!
