@@ -36,7 +36,7 @@ class AaniPayArgs {
 
 extension OrderResponse {
     func toAaniPayArgs(_ backLink: String) throws -> AaniPayArgs  {
-        guard let payment = embeddedData?.payment?.first else {
+    guard let payment = embeddedData?.payment?.first else {
             throw NSError(domain: "argument payments missing", code: 99)
         }
         guard let aaniPayLink = payment.paymentLinks?.aaniPaymentLink else {

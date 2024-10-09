@@ -6,7 +6,7 @@ enum AaniViewType {
     case timer
 }
 
-public enum AaniPaymentStatus {
+@objc public enum AaniPaymentStatus: Int, RawRepresentable {
     case success
     case failed
     case cancelled
@@ -16,12 +16,12 @@ public enum AaniPaymentStatus {
 class AaniViewModel: ObservableObject {
     private var aaniPayArgs: AaniPayArgs
     @Published var viewType: AaniViewType = .inputSelection
-    @Published var timeString: String = "03:00"
+    @Published var timeString: String = "05:00"
     private var serviceAdapter: TransactionService
     private var cancellable: AnyCancellable?
     private let onCompletion: (AaniPaymentStatus) -> Void
     private let onPaymentProcessing: (Bool) -> Void
-    private var remainingTime: Int = 180
+    private var remainingTime: Int = 300
     private var timer: AnyCancellable?
 
     init(
