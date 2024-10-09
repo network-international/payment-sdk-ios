@@ -14,6 +14,7 @@ import PassKit
 class OrderCreationViewController: UIViewController {
     let paymentAmount: Double
     let cardPaymentDelegate: CardPaymentDelegate?
+    let aaniPaymentDelegate: AaniPaymentDelegate?
     let storeFrontDelegate: StoreFrontDelegate
     let paymentMethod: PaymentMethod?
     let purchasedItems: [Product]
@@ -26,11 +27,13 @@ class OrderCreationViewController: UIViewController {
     
     init(paymentAmount: Double,
          cardPaymentDelegate: CardPaymentDelegate,
+         aaniPaymentDelegate: AaniPaymentDelegate,
          storeFrontDelegate: StoreFrontDelegate,
          using paymentMethod: PaymentMethod = .Card,
          with purchasedItems: [Product]) {
         
         self.cardPaymentDelegate = cardPaymentDelegate
+        self.aaniPaymentDelegate = aaniPaymentDelegate
         self.paymentAmount = paymentAmount
         self.paymentMethod = paymentMethod
         self.purchasedItems = purchasedItems
@@ -55,6 +58,7 @@ class OrderCreationViewController: UIViewController {
     
     init(paymentAmount: Double,
          cardPaymentDelegate: CardPaymentDelegate,
+         aaniPaymentDelegate: AaniPaymentDelegate,
          storeFrontDelegate: StoreFrontDelegate,
          using paymentMethod: PaymentMethod,
          with purchasedItems: [Product], 
@@ -62,6 +66,7 @@ class OrderCreationViewController: UIViewController {
          cvv: String?) {
         self.paymentAmount = paymentAmount
         self.storeFrontDelegate = storeFrontDelegate
+        self.aaniPaymentDelegate = aaniPaymentDelegate
         self.cardPaymentDelegate = cardPaymentDelegate
         self.paymentMethod = paymentMethod
         self.savedCard = savedCard
@@ -133,10 +138,10 @@ class OrderCreationViewController: UIViewController {
                             )
                         } else if (self?.paymentMethod == .aaniPay) {
                             sharedSDKInstance.launchAaniPay(
-                                cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
+                                aaniPaymentDelegate: (self?.aaniPaymentDelegate!)!,
                                 overParent: self?.cardPaymentDelegate as! UIViewController,
-                                for: orderResponse,
-                                using: "demoApp://"
+                                orderResponse: orderResponse,
+                                backLink: "demoApp://"
                             )
                         } else {
                             sharedSDKInstance.initiateApplePayWith(applePayDelegate: self?.cardPaymentDelegate as? ApplePayDelegate,

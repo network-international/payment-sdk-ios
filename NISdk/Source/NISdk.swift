@@ -125,23 +125,14 @@ private class NISdkBundleLocator {}
         }
     }
     
-    public func launchAaniPay(cardPaymentDelegate: CardPaymentDelegate,
+    public func launchAaniPay(aaniPaymentDelegate: AaniPaymentDelegate,
                               overParent parentViewController: UIViewController,
-                              for order: OrderResponse,
-                              using backLink: String) {
+                              orderResponse: OrderResponse,
+                              backLink: String) {
         do {
-            let aaniPayArgs = try order.toAaniPayArgs(backLink)
+            let aaniPayArgs = try orderResponse.toAaniPayArgs(backLink)
             let paymentViewController = AaniPayViewController(aaniPayArgs: aaniPayArgs) { status in
-                switch status {
-                case .success:
-                    cardPaymentDelegate.paymentDidComplete(with: .PaymentSuccess)
-                case .failed:
-                    cardPaymentDelegate.paymentDidComplete(with: .PaymentFailed)
-                case .cancelled:
-                    cardPaymentDelegate.paymentDidComplete(with: .PaymentCancelled)
-                case .invalidRequest:
-                    cardPaymentDelegate.paymentDidComplete(with: .InValidRequest)
-                }
+                aaniPaymentDelegate.aaniPaymentCompleted(with: status)
             }
             let navController = UINavigationController(rootViewController: paymentViewController)
             
@@ -153,8 +144,8 @@ private class NISdkBundleLocator {}
             DispatchQueue.main.async {
                 parentViewController.present(navController, animated: true)
             }
-        } catch {
-            print("ERROR")
+        } catch let e {
+            aaniPaymentDelegate.aaniPaymentCompleted(with: .invalidRequest)
         }
     }
     
