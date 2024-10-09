@@ -12,4 +12,5 @@ public enum PaymentMethod {
     case Card
     case ApplePay
     case SavedCard
+    case aaniPay
 }
