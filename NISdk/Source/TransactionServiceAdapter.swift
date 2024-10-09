@@ -193,4 +193,24 @@ import PassKit
             .withHeaders(headers: authorizationRequestHeaders)
             .makeRequest(with: completion)
     }
+    
+    func aaniPayment(for url: String, with aaniRequest: AaniPayRequest, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
+        let authorizationRequestHeaders = ["Content-Type": "application/vnd.ni-payment.v2+json",
+                                           "Authorization": "Bearer \(accessToken)"]
+        let data = try! JSONEncoder().encode(aaniRequest)
+        HTTPClient(url: url)?
+            .withMethod(method: "POST")
+            .withBodyData(data: data)
+            .withHeaders(headers: authorizationRequestHeaders)
+            .makeRequest(with: completion)
+    }
+    
+    func aaniPaymentPooling(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
+        let authorizationRequestHeaders = ["Content-Type": "application/vnd.ni-payment.v2+json",
+                                           "Authorization": "Bearer \(accessToken)"]
+        HTTPClient(url: url)?
+            .withMethod(method: "GET")
+            .withHeaders(headers: authorizationRequestHeaders)
+            .makeRequest(with: completion)
+    }
 }
