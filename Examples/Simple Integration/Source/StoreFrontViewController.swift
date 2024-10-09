@@ -97,7 +97,7 @@ class StoreFrontViewController:
         gearButton.setImage(gearIcon, for: .normal)
         gearButton.addTarget(self, action: #selector(environmentSetup), for: .touchUpInside)
         gearButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35) // Adjust the size as needed
-
+        
         view.addSubview(collectionView!)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: gearButton)
         guard let data = UserDefaults.standard.data(forKey: "SavedCard") else {
@@ -217,14 +217,28 @@ class StoreFrontViewController:
     
     @objc func payButtonTapped() {
         checkForEnvironemnt()
-        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .Card, with: selectedItems)
+        let orderCreationViewController = OrderCreationViewController(
+            paymentAmount: total,
+            cardPaymentDelegate: self,
+            aaniPaymentDelegate: self,
+            storeFrontDelegate: self,
+            using: .Card,
+            with: selectedItems
+        )
         orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
         orderCreationViewController.modalPresentationStyle = .overCurrentContext
         self.present(orderCreationViewController, animated: false, completion: nil)
     }
     
     @objc func aaniPayButtonTapped() {
-        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .aaniPay, with: selectedItems)
+        let orderCreationViewController = OrderCreationViewController(
+            paymentAmount: total,
+            cardPaymentDelegate: self,
+            aaniPaymentDelegate: self,
+            storeFrontDelegate: self,
+            using: .aaniPay,
+            with: selectedItems
+        )
         orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
         orderCreationViewController.modalPresentationStyle = .overCurrentContext
         self.present(orderCreationViewController, animated: false, completion: nil)
@@ -232,7 +246,14 @@ class StoreFrontViewController:
     
     @objc func applePayButtonTapped(applePayPaymentRequest: PKPaymentRequest) {
         checkForEnvironemnt()
-        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .ApplePay, with: selectedItems)
+        let orderCreationViewController = OrderCreationViewController(
+            paymentAmount: total,
+            cardPaymentDelegate: self,
+            aaniPaymentDelegate: self,
+            storeFrontDelegate: self,
+            using: .ApplePay,
+            with: selectedItems
+        )
         orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
         orderCreationViewController.modalPresentationStyle = .overCurrentContext
         self.present(orderCreationViewController, animated: true, completion: nil)
@@ -299,7 +320,16 @@ class StoreFrontViewController:
     
     func didTapPayButton(withCVV cvv: String?) {
         checkForEnvironemnt()
-        let orderCreationViewController = OrderCreationViewController(paymentAmount: total, cardPaymentDelegate: self, storeFrontDelegate: self, using: .SavedCard, with: selectedItems, savedCard: self.savedCard, cvv: cvv)
+        let orderCreationViewController = OrderCreationViewController(
+            paymentAmount: total,
+            cardPaymentDelegate: self,
+            aaniPaymentDelegate: self,
+            storeFrontDelegate: self,
+            using: .SavedCard,
+            with: selectedItems,
+            savedCard: self.savedCard,
+            cvv: cvv
+        )
         orderCreationViewController.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
         orderCreationViewController.modalPresentationStyle = .overCurrentContext
         self.present(orderCreationViewController, animated: false, completion: nil)
@@ -345,7 +375,7 @@ class StoreFrontViewController:
             cell.updateBorder(selected: false)
         }
     }
-
+    
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return pets.count
@@ -391,4 +421,21 @@ protocol StoreFrontDelegate {
     func updatePKPaymentRequestObject(paymentRequest: PKPaymentRequest)
     
     func updateOrderId(orderId: String)
+}
+
+extension StoreFrontViewController: AaniPaymentDelegate {
+    
+    @objc func aaniPaymentCompleted(with status: AaniPaymentStatus) {
+        switch status {
+        case .success:
+            resetSelection()
+            showAlertWith(title: "Payment Successfull", message: "Your Payment was successfull.")
+        case .failed:
+            showAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.")
+        case .cancelled:
+            showAlertWith(title: "Payment Aborted", message: "You cancelled the payment request. You can try again!")
+        case .invalidRequest:
+            showAlertWith(title: "Error", message: "InValid Request")
+        }
+    }
 }
