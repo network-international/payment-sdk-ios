@@ -31,7 +31,6 @@ class CardPreviewController: UIViewController {
             return "jcblogo"
         case .americanExpress?:
             return "amexlogo"
-            
         case .discover?:
             return "discoverlogo"
         default:
@@ -75,7 +74,7 @@ class CardPreviewController: UIViewController {
     }
     
     func updateCardLogo() {
-        let cardLogoImage = UIImage(named: self.cardProviderLogo, in: Bundle(for: NISdk.self), compatibleWith: nil)
+        let cardLogoImage = UIImage(named: self.cardProviderLogo, in: NISdk.sharedInstance.getBundle(), compatibleWith: nil)
         cardLogo.image = cardLogoImage
     }
     
