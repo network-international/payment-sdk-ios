@@ -32,7 +32,7 @@
 "Cancel Payment Message" = "هل أنت متأكد أنك تريد إلغاء الدفع؟";
 "Cancel Alert" = "لا";
 "Cancel Confirm" = "نعم، ألغِ";
-
+"Yes" = "نعم";
 "Visa Instalment Eligible" = "مؤهلة للتقسيط";
 "Visa Monthly Instalment" = "%@ القسط الشهري";
 "Visa Bi Monthly Instalment" = "%@ القسط كل شهرين";
@@ -50,3 +50,18 @@
 "Visa Read More" = "اقرأ المزيد";
 "Visa Pay In Instalment" = "%@ الدفع بمقدار";
 "Visa Pay In Full" = "الدفع بالكامل";
+
+"Patial Auth Title" = "تأكيد العميل";
+"Partial Auth Message With Org" = "تمت الموافقة من قبل البنك %@ على %@ بدلاً من المبلغ الكامل لـ %@";
+"Partial Auth Message" = "تمت الموافقة من قبل البنك على %@ بدلاً من المبلغ الكامل لـ %@";
+"Partial Auth Message Question" = "هل ترغب في المضي قدما مع المبلغ المخفض؟";
+  
+"aani_paying_amount" = "جارٍ دفع %@";
+"aani_tap_notification" = "اضغط على الإشعار الذي تلقيته في التطبيق لإكمال عملية الدفع.";
+"aani_note_do_not_close" = "ملاحظة: يرجى عدم إغلاق التطبيق أثناء تشغيل المؤقت.";
+"aani" = "AANI";
+"aani_mobile_number" = "رقم الجوال";
+"aani_emirates_id" = "الهوية الإماراتية";
+"aani_passport_id" = "رقم جواز السفر";
+"aani_email_id" = "البريد الإلكتروني";
+"aani_alias_type" = "نوع الاسم المستعار";

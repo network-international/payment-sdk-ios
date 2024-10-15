@@ -14,6 +14,7 @@ import PassKit
 class OrderCreationViewController: UIViewController {
     let paymentAmount: Double
     let cardPaymentDelegate: CardPaymentDelegate?
+    let aaniPaymentDelegate: AaniPaymentDelegate?
     let storeFrontDelegate: StoreFrontDelegate
     let paymentMethod: PaymentMethod?
     let purchasedItems: [Product]
@@ -26,11 +27,13 @@ class OrderCreationViewController: UIViewController {
     
     init(paymentAmount: Double,
          cardPaymentDelegate: CardPaymentDelegate,
+         aaniPaymentDelegate: AaniPaymentDelegate,
          storeFrontDelegate: StoreFrontDelegate,
          using paymentMethod: PaymentMethod = .Card,
          with purchasedItems: [Product]) {
         
         self.cardPaymentDelegate = cardPaymentDelegate
+        self.aaniPaymentDelegate = aaniPaymentDelegate
         self.paymentAmount = paymentAmount
         self.paymentMethod = paymentMethod
         self.purchasedItems = purchasedItems
@@ -39,7 +42,7 @@ class OrderCreationViewController: UIViewController {
                 
         if(paymentMethod == .ApplePay) {
             let merchantId = ""
-            assert(!merchantId.isEmpty, "You need to add your apple pay merchant ID above")
+//            assert(!merchantId.isEmpty, "You need to add your apple pay merchant ID above")
             paymentRequest = PKPaymentRequest()
             paymentRequest?.merchantIdentifier = merchantId
             paymentRequest?.countryCode = "AE"
@@ -55,6 +58,7 @@ class OrderCreationViewController: UIViewController {
     
     init(paymentAmount: Double,
          cardPaymentDelegate: CardPaymentDelegate,
+         aaniPaymentDelegate: AaniPaymentDelegate,
          storeFrontDelegate: StoreFrontDelegate,
          using paymentMethod: PaymentMethod,
          with purchasedItems: [Product], 
@@ -62,6 +66,7 @@ class OrderCreationViewController: UIViewController {
          cvv: String?) {
         self.paymentAmount = paymentAmount
         self.storeFrontDelegate = storeFrontDelegate
+        self.aaniPaymentDelegate = aaniPaymentDelegate
         self.cardPaymentDelegate = cardPaymentDelegate
         self.paymentMethod = paymentMethod
         self.savedCard = savedCard
@@ -131,6 +136,13 @@ class OrderCreationViewController: UIViewController {
                                 for: orderResponse,
                                 with: self?.cvv
                             )
+                        } else if (self?.paymentMethod == .aaniPay) {
+                            sharedSDKInstance.launchAaniPay(
+                                aaniPaymentDelegate: (self?.aaniPaymentDelegate!)!,
+                                overParent: self?.cardPaymentDelegate as! UIViewController,
+                                orderResponse: orderResponse,
+                                backLink: "demoApp://"
+                            )
                         } else {
                             sharedSDKInstance.initiateApplePayWith(applePayDelegate: self?.cardPaymentDelegate as? ApplePayDelegate,
                                                                    cardPaymentDelegate: (self?.cardPaymentDelegate)!,
@@ -143,6 +155,10 @@ class OrderCreationViewController: UIViewController {
                 self.displayErrorAndClose(error: error)
             }
         }
+    }
+    
+    func onCompletion(status: AaniPaymentStatus) {
+        
     }
     
     override func viewDidLoad() {
@@ -179,5 +195,25 @@ class OrderCreationViewController: UIViewController {
 extension Data {
     func toString(encoding: String.Encoding = .utf8) -> String? {
         return String(data: self, encoding: encoding)
+    }
+}
+
+extension Data {
+    
+    func printFormatedJSON() {
+        if let json = try? JSONSerialization.jsonObject(with: self, options: .mutableContainers),
+           let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) {
+            pringJSONData(jsonData)
+        } else {
+            assertionFailure("Malformed JSON")
+        }
+    }
+    
+    func printJSON() {
+        pringJSONData(self)
+    }
+    
+    private func pringJSONData(_ data: Data) {
+        print(String(decoding: data, as: UTF8.self))
     }
 }

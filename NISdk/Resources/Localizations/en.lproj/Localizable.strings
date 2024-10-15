@@ -32,7 +32,7 @@
 "Cancel Payment Message" = "Are you sure you want to cancel the payment?";
 "Cancel Alert" = "No";
 "Cancel Confirm" = "Yes, Cancel";
-
+"Yes" = "Yes";
 "Visa Instalment Eligible" = "Eligible for Installments";
 "Visa Monthly Instalment" = "Monthly Installment: %@";
 "Visa Bi Monthly Instalment" = "Bi-Monthly Installment: %@";
@@ -50,3 +50,19 @@
 "Visa Read More" = "Read more";
 "Visa Pay In Instalment" = "Pay in %@";
 "Visa Pay In Full" = "Pay in Full";
+
+"Patial Auth Title" = "Customer confirmation";
+"Partial Auth Message With Org" = "Your issuing bank %@ has approved %@ instead of the full amount of %@.";
+"Partial Auth Message" = "Your issuing bank has approved %@ instead of the full amount of %@.";
+"Partial Auth Message Question" = "Do you wish to process the transaction with the reduced amount?";
+
+
+"aani_paying_amount" = "Paying %@";
+"aani_tap_notification" = "Tap the notification received in your app to complete the payment.";
+"aani_note_do_not_close" = "Please do not close the app while the timer is running.";
+"aani" = "AANI";
+"aani_mobile_number" = "Mobile number";
+"aani_emirates_id" = "Emirates ID";
+"aani_passport_id" = "Passport ID";
+"aani_email_id" = "Email ID";
+"aani_alias_type" = "Alias type";
