@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class PanInputVC: UIViewController, UITextFieldDelegate {
     let panTextField: UITextField = UITextField()

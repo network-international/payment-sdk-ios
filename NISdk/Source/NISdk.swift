@@ -28,6 +28,9 @@ private class NISdkBundleLocator {}
     }
     
     func getBundle() -> Bundle {
+#if SWIFT_PACKAGE
+        return .module
+#else
         if let bundle = Bundle(path: "NISdk.bundle") {
             return bundle
         } else if let path = Bundle(for: NISdkBundleLocator.self).path(forResource: "NISdk", ofType: "bundle"),
@@ -37,6 +40,7 @@ private class NISdkBundleLocator {}
             let bundle = Bundle(for: NISdkBundleLocator.self)
             return bundle
         }
+#endif
     }
     
     func getBundleFor(language: String) -> Bundle {
