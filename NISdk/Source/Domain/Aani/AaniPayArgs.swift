@@ -11,66 +11,54 @@ class AaniPayArgs {
     let amount: Double
     let anniPaymentLink: String
     let currencyCode: String
-    let authUrl: String
-    let payPageUrl: String
     let backLink: String
-    let authCode: String
+    let accessToken: String
+    let payPageUrl: String
     
     init(amount: Double,
          anniPaymentLink: String,
          currencyCode: String,
-         authUrl: String,
-         payPageUrl: String,
          backLink: String,
-         authCode: String
+         accessToken: String,
+         payPageUrl: String
     ) {
         self.amount = amount
         self.anniPaymentLink = anniPaymentLink
         self.currencyCode = currencyCode
-        self.authUrl = authUrl
-        self.payPageUrl = payPageUrl
         self.backLink = backLink
-        self.authCode = authCode
+        self.accessToken = accessToken
+        self.payPageUrl = payPageUrl
     }
 }
 
 extension OrderResponse {
-    func toAaniPayArgs(_ backLink: String) throws -> AaniPayArgs  {
-    guard let payment = embeddedData?.payment?.first else {
-            throw NSError(domain: "argument payments missing", code: 99)
+    func toAaniPayArgs(_ backLink: String, accessToken: String) -> AaniPayArgs?  {
+        guard let payment = embeddedData?.payment?.first else {
+            return nil
         }
         guard let aaniPayLink = payment.paymentLinks?.aaniPaymentLink else {
-            throw NSError(domain: "argument aaniPayLink missing", code: 99)
+            return nil
         }
         
         guard let amount = self.amount?.value else {
-            throw NSError(domain: "argument amount missing", code: 99)
+            return nil
         }
         
         guard let currencyCode = self.amount?.currencyCode else {
-            throw NSError(domain: "argument currencyCode missing", code: 99)
-        }
-        
-        guard let authUrl = orderLinks?.paymentAuthorizationLink else {
-            throw NSError(domain: "argument authUrl missing", code: 99)
+            return nil
         }
         
         guard let payPageUrl = orderLinks?.payPageLink else {
-            throw NSError(domain: "argument payPageUrl missing", code: 99)
-        }
-        
-        guard let authCode = getAuthCode() else {
-            throw NSError(domain: "argument auth code missing", code: 99)
+            return nil
         }
         
         return AaniPayArgs(
             amount: amount,
             anniPaymentLink: aaniPayLink,
             currencyCode: currencyCode,
-            authUrl: authUrl,
-            payPageUrl: payPageUrl,
             backLink: backLink,
-            authCode: authCode
+            accessToken: accessToken,
+            payPageUrl: payPageUrl
         )
     }
 }
