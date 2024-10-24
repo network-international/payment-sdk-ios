@@ -11,6 +11,8 @@ import PassKit
 
 typealias MakePaymentCallback = (PaymentRequest) -> Void
 
+typealias AaniPaymentCallback = () -> Void
+
 typealias MakeSaveCardPaymentCallback = (SavedCardRequest) -> Void
 
 class PaymentViewController: UIViewController {
@@ -29,9 +31,10 @@ class PaymentViewController: UIViewController {
     var applePayRequest: PKPaymentRequest?
     private let cvv: String?
     private var host: String?
+    private var backLink: String? = nil
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
-         applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
+         applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium, backLink: String = "") {
         self.order = order
         self.cardPaymentDelegate = cardPaymentDelegate
         self.paymentMedium = paymentMedium
@@ -39,6 +42,7 @@ class PaymentViewController: UIViewController {
             self.applePayDelegate = applePayDelegate
         }
         self.cvv = nil
+        self.backLink = backLink
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -162,7 +166,7 @@ class PaymentViewController: UIViewController {
     private func initiatePaymentForm() {
         switch paymentMedium {
         case .Card:
-            let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment, order: order, onCancel: {
+            let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment, aaniPaymentCallback: self.aaniPayment, order: order, onCancel: {
                 [weak self] in
                 if NISdk.sharedInstance.shouldShowCancelAlert {
                     self?.showCancelPaymentAlert(with: .PaymentCancelled, and: nil, and: nil)
@@ -178,9 +182,10 @@ class PaymentViewController: UIViewController {
                                                         order: order,
                                                         onDismissCallback: handlePaymentResponse,
                                                         onAuthorizeApplePayCallback: handleApplePayAuthorization)
-                if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
-                    applePayRequest.supportedNetworks = Array(Set(allowedPKPaymentNetworks))
-                }
+                let cards = order.paymentMethods?.card ?? []
+                let cardProviders = cards.compactMap { CardProvider(rawValue: $0) }
+                let allowedPKPaymentNetworks = cardProviders.map({ $0.pkNetworkType })
+                applePayRequest.supportedNetworks = Array(Set(allowedPKPaymentNetworks))
                 // Dont use container view controllers for apple pay
                 let pkPaymentAuthorizationVC = PKPaymentAuthorizationViewController(paymentRequest: applePayRequest)
                 if let pkPaymentAuthorizationVC = pkPaymentAuthorizationVC {
@@ -251,6 +256,26 @@ class PaymentViewController: UIViewController {
             } else {
                 self.handlePaymentResponse(nil)
             }
+        }
+    }
+    
+    lazy private var aaniPayment = {
+        if let accessToken = self.accessToken,
+           let backLink = self.backLink,
+           let aaniPayArgs = self.order.toAaniPayArgs(backLink, accessToken: accessToken) {
+            let aaniPayViewController = AaniPayViewController(aaniPayArgs: aaniPayArgs) { status in
+                switch status {
+                case .success:
+                    self.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                case .failed:
+                    self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                case .cancelled:
+                    self.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+                case .invalidRequest:
+                    self.finishPaymentAndClosePaymentViewController(with: .InValidRequest, and: nil, and: nil)
+                }
+            }
+            self.transition(to: .renderCardPaymentForm(aaniPayViewController))
         }
     }
     

@@ -28,6 +28,7 @@ class AaniPayViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupCancelButton()
+        setupTitleButton()
         let child = UIHostingController(rootView: AaniPayView(viewModel: AaniViewModel(aaniPayArgs: aaniPayArgs, onCompletion: { status in
             self.finish(with: status)
             
@@ -46,16 +47,23 @@ class AaniPayViewController: UIViewController {
         ])
     }
     
+    private func setupTitleButton() {
+        self.parent?.navigationController?.setNavigationBarHidden(false, animated: false)
+        self.parent?.navigationItem.title = "Aani Pay".localized
+        let textAttributes = [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.payPageTitleColor]
+        navigationController?.navigationBar.titleTextAttributes = textAttributes
+    }
+    
     private func updateCancelButtonWith(status: Bool) {
         self.navigationItem.rightBarButtonItem?.isEnabled = status
     }
     
     private func setupCancelButton() {
-        self.navigationController?.setNavigationBarHidden(false, animated: false)
-        self.navigationItem.title = "Aani Pay"
+        self.parent?.navigationController?.setNavigationBarHidden(false, animated: false)
+        self.parent?.navigationItem.title = "Aani Pay"
         let textAttributes = [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.payPageTitleColor]
-        navigationController?.navigationBar.titleTextAttributes = textAttributes
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
+        parent?.navigationController?.navigationBar.titleTextAttributes = textAttributes
+        self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
     }
     
     private func finish(with status: AaniPaymentStatus) {

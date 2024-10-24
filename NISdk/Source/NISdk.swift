@@ -69,9 +69,11 @@ private class NISdkBundleLocator {}
     
     @objc public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
                                               overParent parentViewController: UIViewController,
-                                              for order: OrderResponse) {
+                                              for order: OrderResponse,
+                                              backLink: String = "") {
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
-                                                          applePayDelegate: nil, paymentMedium: .Card)
+                                                          applePayDelegate: nil, paymentMedium: .Card,
+                                                          backLink: backLink)
         let navController = UINavigationController(rootViewController: paymentViewController)
         
         paymentViewController.view.backgroundColor = .clear
@@ -122,30 +124,6 @@ private class NISdkBundleLocator {}
         }
         DispatchQueue.main.async {
             parentViewController.present(navController, animated: true)
-        }
-    }
-    
-    public func launchAaniPay(aaniPaymentDelegate: AaniPaymentDelegate,
-                              overParent parentViewController: UIViewController,
-                              orderResponse: OrderResponse,
-                              backLink: String) {
-        do {
-            let aaniPayArgs = try orderResponse.toAaniPayArgs(backLink)
-            let paymentViewController = AaniPayViewController(aaniPayArgs: aaniPayArgs) { status in
-                aaniPaymentDelegate.aaniPaymentCompleted(with: status)
-            }
-            let navController = UINavigationController(rootViewController: paymentViewController)
-            
-            paymentViewController.view.backgroundColor = .clear
-            paymentViewController.modalPresentationStyle = .overCurrentContext
-            if #available(iOS 13.0, *) {
-                paymentViewController.isModalInPresentation = true
-            }
-            DispatchQueue.main.async {
-                parentViewController.present(navController, animated: true)
-            }
-        } catch let e {
-            aaniPaymentDelegate.aaniPaymentCompleted(with: .invalidRequest)
         }
     }
     

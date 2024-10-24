@@ -13,11 +13,13 @@ typealias onChangeTextClosure = (UITextField) -> Void
 class CardPaymentViewController: UIViewController {
     // data properties
     var makePaymentCallback: MakePaymentCallback?
+    var aaniPaymentCallback: AaniPaymentCallback?
     let pan = Pan()
     let cvv = Cvv()
     let cardHolderName = CardHolderName()
     let expiryDate = ExpiryDate()
     let onCancel: () -> Void?
+    var isAaniPayEnabled: Bool = false
     
     // ui properties
     let scrollView = UIScrollView()
@@ -64,18 +66,23 @@ class CardPaymentViewController: UIViewController {
         return spinner
     }()
     
-    init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse, onCancel: @escaping () -> Void) {
+    init(makePaymentCallback: MakePaymentCallback?, aaniPaymentCallback: AaniPaymentCallback?, order: OrderResponse, onCancel: @escaping () -> Void) {
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
             self.makePaymentCallback = makePaymentCallback
-            self.allowedCardProviders = order.paymentMethods?.card
+            let cards = order.paymentMethods?.card ?? []
+            self.allowedCardProviders = cards.compactMap { CardProvider(rawValue: $0) }
             let payButtonTitle: String = if NISdk.sharedInstance.shouldShowOrderAmount {
-                 String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.getFormattedAmount())
+                String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.getFormattedAmount())
             } else {
                 "Pay".localized
             }
             self.payButton.setTitle(payButtonTitle, for: .normal)
         }
+        self.aaniPaymentCallback = aaniPaymentCallback
         self.onCancel = onCancel
+        if ((order.paymentMethods?.apm?.contains(ApmProvider.aani.rawValue)) != nil) {
+            isAaniPayEnabled = true
+        }
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -163,7 +170,29 @@ class CardPaymentViewController: UIViewController {
         add(cardPreviewController, inside: cardPreviewContainer)
         cardPreviewController.didMove(toParent: self)
     }
-
+    
+    let aaniPayButton: UIButton = {
+        let aaniPayButton = UIButton()
+        
+        aaniPayButton.backgroundColor = .white
+        aaniPayButton.layer.borderWidth = 1
+        aaniPayButton.layer.borderColor = UIColor.gray.cgColor
+        aaniPayButton.layer.cornerRadius = 5
+        
+        let aaniPayImage = UIImage(named: "aaniLogo", in: Bundle(for: NISdk.self), compatibleWith: nil)
+        aaniPayButton.setImage(aaniPayImage, for: .normal)
+        
+        aaniPayButton.imageView?.contentMode = .scaleAspectFit
+        aaniPayButton.contentHorizontalAlignment = .center
+        aaniPayButton.contentVerticalAlignment = .center
+        
+        return aaniPayButton
+    }()
+    
+    @objc func aaniPayButtonAction() {
+        aaniPaymentCallback?()
+    }
+    
     func setupCardInputForm() {
         let vStack = UIStackView()
         vStack.axis = .vertical
@@ -192,7 +221,7 @@ class CardPaymentViewController: UIViewController {
         panContainer.anchor(heightConstant: 60)
         add(panInputVC, inside: panContainer)
         panInputVC.didMove(toParent: self)
-
+        
         // Setup Expiry field
         let expiryInputVC = ExpiryInputVC(onChangeMonth: onChangeMonth, onChangeYear: onChangeYear)
         let expiryContainer = UIView()
@@ -200,8 +229,8 @@ class CardPaymentViewController: UIViewController {
         expiryContainer.anchor(heightConstant: 60)
         add(expiryInputVC, inside: expiryContainer)
         expiryInputVC.didMove(toParent: self)
-
-
+        
+        
         // Setup CVV field
         let cvvInputVC = CvvInputVC(onChangeText: onChangeCVV, cvv: self.cvv)
         let cvvContainer = UIView()
@@ -209,7 +238,7 @@ class CardPaymentViewController: UIViewController {
         cvvContainer.anchor(heightConstant: 60)
         add(cvvInputVC, inside: cvvContainer)
         cvvInputVC.didMove(toParent: self)
-
+        
         // Setup Name field
         let nameInputVC = NameInputVC(onChangeText: onChangeName)
         let nameContainer = UIView()
@@ -224,13 +253,13 @@ class CardPaymentViewController: UIViewController {
                               leading: contentView.leadingAnchor,
                               bottom: nil,
                               trailing: contentView.trailingAnchor,
-                              padding: UIEdgeInsets(top: 20, left: 30, bottom: 0, right: 30),
-                              size: CGSize(width: 0, height: 50))
+                              padding: UIEdgeInsets(top: 0, left: 30, bottom: 0, right: 30),
+                              size: CGSize(width: 0, height: 32))
         errorContainer.addSubview(errorLabel)
         errorLabel.alignCenterToCenterOf(parent: errorContainer)
-
+        
         payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
-
+        
         contentView.addSubview(payButton)
         payButton.contentHorizontalAlignment = .center
         payButton.anchor(top: errorContainer.bottomAnchor,
@@ -239,6 +268,30 @@ class CardPaymentViewController: UIViewController {
                          trailing: contentView.trailingAnchor,
                          padding: UIEdgeInsets(top: 20, left: 30, bottom: 0, right: 30),
                          size: CGSize(width: 0, height: 50))
+        
+        let buttonStackView = UIStackView(arrangedSubviews: [payButton])
+        buttonStackView.axis = .vertical
+        buttonStackView.spacing = 10
+        buttonStackView.distribution = .fillEqually
+        
+        payButton.anchor(heightConstant: 42)
+        
+        if isAaniPayEnabled {
+                    buttonStackView.addArrangedSubview(aaniPayButton)
+                    aaniPayButton.anchor(heightConstant: 42) // Retain height of aaniPayButton
+                }
+        
+        contentView.addSubview(buttonStackView)
+        
+        buttonStackView.anchor(top: errorContainer.bottomAnchor,
+                               leading: contentView.leadingAnchor,
+                               bottom: contentView.bottomAnchor,
+                               trailing: contentView.trailingAnchor,
+                               padding: UIEdgeInsets(top: 12, left: 30, bottom: 0, right: 30),
+                               size: CGSize(width: 0, height: isAaniPayEnabled ? 94 : 52))
+        
+        // Optionally, add target to googlePayButton for handling taps
+        aaniPayButton.addTarget(self, action: #selector(aaniPayButtonAction), for: .touchUpInside)
         
         payButton.addSubview(loadingSpinner)
         let payButtonLabel = payButton.titleLabel
@@ -305,10 +358,10 @@ class CardPaymentViewController: UIViewController {
     @objc func payButtonAction() {
         let (isAllValid, errors) = validateAllFields()
         if let pan = pan.value,
-            let expiryMonth = expiryDate.month,
-            let expiryYear = expiryDate.year,
-            let cvv = cvv.value,
-            let cardHolderName = cardHolderName.value {
+           let expiryMonth = expiryDate.month,
+           let expiryYear = expiryDate.year,
+           let cvv = cvv.value,
+           let cardHolderName = cardHolderName.value {
             if (isAllValid) {
                 errorLabel.text = ""
                 let paymentRequest = PaymentRequest(pan: pan,

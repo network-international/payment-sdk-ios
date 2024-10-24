@@ -9,18 +9,21 @@
 import Foundation
 
 @objc public class PaymentMethods: NSObject, Codable {
-    public var card: [CardProvider]?
-    public var wallet: [WalletProvider]?
+    public var card: [String]?
+    public var wallet: [String]?
+    public var apm: [String]?
     
     public enum PaymentMethodsCodingKeys: String, CodingKey {
         case card
         case wallet
+        case apm
     }
     
     required public init(from decoder: Decoder) throws {
         let paymentTypesContainer = try decoder.container(keyedBy: PaymentMethodsCodingKeys.self)
 
-        card = try paymentTypesContainer.decodeIfPresent([CardProvider].self, forKey: .card) ?? []
-        wallet = try paymentTypesContainer.decodeIfPresent([WalletProvider].self, forKey: .wallet) ?? []
+        card = try paymentTypesContainer.decodeIfPresent([String].self, forKey: .card) ?? []
+        wallet = try paymentTypesContainer.decodeIfPresent([String].self, forKey: .wallet) ?? []
+        apm = try paymentTypesContainer.decodeIfPresent([String].self, forKey: .apm) ?? []
     }
 }

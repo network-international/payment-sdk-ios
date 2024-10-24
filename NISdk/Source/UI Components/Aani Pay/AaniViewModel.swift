@@ -23,7 +23,7 @@ class AaniViewModel: ObservableObject {
     private let onPaymentProcessing: (Bool) -> Void
     private var remainingTime: Int = 300
     private var timer: AnyCancellable?
-
+    
     init(
         aaniPayArgs: AaniPayArgs,
         onCompletion: @escaping (AaniPaymentStatus) -> Void,
@@ -34,28 +34,19 @@ class AaniViewModel: ObservableObject {
         self.onPaymentProcessing = onPaymentProcessing
         self.serviceAdapter = TransactionServiceAdapter()
     }
-
+    
     func onSubmit(idType: AaniIDType, inputText: String) {
         onPaymentProcessing(false)
-        serviceAdapter.authorizePayment(
-            for: aaniPayArgs.authCode,
-            using: aaniPayArgs.authUrl
-        ) { [weak self] tokens in
-            guard let self = self, let accessToken = tokens["access-token"] else {
-                self?.handlePaymentFailure()
+        self.getPayerIp(payPageLink: self.aaniPayArgs.payPageUrl) { payerIp in
+            guard let ip = payerIp else {
+                self.handlePaymentFailure()
                 return
             }
-            self.getPayerIp(payPageLink: self.aaniPayArgs.payPageUrl) { payerIp in
-                guard let ip = payerIp else {
-                    self.handlePaymentFailure()
-                    return
-                }
-                let request = self.createPaymentRequest(idType: idType, inputText: inputText, payerIp: ip, backLink: self.aaniPayArgs.backLink)
-                self.processPayment(request: request, accessToken: accessToken)
-            }
+            let request = self.createPaymentRequest(idType: idType, inputText: inputText, payerIp: ip, backLink: self.aaniPayArgs.backLink)
+            self.processPayment(request: request, accessToken: self.aaniPayArgs.accessToken)
         }
     }
-
+    
     private func createPaymentRequest(idType: AaniIDType, inputText: String, payerIp: String, backLink: String) -> AaniPayRequest {
         let request = AaniPayRequest(aliasType: idType.key, payerIp: payerIp, backLink: backLink)
         
@@ -72,7 +63,7 @@ class AaniViewModel: ObservableObject {
         
         return request
     }
-
+    
     private func processPayment(request: AaniPayRequest, accessToken: String) {
         serviceAdapter.aaniPayment(
             for: aaniPayArgs.anniPaymentLink,
@@ -99,14 +90,14 @@ class AaniViewModel: ObservableObject {
             }
         }
     }
-
+    
     private func handlePaymentFailure() {
         DispatchQueue.main.async {
             self.onPaymentProcessing(true)
             self.onCompletion(.failed)
         }
     }
-
+    
     private func openDeepLink(urlString: String) {
         if let url = URL(string: urlString) {
             DispatchQueue.main.async {
@@ -114,7 +105,7 @@ class AaniViewModel: ObservableObject {
             }
         }
     }
-
+    
     func startPolling(accessToken: String, url: String) {
         DispatchQueue.main.async {
             self.viewType = .timer
@@ -127,13 +118,13 @@ class AaniViewModel: ObservableObject {
                 self?.callAPI(accessToken: accessToken, url: url)
             }
     }
-
+    
     func stopPolling(_ status: AaniPaymentStatus) {
         cancellable?.cancel()
         stopTimer()
         onCompletion(status)
     }
-
+    
     private func callAPI(accessToken: String, url: String) {
         serviceAdapter.aaniPaymentPooling(with: url, using: accessToken) { [weak self] data, response, error in
             guard let self = self else { return }
@@ -164,7 +155,7 @@ class AaniViewModel: ObservableObject {
             }
         }
     }
-
+    
     func getPayerIp(payPageLink: String?, onCompletion: @escaping (String?) -> Void) {
         guard let url = payPageLink, let urlHost = URL(string: url)?.host else {
             onCompletion(nil)
@@ -180,7 +171,7 @@ class AaniViewModel: ObservableObject {
             }
         }
     }
-
+    
     func startTimer() {
         updateTimeString()
         timer = Timer.publish(every: 1, on: .main, in: .common)
@@ -189,12 +180,12 @@ class AaniViewModel: ObservableObject {
                 self?.tick()
             }
     }
-
+    
     func stopTimer() {
         timer?.cancel()
         timer = nil
     }
-
+    
     private func tick() {
         if remainingTime > 0 {
             remainingTime -= 1
@@ -203,13 +194,13 @@ class AaniViewModel: ObservableObject {
             stopTimer()
         }
     }
-
+    
     private func updateTimeString() {
         let minutes = remainingTime / 60
         let seconds = remainingTime % 60
         timeString = String(format: "%02d:%02d", minutes, seconds)
     }
-
+    
     func getAmountFormatted() -> String {
         return Amount(currencyCode: aaniPayArgs.currencyCode, value: aaniPayArgs.amount).getFormattedAmount2Decimal()
     }
