@@ -30,7 +30,8 @@ class CardPreviewController: UIViewController {
             return "jcblogo"
         case .americanExpress?:
             return "amexlogo"
-            
+        case .jaywan?:
+            return "jaywan"
         case .discover?:
             return "discoverlogo"
         default:

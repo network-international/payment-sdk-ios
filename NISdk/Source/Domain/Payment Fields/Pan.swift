@@ -55,6 +55,7 @@ extension Pan {
         case .dinersClubInternational: return "^3(?:0[0-5]|[68][0-9])[0-9]{11}$"
         case .discover: return "^6(?:011|5[0-9]{2})[0-9]{12}$"
         case .jcb: return "^(?:2131|1800|35\\d{3})\\d{11}$"
+        case .jaywan: return "^9784\\d{12}$"
         default: return ""
         }
     }
