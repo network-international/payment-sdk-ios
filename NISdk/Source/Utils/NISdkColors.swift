@@ -20,6 +20,14 @@ import Foundation
     public var payButtonTitleColorHighlighted = UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6)
     public var payButtonActivityIndicatorColor = UIColor.white
     public var payPageTitleColor = UIColor.black
+    public var inputFieldsBackgroundColor = ColorCompatibility.systemBackground
+    public var authorizationViewBackgroundColor = UIColor.white
+    public var authorizationViewActivityIndicatorColor = UIColor.gray
+    public var authorizationViewLabelColor = UIColor.black
+    public var threeDSViewBackgroundColor = UIColor.white
+    public var threeDSViewLabelColor = UIColor.black
+    public var threeDSViewActivityIndicatorColor = UIColor.gray
+    public var payButtonDisabledBackgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
     
     public override init() {
         super.init()

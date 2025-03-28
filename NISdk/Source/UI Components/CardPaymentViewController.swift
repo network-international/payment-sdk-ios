@@ -45,11 +45,11 @@ class CardPaymentViewController: UIViewController {
         didSet {
             if(self.paymentInProgress) {
                 self.loadingSpinner.startAnimating()
-                self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonDisabledBackgroundColor
                 self.payButton.isEnabled = false
             } else {
                 self.loadingSpinner.stopAnimating()
-                self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
+                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
                 self.payButton.isEnabled = true
             }
         }
