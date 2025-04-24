@@ -25,7 +25,7 @@ import Foundation
     
     public var threeDSMethodNotificationURL: String? {
         get {
-            if let uriStr = paymentLinks?.threeDSTwoAuthenticationURL,
+            if let uriStr = threeDSTwoConfig?.threeDSMethodURL,
                let uri = URL(string: uriStr),
                let host = uri.host {
                 return "https://\(host)/api/outlets/\(outletId!)/orders/\(orderReference!)" +
