@@ -111,7 +111,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                 request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
                 request.httpMethod = "POST"
                 request.httpBody   = "threeDSServerTransID=\(threeDSServerTransID.encodeAsURL())&threeDSMethodNotificationURL=\(threeDSMethodNotificationURL.encodeAsURL())&threeDSMethodData=\(threeDSMethodData.encodeAsURL())".data(using: .utf8)
-                
+
                 webView.load(request)
                 showActivityIndicator()
                 self.frictionlessTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: false) {
@@ -158,13 +158,59 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
             }
         }
     }
-    
+
+    @available(iOS 13.0, *)
+    private func webView(_ webView: WKWebView, didReceive response: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+
+        if let httpResponse = response.response as? HTTPURLResponse {
+            if httpResponse.statusCode == 405 {
+
+                let errorHTML = """
+                <html>
+                <head><title>Error</title></head>
+                <body>
+                    <h1>Redirecting...</h1>
+                </body>
+                </html>
+                """
+                webView.loadHTMLString(errorHTML, baseURL: nil)
+                decisionHandler(.cancel)
+                return
+            }
+        }
+        decisionHandler(.allow)
+    }
+
+
     @available(iOS 13.0, *)
     func webView(_ webView: WKWebView,
                  decidePolicyFor navigationAction: WKNavigationAction,
                  preferences: WKWebpagePreferences,
                  decisionHandler: @escaping (WKNavigationActionPolicy, WKWebpagePreferences) -> Void) {
+
         preferences.preferredContentMode = .mobile
+
+        guard let url = navigationAction.request.url else {
+            decisionHandler(.allow, preferences)
+            return
+        }
+
+        let urlString = url.absoluteString
+
+        if urlString.contains("urn:payment:") {
+            decisionHandler(.cancel, preferences)
+
+            let trimmedURLString = urlString.replacingOccurrences(of: "urn:payment:", with: "")
+
+            if let fixedURL = URL(string: trimmedURLString) {
+                let fixedRequest = URLRequest(url: fixedURL)
+                webView.load(fixedRequest)
+            }
+
+            handleThreeDSTwoStageCompletion()
+            return
+        }
+
         decisionHandler(.allow, preferences)
     }
     
