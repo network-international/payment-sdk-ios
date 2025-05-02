@@ -268,11 +268,8 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                     self.completionHandler(true)
                     return
                 }
-                guard let notificationUrl = self.paymentResponse.threeDSMethodNotificationURL else {
-                    // notificationUrl is null
-                    self.completionHandler(true)
-                    return
-                }
+                var notificationUrl = self.paymentResponse.threeDSMethodNotificationURL
+                
                 self.transactionService.getPayerIp(with: self.getIpUrl(
                     stringVal: self.paymentResponse.paymentLinks!.threeDSTwoAuthenticationURL!,
                     outletRef: self.paymentResponse.outletId!,
@@ -280,6 +277,11 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                     paymentRef: self.paymentResponse._id!),
                                                    using: self.accessToken,
                                                    on: { payerIPData, _, _ in
+                    
+                    if (notificationUrl == nil) {
+                        notificationUrl = "/api/outlets/\(self.paymentResponse.outletId!)/orders/\(self.paymentResponse.orderReference!)" +
+                        "/payments/\(self.paymentResponse._id!)/3ds2/method/notification"
+                    }
                     guard let payerIPData = payerIPData else {
                         // Unable to get IP address of payer
                         self.completionHandler(true)
@@ -303,7 +305,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                     let threeDSAuthenticationsRequest = ThreeDSAuthenticationsRequest()
                         .with(threeDSCompInd: threeDSCompInd)
                         .with(browserInfo: browserInfo)
-                        .with(notificationUrl: notificationUrl)
+                        .with(notificationUrl: notificationUrl!)
                     self.postAuthentications(
                         threeDSAuthenticationsRequest: threeDSAuthenticationsRequest,
                         authenticationsUrl: authenticationsUrl)
