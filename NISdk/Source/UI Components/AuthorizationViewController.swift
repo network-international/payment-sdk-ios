@@ -12,15 +12,16 @@ class AuthorizationViewController: UIViewController {
     var authorizationLabel: UILabel {
         let authLabel = UILabel()
         authLabel.text = "Authenticating Payment".localized
+        authLabel.textColor = NISdk.sharedInstance.niSdkColors.authorizationViewLabelColor
         return authLabel
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = NISdk.sharedInstance.niSdkColors.authorizationViewBackgroundColor
         
         let spinner = UIActivityIndicatorView(style: .medium)
-        spinner.color = .gray
+        spinner.color = NISdk.sharedInstance.niSdkColors.authorizationViewActivityIndicatorColor
         spinner.isHidden = false
         spinner.startAnimating()
         

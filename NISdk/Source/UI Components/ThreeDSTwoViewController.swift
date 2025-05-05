@@ -27,6 +27,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
     private var authorizationLabel: UILabel {
         let authLabel = UILabel()
         authLabel.text = "Authenticating using 3DS".localized
+        authLabel.textColor = NISdk.sharedInstance.niSdkColors.threeDSViewLabelColor
         return authLabel
     }
     private let vStack = UIStackView()
@@ -36,7 +37,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
         self.completionHandler = completion
         self.transactionService = transactionService
         self.accessToken = accessToken
-        self.activityIndicator.color = .gray
+        self.activityIndicator.color = NISdk.sharedInstance.niSdkColors.threeDSViewActivityIndicatorColor
         self.paymentResponse = paymentResponse
         activityIndicator.hidesWhenStopped = true
         super.init(nibName: nil, bundle: nil)
@@ -71,7 +72,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
         vStack.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         vStack.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         
-        view.backgroundColor = .white
+        view.backgroundColor = NISdk.sharedInstance.niSdkColors.threeDSViewBackgroundColor
         webView.navigationDelegate = self
         view.addSubview(webView)
         webView.anchor(top: view.safeAreaLayoutGuide.topAnchor,
