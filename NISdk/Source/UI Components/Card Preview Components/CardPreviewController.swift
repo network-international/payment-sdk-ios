@@ -14,6 +14,7 @@ class CardPreviewController: UIViewController {
     let expiryDateLabel = UILabel()
     let cardLogo = UIImageView()
     var cardProvider: CardProvider?
+    var isSaudiPaymentEnabled: Bool?
     
     let defaultPanText = "---- ---- ---- ----"
     let defaultNameLabelText = "---"
@@ -33,6 +34,8 @@ class CardPreviewController: UIViewController {
             
         case .discover?:
             return "discoverlogo"
+        case .mada?:
+            return "madalogo"
         default:
             return "defaultlogo"
         }
@@ -103,7 +106,10 @@ class CardPreviewController: UIViewController {
                 let newPan = pan.removeWhitespace().inserting(separator: " ", every: 4)
                 panLabel.text = newPan
             }
-            if let cardProvider = data["cardProvider"] as? CardProvider {
+            if var cardProvider = data["cardProvider"] as? CardProvider {
+                if (cardProvider == CardProvider.mada && !(self.isSaudiPaymentEnabled ?? false)) {
+                    cardProvider = CardProvider.visa
+                }
                 self.cardProvider = cardProvider
             }
         }
