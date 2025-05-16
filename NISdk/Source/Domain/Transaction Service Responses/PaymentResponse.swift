@@ -11,6 +11,7 @@ import Foundation
 @objc public class PaymentResponse: NSObject, Codable {
     public let _id: String?
     public let state: String
+    public let reference: String
     public let amount: Amount?
     public let embeddedData: EmbeddedData?
     public let paymentLinks: PaymentLinks?
@@ -27,8 +28,10 @@ import Foundation
         get {
             if let uriStr = threeDSTwoConfig?.threeDSMethodURL,
                let uri = URL(string: uriStr) {
-                return "/api/outlets/\(outletId!)/orders/\(orderReference!)" +
-                "/payments/\(_id!)/3ds2/method/notification"
+               let authUrl = self.paymentLinks!.threeDSTwoAuthenticationURL!
+               let notificationPath = "/api/outlets/\(outletId!)/orders/\(orderReference!)" +
+                                                      "/payments/\(reference)/3ds2/method/notification"
+                return getNotificationUrl(stringVal: authUrl, slug: notificationPath)
             }
             return nil
         }
@@ -53,6 +56,7 @@ import Foundation
         case _id
         case state
         case amount
+        case reference
         case embeddedData = "_embedded"
         case paymentLinks = "_links"
         case threeDSConfig = "3ds"
@@ -78,6 +82,7 @@ import Foundation
         let paymentResponseContainer = try decoder.container(keyedBy: PaymentResponseCodingKeys.self)
         _id = try paymentResponseContainer.decodeIfPresent(String.self, forKey: ._id)
         state = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .state) ?? ""
+        reference = try paymentResponseContainer.decodeIfPresent(String.self, forKey: .reference) ?? ""
         amount = try paymentResponseContainer.decodeIfPresent(Amount.self, forKey: .amount)
         embeddedData = try paymentResponseContainer.decodeIfPresent(EmbeddedData.self, forKey: .embeddedData)
         paymentLinks = try paymentResponseContainer.decodeIfPresent(PaymentLinks.self, forKey: .paymentLinks)
@@ -127,5 +132,17 @@ extension PaymentResponse {
             issuingOrg: paymentMethod?.issuingOrg,
             accessToken: token
         )
+    }
+
+    private func getNotificationUrl(stringVal: String, slug: String) -> String {
+        if (stringVal.localizedCaseInsensitiveContains("-uat") ||
+            stringVal.localizedCaseInsensitiveContains("sandbox")
+        ) {
+            return "https://api-gateway.sandbox.ngenius-payments.com\(slug)"
+        }
+        if (stringVal.localizedCaseInsensitiveContains("-dev")) {
+            return "https://api-gateway-dev.ngenius-payments.com\(slug)"
+        }
+        return "https://api-gateway.ngenius-payments.com\(slug)"
     }
 }
