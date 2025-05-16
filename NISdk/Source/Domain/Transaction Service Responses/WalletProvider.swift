@@ -14,4 +14,5 @@ public enum WalletProvider: String, Codable, CaseIterable {
     case chinaUnionPay = "UNION_PAY"
     case googlePay = "GOOGLE_PAY"
     case directApplePay = "DIRECT_APPLE_PAY"
+    case directGooglePay = "DIRECT_GOOGLE_PAY"
 }
