@@ -133,6 +133,8 @@ class CreditCardInfoView: UIView {
             return "jcblogo"
         case "AMERICAN_EXPRESS":
             return "amexlogo"
+        case "MADA":
+            return "madalogo"
         default:
             return "defaultlogo"
         }

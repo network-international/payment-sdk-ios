@@ -18,6 +18,7 @@ class CardPaymentViewController: UIViewController {
     let cardHolderName = CardHolderName()
     let expiryDate = ExpiryDate()
     let onCancel: () -> Void?
+    var isSaudiPaymentEnabled = false
     
     // ui properties
     let scrollView = UIScrollView()
@@ -76,6 +77,7 @@ class CardPaymentViewController: UIViewController {
             self.payButton.setTitle(payButtonTitle, for: .normal)
         }
         self.onCancel = onCancel
+        self.isSaudiPaymentEnabled = order.isSaudiPaymentEnabled ?? false
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -153,6 +155,7 @@ class CardPaymentViewController: UIViewController {
     
     func setupCardPreviewComponent() {
         let cardPreviewController = CardPreviewController()
+        cardPreviewController.isSaudiPaymentEnabled = self.isSaudiPaymentEnabled
         contentView.addSubview(cardPreviewContainer)
         cardPreviewContainer.anchor(top: contentView.topAnchor,
                                     leading: contentView.leadingAnchor,

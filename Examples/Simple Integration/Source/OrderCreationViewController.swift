@@ -109,8 +109,9 @@ class OrderCreationViewController: UIViewController {
                 dict[attribute.key] = attribute.value
             }
         }
+        let currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
         let orderRequest = OrderRequest(action: Environment.getOrderAction(),
-                                        amount: OrderAmount(currencyCode: "AED", value: paymentAmount * 100),
+                                        amount: OrderAmount(currencyCode: currencyCode, value: paymentAmount * 100),
                                         language: Environment.getLanguage(),
                                         merchantAttributes: attributeDictionary,
                                         savedCard: savedCard)
