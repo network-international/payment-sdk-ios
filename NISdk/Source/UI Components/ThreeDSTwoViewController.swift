@@ -279,8 +279,10 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                                                    on: { payerIPData, _, _ in
                     
                     if (notificationUrl == nil) {
-                        notificationUrl = "/api/outlets/\(self.paymentResponse.outletId!)/orders/\(self.paymentResponse.orderReference!)" +
-                        "/payments/\(self.paymentResponse._id!)/3ds2/method/notification"
+                        let authUrl = self.paymentResponse.paymentLinks!.threeDSTwoAuthenticationURL!
+                        let notificationUrlPath = "/api/outlets/\(self.paymentResponse.outletId!)/orders/\(self.paymentResponse.orderReference!)" +
+                                                                      "/payments/\(self.paymentResponse.reference)/3ds2/method/notification"
+                        notificationUrl = self.getNotificationUrl(stringVal: authenticationsUrl, slug: notificationUrlPath)
                     }
                     guard let payerIPData = payerIPData else {
                         // Unable to get IP address of payer
@@ -389,6 +391,18 @@ extension ThreeDSTwoViewController {
             return "https://paypage-dev.ngenius-payments.com\(slug)"
         }
         return "https://paypage.ngenius-payments.com\(slug)"
+    }
+
+    private func getNotificationUrl(stringVal: String, slug: String) -> String {
+        if (stringVal.localizedCaseInsensitiveContains("-uat") ||
+            stringVal.localizedCaseInsensitiveContains("sandbox")
+        ) {
+            return "https://api-gateway.sandbox.ngenius-payments.com\(slug)"
+        }
+        if (stringVal.localizedCaseInsensitiveContains("-dev")) {
+            return "https://api-gateway-dev.ngenius-payments.com\(slug)"
+        }
+        return "https://api-gateway.ngenius-payments.com\(slug)"
     }
 }
 
