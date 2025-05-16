@@ -33,6 +33,10 @@ struct EnvironmentView: View {
     func languageChange(_ tag: String) {
         viewModel.setLanguage(language: tag)
     }
+
+    func regionChange(_ tag: String) {
+        viewModel.setRegion(region: tag)
+    }
     
     var body: some View {
         ScrollView {
@@ -65,6 +69,16 @@ struct EnvironmentView: View {
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(8)
                 
+                Divider()
+
+                Text("Region")
+                Picker("Select region", selection: $viewModel.region.onChange(regionChange)) {
+                    Text("UAE").tag("UAE")
+                    Text("KSA").tag("KSA")
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(8)
+
                 Divider()
                 
                 HStack {
