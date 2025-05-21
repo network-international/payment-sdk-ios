@@ -158,6 +158,21 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
             }
         }
     }
+    
+    func webView(_ webView: WKWebView,
+                 decidePolicyFor navigationResponse: WKNavigationResponse,
+                 decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+
+        if let url = navigationResponse.response.url?.absoluteString {
+            if url.contains("/3ds2/method/notification") {
+                decisionHandler(.cancel)
+                handleThreeDSTwoStageCompletion()
+                return
+            }
+        }
+
+        decisionHandler(.allow)
+    }
 
     @available(iOS 13.0, *)
     private func webView(_ webView: WKWebView, didReceive response: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
