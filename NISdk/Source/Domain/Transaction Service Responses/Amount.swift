@@ -68,6 +68,18 @@ public struct Amount: Codable {
         }
     }
     
+    func getFormattedAmountValue() -> String {
+        var orderAmountValue = ""
+        if let value = value {
+            let minorUnit = self.getMinorUnit()
+            let exponent: Decimal = pow(10.00, minorUnit)
+            let roundedValue = Decimal(value) / exponent
+            orderAmountValue = "\(roundedValue)";
+        }
+
+        return orderAmountValue
+    }
+    
     public init(from decoder: Decoder) throws {
         let AmountContainer = try decoder.container(keyedBy: AmountCodingKeys.self)
         currencyCode = try AmountContainer.decodeIfPresent(String.self, forKey: .currencyCode)
