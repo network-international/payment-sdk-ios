@@ -65,7 +65,47 @@ class CardPaymentViewController: UIViewController {
         return spinner
     }()
     
+    fileprivate func updatePayButtonContent(_ order: OrderResponse, _ orderAmount: Amount, _ payButtonTitle: String) {
+        if (order.isSaudiPaymentEnabled! && order.amount?.currencyCode == "SAR") {
+            let stack = UIStackView()
+            stack.axis = .horizontal
+            stack.spacing = 6
+            stack.alignment = .center
+            
+            let icon = UIImageView(image: UIImage(named: "riyal", in: Bundle(for: NISdk.self), compatibleWith: nil))
+            icon.contentMode = .scaleAspectFit
+            icon.widthAnchor.constraint(equalToConstant: 20).isActive = true
+            icon.heightAnchor.constraint(equalToConstant: 16).isActive = true
+            
+            let payLabel = UILabel()
+            payLabel.text = "Pay".localized
+            payLabel.textColor = .white
+            payLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+            
+            let amountLabel = UILabel()
+            amountLabel.text = orderAmount.getFormattedAmountValue()
+            amountLabel.textColor = .white
+            amountLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+            
+            stack.addArrangedSubview(payLabel)
+            stack.addArrangedSubview(icon)
+            stack.addArrangedSubview(amountLabel)
+            self.payButton.addSubview(stack)
+            
+            stack.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                stack.centerXAnchor.constraint(equalTo: self.payButton.centerXAnchor),
+                stack.centerYAnchor.constraint(equalTo: self.payButton.centerYAnchor)
+            ])
+        } else {
+            self.payButton.setTitle(payButtonTitle, for: .normal)
+        }
+    }
+    
     init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse, onCancel: @escaping () -> Void) {
+        self.onCancel = onCancel
+        self.isSaudiPaymentEnabled = order.isSaudiPaymentEnabled ?? false
+        super.init(nibName: nil, bundle: nil)
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
             self.makePaymentCallback = makePaymentCallback
             self.allowedCardProviders = order.paymentMethods?.card
@@ -74,11 +114,8 @@ class CardPaymentViewController: UIViewController {
             } else {
                 "Pay".localized
             }
-            self.payButton.setTitle(payButtonTitle, for: .normal)
+            updatePayButtonContent(order, orderAmount, payButtonTitle)
         }
-        self.onCancel = onCancel
-        self.isSaudiPaymentEnabled = order.isSaudiPaymentEnabled ?? false
-        super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder aDecoder: NSCoder) {
