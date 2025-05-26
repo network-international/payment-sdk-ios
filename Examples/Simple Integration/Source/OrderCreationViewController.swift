@@ -45,8 +45,8 @@ class OrderCreationViewController: UIViewController {
 //            assert(!merchantId.isEmpty, "You need to add your apple pay merchant ID above")
             paymentRequest = PKPaymentRequest()
             paymentRequest?.merchantIdentifier = merchantId
-            paymentRequest?.countryCode = "AE"
-            paymentRequest?.currencyCode = "AED"
+            paymentRequest?.countryCode = Environment.getRegion() == "KSA" ? "KSA" : "AE"
+            paymentRequest?.currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
             paymentRequest?.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
             paymentRequest?.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
             paymentRequest?.requiredBillingContactFields = [.postalAddress, .name]
