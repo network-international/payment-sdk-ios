@@ -19,6 +19,7 @@ class CardPaymentViewController: UIViewController {
     let expiryDate = ExpiryDate()
     let onCancel: () -> Void?
     var isSaudiPaymentEnabled = false
+    var order: OrderResponse?
     
     // ui properties
     let scrollView = UIScrollView()
@@ -90,6 +91,12 @@ class CardPaymentViewController: UIViewController {
             stack.addArrangedSubview(payLabel)
             stack.addArrangedSubview(icon)
             stack.addArrangedSubview(amountLabel)
+            
+            stack.isUserInteractionEnabled = false
+            for view in stack.arrangedSubviews {
+                view.isUserInteractionEnabled = false
+            }
+            
             self.payButton.addSubview(stack)
             
             stack.translatesAutoresizingMaskIntoConstraints = false
@@ -104,6 +111,7 @@ class CardPaymentViewController: UIViewController {
     
     init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse, onCancel: @escaping () -> Void) {
         self.onCancel = onCancel
+        self.order = order
         self.isSaudiPaymentEnabled = order.isSaudiPaymentEnabled ?? false
         super.init(nibName: nil, bundle: nil)
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
@@ -357,6 +365,11 @@ class CardPaymentViewController: UIViewController {
                                                     cvv: cvv,
                                                     cardHolderName: cardHolderName)
                 paymentInProgress = true
+                for subview in self.payButton.subviews {
+                    if subview is UIStackView || subview is UIActivityIndicatorView {
+                        subview.removeFromSuperview()
+                    }
+                }
                 updateCancelButtonWith(status: false)
                 makePaymentCallback?(paymentRequest)
                 return

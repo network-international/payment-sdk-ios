@@ -17,6 +17,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     let scrollView = UIScrollView()
     let contentView = UIView()
     let orderAmount: Amount
+    let order: OrderResponse
     var allowedCardProviders: [CardProvider]?
     let payButton: UIButton = {
         let payButton = UIButton()
@@ -42,6 +43,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
             if(self.paymentInProgress) {
                 self.loadingSpinner.startAnimating()
                 self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+                self.payButton.setTitle("Processing Payment".localized, for: .normal)
             } else {
                 self.loadingSpinner.stopAnimating()
                 self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
@@ -67,11 +69,13 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     required init(makeSaveCardPaymentCallback: @escaping MakeSaveCardPaymentCallback,
                   savedCard: SavedCard,
                   orderAmount: Amount,
+                  order: OrderResponse,
                   onCancel: @escaping () -> Void) {
         self.makeSaveCardPaymentCallback = makeSaveCardPaymentCallback
         self.onCancel = onCancel
         self.savedCard = savedCard
         self.orderAmount = orderAmount
+        self.order = order
         if (savedCard.scheme == "AMERICAN_EXPRESS") {
             self.cvv.length = CVVLengths.amex
         } else {
@@ -98,6 +102,49 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         tearDownCancelButton()
+    }
+    
+    fileprivate func updatePayButtonContent(_ order: OrderResponse, _ orderAmount: Amount, _ payButtonTitle: String) {
+        if (order.isSaudiPaymentEnabled! && order.amount?.currencyCode == "SAR") {
+            let stack = UIStackView()
+            stack.axis = .horizontal
+            stack.spacing = 6
+            stack.alignment = .center
+
+            let icon = UIImageView(image: UIImage(named: "riyal", in: Bundle(for: NISdk.self), compatibleWith: nil))
+            icon.contentMode = .scaleAspectFit
+            icon.widthAnchor.constraint(equalToConstant: 20).isActive = true
+            icon.heightAnchor.constraint(equalToConstant: 16).isActive = true
+
+            let payLabel = UILabel()
+            payLabel.text = "Pay".localized
+            payLabel.textColor = .white
+            payLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+
+            let amountLabel = UILabel()
+            amountLabel.text = orderAmount.getFormattedAmountValue()
+            amountLabel.textColor = .white
+            amountLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+
+            stack.addArrangedSubview(payLabel)
+            stack.addArrangedSubview(icon)
+            stack.addArrangedSubview(amountLabel)
+            
+            stack.isUserInteractionEnabled = false
+            for view in stack.arrangedSubviews {
+                view.isUserInteractionEnabled = false
+            }
+            
+            self.payButton.addSubview(stack)
+
+            stack.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                stack.centerXAnchor.constraint(equalTo: self.payButton.centerXAnchor),
+                stack.centerYAnchor.constraint(equalTo: self.payButton.centerYAnchor)
+            ])
+        } else {
+            self.payButton.setTitle(payButtonTitle, for: .normal)
+        }
     }
     
     private func setupCancelButton() {
@@ -212,7 +259,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         } else {
             "Pay".localized
         }
-        self.payButton.setTitle(payButtonTitle, for: .normal)
+        updatePayButtonContent(order, orderAmount, payButtonTitle)
         contentView.addSubview(payButton)
         payButton.contentHorizontalAlignment = .center
         payButton.anchor(top: errorContainer.bottomAnchor,
@@ -256,6 +303,11 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
                     cardToken: savedCard.cardToken,
                     cvv: cvv)
                 paymentInProgress = true
+                for subview in self.payButton.subviews {
+                    if subview is UIStackView {
+                        subview.removeFromSuperview()
+                    }
+                }
                 updateCancelButtonWith(status: false)
                 makeSaveCardPaymentCallback(savedCardRequest)
                 return

@@ -19,6 +19,12 @@ enum Region:String, Codable {
     case KSA = "KSA"
 }
 
+enum OrderType:String, Codable {
+    case RECURRING = "RECURRING"
+    case UNSCHEDULED = "UNSCHEDULED"
+    case INSTALLMENT = "INSTALLMENT"
+}
+
 struct MerchantAttribute: Codable {
     let id: String
     let key: String
@@ -63,6 +69,7 @@ struct Environment: Codable {
     private static let KEY_SAVED_ENVIRONMENTS = "saved_environments"
     private static let KEY_ORDER_ACTION = "order_action"
     private static let KEY_REGION = "region"
+    private static let KEY_ORDER_TYPE = "order_type"
     private static let KEY_SAVED_LANGUAGE = "saved_language"
     private static let KEY_SAVED_MERCHANT_ATTRIBUTES = "merchant_attributes"
     
@@ -235,6 +242,18 @@ struct Environment: Codable {
             return region
         } else {
             return "UAE"
+        }
+    }
+
+    static func setOrderType(orderType: String) {
+        UserDefaults.standard.set(orderType, forKey: KEY_ORDER_TYPE)
+    }
+
+    static func getOrderType() -> String {
+        if let orderType = UserDefaults.standard.string(forKey: KEY_ORDER_TYPE) {
+            return orderType
+        } else {
+            return ""
         }
     }
 }

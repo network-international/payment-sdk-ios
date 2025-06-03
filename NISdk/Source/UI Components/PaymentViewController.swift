@@ -202,6 +202,7 @@ class PaymentViewController: UIViewController {
                         makeSaveCardPaymentCallback: self.makeSavedCardPayment,
                         savedCard: savedCard,
                         orderAmount: amount,
+                        order: order,
                         onCancel: {
                             [weak self] in
                             if NISdk.sharedInstance.shouldShowCancelAlert {

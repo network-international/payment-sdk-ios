@@ -45,7 +45,7 @@ class OrderCreationViewController: UIViewController {
 //            assert(!merchantId.isEmpty, "You need to add your apple pay merchant ID above")
             paymentRequest = PKPaymentRequest()
             paymentRequest?.merchantIdentifier = merchantId
-            paymentRequest?.countryCode = Environment.getRegion() == "KSA" ? "KSA" : "AE"
+            paymentRequest?.countryCode = Environment.getRegion() == "KSA" ? "SA" : "AE"
             paymentRequest?.currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
             paymentRequest?.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
             paymentRequest?.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
@@ -110,11 +110,28 @@ class OrderCreationViewController: UIViewController {
             }
         }
         let currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
-        let orderRequest = OrderRequest(action: Environment.getOrderAction(),
+        var orderRequest = OrderRequest(action: Environment.getOrderAction(),
                                         amount: OrderAmount(currencyCode: currencyCode, value: paymentAmount * 100),
                                         language: Environment.getLanguage(),
                                         merchantAttributes: attributeDictionary,
                                         savedCard: savedCard)
+
+        // add required parameters for order type
+        let orderType = Environment.getOrderType()
+        switch orderType {
+            case "INSTALLMENT":
+                orderRequest.installmentDetails = InstallmentDetails(numberOfTenure: 2)
+                orderRequest.type = "INSTALLMENT"
+                orderRequest.frequency = "MONTHLY"
+            case "UNSCHEDULED":
+                orderRequest.type = "UNSCHEDULED"
+            case "RECURRING":
+                orderRequest.type = "RECURRING"
+                orderRequest.frequency = "MONTHLY"
+                orderRequest.recurringDetails = RecurringDetails(numberOfTenure: 10, recurringType: "FIXED")
+            default:
+                break
+        }
         
         apiService.createOrder(orderData: orderRequest) { result in
             switch result {
