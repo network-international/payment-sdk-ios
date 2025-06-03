@@ -37,6 +37,10 @@ struct EnvironmentView: View {
     func regionChange(_ tag: String) {
         viewModel.setRegion(region: tag)
     }
+
+    func orderTypeChange(_ tag: String) {
+        viewModel.setOrderType(orderType: tag)
+    }
     
     var body: some View {
         ScrollView {
@@ -55,6 +59,19 @@ struct EnvironmentView: View {
                     Text("PURCHASE").tag("PURCHASE")
                     Text("SALE").tag("SALE")
                     Text("AUTH").tag("AUTH")
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(8)
+
+                Divider()
+
+                Text("Order type")
+
+                Picker("Select order type", selection: $viewModel.orderType.onChange(orderTypeChange)) {
+                    Text("NONE").tag("")
+                    Text("RECURRING").tag("RECURRING")
+                    Text("UNSCHEDULED").tag("UNSCHEDULED")
+                    Text("INSTALLMENT").tag("INSTALLMENT")
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(8)
