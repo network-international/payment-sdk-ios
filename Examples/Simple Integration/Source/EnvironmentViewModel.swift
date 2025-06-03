@@ -14,6 +14,7 @@ class EnvironmentViewModel: ObservableObject {
     @Published var action: String = ""
     @Published var language: String = ""
     @Published var region: String = ""
+    @Published var orderType: String = ""
 
     func addEnvironment(name: String, apiKey: String, outletReference: String, realm: String, type: EnvironmentType) {
         let environment = Environment(type:type, name: name, apiKey: apiKey, outletReference: outletReference, realm: realm)
@@ -33,6 +34,7 @@ class EnvironmentViewModel: ObservableObject {
         action = getOrderAction()
         language = getLangugae()
         region = getRegion()
+        orderType = getOrderType()
     }
     
     func saveEnviroments() {
@@ -101,5 +103,13 @@ class EnvironmentViewModel: ObservableObject {
 
     func getRegion() -> String {
         return Environment.getRegion()
+    }
+
+    func setOrderType(orderType: String) {
+        Environment.setOrderType(orderType: orderType)
+    }
+
+    func getOrderType() -> String {
+        return Environment.getOrderType()
     }
 }
