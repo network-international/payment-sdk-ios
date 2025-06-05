@@ -44,14 +44,20 @@ class ApiService {
             getAuthToken(environment: environment) { result in
                 switch result {
                 case .success(let accessToken):
-                    var orderRequest = URLRequest(url: URL(string: environment.getGateWayUrl())!)
+                    var url = environment.getGateWayUrl()
+                    var contentType: String = "application/vnd.ni-payment.v2+json"
+                    if (orderData.type == "RECURRING" || orderData.type == "INSTALLMENT") {
+                        url = url.replacingOccurrences(of: "transactions", with: "recurring-payment")
+                        contentType = "application/vnd.ni-recurring-payment.v2+json"
+                    }
+                    var orderRequest = URLRequest(url: URL(string: url)!)
                     orderRequest.httpMethod = "POST"
                     orderRequest.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-                    orderRequest.setValue("application/vnd.ni-payment.v2+json", forHTTPHeaderField: "Content-Type")
-                    orderRequest.setValue("application/vnd.ni-payment.v2+json", forHTTPHeaderField: "Accept")
-
+                    orderRequest.setValue(contentType, forHTTPHeaderField: "Content-Type")
+                    orderRequest.setValue(contentType, forHTTPHeaderField: "Accept")
                     let userAgent = "iOS pay page \(UIDevice().name) \(UIDevice().systemName)-\(UIDevice().systemVersion) - SDK -\(NISdk.sharedInstance.version)"
                     orderRequest.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+
                     let encoder = JSONEncoder()
                     let orderRequestData = try! encoder.encode(orderData)
                     orderRequest.httpBody = orderRequestData
