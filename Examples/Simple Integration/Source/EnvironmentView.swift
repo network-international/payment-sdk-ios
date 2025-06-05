@@ -68,7 +68,7 @@ struct EnvironmentView: View {
                 Text("Order type")
 
                 Picker("Select order type", selection: $viewModel.orderType.onChange(orderTypeChange)) {
-                    Text("NONE").tag("")
+                    Text("SINGLE").tag("")
                     Text("RECURRING").tag("RECURRING")
                     Text("UNSCHEDULED").tag("UNSCHEDULED")
                     Text("INSTALLMENT").tag("INSTALLMENT")
