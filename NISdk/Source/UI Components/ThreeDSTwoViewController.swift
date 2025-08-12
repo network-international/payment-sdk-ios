@@ -23,6 +23,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
     private var accessToken: String
     private var paymentResponse: PaymentResponse
     private var frictionlessTimer: Timer?
+    var paypageLink: String
     
     private var authorizationLabel: UILabel {
         let authLabel = UILabel()
@@ -36,6 +37,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
         self.completionHandler = completion
         self.transactionService = transactionService
         self.accessToken = accessToken
+        self.paypageLink = ""
         self.activityIndicator.color = .gray
         self.paymentResponse = paymentResponse
         activityIndicator.hidesWhenStopped = true
@@ -289,7 +291,8 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                     stringVal: self.paymentResponse.paymentLinks!.threeDSTwoAuthenticationURL!,
                     outletRef: self.paymentResponse.outletId!,
                     orderRef: self.paymentResponse.orderReference!,
-                    paymentRef: self.paymentResponse._id!),
+                    paymentRef: self.paymentResponse._id!,
+                    paypageLink: self.paypageLink),
                                                    using: self.accessToken,
                                                    on: { payerIPData, _, _ in
                     
@@ -297,7 +300,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                         let authUrl = self.paymentResponse.paymentLinks!.threeDSTwoAuthenticationURL!
                         let notificationUrlPath = "/api/outlets/\(self.paymentResponse.outletId!)/orders/\(self.paymentResponse.orderReference!)" +
                                                                       "/payments/\(self.paymentResponse.reference)/3ds2/method/notification"
-                        notificationUrl = self.getNotificationUrl(stringVal: authenticationsUrl, slug: notificationUrlPath)
+                        notificationUrl = self.getNotificationUrl(stringVal: authenticationsUrl, slug: notificationUrlPath, paymentLink: (self.paymentResponse.paymentLinks?.paymentLink)!)
                     }
                     guard let payerIPData = payerIPData else {
                         // Unable to get IP address of payer
@@ -394,30 +397,32 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
 }
 
 extension ThreeDSTwoViewController {
-    private func getIpUrl(stringVal: String, outletRef: String, orderRef: String, paymentRef: String) -> String {
+    private func getIpUrl(stringVal: String, outletRef: String, orderRef: String, paymentRef: String, paypageLink: String) -> String {
+        let urlHost = URL(string: paypageLink)?.host ?? ""
         let slug =
         "/api/outlets/\(outletRef)/orders/\(orderRef)/payments/\(paymentRef)/3ds2/requester-ip"
         if (stringVal.localizedCaseInsensitiveContains("-uat") ||
             stringVal.localizedCaseInsensitiveContains("sandbox")
         ) {
-            return "https://paypage.sandbox.ngenius-payments.com\(slug)"
+            return "https://\(urlHost)\(slug)"
         }
         if (stringVal.localizedCaseInsensitiveContains("-dev")) {
-            return "https://paypage-dev.ngenius-payments.com\(slug)"
+            return "https://\(urlHost)\(slug)"
         }
-        return "https://paypage.ngenius-payments.com\(slug)"
+        return "https://\(urlHost)\(slug)"
     }
 
-    private func getNotificationUrl(stringVal: String, slug: String) -> String {
+    private func getNotificationUrl(stringVal: String, slug: String, paymentLink: String) -> String {
+        let urlHost = URL(string: paymentLink)?.host ?? ""
         if (stringVal.localizedCaseInsensitiveContains("-uat") ||
             stringVal.localizedCaseInsensitiveContains("sandbox")
         ) {
-            return "https://api-gateway.sandbox.ngenius-payments.com\(slug)"
+            return "https://\(urlHost)\(slug)"
         }
         if (stringVal.localizedCaseInsensitiveContains("-dev")) {
-            return "https://api-gateway-dev.ngenius-payments.com\(slug)"
+            return "https://\(urlHost)\(slug)"
         }
-        return "https://api-gateway.ngenius-payments.com\(slug)"
+        return "https://\(urlHost)\(slug)"
     }
 }
 
