@@ -31,7 +31,7 @@ import Foundation
                let authUrl = self.paymentLinks!.threeDSTwoAuthenticationURL!
                let notificationPath = "/api/outlets/\(outletId!)/orders/\(orderReference!)" +
                                                       "/payments/\(reference)/3ds2/method/notification"
-                return getNotificationUrl(stringVal: authUrl, slug: notificationPath)
+                return getNotificationUrl(stringVal: authUrl, slug: notificationPath, paymentLink: (paymentLinks?.paymentLink)!)
             }
             return nil
         }
@@ -134,15 +134,16 @@ extension PaymentResponse {
         )
     }
 
-    private func getNotificationUrl(stringVal: String, slug: String) -> String {
+    private func getNotificationUrl(stringVal: String, slug: String, paymentLink: String) -> String {
+        let urlHost = URL(string: paymentLink)?.host ?? ""
         if (stringVal.localizedCaseInsensitiveContains("-uat") ||
             stringVal.localizedCaseInsensitiveContains("sandbox")
         ) {
-            return "https://api-gateway.sandbox.ngenius-payments.com\(slug)"
+            return "https://\(urlHost)\(slug)"
         }
         if (stringVal.localizedCaseInsensitiveContains("-dev")) {
-            return "https://api-gateway-dev.ngenius-payments.com\(slug)"
+            return "https://\(urlHost)\(slug)"
         }
-        return "https://api-gateway.ngenius-payments.com\(slug)"
+        return "https://\(urlHost)\(slug)"
     }
 }

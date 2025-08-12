@@ -10,13 +10,14 @@ import Foundation
 import PassKit
 
 public enum CardProvider: String, CaseIterable, Codable {
-    case visa = "VISA"
     case masterCard = "MASTERCARD"
     case dinersClubInternational = "DINERS_CLUB_INTERNATIONAL"
     case jcb = "JCB"
     case americanExpress = "AMERICAN_EXPRESS"
     case discover = "DISCOVER"
     case jaywan = "JAYWAN"
+    case mada = "MADA"
+    case visa = "VISA"
     case unknown
     
     public var pkNetworkType: PKPaymentNetwork {
@@ -27,9 +28,13 @@ public enum CardProvider: String, CaseIterable, Codable {
         case .dinersClubInternational: return .masterCard
         case .discover: return .discover
         case .jcb: return .JCB
+        case .mada: if #available(iOS 12.1.1, *) {
+            return .mada
+        } else {
+            return .visa
+        }
         case .jaywan: return .visa
         case .unknown: return .visa
-        default: return .visa
         }
     }
 }

@@ -33,6 +33,14 @@ struct EnvironmentView: View {
     func languageChange(_ tag: String) {
         viewModel.setLanguage(language: tag)
     }
+
+    func regionChange(_ tag: String) {
+        viewModel.setRegion(region: tag)
+    }
+
+    func orderTypeChange(_ tag: String) {
+        viewModel.setOrderType(orderType: tag)
+    }
     
     var body: some View {
         ScrollView {
@@ -54,6 +62,19 @@ struct EnvironmentView: View {
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(8)
+
+                Divider()
+
+                Text("Order type")
+
+                Picker("Select order type", selection: $viewModel.orderType.onChange(orderTypeChange)) {
+                    Text("SINGLE").tag("")
+                    Text("RECURRING").tag("RECURRING")
+                    Text("UNSCHEDULED").tag("UNSCHEDULED")
+                    Text("INSTALLMENT").tag("INSTALLMENT")
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(8)
                 
                 Divider()
                 
@@ -65,6 +86,16 @@ struct EnvironmentView: View {
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(8)
                 
+                Divider()
+
+                Text("Region")
+                Picker("Select region", selection: $viewModel.region.onChange(regionChange)) {
+                    Text("UAE").tag("UAE")
+                    Text("KSA").tag("KSA")
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(8)
+
                 Divider()
                 
                 HStack {
