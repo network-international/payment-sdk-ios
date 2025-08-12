@@ -202,6 +202,7 @@ class PaymentViewController: UIViewController {
                         makeSaveCardPaymentCallback: self.makeSavedCardPayment,
                         savedCard: savedCard,
                         orderAmount: amount,
+                        order: order,
                         onCancel: {
                             [weak self] in
                             if NISdk.sharedInstance.shouldShowCancelAlert {
@@ -455,6 +456,7 @@ class PaymentViewController: UIViewController {
                                                                     accessToken: accessToken,
                                                                     transactionService: self.transactionService,
                                                                     completion: onThreeDSCompletion)
+            threeDSTwoViewController.paypageLink = order.orderLinks?.payPageLink ?? ""
             self.transition(to: .renderThreeDSChallengeForm(threeDSTwoViewController))
         } else {
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: nil)
