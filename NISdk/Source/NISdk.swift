@@ -19,7 +19,7 @@ private class NISdkBundleLocator {}
     public var shouldShowOrderAmount = true
     public var shouldShowCancelAlert = false
     
-    public var version: String = "5.1.12"
+    public var version: String = "6.0.0"
     
     private override init() {
         super.init()
