@@ -17,6 +17,10 @@ struct OrderRequest: Encodable {
     let language: String
     let merchantAttributes: [String: String]?
     var savedCard: SavedCard?
+    var type: String?
+    var frequency: String?
+    var installmentDetails: InstallmentDetails?
+    var recurringDetails: RecurringDetails?
     
     private enum  OrderRequestCodingKeys: String, CodingKey {
         case action
@@ -24,5 +28,9 @@ struct OrderRequest: Encodable {
         case language
         case merchantAttributes
         case savedCard
+        case type
+        case frequency
+        case installmentDetails
+        case recurringDetails
     }
 }

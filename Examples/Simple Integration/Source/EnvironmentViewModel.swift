@@ -13,7 +13,9 @@ class EnvironmentViewModel: ObservableObject {
     @Published var merchantAttributes: [MerchantAttribute] = []
     @Published var action: String = ""
     @Published var language: String = ""
-    
+    @Published var region: String = ""
+    @Published var orderType: String = ""
+
     func addEnvironment(name: String, apiKey: String, outletReference: String, realm: String, type: EnvironmentType) {
         let environment = Environment(type:type, name: name, apiKey: apiKey, outletReference: outletReference, realm: realm)
         environments.append(environment)
@@ -31,6 +33,8 @@ class EnvironmentViewModel: ObservableObject {
         self.merchantAttributes = getMerchantAttributes()
         action = getOrderAction()
         language = getLangugae()
+        region = getRegion()
+        orderType = getOrderType()
     }
     
     func saveEnviroments() {
@@ -91,5 +95,21 @@ class EnvironmentViewModel: ObservableObject {
     
     func getLangugae() -> String {
         return Environment.getLanguage()
+    }
+
+    func setRegion(region: String) {
+        Environment.setRegion(region: region)
+    }
+
+    func getRegion() -> String {
+        return Environment.getRegion()
+    }
+
+    func setOrderType(orderType: String) {
+        Environment.setOrderType(orderType: orderType)
+    }
+
+    func getOrderType() -> String {
+        return Environment.getOrderType()
     }
 }

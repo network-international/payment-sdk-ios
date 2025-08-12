@@ -14,6 +14,17 @@ enum EnvironmentType:String, Codable {
     case PROD = "PROD"
 }
 
+enum Region:String, Codable {
+    case UAE = "UAE"
+    case KSA = "KSA"
+}
+
+enum OrderType:String, Codable {
+    case RECURRING = "RECURRING"
+    case UNSCHEDULED = "UNSCHEDULED"
+    case INSTALLMENT = "INSTALLMENT"
+}
+
 struct MerchantAttribute: Codable {
     let id: String
     let key: String
@@ -57,6 +68,8 @@ struct Environment: Codable {
     private static let KEY_SAVED_ENVIRONMENT_ID = "saved_env_id"
     private static let KEY_SAVED_ENVIRONMENTS = "saved_environments"
     private static let KEY_ORDER_ACTION = "order_action"
+    private static let KEY_REGION = "region"
+    private static let KEY_ORDER_TYPE = "order_type"
     private static let KEY_SAVED_LANGUAGE = "saved_language"
     private static let KEY_SAVED_MERCHANT_ATTRIBUTES = "merchant_attributes"
     
@@ -99,6 +112,17 @@ struct Environment: Codable {
     }
     
     func getGateWayUrl() -> String {
+        let region = Environment.getRegion();
+        if(region == Region.KSA.rawValue) {
+            return switch type {
+            case .DEV:
+                "https://api-gateway.dev.ksa.ngenius-payments.com/transactions/outlets/\(outletReference)/orders"
+            case .UAT:
+                "https://api-gateway.sandbox.ksa.ngenius-payments.com/transactions/outlets/\(outletReference)/orders"
+            case .PROD:
+                "https://api-gateway.ksa.ngenius-payments.com/transactions/outlets/\(outletReference)/orders"
+            }
+        }
         return switch type {
         case .DEV:
             "https://api-gateway-dev.ngenius-payments.com/transactions/outlets/\(outletReference)/orders"
@@ -110,6 +134,17 @@ struct Environment: Codable {
     }
     
     func getIdentityUrl() -> String {
+        let region = Environment.getRegion();
+        if(region == Region.KSA.rawValue) {
+            return switch type {
+                case .DEV:
+                    "https://api-gateway.dev.ksa.ngenius-payments.com/identity/auth/access-token"
+                case .UAT:
+                    "https://api-gateway.sandbox.ksa.ngenius-payments.com/identity/auth/access-token"
+                case .PROD:
+                    "https://api-gateway.ksa.ngenius-payments.com/identity/auth/access-token"
+                }
+        }
         return switch type {
         case .DEV:
             "https://api-gateway-dev.ngenius-payments.com/identity/auth/access-token"
@@ -195,6 +230,30 @@ struct Environment: Codable {
             return action
         } else {
             return "en"
+        }
+    }
+
+    static func setRegion(region: String) {
+        UserDefaults.standard.set(region, forKey: KEY_REGION)
+    }
+
+    static func getRegion() -> String {
+        if let region = UserDefaults.standard.string(forKey: KEY_REGION) {
+            return region
+        } else {
+            return "UAE"
+        }
+    }
+
+    static func setOrderType(orderType: String) {
+        UserDefaults.standard.set(orderType, forKey: KEY_ORDER_TYPE)
+    }
+
+    static func getOrderType() -> String {
+        if let orderType = UserDefaults.standard.string(forKey: KEY_ORDER_TYPE) {
+            return orderType
+        } else {
+            return ""
         }
     }
 }
