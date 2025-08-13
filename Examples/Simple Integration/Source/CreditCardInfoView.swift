@@ -118,7 +118,7 @@ class CreditCardInfoView: UIView {
         }
         cardHolderNameLabel.text = savedCard.cardholderName?.uppercased()
         let cardProviderLogo = getCardLogo(scheme: savedCard.scheme!)
-        logoImageView.image = UIImage(named: cardProviderLogo, in: Bundle(for: NISdk.self), compatibleWith: nil)
+        logoImageView.image = UIImage(named: cardProviderLogo, in: NISdk.sharedInstance.getBundle(), compatibleWith: nil)
     }
     
     func getCardLogo(scheme: String) -> String {
