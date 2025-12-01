@@ -38,6 +38,10 @@ public class HTTPClient {
         for(key, value) in headers {
             request.addValue(value, forHTTPHeaderField: key)
         }
+        
+        let fingerprint = DeviceFingerprint.shared.fingerprint()
+        request.setValue(fingerprint, forHTTPHeaderField: "X-Payer-Fingerprint")
+        
         request.addValue("iOS pay page \(UIDevice().name) \(UIDevice().systemName)-\(UIDevice().systemVersion) - SDK -\(NISdk.sharedInstance.version)", forHTTPHeaderField: "User-Agent")
         return self
     }

@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4BE997692EEAAD9400B23771 /* DeviceFingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE997682EEAAD8000B23771 /* DeviceFingerprint.swift */; };
+		59214BE02AFCE509006EE4E6 /* SDKColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59214BDF2AFCE509006EE4E6 /* SDKColors.swift */; };
 		597641682AD8FB2B004AA08F /* SavedCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597641672AD8FB2B004AA08F /* SavedCardViewController.swift */; };
 		59ED19AA2AD11B3D0000E024 /* SavedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19A92AD11B3D0000E024 /* SavedCard.swift */; };
 		59ED19AC2AD11B860000E024 /* SavedCardRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */; };
-		59214BE02AFCE509006EE4E6 /* SDKColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59214BDF2AFCE509006EE4E6 /* SDKColors.swift */; };
 		7F2B32DE23F55B960001EFEE /* ColorCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */; };
 		860A6043241B81C50067A75B /* UIScreen+Bounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860A6042241B81C40067A75B /* UIScreen+Bounds.swift */; };
 		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
@@ -105,10 +106,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4BE997682EEAAD8000B23771 /* DeviceFingerprint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceFingerprint.swift; sourceTree = "<group>"; };
+		59214BDF2AFCE509006EE4E6 /* SDKColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKColors.swift; sourceTree = "<group>"; };
 		597641672AD8FB2B004AA08F /* SavedCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCardViewController.swift; sourceTree = "<group>"; };
 		59ED19A92AD11B3D0000E024 /* SavedCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCard.swift; sourceTree = "<group>"; };
 		59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCardRequest.swift; sourceTree = "<group>"; };
-		59214BDF2AFCE509006EE4E6 /* SDKColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKColors.swift; sourceTree = "<group>"; };
 		7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCompatibility.swift; sourceTree = "<group>"; };
 		860A6042241B81C40067A75B /* UIScreen+Bounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIScreen+Bounds.swift"; sourceTree = "<group>"; };
 		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
@@ -279,6 +281,7 @@
 		860CCE0D22FD242100B85096 /* HTTPClient */ = {
 			isa = PBXGroup;
 			children = (
+				4BE997682EEAAD8000B23771 /* DeviceFingerprint.swift */,
 				860CCE0E22FD243000B85096 /* HTTPClient.swift */,
 			);
 			path = HTTPClient;
@@ -622,6 +625,7 @@
 				862CBE75230DD19F00767774 /* ExpiryDate.swift in Sources */,
 				86710F552311C59900259AE9 /* Collection+Pairs.swift in Sources */,
 				862CBE67230C8C1800767774 /* Pan.swift in Sources */,
+				4BE997692EEAAD9400B23771 /* DeviceFingerprint.swift in Sources */,
 				8631DA042835F83600441801 /* ChallengeConstants.swift in Sources */,
 				7F2B32DE23F55B960001EFEE /* ColorCompatibility.swift in Sources */,
 				86710F4E230FEB5100259AE9 /* URLResponse+Any.swift in Sources */,
