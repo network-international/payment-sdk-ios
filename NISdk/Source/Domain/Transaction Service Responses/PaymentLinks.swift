@@ -19,10 +19,11 @@ public struct PaymentLinks {
     public let partialAuthAccept: String?
     public let partialAuthDecline: String?
     public let aaniPaymentLink: String?
+    public let clickToPayLink: String?
 }
 
 extension PaymentLinks: Codable {
-    
+
     private enum PaymentLinksCodingKeys: String, CodingKey {
         case paymentLink = "self"
         case cardPaymentLink = "payment:card"
@@ -34,6 +35,7 @@ extension PaymentLinks: Codable {
         case partialAuthAccept = "payment:partial-auth-accept"
         case partialAuthDecline = "payment:partial-auth-decline"
         case aaniPaymentLink = "payment:aani"
+        case clickToPayLink = "payment:visa_click_to_pay"
     }
     
     private enum hrefCodingKeys: String, CodingKey {
@@ -111,6 +113,13 @@ extension PaymentLinks: Codable {
             aaniPaymentLink = try aaniPaymentLinkContainer.decodeIfPresent(String.self, forKey: .href)
         } catch {
             self.aaniPaymentLink = nil
+        }
+
+        do {
+            let clickToPayLinkContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .clickToPayLink)
+            clickToPayLink = try clickToPayLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.clickToPayLink = nil
         }
     }
 }

@@ -23,6 +23,10 @@ public struct EmbeddedData {
     func getAaniPayLink() -> String? {
         return payment?.first?.paymentLinks?.aaniPaymentLink
     }
+
+    func getClickToPayLink() -> String? {
+        return payment?.first?.paymentLinks?.clickToPayLink
+    }
 }
 
 extension EmbeddedData: Codable {

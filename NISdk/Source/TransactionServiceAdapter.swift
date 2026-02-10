@@ -80,15 +80,20 @@ import PassKit
                                      using accessToken: String,
                                      payerIp: String?,
                                      on completion: @escaping (HttpResponseCallback)) {
-        
+
         let paymentRequestHeaders = ["Authorization": "Bearer \(accessToken)",
             "Content-Type": "application/vnd.ni-payment.v2+json"]
         var queryParams: [String: String] = [:]
         if let payerIp = payerIp {
             queryParams = ["payer_ip": payerIp]
         }
-        
+
         if let applePayLink = order.embeddedData?.payment?[0].paymentLinks?.applePayLink {
+            print("ApplePay: postApplePayResponse - URL: \(applePayLink)")
+            print("ApplePay: postApplePayResponse - paymentData size: \(applePayPaymentResponse.token.paymentData.count) bytes")
+            if let paymentDataStr = String(data: applePayPaymentResponse.token.paymentData, encoding: .utf8) {
+                print("ApplePay: postApplePayResponse - paymentData: \(paymentDataStr.prefix(200))...")
+            }
             HTTPClient(url: applePayLink)?
                 .withMethod(method: "PUT")
                 .withHeaders(headers: paymentRequestHeaders)
@@ -96,6 +101,7 @@ import PassKit
                 .withBodyData(data: applePayPaymentResponse.token.paymentData)
                 .makeRequest(with: completion)
         } else {
+            print("ApplePay: postApplePayResponse - FAILED: applePayLink is nil")
             completion(nil, nil, nil)
         }
     }
