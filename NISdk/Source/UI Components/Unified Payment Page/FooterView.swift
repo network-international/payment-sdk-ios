@@ -1,0 +1,136 @@
+//
+//  FooterView.swift
+//  NISdk
+//
+//  Created on 06/02/26.
+//  Copyright © 2026 Network International. All rights reserved.
+//
+
+import UIKit
+
+class FooterView: UIView {
+
+    var onTermsTapped: (() -> Void)?
+    var onPrivacyTapped: (() -> Void)?
+
+    init() {
+        super.init(frame: .zero)
+        setupView()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupView() {
+        translatesAutoresizingMaskIntoConstraints = false
+
+        let mainStack = UIStackView()
+        mainStack.axis = .vertical
+        mainStack.spacing = 12
+        mainStack.alignment = .center
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
+
+        // Top divider (full width)
+        let divider = UIView()
+        divider.backgroundColor = UIColor(hexString: "#DADADA")
+        divider.translatesAutoresizingMaskIntoConstraints = false
+        divider.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        mainStack.addArrangedSubview(divider)
+        divider.widthAnchor.constraint(equalTo: mainStack.widthAnchor).isActive = true
+
+        // Row 1: Lock + "Powered by" + NI Logo (centered)
+        let poweredByStack = UIStackView()
+        poweredByStack.axis = .horizontal
+        poweredByStack.spacing = 4
+        poweredByStack.alignment = .center
+
+        let lockIcon = UIImageView()
+        if #available(iOS 13.0, *) {
+            lockIcon.image = UIImage(systemName: "lock.fill")
+        }
+        lockIcon.tintColor = UIColor(hexString: "#8F8F8F")
+        lockIcon.contentMode = .scaleAspectFit
+        lockIcon.translatesAutoresizingMaskIntoConstraints = false
+        lockIcon.widthAnchor.constraint(equalToConstant: 12).isActive = true
+        lockIcon.heightAnchor.constraint(equalToConstant: 12).isActive = true
+
+        let poweredByLabel = UILabel()
+        poweredByLabel.text = "Powered by".localized
+        poweredByLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        poweredByLabel.textColor = UIColor(hexString: "#8F8F8F")
+
+        let sdkBundle = Bundle(for: NISdk.self)
+        let niLogoView = UIImageView(image: UIImage(named: "networklogo", in: sdkBundle, compatibleWith: nil))
+        niLogoView.contentMode = .scaleAspectFit
+        niLogoView.translatesAutoresizingMaskIntoConstraints = false
+        niLogoView.widthAnchor.constraint(equalToConstant: 60).isActive = true
+        niLogoView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+
+        poweredByStack.addArrangedSubview(lockIcon)
+        poweredByStack.addArrangedSubview(poweredByLabel)
+        poweredByStack.addArrangedSubview(niLogoView)
+
+        mainStack.addArrangedSubview(poweredByStack)
+
+        // Row 2: Terms and Conditions | Privacy Policy (centered)
+        let linksStack = UIStackView()
+        linksStack.axis = .horizontal
+        linksStack.spacing = 12
+        linksStack.alignment = .center
+
+        let termsButton = UIButton(type: .system)
+        termsButton.setTitle("Terms and Conditions".localized, for: .normal)
+        termsButton.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        termsButton.setTitleColor(UIColor(hexString: "#8F8F8F"), for: .normal)
+        termsButton.addTarget(self, action: #selector(termsTapped), for: .touchUpInside)
+
+        let separatorLabel = UILabel()
+        separatorLabel.text = "|"
+        separatorLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        separatorLabel.textColor = UIColor(hexString: "#8F8F8F")
+
+        let privacyButton = UIButton(type: .system)
+        privacyButton.setTitle("Privacy Policy".localized, for: .normal)
+        privacyButton.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        privacyButton.setTitleColor(UIColor(hexString: "#8F8F8F"), for: .normal)
+        privacyButton.addTarget(self, action: #selector(privacyTapped), for: .touchUpInside)
+
+        linksStack.addArrangedSubview(termsButton)
+        linksStack.addArrangedSubview(separatorLabel)
+        linksStack.addArrangedSubview(privacyButton)
+
+        mainStack.addArrangedSubview(linksStack)
+
+        // Row 3: Card brand logos (centered)
+        let logosStack = UIStackView()
+        logosStack.axis = .horizontal
+        logosStack.spacing = 8
+        logosStack.alignment = .center
+
+        let cardLogos = ["visalogo", "mastercardlogo", "amexlogo", "dinerslogo", "jcblogo", "discoverlogo"]
+        for logoName in cardLogos {
+            let imageView = UIImageView(image: UIImage(named: logoName, in: sdkBundle, compatibleWith: nil))
+            imageView.contentMode = .scaleAspectFit
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.widthAnchor.constraint(equalToConstant: 32).isActive = true
+            imageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+            logosStack.addArrangedSubview(imageView)
+        }
+
+        mainStack.addArrangedSubview(logosStack)
+
+        addSubview(mainStack)
+        mainStack.anchor(top: topAnchor, leading: leadingAnchor,
+                         bottom: bottomAnchor, trailing: trailingAnchor,
+                         padding: UIEdgeInsets(top: 24, left: 20, bottom: 24, right: 20))
+    }
+
+    @objc private func termsTapped() {
+        onTermsTapped?()
+    }
+
+    @objc private func privacyTapped() {
+        onPrivacyTapped?()
+    }
+}

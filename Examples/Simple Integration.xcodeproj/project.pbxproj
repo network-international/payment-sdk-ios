@@ -28,6 +28,7 @@
 		86D2FB7D22FC1B3300CF1FA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 86D2FB7C22FC1B3300CF1FA1 /* Assets.xcassets */; };
 		86D2FB8022FC1B3300CF1FA1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86D2FB7E22FC1B3300CF1FA1 /* LaunchScreen.storyboard */; };
 		86EA2237230F204B00B46FF9 /* OrderCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA2236230F204B00B46FF9 /* OrderCreationViewController.swift */; };
+		H1A006022B00000200000001 /* PaymentOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = H1A006012B00000200000001 /* PaymentOptionsViewController.swift */; };
 		86EA2239230F2AA300B46FF9 /* OrderRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA2238230F2AA300B46FF9 /* OrderRequest.swift */; };
 		86EA223B230F2BDE00B46FF9 /* OrderAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */; };
 /* End PBXBuildFile section */
@@ -59,6 +60,7 @@
 		86D2FB7F22FC1B3300CF1FA1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		86D2FB8122FC1B3300CF1FA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		86EA2236230F204B00B46FF9 /* OrderCreationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderCreationViewController.swift; sourceTree = "<group>"; };
+		H1A006012B00000200000001 /* PaymentOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentOptionsViewController.swift; sourceTree = "<group>"; };
 		86EA2238230F2AA300B46FF9 /* OrderRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRequest.swift; sourceTree = "<group>"; };
 		86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderAmount.swift; sourceTree = "<group>"; };
 		86ECAFDD23223D29008FDDDC /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 				862CBE80230EE14F00767774 /* StoreFrontViewController.swift */,
 				862CBE82230EF13700767774 /* ProductViewCell.swift */,
 				86EA2236230F204B00B46FF9 /* OrderCreationViewController.swift */,
+				H1A006012B00000200000001 /* PaymentOptionsViewController.swift */,
 				862CBE86230EF9DB00767774 /* Extensions */,
 				592A15D62BD9013C00986490 /* EnvironmentView.swift */,
 				592A15DA2BDA326100986490 /* ApiService.swift */,
@@ -326,6 +329,7 @@
 				86D2FB7622FC1B3300CF1FA1 /* AppDelegate.swift in Sources */,
 				592A15D72BD9013C00986490 /* EnvironmentView.swift in Sources */,
 				86EA2237230F204B00B46FF9 /* OrderCreationViewController.swift in Sources */,
+				H1A006022B00000200000001 /* PaymentOptionsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -473,7 +477,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = MK9PMKAA42;
+				DEVELOPMENT_TEAM = B4EALQHL3S;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -507,7 +511,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = MK9PMKAA42;
+				DEVELOPMENT_TEAM = B4EALQHL3S;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",

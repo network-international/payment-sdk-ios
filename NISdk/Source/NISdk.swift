@@ -18,6 +18,7 @@ private class NISdkBundleLocator {}
     var sdkLanguage = "en"
     public var shouldShowOrderAmount = true
     public var shouldShowCancelAlert = false
+    public var merchantLogo: UIImage?
     
     public var version: String = "6.0.0"
     
@@ -70,10 +71,26 @@ private class NISdkBundleLocator {}
     @objc public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
                                               overParent parentViewController: UIViewController,
                                               for order: OrderResponse) {
+        showCardPaymentViewWith(cardPaymentDelegate: cardPaymentDelegate,
+                                applePayDelegate: nil,
+                                overParent: parentViewController,
+                                for: order,
+                                with: nil,
+                                clickToPayConfig: nil)
+    }
+
+    public func showCardPaymentViewWith(cardPaymentDelegate: CardPaymentDelegate,
+                                        applePayDelegate: ApplePayDelegate?,
+                                        overParent parentViewController: UIViewController,
+                                        for order: OrderResponse,
+                                        with applePayRequest: PKPaymentRequest?,
+                                        clickToPayConfig: ClickToPayConfig?) {
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
-                                                          applePayDelegate: nil, paymentMedium: .Card)
+                                                          applePayDelegate: applePayDelegate, paymentMedium: .Card)
+        paymentViewController.applePayRequest = applePayRequest
+        paymentViewController.clickToPayConfig = clickToPayConfig
         let navController = UINavigationController(rootViewController: paymentViewController)
-        
+
         paymentViewController.view.backgroundColor = .clear
         paymentViewController.modalPresentationStyle = .overCurrentContext
         if #available(iOS 13.0, *) {
@@ -166,6 +183,36 @@ private class NISdkBundleLocator {}
         parentViewController.present(paymentViewController, animated: true)
     }
     
+    public func launchClickToPay(clickToPayDelegate: ClickToPayDelegate,
+                                 overParent parentViewController: UIViewController,
+                                 for order: OrderResponse,
+                                 with config: ClickToPayConfig) {
+        do {
+            let args = try order.toClickToPayArgs()
+
+            let clickToPayVC = ClickToPayViewController(
+                clickToPayConfig: config,
+                clickToPayArgs: args,
+                orderReference: order.reference,
+                onCompletion: { status in
+                    clickToPayDelegate.clickToPayDidComplete(with: status)
+                }
+            )
+            let navController = UINavigationController(rootViewController: clickToPayVC)
+
+            clickToPayVC.view.backgroundColor = .white
+            clickToPayVC.modalPresentationStyle = .overCurrentContext
+            if #available(iOS 13.0, *) {
+                clickToPayVC.isModalInPresentation = true
+            }
+            DispatchQueue.main.async {
+                parentViewController.present(navController, animated: true)
+            }
+        } catch {
+            clickToPayDelegate.clickToPayDidComplete(with: .failed)
+        }
+    }
+
     @objc public func executeThreeDSTwo(cardPaymentDelegate: CardPaymentDelegate,
                                         overParent parentViewController: UIViewController,
                                         for paymentResponse: PaymentResponse) {
