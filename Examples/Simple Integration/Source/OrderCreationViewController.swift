@@ -13,65 +13,23 @@ import PassKit
 
 class OrderCreationViewController: UIViewController {
     let paymentAmount: Double
-    let cardPaymentDelegate: CardPaymentDelegate?
-    let aaniPaymentDelegate: AaniPaymentDelegate?
     let storeFrontDelegate: StoreFrontDelegate
-    let paymentMethod: PaymentMethod?
     let purchasedItems: [Product]
-    var paymentRequest: PKPaymentRequest?
     var savedCard: SavedCard?
-    var cvv: String?
-    var orderId: String = ""
-    
+    var onOrderCreated: ((OrderResponse) -> Void)?
+
     let apiService = ApiService()
-    
+
     init(paymentAmount: Double,
-         cardPaymentDelegate: CardPaymentDelegate,
-         aaniPaymentDelegate: AaniPaymentDelegate,
          storeFrontDelegate: StoreFrontDelegate,
-         using paymentMethod: PaymentMethod = .Card,
-         with purchasedItems: [Product]) {
-        
-        self.cardPaymentDelegate = cardPaymentDelegate
-        self.aaniPaymentDelegate = aaniPaymentDelegate
+         with purchasedItems: [Product],
+         savedCard: SavedCard? = nil,
+         onOrderCreated: @escaping (OrderResponse) -> Void) {
         self.paymentAmount = paymentAmount
-        self.paymentMethod = paymentMethod
+        self.storeFrontDelegate = storeFrontDelegate
         self.purchasedItems = purchasedItems
-        self.storeFrontDelegate = storeFrontDelegate
-        super.init(nibName: nil, bundle: nil)
-                
-        if(paymentMethod == .ApplePay) {
-            let merchantId = ""
-//            assert(!merchantId.isEmpty, "You need to add your apple pay merchant ID above")
-            paymentRequest = PKPaymentRequest()
-            paymentRequest?.merchantIdentifier = merchantId
-            paymentRequest?.countryCode = Environment.getRegion() == "KSA" ? "SA" : "AE"
-            paymentRequest?.currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
-            paymentRequest?.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
-            paymentRequest?.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
-            paymentRequest?.requiredBillingContactFields = [.postalAddress, .name]
-            paymentRequest?.paymentSummaryItems = self.purchasedItems.map { PKPaymentSummaryItem(label: $0.name, amount: NSDecimalNumber(value: $0.amount)) }
-            paymentRequest?.paymentSummaryItems.append(PKPaymentSummaryItem(label: "NGenius merchant", amount: NSDecimalNumber(value: paymentAmount)))
-            storeFrontDelegate.updatePKPaymentRequestObject(paymentRequest: paymentRequest!)
-        }
-    }
-    
-    init(paymentAmount: Double,
-         cardPaymentDelegate: CardPaymentDelegate,
-         aaniPaymentDelegate: AaniPaymentDelegate,
-         storeFrontDelegate: StoreFrontDelegate,
-         using paymentMethod: PaymentMethod,
-         with purchasedItems: [Product], 
-         savedCard: SavedCard?,
-         cvv: String?) {
-        self.paymentAmount = paymentAmount
-        self.storeFrontDelegate = storeFrontDelegate
-        self.aaniPaymentDelegate = aaniPaymentDelegate
-        self.cardPaymentDelegate = cardPaymentDelegate
-        self.paymentMethod = paymentMethod
         self.savedCard = savedCard
-        self.purchasedItems = purchasedItems
-        self.cvv = cvv
+        self.onOrderCreated = onOrderCreated
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -86,20 +44,26 @@ class OrderCreationViewController: UIViewController {
     }
     
     func displayErrorAndClose(error: Error?) {
-        var errorTitle = ""
+        var errorTitle = "Unknown Error"
+        var errorMessage = ""
         if let error = error {
-            let userInfo: [String: Any] = (error as NSError).userInfo
-            errorTitle = userInfo["NSLocalizedDescription"] as? String ?? "Unknown Error"
+            let nsError = error as NSError
+            let userInfo = nsError.userInfo
+            errorTitle = userInfo["NSLocalizedDescription"] as? String
+                ?? nsError.localizedDescription
+            errorMessage = "Domain: \(nsError.domain), Code: \(nsError.code)"
+            print("❌ [Payment] Error displayed: \(errorTitle) | \(errorMessage) | Full error: \(error)")
         }
-        
+
         DispatchQueue.main.async {
-            let alert = UIAlertController(title: errorTitle, message: "", preferredStyle: UIAlertController.Style.alert)
+            let alert = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: { [weak self] _ in self?.dismissVC() }))
             self.present(alert, animated: true, completion: nil)
         }
     }
     
     func createOrder(savedCard: SavedCard? = nil) {
+        print("🔥 [CreateOrder] CALLED - amount: \(paymentAmount)")
         // Multiply amount always by 100 while creating an order
         let merchantAttributes = Environment.getMerchantAttributes()
         let attributeDictionary: [String: String]? = if (merchantAttributes.isEmpty) {
@@ -136,37 +100,11 @@ class OrderCreationViewController: UIViewController {
         apiService.createOrder(orderData: orderRequest) { result in
             switch result {
             case .success(let orderResponse):
-                let sharedSDKInstance = NISdk.sharedInstance
-                if (self.paymentMethod == .Card) {
-                    self.storeFrontDelegate.updateOrderId(orderId: orderResponse.reference ?? "")
-                }
+                self.storeFrontDelegate.updateOrderId(orderId: orderResponse.reference ?? "")
                 NISdk.sharedInstance.setSDKLanguage(language: Environment.getLanguage())
                 DispatchQueue.main.async {
                     self.dismiss(animated: false, completion: { [weak self] in
-                        if(self?.paymentMethod == .Card) {
-                            sharedSDKInstance.showCardPaymentViewWith(cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
-                                                                      overParent: self?.cardPaymentDelegate as! UIViewController,
-                                                                    for: orderResponse)
-                        } else if (self?.paymentMethod == .SavedCard) {
-                            sharedSDKInstance.launchSavedCardPayment(
-                                cardPaymentDelegate: (self?.cardPaymentDelegate!)!,
-                                overParent: self?.cardPaymentDelegate as! UIViewController,
-                                for: orderResponse,
-                                with: self?.cvv
-                            )
-                        } else if (self?.paymentMethod == .aaniPay) {
-                            sharedSDKInstance.launchAaniPay(
-                                aaniPaymentDelegate: (self?.aaniPaymentDelegate!)!,
-                                overParent: self?.cardPaymentDelegate as! UIViewController,
-                                orderResponse: orderResponse,
-                                backLink: "demoApp://"
-                            )
-                        } else {
-                            sharedSDKInstance.initiateApplePayWith(applePayDelegate: self?.cardPaymentDelegate as? ApplePayDelegate,
-                                                                   cardPaymentDelegate: (self?.cardPaymentDelegate)!,
-                                                                   overParent: self?.cardPaymentDelegate as!UIViewController,
-                                                                   for: orderResponse, with: self!.paymentRequest!)
-                        }
+                        self?.onOrderCreated?(orderResponse)
                     })
                 }
             case .failure(let error):
@@ -175,14 +113,11 @@ class OrderCreationViewController: UIViewController {
         }
     }
     
-    func onCompletion(status: AaniPaymentStatus) {
-        
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("🔥 [OrderCreationVC] viewDidLoad called")
 //        view.backgroundColor = .white
-        
+
         let authorizationLabel = UILabel()
         authorizationLabel.textColor = .white
         authorizationLabel.text = "Creating Order..."

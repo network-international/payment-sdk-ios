@@ -66,3 +66,19 @@
 "aani_passport_id" = "Passport ID";
 "aani_email_id" = "Email ID";
 "aani_alias_type" = "Alias type";
+
+/* Unified Payment Page */
+"Or select your payment options" = "Or select your payment options";
+"Use Credit Or Debit Card" = "Use Credit Or Debit Card";
+"What's CVV?" = "What's CVV?";
+"Order summary" = "Order summary";
+"Powered by" = "Powered by";
+"Terms and Conditions" = "Terms and Conditions";
+"Privacy Policy" = "Privacy Policy";
+"By clicking Pay terms" = "By clicking \"Pay\", you agree to the terms and conditions and authorize this transaction.";
+"Pay With" = "Pay With";
+"Expiration date" = "Expiration date";
+"Security code" = "Security code";
+"Card number" = "Card number";
+"Name on card" = "Name on card";
+"+7 currencies available" = "+7 currencies available";

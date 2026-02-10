@@ -65,3 +65,19 @@
 "aani_passport_id" = "رقم جواز السفر";
 "aani_email_id" = "البريد الإلكتروني";
 "aani_alias_type" = "نوع الاسم المستعار";
+
+/* Unified Payment Page */
+"Or select your payment options" = "أو اختر طريقة الدفع";
+"Use Credit Or Debit Card" = "استخدم بطاقة ائتمان أو خصم";
+"What's CVV?" = "ما هو CVV؟";
+"Order summary" = "ملخص الطلب";
+"Powered by" = "بدعم من";
+"Terms and Conditions" = "الشروط والأحكام";
+"Privacy Policy" = "سياسة الخصوصية";
+"By clicking Pay terms" = "بالضغط على \"ادفع\"، فإنك توافق على الشروط والأحكام وتصرح بهذه المعاملة.";
+"Pay With" = "ادفع بـ";
+"Expiration date" = "تاريخ الانتهاء";
+"Security code" = "رمز الأمان";
+"Card number" = "رقم البطاقة";
+"Name on card" = "الاسم على البطاقة";
+"+7 currencies available" = "+7 عملات متاحة";

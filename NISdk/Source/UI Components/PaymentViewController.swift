@@ -29,6 +29,8 @@ class PaymentViewController: UIViewController {
     var applePayRequest: PKPaymentRequest?
     private let cvv: String?
     private var host: String?
+    var clickToPayConfig: ClickToPayConfig?
+    private weak var clickToPayDelegate: ClickToPayDelegate?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -162,7 +164,7 @@ class PaymentViewController: UIViewController {
     private func initiatePaymentForm() {
         switch paymentMedium {
         case .Card:
-            let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment, order: order, onCancel: {
+            let unifiedPaymentPage = UnifiedPaymentPageViewController(order: order, onCancel: {
                 [weak self] in
                 if NISdk.sharedInstance.shouldShowCancelAlert {
                     self?.showCancelPaymentAlert(with: .PaymentCancelled, and: nil, and: nil)
@@ -170,7 +172,14 @@ class PaymentViewController: UIViewController {
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
                 }
             })
-            self.transition(to: .renderCardPaymentForm(cardPaymentViewController))
+            unifiedPaymentPage.makePaymentCallback = self.makePayment
+            unifiedPaymentPage.onApplePayTapped = { [weak self] in
+                self?.initiateApplePayFromUnifiedPage()
+            }
+            unifiedPaymentPage.onClickToPayTapped = { [weak self] in
+                self?.initiateClickToPayFromUnifiedPage()
+            }
+            self.transition(to: .renderCardPaymentForm(unifiedPaymentPage))
             break
         case .ApplePay:
             if let applePayRequest = applePayRequest {
@@ -227,29 +236,132 @@ class PaymentViewController: UIViewController {
         }
     }
     
+    private func initiateApplePayFromUnifiedPage() {
+        print("ApplePay: initiateApplePayFromUnifiedPage called")
+        guard let applePayRequest = applePayRequest, let applePayDelegate = applePayDelegate else {
+            print("ApplePay: FAILED - applePayRequest is nil: \(self.applePayRequest == nil), applePayDelegate is nil: \(self.applePayDelegate == nil)")
+            return
+        }
+        print("ApplePay: Creating ApplePayController")
+        print("ApplePay: merchantIdentifier: \(applePayRequest.merchantIdentifier)")
+        print("ApplePay: countryCode: \(applePayRequest.countryCode)")
+        print("ApplePay: currencyCode: \(applePayRequest.currencyCode)")
+        print("ApplePay: summaryItems: \(applePayRequest.paymentSummaryItems.map { "\($0.label): \($0.amount)" })")
+        print("ApplePay: merchantCapabilities: \(applePayRequest.merchantCapabilities.rawValue)")
+        print("ApplePay: applePayLink: \(order.embeddedData?.payment?[0].paymentLinks?.applePayLink ?? "nil")")
+
+        applePayController = ApplePayController(applePayDelegate: applePayDelegate,
+                                                order: order,
+                                                onDismissCallback: handlePaymentResponse,
+                                                onAuthorizeApplePayCallback: handleApplePayAuthorization)
+        if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
+            let networks = Array(Set(allowedPKPaymentNetworks))
+            applePayRequest.supportedNetworks = networks
+            print("ApplePay: supportedNetworks: \(networks.map { $0.rawValue })")
+        }
+        let pkPaymentAuthorizationVC = PKPaymentAuthorizationViewController(paymentRequest: applePayRequest)
+        if let pkPaymentAuthorizationVC = pkPaymentAuthorizationVC {
+            pkPaymentAuthorizationVC.delegate = applePayController
+            print("ApplePay: Presenting PKPaymentAuthorizationViewController")
+            self.present(pkPaymentAuthorizationVC, animated: true, completion: {
+                print("ApplePay: PKPaymentAuthorizationViewController presented successfully")
+            })
+        } else {
+            print("ApplePay: FAILED - PKPaymentAuthorizationViewController init returned nil (invalid payment request)")
+        }
+    }
+
+    private func initiateClickToPayFromUnifiedPage() {
+        guard let config = clickToPayConfig else { return }
+
+        let emailVC = ClickToPayEmailViewController(orderAmount: order.amount)
+
+        emailVC.onCancel = { [weak self] in
+            self?.dismiss(animated: true)
+        }
+
+        emailVC.onLoadMyCards = { [weak self] email in
+            guard let self = self else { return }
+            do {
+                let args = try self.order.toClickToPayArgs()
+                let cookie = self.paymentToken.flatMap { "payment-token=\($0)" }
+                let clickToPayVC = ClickToPayViewController(
+                    clickToPayConfig: config,
+                    clickToPayArgs: args,
+                    orderReference: self.order.reference,
+                    accessToken: self.accessToken,
+                    paymentCookie: cookie,
+                    userEmail: email,
+                    onCompletion: { [weak self] status in
+                        switch status {
+                        case .success:
+                            self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                        case .postAuthReview:
+                            self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
+                        default:
+                            // Click to Pay was cancelled or failed, stay on unified page
+                            break
+                        }
+                    }
+                )
+                // Push to the same nav controller — ClickToPayViewController shows
+                // a native GIF loading overlay while SDK initializes and looks up cards
+                emailVC.navigationController?.pushViewController(clickToPayVC, animated: true)
+            } catch {
+                print("ClickToPay: Failed to build args - \(error)")
+            }
+        }
+
+        let navController = UINavigationController(rootViewController: emailVC)
+        navController.modalPresentationStyle = .pageSheet
+        self.present(navController, animated: true)
+    }
+
     lazy private var handleApplePayAuthorization: OnAuthorizeApplePayCallback  = {
         [unowned self] payment, completion in
+        print("ApplePay: handleApplePayAuthorization called, payment: \(payment != nil), completion: \(completion != nil)")
         self.getPayerIp() { (payerIp) -> () in
+            print("ApplePay: getPayerIp completed, payerIp: \(payerIp ?? "nil")")
             if let payment = payment, let completion = completion {
+                print("ApplePay: Posting Apple Pay response, accessToken: \(self.accessToken != nil ? "present" : "nil")")
+                print("ApplePay: applePayLink: \(self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink ?? "nil")")
                 self.transactionService.postApplePayResponse(for: self.order,
                                                              with: payment,
                                                              using: self.accessToken!,
                                                              payerIp: payerIp, on: {
                     [unowned self] data, response, error in
+                    print("ApplePay: postApplePayResponse completed")
+                    if let error = error {
+                        print("ApplePay: postApplePayResponse ERROR: \(error)")
+                    }
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("ApplePay: postApplePayResponse HTTP status: \(httpResponse.statusCode)")
+                    }
                     if let data = data {
+                        print("ApplePay: postApplePayResponse data size: \(data.count) bytes")
+                        if let rawString = String(data: data, encoding: .utf8) {
+                            print("ApplePay: postApplePayResponse raw: \(rawString.prefix(500))")
+                        }
                         do {
                             let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                            print("ApplePay: Payment response state: \(paymentResponse.state ?? "nil")")
                             if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED" || paymentResponse.state == "POST_AUTH_REVIEW") {
+                                print("ApplePay: Payment SUCCESS - completing with .success")
                                 completion(PKPaymentAuthorizationResult(status: .success, errors: nil), paymentResponse)
                             } else {
+                                print("ApplePay: Payment FAILED state: \(paymentResponse.state ?? "nil") - completing with .failure")
                                 completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
                             }
                         } catch let error {
+                            print("ApplePay: Failed to decode payment response: \(error)")
                             completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                         }
+                    } else {
+                        print("ApplePay: postApplePayResponse returned NO data")
                     }
                 })
             } else {
+                print("ApplePay: payment or completion is nil, calling handlePaymentResponse(nil)")
                 self.handlePaymentResponse(nil)
             }
         }
@@ -386,26 +498,32 @@ class PaymentViewController: UIViewController {
     
     lazy private var handlePaymentResponse: (PaymentResponse?) -> Void = {
         paymentResponse in
+        print("ApplePay/Payment: handlePaymentResponse called, state: \(paymentResponse?.state ?? "nil (no response)")")
         DispatchQueue.main.async {
             guard let paymentResponse = paymentResponse else {
+                print("ApplePay/Payment: No payment response - finishing with PaymentFailed")
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
                 return
             }
             if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED") {
                 // 5. Close Screen if payment is done
+                print("ApplePay/Payment: Payment successful - state: \(paymentResponse.state ?? "")")
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
                 return
             }
             if (paymentResponse.state == "POST_AUTH_REVIEW") {
+                print("ApplePay/Payment: Post auth review")
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
                 return
             }
             if(paymentResponse.state == "AWAIT_3DS") {
+                print("ApplePay/Payment: 3DS required")
                 self.cardPaymentDelegate?.threeDSChallengeDidBegin?()
                 self.initiateThreeDS(with: paymentResponse)
                 return
             }
             if (paymentResponse.state == "AWAITING_PARTIAL_AUTH_APPROVAL") {
+                print("ApplePay/Payment: Partial auth approval required")
                 self.cardPaymentDelegate?.partialAuthBegin?()
                 do {
                     let partialAuthArgs = try paymentResponse.toPartialAuthArgs(accessToken: self.accessToken)
@@ -415,6 +533,7 @@ class PaymentViewController: UIViewController {
                 }
                 return
             }
+            print("ApplePay/Payment: Unhandled state: \(paymentResponse.state ?? "nil") - finishing with PaymentFailed")
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
         }
     }
@@ -516,6 +635,7 @@ class PaymentViewController: UIViewController {
     private func finishPaymentAndClosePaymentViewController(with paymentStatus: PaymentStatus,
                                                             and threeDSStatus: ThreeDSStatus?,
                                                             and authStatus: AuthorizationStatus?) {
+        print("ApplePay/Payment: finishPaymentAndClosePaymentViewController - paymentStatus: \(paymentStatus), threeDSStatus: \(String(describing: threeDSStatus)), authStatus: \(String(describing: authStatus))")
         DispatchQueue.main.async { // Use the main thread to update any UI
             if let threeDSStatus = threeDSStatus {
                 self.cardPaymentDelegate?.threeDSChallengeDidComplete?(with: threeDSStatus)

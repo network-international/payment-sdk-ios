@@ -32,26 +32,29 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didSelect paymentMethod: PKPaymentMethod,
                                             handler completion: @escaping (PKPaymentRequestPaymentMethodUpdate) -> Void) {
+        print("ApplePay: didSelectPaymentMethod - \(paymentMethod.displayName ?? "unknown")")
         if let newPaymentMethod = applePayDelegate.didSelectPaymentMethod?(paymentMethod: paymentMethod) {
             completion(newPaymentMethod)
         } else {
             completion(PKPaymentRequestPaymentMethodUpdate(errors: nil, paymentSummaryItems: []))
         }
     }
-    
+
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didSelect shippingMethod: PKShippingMethod,
                                             handler completion: @escaping (PKPaymentRequestShippingMethodUpdate) -> Void) {
+        print("ApplePay: didSelectShippingMethod - \(shippingMethod.identifier ?? "unknown")")
         if let newShippingMethod = applePayDelegate.didSelectShippingMethod?(shippingMethod: shippingMethod) {
             completion(newShippingMethod)
         } else {
             completion(PKPaymentRequestShippingMethodUpdate(paymentSummaryItems: []))
         }
     }
-    
+
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didSelectShippingContact contact: PKContact,
                                             handler completion: @escaping (PKPaymentRequestShippingContactUpdate) -> Void) {
+        print("ApplePay: didSelectShippingContact")
         if let newShippingContact = applePayDelegate.didSelectShippingContact?(shippingContact: contact) {
             completion(newShippingContact)
         } else {
@@ -60,25 +63,30 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
             shippingMethods: []))
         }
     }
-    
+
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didAuthorizePayment payment: PKPayment,
                                             handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
+        print("ApplePay: didAuthorizePayment - network: \(payment.token.paymentMethod.network?.rawValue ?? "unknown"), transactionId: \(payment.token.transactionIdentifier)")
         self.onAuthorizeApplePayCallback(payment, {
             authorizationResult, paymentResponse in
+            print("ApplePay: authorization callback - status: \(authorizationResult.status.rawValue), paymentResponse state: \(paymentResponse?.state ?? "nil")")
             DispatchQueue.main.async {
                 completion(authorizationResult)
                 controller.dismiss(animated: false, completion: {
                     [weak self] in
+                    print("ApplePay: controller dismissed after authorization, paymentResponse: \(paymentResponse?.state ?? "nil")")
                     self?.onDismissCallback(paymentResponse)
                 })
             }
         })
     }
-    
+
     func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
+        print("ApplePay: paymentAuthorizationViewControllerDidFinish (user cancelled or sheet dismissed)")
         controller.dismiss(animated: false, completion: {
             [weak self] in
+            print("ApplePay: controller dismissed in didFinish, calling onDismissCallback with nil")
             self?.onDismissCallback(nil)
         })
     }

@@ -15,10 +15,12 @@ public enum WalletProvider: String, Codable, CaseIterable {
     case googlePay = "GOOGLE_PAY"
     case directApplePay = "DIRECT_APPLE_PAY"
     case directGooglePay = "DIRECT_GOOGLE_PAY"
-    // Fallback for wallet methods the SDK doesn't model (e.g. VISA_CLICK_TO_PAY).
-    // Without this, an unknown value makes the whole OrderResponse fail to decode,
-    // which breaks otherwise-successful flows — notably the post-3DS getOrder,
-    // where it surfaced as a false "payment failed" after a successful challenge.
+    case visaClickToPay = "VISA_CLICK_TO_PAY"
+    case directVisaClickToPay = "DIRECT_VISA_CLICK_TO_PAY"
+    // Fallback for wallet methods the SDK doesn't model. Without this, an unknown
+    // value makes the whole OrderResponse fail to decode, which breaks otherwise-
+    // successful flows — notably the post-3DS getOrder, where it surfaced as a false
+    // "payment failed" after a successful challenge.
     case unknown
 
     public init(from decoder: Decoder) throws {
