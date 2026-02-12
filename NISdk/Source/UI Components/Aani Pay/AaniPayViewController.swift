@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 import SwiftUI
 
+@available(iOS 14.0, *)
 class AaniPayViewController: UIViewController {
     
     private let aaniPayArgs: AaniPayArgs

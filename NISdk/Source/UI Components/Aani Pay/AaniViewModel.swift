@@ -13,6 +13,7 @@ enum AaniViewType {
     case invalidRequest
 }
 
+@available(iOS 14.0, *)
 class AaniViewModel: ObservableObject {
     private var aaniPayArgs: AaniPayArgs
     @Published var viewType: AaniViewType = .inputSelection

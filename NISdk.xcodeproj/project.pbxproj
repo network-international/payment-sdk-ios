@@ -12,6 +12,7 @@
 		2748FAE7BA9103FFB76277BA /* OrderHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E97C34A7E4B6122B2C8AEF /* OrderHeaderView.swift */; };
 		29F7B8F82F39DF080037C2EF /* ctp_cards_loader.gif in Resources */ = {isa = PBXBuildFile; fileRef = 29F7B8F72F39DF080037C2EF /* ctp_cards_loader.gif */; };
 		59214BE02AFCE509006EE4E6 /* SDKColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59214BDF2AFCE509006EE4E6 /* SDKColors.swift */; };
+		NILOG002000000000000002 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = NILOG001000000000000001 /* Logger.swift */; };
 		597641682AD8FB2B004AA08F /* SavedCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597641672AD8FB2B004AA08F /* SavedCardViewController.swift */; };
 		59ED19AA2AD11B3D0000E024 /* SavedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19A92AD11B3D0000E024 /* SavedCard.swift */; };
 		59ED19AC2AD11B860000E024 /* SavedCardRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */; };
@@ -95,6 +96,35 @@
 		C2P0140000000000000014 /* click_to_pay.html in Resources */ = {isa = PBXBuildFile; fileRef = C2P0070000000000000007 /* click_to_pay.html */; };
 		D93D6B252E2FD2E23D685FE5 /* UnifiedPaymentPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16326CA2C306DAF6850B4BEB /* UnifiedPaymentPageViewController.swift */; };
 		DF4BA060F53CE5A485E6408F /* PaymentSectionSeparatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AA92926603DA86F724B32A /* PaymentSectionSeparatorView.swift */; };
+		AA00000100000000000001 /* AaniPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000001 /* AaniPaymentDelegate.swift */; };
+		AA00000100000000000002 /* AaniPayRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000002 /* AaniPayRequest.swift */; };
+		AA00000100000000000003 /* AaniPayArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000003 /* AaniPayArgs.swift */; };
+		AA00000100000000000004 /* AaniPayResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000004 /* AaniPayResponse.swift */; };
+		AA00000100000000000005 /* AaniPoolingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000005 /* AaniPoolingResponse.swift */; };
+		AA00000100000000000006 /* PartialAuthArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000006 /* PartialAuthArgs.swift */; };
+		AA00000100000000000007 /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000007 /* AuthResponse.swift */; };
+		AA00000100000000000008 /* PaymentMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000008 /* PaymentMethod.swift */; };
+		AA00000100000000000009 /* MatchedCandidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000009 /* MatchedCandidate.swift */; };
+		AA0000010000000000000A /* VisSavedCardMatchedCandidates.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000000A /* VisSavedCardMatchedCandidates.swift */; };
+		AA0000010000000000000B /* VisaRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000000B /* VisaRequest.swift */; };
+		AA0000010000000000000C /* VisaPlans.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000000C /* VisaPlans.swift */; };
+		AA0000010000000000000D /* VisaEligibilityRequets.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000000D /* VisaEligibilityRequets.swift */; };
+		AA0000010000000000000E /* CostInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000000E /* CostInfo.swift */; };
+		AA0000010000000000000F /* LastInstallment.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000000F /* LastInstallment.swift */; };
+		AA00000100000000000010 /* MatchedPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000010 /* MatchedPlan.swift */; };
+		AA00000100000000000011 /* TermsAndConditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000011 /* TermsAndConditions.swift */; };
+		AA00000100000000000012 /* AaniPayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000012 /* AaniPayViewController.swift */; };
+		AA00000100000000000013 /* AaniViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000013 /* AaniViewModel.swift */; };
+		AA00000100000000000014 /* AaniIDType.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000014 /* AaniIDType.swift */; };
+		AA00000100000000000015 /* AaniInputScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000015 /* AaniInputScreen.swift */; };
+		AA00000100000000000016 /* AaniPayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000016 /* AaniPayView.swift */; };
+		AA00000100000000000017 /* AaniTimerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000017 /* AaniTimerScreen.swift */; };
+		AA00000100000000000018 /* VisaInstallmentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000018 /* VisaInstallmentViewController.swift */; };
+		AA00000100000000000019 /* VisaInstallmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000019 /* VisaInstallmentView.swift */; };
+		AA0000010000000000001A /* PartialAuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000001A /* PartialAuthViewController.swift */; };
+		AA0000010000000000001B /* PartialAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000001B /* PartialAuthView.swift */; };
+		AA0000010000000000001C /* ClickToPayEmailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000001C /* ClickToPayEmailViewController.swift */; };
+		AA0000010000000000001D /* Local+iso639.2.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000001D /* Local+iso639.2.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -125,6 +155,7 @@
 		2A1F9B81ADD0CDCC203FAEE6 /* PaymentOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentOption.swift; sourceTree = "<group>"; };
 		300BF8AE1BAD74B6D853404C /* RadioButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioButtonView.swift; sourceTree = "<group>"; };
 		59214BDF2AFCE509006EE4E6 /* SDKColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKColors.swift; sourceTree = "<group>"; };
+		NILOG001000000000000001 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		597641672AD8FB2B004AA08F /* SavedCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCardViewController.swift; sourceTree = "<group>"; };
 		59ED19A92AD11B3D0000E024 /* SavedCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCard.swift; sourceTree = "<group>"; };
 		59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCardRequest.swift; sourceTree = "<group>"; };
@@ -212,6 +243,35 @@
 		C2P0070000000000000007 /* click_to_pay.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = click_to_pay.html; sourceTree = "<group>"; };
 		D2BE936E0C220A2DC5492E92 /* FooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FooterView.swift; sourceTree = "<group>"; };
 		F5E97C34A7E4B6122B2C8AEF /* OrderHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderHeaderView.swift; sourceTree = "<group>"; };
+		AA00000200000000000001 /* AaniPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPaymentDelegate.swift; sourceTree = "<group>"; };
+		AA00000200000000000002 /* AaniPayRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPayRequest.swift; sourceTree = "<group>"; };
+		AA00000200000000000003 /* AaniPayArgs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPayArgs.swift; sourceTree = "<group>"; };
+		AA00000200000000000004 /* AaniPayResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPayResponse.swift; sourceTree = "<group>"; };
+		AA00000200000000000005 /* AaniPoolingResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPoolingResponse.swift; sourceTree = "<group>"; };
+		AA00000200000000000006 /* PartialAuthArgs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialAuthArgs.swift; sourceTree = "<group>"; };
+		AA00000200000000000007 /* AuthResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
+		AA00000200000000000008 /* PaymentMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMethod.swift; sourceTree = "<group>"; };
+		AA00000200000000000009 /* MatchedCandidate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchedCandidate.swift; sourceTree = "<group>"; };
+		AA0000020000000000000A /* VisSavedCardMatchedCandidates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisSavedCardMatchedCandidates.swift; sourceTree = "<group>"; };
+		AA0000020000000000000B /* VisaRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaRequest.swift; sourceTree = "<group>"; };
+		AA0000020000000000000C /* VisaPlans.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaPlans.swift; sourceTree = "<group>"; };
+		AA0000020000000000000D /* VisaEligibilityRequets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaEligibilityRequets.swift; sourceTree = "<group>"; };
+		AA0000020000000000000E /* CostInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostInfo.swift; sourceTree = "<group>"; };
+		AA0000020000000000000F /* LastInstallment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastInstallment.swift; sourceTree = "<group>"; };
+		AA00000200000000000010 /* MatchedPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchedPlan.swift; sourceTree = "<group>"; };
+		AA00000200000000000011 /* TermsAndConditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsAndConditions.swift; sourceTree = "<group>"; };
+		AA00000200000000000012 /* AaniPayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPayViewController.swift; sourceTree = "<group>"; };
+		AA00000200000000000013 /* AaniViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniViewModel.swift; sourceTree = "<group>"; };
+		AA00000200000000000014 /* AaniIDType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniIDType.swift; sourceTree = "<group>"; };
+		AA00000200000000000015 /* AaniInputScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniInputScreen.swift; sourceTree = "<group>"; };
+		AA00000200000000000016 /* AaniPayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPayView.swift; sourceTree = "<group>"; };
+		AA00000200000000000017 /* AaniTimerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniTimerScreen.swift; sourceTree = "<group>"; };
+		AA00000200000000000018 /* VisaInstallmentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaInstallmentViewController.swift; sourceTree = "<group>"; };
+		AA00000200000000000019 /* VisaInstallmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaInstallmentView.swift; sourceTree = "<group>"; };
+		AA0000020000000000001A /* PartialAuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialAuthViewController.swift; sourceTree = "<group>"; };
+		AA0000020000000000001B /* PartialAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialAuthView.swift; sourceTree = "<group>"; };
+		AA0000020000000000001C /* ClickToPayEmailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayEmailViewController.swift; sourceTree = "<group>"; };
+		AA0000020000000000001D /* Local+iso639.2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Local+iso639.2.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -254,6 +314,7 @@
 				860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */,
 				869DDD5C23146F010020CB20 /* ApplePayDelegate.swift */,
 				C2P0040000000000000004 /* ClickToPayDelegate.swift */,
+				AA00000200000000000001 /* AaniPaymentDelegate.swift */,
 				860CCE1422FD3B9C00B85096 /* TransactionServiceAdapter.swift */,
 				860CCE0D22FD242100B85096 /* HTTPClient */,
 				869DDD5F2314734C0020CB20 /* Constants */,
@@ -284,6 +345,9 @@
 				863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */,
 				C2P0160000000000000016 /* Click To Pay */,
 				FD977BABDE1364E896B1BC06 /* Unified Payment Page */,
+				AA00000300000000000003 /* Aani Pay */,
+				AA00000300000000000004 /* Visa Installment */,
+				AA00000300000000000005 /* Partial Auth */,
 				862CBE3E2306898900767774 /* Card Input Components */,
 				862CBE3B23067BE800767774 /* Card Preview Components */,
 			);
@@ -301,6 +365,8 @@
 		860CCE0222FC928500B85096 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				AA00000300000000000001 /* Aani */,
+				AA00000300000000000002 /* Visa */,
 				C2P0150000000000000015 /* ClickToPay */,
 				863FC9B727F4506000692767 /* ThreeDSTwo */,
 				862CBE65230C8C0500767774 /* Payment Fields */,
@@ -308,6 +374,7 @@
 				860CCE0822FC945F00B85096 /* TransactionService.swift */,
 				860CCE0422FC933200B85096 /* PaymentRequest.swift */,
 				59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */,
+				AA00000200000000000006 /* PartialAuthArgs.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -363,6 +430,7 @@
 				86710F542311C59900259AE9 /* Collection+Pairs.swift */,
 				86ECAFE223225949008FDDDC /* UIView+InterfaceLayoutDirection.swift */,
 				860A6042241B81C40067A75B /* UIScreen+Bounds.swift */,
+				AA0000020000000000001D /* Local+iso639.2.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -385,6 +453,10 @@
 				869DDD6A23157E9F0020CB20 /* WalletProvider.swift */,
 				863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */,
 				59ED19A92AD11B3D0000E024 /* SavedCard.swift */,
+				AA00000200000000000007 /* AuthResponse.swift */,
+				AA00000200000000000008 /* PaymentMethod.swift */,
+				AA00000200000000000009 /* MatchedCandidate.swift */,
+				AA0000020000000000000A /* VisSavedCardMatchedCandidates.swift */,
 			);
 			path = "Transaction Service Responses";
 			sourceTree = "<group>";
@@ -447,6 +519,7 @@
 				869DDD6D231680AB0020CB20 /* TokenUtils.swift */,
 				7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */,
 				59214BDF2AFCE509006EE4E6 /* SDKColors.swift */,
+				NILOG001000000000000001 /* Logger.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -504,6 +577,7 @@
 			children = (
 				C2P0050000000000000005 /* ClickToPayViewController.swift */,
 				C2P0060000000000000006 /* ClickToPayApiInteractor.swift */,
+				AA0000020000000000001C /* ClickToPayEmailViewController.swift */,
 			);
 			path = "Click To Pay";
 			sourceTree = "<group>";
@@ -520,6 +594,62 @@
 				2A1F9B81ADD0CDCC203FAEE6 /* PaymentOption.swift */,
 			);
 			path = "Unified Payment Page";
+			sourceTree = "<group>";
+		};
+		AA00000300000000000001 /* Aani */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000200000000000002 /* AaniPayRequest.swift */,
+				AA00000200000000000003 /* AaniPayArgs.swift */,
+				AA00000200000000000004 /* AaniPayResponse.swift */,
+				AA00000200000000000005 /* AaniPoolingResponse.swift */,
+			);
+			path = Aani;
+			sourceTree = "<group>";
+		};
+		AA00000300000000000002 /* Visa */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000020000000000000B /* VisaRequest.swift */,
+				AA0000020000000000000C /* VisaPlans.swift */,
+				AA0000020000000000000D /* VisaEligibilityRequets.swift */,
+				AA0000020000000000000E /* CostInfo.swift */,
+				AA0000020000000000000F /* LastInstallment.swift */,
+				AA00000200000000000010 /* MatchedPlan.swift */,
+				AA00000200000000000011 /* TermsAndConditions.swift */,
+			);
+			path = Visa;
+			sourceTree = "<group>";
+		};
+		AA00000300000000000003 /* Aani Pay */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000200000000000012 /* AaniPayViewController.swift */,
+				AA00000200000000000013 /* AaniViewModel.swift */,
+				AA00000200000000000014 /* AaniIDType.swift */,
+				AA00000200000000000015 /* AaniInputScreen.swift */,
+				AA00000200000000000016 /* AaniPayView.swift */,
+				AA00000200000000000017 /* AaniTimerScreen.swift */,
+			);
+			path = "Aani Pay";
+			sourceTree = "<group>";
+		};
+		AA00000300000000000004 /* Visa Installment */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000200000000000018 /* VisaInstallmentViewController.swift */,
+				AA00000200000000000019 /* VisaInstallmentView.swift */,
+			);
+			path = "Visa Installment";
+			sourceTree = "<group>";
+		};
+		AA00000300000000000005 /* Partial Auth */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000020000000000001A /* PartialAuthViewController.swift */,
+				AA0000020000000000001B /* PartialAuthView.swift */,
+			);
+			path = "Partial Auth";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -705,6 +835,7 @@
 				862CBE4423068C1E00767774 /* CvvInputVC.swift in Sources */,
 				86ECAFD023210FCD008FDDDC /* String+URLEncode.swift in Sources */,
 				59214BE02AFCE509006EE4E6 /* SDKColors.swift in Sources */,
+				NILOG002000000000000002 /* Logger.swift in Sources */,
 				86710F4C230FE47600259AE9 /* Encodable+PrettyPrint.swift in Sources */,
 				C2P0080000000000000008 /* ClickToPayConfig.swift in Sources */,
 				C2P0090000000000000009 /* ClickToPayResponse.swift in Sources */,
@@ -719,6 +850,35 @@
 				DF4BA060F53CE5A485E6408F /* PaymentSectionSeparatorView.swift in Sources */,
 				8EF63D5723C8FA94AB9F79EF /* FooterView.swift in Sources */,
 				6DF8851AFF8351523D64C3C8 /* PaymentOption.swift in Sources */,
+				AA00000100000000000001 /* AaniPaymentDelegate.swift in Sources */,
+				AA00000100000000000002 /* AaniPayRequest.swift in Sources */,
+				AA00000100000000000003 /* AaniPayArgs.swift in Sources */,
+				AA00000100000000000004 /* AaniPayResponse.swift in Sources */,
+				AA00000100000000000005 /* AaniPoolingResponse.swift in Sources */,
+				AA00000100000000000006 /* PartialAuthArgs.swift in Sources */,
+				AA00000100000000000007 /* AuthResponse.swift in Sources */,
+				AA00000100000000000008 /* PaymentMethod.swift in Sources */,
+				AA00000100000000000009 /* MatchedCandidate.swift in Sources */,
+				AA0000010000000000000A /* VisSavedCardMatchedCandidates.swift in Sources */,
+				AA0000010000000000000B /* VisaRequest.swift in Sources */,
+				AA0000010000000000000C /* VisaPlans.swift in Sources */,
+				AA0000010000000000000D /* VisaEligibilityRequets.swift in Sources */,
+				AA0000010000000000000E /* CostInfo.swift in Sources */,
+				AA0000010000000000000F /* LastInstallment.swift in Sources */,
+				AA00000100000000000010 /* MatchedPlan.swift in Sources */,
+				AA00000100000000000011 /* TermsAndConditions.swift in Sources */,
+				AA00000100000000000012 /* AaniPayViewController.swift in Sources */,
+				AA00000100000000000013 /* AaniViewModel.swift in Sources */,
+				AA00000100000000000014 /* AaniIDType.swift in Sources */,
+				AA00000100000000000015 /* AaniInputScreen.swift in Sources */,
+				AA00000100000000000016 /* AaniPayView.swift in Sources */,
+				AA00000100000000000017 /* AaniTimerScreen.swift in Sources */,
+				AA00000100000000000018 /* VisaInstallmentViewController.swift in Sources */,
+				AA00000100000000000019 /* VisaInstallmentView.swift in Sources */,
+				AA0000010000000000001A /* PartialAuthViewController.swift in Sources */,
+				AA0000010000000000001B /* PartialAuthView.swift in Sources */,
+				AA0000010000000000001C /* ClickToPayEmailViewController.swift in Sources */,
+				AA0000010000000000001D /* Local+iso639.2.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

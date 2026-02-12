@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 14.0, *)
 struct AaniPayView: View {
     @ObservedObject var viewModel: AaniViewModel
     

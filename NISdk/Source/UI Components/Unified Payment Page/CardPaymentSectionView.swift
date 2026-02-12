@@ -197,7 +197,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let cardNumberSection = createBorderedFieldSection(
             label: "Card number".localized,
             field: cardNumberField,
-            trailingIcon: UIImage(systemName: "creditcard"))
+            trailingIcon: {
+                if #available(iOS 13.0, *) { return UIImage(systemName: "creditcard") }
+                return nil
+            }())
         formContainer.addArrangedSubview(cardNumberSection)
 
         // Expiry + CVV side by side
@@ -208,7 +211,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let nameSection = createBorderedFieldSection(
             label: "Name on card".localized,
             field: nameField,
-            trailingIcon: UIImage(systemName: "lock.fill"))
+            trailingIcon: {
+                if #available(iOS 13.0, *) { return UIImage(systemName: "lock.fill") }
+                return nil
+            }())
         formContainer.addArrangedSubview(nameSection)
 
         // Error label

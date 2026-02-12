@@ -53,7 +53,12 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     
     let cardPreviewContainer = UIView()
     let loadingSpinner: UIActivityIndicatorView = {
-        let spinner = UIActivityIndicatorView(style: .medium)
+        let spinner: UIActivityIndicatorView
+        if #available(iOS 13.0, *) {
+            spinner = UIActivityIndicatorView(style: .medium)
+        } else {
+            spinner = UIActivityIndicatorView(style: .white)
+        }
         spinner.color = .gray
         spinner.isHidden = true
         spinner.hidesWhenStopped = true

@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import UIKit
 
+@available(iOS 13.0, *)
 class PartialAuthViewController: UIViewController {
     
     private let partialAuthArgs: PartialAuthArgs

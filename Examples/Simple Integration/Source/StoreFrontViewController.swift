@@ -241,7 +241,8 @@ class StoreFrontViewController:
             overParent: self,
             for: orderResponse,
             with: applePayRequest,
-            clickToPayConfig: clickToPayConfig
+            clickToPayConfig: clickToPayConfig,
+            aaniBackLink: "demoApp://"
         )
     }
 
@@ -275,7 +276,8 @@ class StoreFrontViewController:
             overParent: self,
             for: orderResponse,
             with: applePayRequest,
-            clickToPayConfig: clickToPayConfig
+            clickToPayConfig: clickToPayConfig,
+            aaniBackLink: "demoApp://"
         )
     }
 

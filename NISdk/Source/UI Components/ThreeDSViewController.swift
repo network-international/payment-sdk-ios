@@ -13,7 +13,6 @@ import WebKit
 class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private var webView = WKWebView()
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
-
     private var acsUrl: String
     private var acsPaReq: String
     private var acsMd: String
