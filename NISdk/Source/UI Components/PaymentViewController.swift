@@ -31,6 +31,7 @@ class PaymentViewController: UIViewController {
     private var host: String?
     var clickToPayConfig: ClickToPayConfig?
     private weak var clickToPayDelegate: ClickToPayDelegate?
+    var aaniBackLink: String?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -179,6 +180,9 @@ class PaymentViewController: UIViewController {
             unifiedPaymentPage.onClickToPayTapped = { [weak self] in
                 self?.initiateClickToPayFromUnifiedPage()
             }
+            unifiedPaymentPage.onAaniTapped = { [weak self] in
+                self?.initiateAaniFromUnifiedPage()
+            }
             self.transition(to: .renderCardPaymentForm(unifiedPaymentPage))
             break
         case .ApplePay:
@@ -268,6 +272,31 @@ class PaymentViewController: UIViewController {
             })
         } else {
             print("ApplePay: FAILED - PKPaymentAuthorizationViewController init returned nil (invalid payment request)")
+        }
+    }
+
+    private func initiateAaniFromUnifiedPage() {
+        guard let backLink = aaniBackLink else { return }
+        do {
+            let aaniPayArgs = try order.toAaniPayArgs(backLink)
+            if #available(iOS 14.0, *) {
+                let aaniVC = AaniPayViewController(aaniPayArgs: aaniPayArgs) { [weak self] status in
+                    switch status {
+                    case .success:
+                        self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                    case .cancelled:
+                        // Stay on unified page
+                        break
+                    default:
+                        self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                    }
+                }
+                let navController = UINavigationController(rootViewController: aaniVC)
+                navController.modalPresentationStyle = .pageSheet
+                self.present(navController, animated: true)
+            }
+        } catch {
+            print("Aani: Failed to build args - \(error)")
         }
     }
 
@@ -378,6 +407,7 @@ class PaymentViewController: UIViewController {
                         self.makeCardPayment(paymentRequest: paymentRequest)
                     } else {
                         DispatchQueue.main.async {
+                            if #available(iOS 13.0, *) {
                             self.transition(to: .renderCardPaymentForm(VisaInstallmentViewController(visaPlan: plans, fullAmount: fullAmount, cardNumber: cardNumber, onMakePayment: { visaRequest in
                                 paymentRequest.visaRequest = visaRequest
                                 self.makeCardPayment(paymentRequest: paymentRequest)
@@ -390,6 +420,7 @@ class PaymentViewController: UIViewController {
                                 }
                             })))
                         }
+                        }
                     }
                 } else {
                     self.makeCardPayment(paymentRequest: paymentRequest)
@@ -397,7 +428,7 @@ class PaymentViewController: UIViewController {
             })
         }
     }
-    
+
     private func makeCardPayment(paymentRequest: PaymentRequest) {
         self.transactionService.makePayment(for: self.order, with: paymentRequest, using: self.paymentToken!, on: {
             data, response, err in
@@ -429,6 +460,7 @@ class PaymentViewController: UIViewController {
                                     self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
                                 } else {
                                     DispatchQueue.main.async {
+                                        if #available(iOS 13.0, *) {
                                         self.transition(to: .renderCardPaymentForm(VisaInstallmentViewController(visaPlan: plans, fullAmount: fullAmount, cardNumber: cardNumber, onMakePayment: { visaRequest in
                                             savedCardRequest.visaRequest = visaRequest
                                             self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
@@ -440,6 +472,7 @@ class PaymentViewController: UIViewController {
                                                 self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
                                             }
                                         })))
+                                        }
                                     }
                                 }
                             } else {
@@ -539,6 +572,7 @@ class PaymentViewController: UIViewController {
     }
     
     private func initiatePartialAuth(partialAuthArgs: PartialAuthArgs) {
+        if #available(iOS 13.0, *) {
         self.transition(to: .renderCardPaymentForm(
             PartialAuthViewController(
                 partialAuthArgs: partialAuthArgs,
@@ -556,6 +590,7 @@ class PaymentViewController: UIViewController {
                 }
             )
         ))
+        }
     }
     
     private func initiateThreeDS(with paymentRepsonse: PaymentResponse) {

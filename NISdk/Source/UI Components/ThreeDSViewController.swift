@@ -11,7 +11,13 @@ import WebKit
 
 class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private var webView = WKWebView()
-    private let activityIndicator = UIActivityIndicatorView(style: .medium)
+    private let activityIndicator: UIActivityIndicatorView = {
+        if #available(iOS 13.0, *) {
+            return UIActivityIndicatorView(style: .medium)
+        } else {
+            return UIActivityIndicatorView(style: .white)
+        }
+    }()
     
     private var acsUrl: String
     private var acsPaReq: String

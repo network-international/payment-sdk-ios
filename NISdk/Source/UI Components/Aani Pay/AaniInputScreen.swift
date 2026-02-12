@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 14.0, *)
 struct AaniInputScreen: View {
     @State private var selectedIdType: AaniIDType = .mobileNumber
     @State private var inputText: String = ""
@@ -123,6 +124,7 @@ struct AaniInputScreen: View {
     }
 }
 
+@available(iOS 14.0, *)
 #Preview {
     AaniInputScreen { _, _ in }
 }

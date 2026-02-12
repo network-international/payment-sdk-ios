@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 struct AaniTimerScreen: View {
     let amountFormatted: String
     let timeString: String
@@ -32,6 +33,7 @@ struct AaniTimerScreen: View {
     }
 }
 
+@available(iOS 13.0, *)
 #Preview {
     AaniTimerScreen(amountFormatted: "3000 AED", timeString: "03:12")
 }

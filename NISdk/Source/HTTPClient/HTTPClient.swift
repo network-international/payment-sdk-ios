@@ -69,7 +69,20 @@ public class HTTPClient {
     }
     
     public func makeRequest(with completionHandler: @escaping (HttpResponseCallback)) {
-            let task = session.dataTask(with: self.request as URLRequest, completionHandler: completionHandler)
-            task.resume()
+        let urlRequest = self.request as URLRequest
+        let startTime = Date()
+
+        NILogger.shared.logRequest(urlRequest)
+
+        let task = session.dataTask(with: urlRequest) { data, response, error in
+            let elapsed = Date().timeIntervalSince(startTime)
+            if let error = error {
+                NILogger.shared.logError(error, elapsed: elapsed)
+            } else {
+                NILogger.shared.logResponse(response, data: data, elapsed: elapsed)
+            }
+            completionHandler(data, response, error)
+        }
+        task.resume()
     }
 }
