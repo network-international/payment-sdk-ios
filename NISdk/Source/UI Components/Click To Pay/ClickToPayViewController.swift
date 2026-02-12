@@ -104,7 +104,11 @@ class ClickToPayViewController: UIViewController {
     }
 
     private func setupProgressBar() {
-        progressBar = UIActivityIndicatorView(style: .large)
+        if #available(iOS 13.0, *) {
+            progressBar = UIActivityIndicatorView(style: .large)
+        } else {
+            progressBar = UIActivityIndicatorView(style: .whiteLarge)
+        }
         progressBar.translatesAutoresizingMaskIntoConstraints = false
         progressBar.hidesWhenStopped = true
         view.addSubview(progressBar)

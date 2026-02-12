@@ -19,6 +19,11 @@ private class NISdkBundleLocator {}
     public var shouldShowOrderAmount = true
     public var shouldShowCancelAlert = false
     public var merchantLogo: UIImage?
+
+    public var isLoggingEnabled: Bool {
+        get { NILogger.shared.isEnabled }
+        set { NILogger.shared.isEnabled = newValue }
+    }
     
     public var version: String = "6.0.0"
     
@@ -84,11 +89,13 @@ private class NISdkBundleLocator {}
                                         overParent parentViewController: UIViewController,
                                         for order: OrderResponse,
                                         with applePayRequest: PKPaymentRequest?,
-                                        clickToPayConfig: ClickToPayConfig?) {
+                                        clickToPayConfig: ClickToPayConfig?,
+                                        aaniBackLink: String? = nil) {
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
                                                           applePayDelegate: applePayDelegate, paymentMedium: .Card)
         paymentViewController.applePayRequest = applePayRequest
         paymentViewController.clickToPayConfig = clickToPayConfig
+        paymentViewController.aaniBackLink = aaniBackLink
         let navController = UINavigationController(rootViewController: paymentViewController)
 
         paymentViewController.view.backgroundColor = .clear
@@ -142,6 +149,7 @@ private class NISdkBundleLocator {}
         }
     }
     
+    @available(iOS 14.0, *)
     public func launchAaniPay(aaniPaymentDelegate: AaniPaymentDelegate,
                               overParent parentViewController: UIViewController,
                               orderResponse: OrderResponse,

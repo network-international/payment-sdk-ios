@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 import SwiftUI
 
+@available(iOS 13.0, *)
 class VisaInstallmentViewController: UIViewController {
     let visaPlan: VisaPlans
     let fullAmount: Amount

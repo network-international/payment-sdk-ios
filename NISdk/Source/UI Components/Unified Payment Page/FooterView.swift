@@ -12,8 +12,10 @@ class FooterView: UIView {
 
     var onTermsTapped: (() -> Void)?
     var onPrivacyTapped: (() -> Void)?
+    private let cardProviders: [CardProvider]?
 
-    init() {
+    init(cardProviders: [CardProvider]? = nil) {
+        self.cardProviders = cardProviders
         super.init(frame: .zero)
         setupView()
     }
@@ -102,28 +104,53 @@ class FooterView: UIView {
 
         mainStack.addArrangedSubview(linksStack)
 
-        // Row 3: Card brand logos (centered)
-        let logosStack = UIStackView()
-        logosStack.axis = .horizontal
-        logosStack.spacing = 8
-        logosStack.alignment = .center
+        // Row 3: Card brand logos (only available providers)
+        let logoNames = cardLogoNames()
+        if !logoNames.isEmpty {
+            let logosStack = UIStackView()
+            logosStack.axis = .horizontal
+            logosStack.spacing = 8
+            logosStack.alignment = .center
 
-        let cardLogos = ["visalogo", "mastercardlogo", "amexlogo", "dinerslogo", "jcblogo", "discoverlogo"]
-        for logoName in cardLogos {
-            let imageView = UIImageView(image: UIImage(named: logoName, in: sdkBundle, compatibleWith: nil))
-            imageView.contentMode = .scaleAspectFit
-            imageView.translatesAutoresizingMaskIntoConstraints = false
-            imageView.widthAnchor.constraint(equalToConstant: 32).isActive = true
-            imageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
-            logosStack.addArrangedSubview(imageView)
+            for logoName in logoNames {
+                let imageView = UIImageView(image: UIImage(named: logoName, in: sdkBundle, compatibleWith: nil))
+                imageView.contentMode = .scaleAspectFit
+                imageView.translatesAutoresizingMaskIntoConstraints = false
+                imageView.widthAnchor.constraint(equalToConstant: 32).isActive = true
+                imageView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+                logosStack.addArrangedSubview(imageView)
+            }
+
+            mainStack.addArrangedSubview(logosStack)
         }
-
-        mainStack.addArrangedSubview(logosStack)
 
         addSubview(mainStack)
         mainStack.anchor(top: topAnchor, leading: leadingAnchor,
                          bottom: bottomAnchor, trailing: trailingAnchor,
                          padding: UIEdgeInsets(top: 24, left: 20, bottom: 24, right: 20))
+    }
+
+    private func cardLogoNames() -> [String] {
+        guard let providers = cardProviders, !providers.isEmpty else { return [] }
+        var logos: [String] = []
+        var seen = Set<String>()
+        for provider in providers {
+            let name: String?
+            switch provider {
+            case .visa:                     name = "visalogo"
+            case .masterCard:               name = "mastercardlogo"
+            case .americanExpress:          name = "amexlogo"
+            case .dinersClubInternational:  name = "dinerslogo"
+            case .jcb:                      name = "jcblogo"
+            case .discover:                 name = "discoverlogo"
+            default:                        name = nil
+            }
+            if let name = name, !seen.contains(name) {
+                seen.insert(name)
+                logos.append(name)
+            }
+        }
+        return logos
     }
 
     @objc private func termsTapped() {
