@@ -12,4 +12,5 @@ enum PaymentOption: Equatable {
     case applePay
     case card
     case clickToPay
+    case aani
 }

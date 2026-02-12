@@ -18,7 +18,13 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
     private var fingerPrintCompleted: Bool = false
     
     private var completionHandler: (Bool) -> Void
-    private let activityIndicator = UIActivityIndicatorView(style: .medium)
+    private let activityIndicator: UIActivityIndicatorView = {
+        if #available(iOS 13.0, *) {
+            return UIActivityIndicatorView(style: .medium)
+        } else {
+            return UIActivityIndicatorView(style: .white)
+        }
+    }()
     private var transactionService: TransactionService
     private var accessToken: String
     private var paymentResponse: PaymentResponse

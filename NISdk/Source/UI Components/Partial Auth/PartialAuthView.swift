@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 struct PartialAuthView: View {
     @State private var paymentProcessing: Bool = false
     let issuingOrg: String?
@@ -77,6 +78,7 @@ struct PartialAuthView: View {
     }
 }
 
+@available(iOS 13.0, *)
 struct BorderButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -90,6 +92,7 @@ struct BorderButtonStyle: ButtonStyle {
     }
 }
 
+@available(iOS 13.0, *)
 #Preview {
     PartialAuthView(
         issuingOrg: "HDBC",

@@ -1,5 +1,6 @@
 import SwiftUI
 
+@available(iOS 13.0, *)
 struct VisaInstallmentView: View {
     @State private var selectedPlan: InstallmentPlan?
     @State private var paymentProcessing: Bool = false
@@ -158,6 +159,7 @@ struct VisaInstallmentView: View {
     }
 }
 
+@available(iOS 13.0, *)
 struct ActivityIndicator: UIViewRepresentable {
     
     typealias UIView = UIActivityIndicatorView
@@ -173,6 +175,7 @@ struct ActivityIndicator: UIViewRepresentable {
     }
 }
 
+@available(iOS 13.0, *)
 struct VisaHeaderView: View {
     let cardNumber: String
     var body: some View {
@@ -207,6 +210,7 @@ struct VisaHeaderView: View {
     }
 }
 
+@available(iOS 13.0, *)
 struct PaymentButtonStyle: ButtonStyle {
     let enabled: Bool
     
@@ -220,6 +224,7 @@ struct PaymentButtonStyle: ButtonStyle {
     }
 }
 
+@available(iOS 13.0, *)
 struct VisaInstallmentView_Previews: PreviewProvider {
     static var previews: some View {
         VisaInstallmentView(plans: [
