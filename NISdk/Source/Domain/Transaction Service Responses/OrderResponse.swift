@@ -30,6 +30,8 @@ import Foundation
     public var savedCard: SavedCard?
     public var visSavedCardMatchedCandidates: VisSavedCardMatchedCandidates?
     public var isSaudiPaymentEnabled: Bool?
+    public var frequency: String?
+    public var recurringDetails: RecurringDetails?
     
     public enum OrderCodingKeys: String, CodingKey {
         case _id
@@ -53,6 +55,8 @@ import Foundation
         case embeddedData = "_embedded"
         case visSavedCardMatchedCandidates = "visSavedCardMatchedCandidates"
         case isSaudiPaymentEnabled
+        case frequency
+        case recurringDetails
     }
     
     public func getAuthCode() -> String? {
@@ -80,8 +84,8 @@ import Foundation
         let OrderResponseContainer = try decoder.container(keyedBy: OrderCodingKeys.self)
 
         _id = try OrderResponseContainer.decodeIfPresent(String.self, forKey: ._id) ?? ""
-        type = try OrderResponseContainer.decode(String.self, forKey: .type)
-        action = try OrderResponseContainer.decode(String.self, forKey: .action)
+        type = try OrderResponseContainer.decodeIfPresent(String.self, forKey: .type)
+        action = try OrderResponseContainer.decodeIfPresent(String.self, forKey: .action)
         isSaudiPaymentEnabled = try OrderResponseContainer.decodeIfPresent(Bool.self, forKey: .isSaudiPaymentEnabled)
         amount = try OrderResponseContainer.decodeIfPresent(Amount.self, forKey: .amount)
         formattedAmount = try OrderResponseContainer.decodeIfPresent(String.self, forKey: .formattedAmount)
@@ -100,6 +104,8 @@ import Foundation
         embeddedData = try OrderResponseContainer.decodeIfPresent(EmbeddedData.self, forKey: .embeddedData)
         savedCard = try OrderResponseContainer.decodeIfPresent(SavedCard.self, forKey: .savedCard)
         visSavedCardMatchedCandidates = try OrderResponseContainer.decodeIfPresent(VisSavedCardMatchedCandidates.self, forKey: .visSavedCardMatchedCandidates)
+        frequency = try OrderResponseContainer.decodeIfPresent(String.self, forKey: .frequency)
+        recurringDetails = try OrderResponseContainer.decodeIfPresent(RecurringDetails.self, forKey: .recurringDetails)
     }
     
     class Builder {

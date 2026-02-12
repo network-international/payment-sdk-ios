@@ -25,6 +25,7 @@ class PaymentRequest: NSObject, Codable {
     }
     var payerIp: String?
     var visaRequest: VisaRequest?
+    var hasAcceptedTnc: Bool?
     
     override init() {
         pan = nil
@@ -33,6 +34,7 @@ class PaymentRequest: NSObject, Codable {
         cvv = nil
         cardHolderName = nil
         visaRequest = nil
+        hasAcceptedTnc = false
     }
     
     init(pan: String, expiryMonth: String, expiryYear: String,
@@ -69,6 +71,10 @@ class PaymentRequest: NSObject, Codable {
         self.payerIp = payerIp
     }
     
+    func setHasAcceptedTnc(hasAcceptedTnc: Bool) {
+        self.hasAcceptedTnc = hasAcceptedTnc
+    }
+    
     enum CodingKeys: String, CodingKey {
         case pan
         case expiry
@@ -76,6 +82,7 @@ class PaymentRequest: NSObject, Codable {
         case payerIp
         case cardHolderName = "cardholderName"
         case visaRequest = "vis"
+        case hasAcceptedTnc
     }
     
     required public init(from decoder: Decoder) throws {
@@ -85,6 +92,7 @@ class PaymentRequest: NSObject, Codable {
         cardHolderName = try container.decode(String.self, forKey: .cardHolderName)
         payerIp = try container.decode(String.self, forKey: .payerIp)
         visaRequest = try container.decode(VisaRequest.self, forKey: .visaRequest)
+        hasAcceptedTnc = try container.decode(Bool.self, forKey: .hasAcceptedTnc)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -95,5 +103,6 @@ class PaymentRequest: NSObject, Codable {
         try container.encode(expiry, forKey: .expiry)
         try container.encode(payerIp, forKey: .payerIp)
         try container.encode(visaRequest, forKey: .visaRequest)
+        try container.encode(hasAcceptedTnc, forKey: .hasAcceptedTnc)
     }
 }

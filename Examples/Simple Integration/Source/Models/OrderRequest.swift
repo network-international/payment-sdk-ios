@@ -21,8 +21,24 @@ struct OrderRequest: Encodable {
     var frequency: String?
     var installmentDetails: InstallmentDetails?
     var recurringDetails: RecurringDetails?
+    var planReference: String?
+    var transactionType: String?
+    var tenure: Int?
+    var total: OrderAmount?
+    var orderStartDate: String?
+    var firstName: String?
+    var lastName: String?
+    var email: String?
+    var paymentAttempts: Int?
+    var invoiceExpiryDate: String?
+    var skipInvoiceCreatedEmailNotification: Bool?
+    var notifyPayByLink: Bool?
+    var paymentStructure: String?
+    var initialInstallmentAmount: Int?
+    var initialPeriodLength: Int?
     
-    private enum  OrderRequestCodingKeys: String, CodingKey {
+    
+    private enum OrderRequestCodingKeys: String, CodingKey {
         case action
         case amount
         case language
@@ -32,5 +48,20 @@ struct OrderRequest: Encodable {
         case frequency
         case installmentDetails
         case recurringDetails
+        case planReference
+        case tenure
+        case total
+        case orderStartDate
+        case firstName
+        case lastName
+        case email
+        case transactionType
+        case paymentAttempts
+        case invoiceExpiryDate
+        case skipInvoiceCreatedEmailNotification
+        case notifyPayByLink
+        case paymentStructure
+        case initialInstallmentAmount
+        case initialPeriodLength
     }
 }

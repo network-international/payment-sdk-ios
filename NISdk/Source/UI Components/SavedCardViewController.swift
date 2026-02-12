@@ -36,6 +36,11 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         return errorLabel
     }()
     
+    private var subscriptionCard: SubscriptionDetailsCardView?
+    private var termsView: TermsAndConditionsView?
+    let isSaudiPaymentEnabled: Bool
+    var termsUrl: String = ""
+
     var paymentInProgress: Bool = false {
         didSet {
             self.cvvTextField.isEnabled = false
@@ -76,6 +81,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         self.savedCard = savedCard
         self.orderAmount = orderAmount
         self.order = order
+        self.isSaudiPaymentEnabled = order.isSaudiPaymentEnabled ?? false
         if (savedCard.scheme == "AMERICAN_EXPRESS") {
             self.cvv.length = CVVLengths.amex
         } else {
@@ -92,6 +98,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         view.backgroundColor = ColorCompatibility.systemBackground
         setupScrollView()
+        setupSubscriptionDetailsSection()
         setupCardPreviewComponent()
         setupCardInputForm()
         setupCancelButton()
@@ -102,6 +109,39 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         tearDownCancelButton()
+    }
+    
+    private func setupSubscriptionDetailsSection() {
+        guard
+            order.type == "RECURRING",
+            order.merchantAttributes?["paymentModel"] == "subscription",
+            let subscriptionDetails = SubscriptionUtils.getSubscriptionDetails(order: order)
+        else {
+            return
+        }
+
+        let subscriptionCard = SubscriptionDetailsCardView(
+            startDate: subscriptionDetails.startDate,
+            endDate: subscriptionDetails.lastPaymentDate,
+            amount: subscriptionDetails.amount,
+            frequency: String(subscriptionDetails.frequency)
+        )
+
+        self.subscriptionCard = subscriptionCard
+        contentView.addSubview(subscriptionCard)
+
+        subscriptionCard.anchor(
+            top: contentView.topAnchor,
+            leading: contentView.leadingAnchor,
+            bottom: nil,
+            trailing: contentView.trailingAnchor,
+            padding: UIEdgeInsets(top: 20, left: 20, bottom: 0, right: 20)
+        )
+    }
+
+    func updateTermsUrl(_ url: String) {
+        guard !url.isEmpty else { return }
+        termsView?.updateTermsUrl(url)
     }
     
     fileprivate func updatePayButtonContent(_ order: OrderResponse, _ orderAmount: Amount, _ payButtonTitle: String) {
@@ -202,7 +242,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     func setupCardPreviewComponent() {
         let cardPreviewController = CardPreviewController()
         contentView.addSubview(cardPreviewContainer)
-        cardPreviewContainer.anchor(top: contentView.topAnchor,
+        cardPreviewContainer.anchor(top: subscriptionCard?.bottomAnchor ?? contentView.topAnchor,
                                     leading: contentView.leadingAnchor,
                                     bottom: nil, trailing: contentView.trailingAnchor,
                                     padding: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30),
@@ -253,6 +293,37 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         errorContainer.addSubview(errorLabel)
         errorLabel.alignCenterToCenterOf(parent: errorContainer)
 
+        var lastAnchor: NSLayoutYAxisAnchor = errorContainer.bottomAnchor
+
+        if !isSaudiPaymentEnabled {
+            let termsView = TermsAndConditionsView()
+            self.termsView = termsView
+
+            let orderType = OrderType(rawValue: order.type!) ?? .unknown
+            let config = TermsConfigResolver.resolve(
+                orderType: orderType,
+                isSubscriptionOrder: SubscriptionUtils.isSubscriptionOrder(order: order)
+            )
+
+            termsView.configure(
+                termsText: config.termsText,
+                linkText: config.linkText,
+                termsUrl: termsUrl
+            )
+
+            contentView.addSubview(termsView)
+
+            termsView.anchor(
+                top: errorContainer.bottomAnchor,
+                leading: contentView.leadingAnchor,
+                bottom: nil,
+                trailing: contentView.trailingAnchor,
+                padding: UIEdgeInsets(top: 12, left: 30, bottom: 0, right: 30)
+            )
+
+            lastAnchor = termsView.bottomAnchor
+        }
+        
         payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
         let payButtonTitle: String = if NISdk.sharedInstance.shouldShowOrderAmount {
             String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.getFormattedAmount())
@@ -262,7 +333,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         updatePayButtonContent(order, orderAmount, payButtonTitle)
         contentView.addSubview(payButton)
         payButton.contentHorizontalAlignment = .center
-        payButton.anchor(top: errorContainer.bottomAnchor,
+        payButton.anchor(top: lastAnchor,
                          leading: contentView.leadingAnchor,
                          bottom: contentView.bottomAnchor,
                          trailing: contentView.trailingAnchor,
@@ -289,11 +360,21 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
             errors["cvv"] = "Invalid CVV Field".localized
         }
         
+        if !isSaudiPaymentEnabled,
+           let termsView = termsView,
+           !termsView.isAccepted() {
+            errors["terms"] = "Please accept Terms and Conditions".localized
+        }
         return (errors.isEmpty, errors)
     }
     
     @objc func payButtonAction() {
         let (isAllValid, errors) = validateAllFields()
+        if !isSaudiPaymentEnabled,
+           let termsView = termsView,
+           errors["terms"] != nil {
+            termsView.showValidationError()
+        }
         if let cvv = cvv.value {
             if (isAllValid) {
                 errorLabel.text = ""
@@ -301,7 +382,8 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
                     expiry: savedCard.expiry,
                     cardholderName: savedCard.cardholderName,
                     cardToken: savedCard.cardToken,
-                    cvv: cvv)
+                    cvv: cvv,
+                    hasAcceptedTnc: true)
                 paymentInProgress = true
                 for subview in self.payButton.subviews {
                     if subview is UIStackView {

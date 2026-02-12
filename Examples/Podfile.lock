@@ -1,5 +1,5 @@
 PODS:
-  - NISdk (5.1.9)
+  - NISdk (6.0.0)
 
 DEPENDENCIES:
   - NISdk (from `../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  NISdk: a23459cc3e2df439ea66b6fe4466bed16dbd13e6
+  NISdk: 02313b999f6e2dac563e2de0ba1a2c65adedac1d
 
 PODFILE CHECKSUM: 15f2fc215cff462b6e41932635d9f31a4699f1d7
 

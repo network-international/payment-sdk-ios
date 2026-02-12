@@ -18,6 +18,7 @@ class PaymentViewController: UIViewController {
     private weak var shownViewController: UIViewController?
     
     private let transactionService = TransactionServiceAdapter()
+    private let configService = ConfigServiceAdapter()
     private weak var cardPaymentDelegate: CardPaymentDelegate?
     private let order: OrderResponse
     private var paymentResponse: PaymentResponse?
@@ -29,6 +30,9 @@ class PaymentViewController: UIViewController {
     var applePayRequest: PKPaymentRequest?
     private let cvv: String?
     private var host: String?
+    private var termsUrl: String?
+    private var cardPaymentViewController: CardPaymentViewController?
+    private var savedCardViewController: SavedCardViewController?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -77,6 +81,42 @@ class PaymentViewController: UIViewController {
         self.performPreAuthChecksAndBeginAuth()
     }
     
+    private func fetchInvoiceConfig() {
+
+        guard
+            let orderLink = self.order.orderLinks?.orderLink,
+            let orderURL = URL(string: orderLink),
+            let host = orderURL.host,
+            let accessToken = self.accessToken,
+            let outletId = self.order.outletId
+        else {
+            return
+        }
+
+        let invoiceConfigUrl = "https://\(host)/config/outlets/\(outletId)/configs/invoice"
+
+        self.configService.getInvoiceConfig(
+            for: invoiceConfigUrl,
+            using: accessToken
+        ) { [weak self] data, _, _ in
+
+            guard
+                let self = self,
+                let data = data,
+                let invoiceResponse = try? JSONDecoder().decode(InvoiceResponse.self, from: data),
+                let tncUrl = invoiceResponse.tncUrl,
+                !tncUrl.isEmpty
+                else { return }
+
+                DispatchQueue.main.async {
+                    self.termsUrl = tncUrl
+                    self.cardPaymentViewController?.updateTermsUrl(tncUrl)
+                    self.savedCardViewController?.updateTermsUrl(tncUrl)
+                }
+        }
+    }
+
+
     // Perform any checks that need to be done before auth
     private func performPreAuthChecksAndBeginAuth() {
         if(self.paymentMedium == .ThreeDSTwo ) {
@@ -122,6 +162,7 @@ class PaymentViewController: UIViewController {
             if let paymentToken = tokens["payment-token"], let accessToken = tokens["access-token"] {
                 self?.paymentToken = paymentToken
                 self?.accessToken = accessToken
+                self?.fetchInvoiceConfig()
                 DispatchQueue.main.async { // Use the main thread to update any UI
                     self?.initiatePaymentForm()
                 }
@@ -143,6 +184,7 @@ class PaymentViewController: UIViewController {
                     // Callback hell...
                     self?.paymentToken = paymentToken
                     self?.accessToken = accessToken
+                    self?.fetchInvoiceConfig()
                     // 2. Show card payment screen after authorization (payment token is received)
                     DispatchQueue.main.async { // Use the main thread to update any UI
                         self?.cardPaymentDelegate?.authorizationDidComplete?(with: .AuthSuccess)
@@ -162,7 +204,7 @@ class PaymentViewController: UIViewController {
     private func initiatePaymentForm() {
         switch paymentMedium {
         case .Card:
-            let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment, order: order, onCancel: {
+            self.cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment, order: order, onCancel: {
                 [weak self] in
                 if NISdk.sharedInstance.shouldShowCancelAlert {
                     self?.showCancelPaymentAlert(with: .PaymentCancelled, and: nil, and: nil)
@@ -170,7 +212,7 @@ class PaymentViewController: UIViewController {
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
                 }
             })
-            self.transition(to: .renderCardPaymentForm(cardPaymentViewController))
+            self.transition(to: .renderCardPaymentForm(self.cardPaymentViewController!))
             break
         case .ApplePay:
             if let applePayRequest = applePayRequest {
@@ -211,6 +253,7 @@ class PaymentViewController: UIViewController {
                                 self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
                             }
                         })
+                    self.savedCardViewController = savedCardViewController
                     self.transition(to: .renderCardPaymentForm(savedCardViewController))
                 } else {
                     makeSavedCardPayment(
@@ -218,7 +261,8 @@ class PaymentViewController: UIViewController {
                             expiry: savedCard.expiry,
                             cardholderName: savedCard.cardholderName,
                             cardToken: savedCard.cardToken,
-                            cvv: nil))
+                            cvv: nil,
+                            hasAcceptedTnc: true))
                 }
             } else {
                 finishPaymentAndClosePaymentViewController(with: .InValidRequest, and: nil, and: .AuthFailed)
@@ -609,3 +653,4 @@ private extension PaymentViewController {
         }
     }
 }
+

@@ -117,7 +117,7 @@ class OrderCreationViewController: UIViewController {
                                         savedCard: savedCard)
 
         // add required parameters for order type
-        let orderType = Environment.getOrderType()
+        let orderType = Environment.getOrderType()//"RECURRING_SUBSCRIPTION"
         switch orderType {
             case "INSTALLMENT":
                 orderRequest.installmentDetails = InstallmentDetails(numberOfTenure: 2)
@@ -129,6 +129,32 @@ class OrderCreationViewController: UIViewController {
                 orderRequest.type = "RECURRING"
                 orderRequest.frequency = "MONTHLY"
                 orderRequest.recurringDetails = RecurringDetails(numberOfTenure: 10, recurringType: "FIXED")
+            case "RECURRING_SUBSCRIPTION":
+                orderRequest.transactionType = "RECURRING_PURCHASE"
+                orderRequest.planReference = "3d3581a2-b366-4a06-bc70-82b62828ffec"
+                orderRequest.tenure = 2
+                orderRequest.total = OrderAmount(currencyCode: currencyCode, value: 1100)
+                orderRequest.orderStartDate = Date().ISO8601Format()
+                orderRequest.firstName = "Test"
+                orderRequest.lastName = "User"
+                orderRequest.email = "test@test.com"
+                orderRequest.paymentAttempts = 3
+            case "INTALLMENT_SUBSCRIPTION":
+                orderRequest.transactionType = "INSTALLMENT"
+                orderRequest.planReference = "ae27797e-bfd3-454c-9651-5714caf522ae"
+                orderRequest.tenure = 5
+                orderRequest.total = OrderAmount(currencyCode: currencyCode, value: 100000)
+                orderRequest.orderStartDate = Date().ISO8601Format()
+                orderRequest.invoiceExpiryDate = Date().addingTimeInterval(60 * 60 * 24 * 7).ISO8601Format()
+                orderRequest.firstName = "Test"
+                orderRequest.lastName = "User"
+                orderRequest.email = "test@test.com"
+                orderRequest.paymentAttempts = 3
+                orderRequest.skipInvoiceCreatedEmailNotification = false
+                orderRequest.notifyPayByLink = true
+                orderRequest.paymentStructure = "INTRODUCTORY"
+                orderRequest.initialInstallmentAmount = 2000
+                orderRequest.initialPeriodLength = 1
             default:
                 break
         }

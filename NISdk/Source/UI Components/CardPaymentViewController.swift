@@ -19,6 +19,7 @@ class CardPaymentViewController: UIViewController {
     let expiryDate = ExpiryDate()
     let onCancel: () -> Void?
     var isSaudiPaymentEnabled = false
+    var termsUrl = ""
     var order: OrderResponse?
     
     // ui properties
@@ -42,7 +43,8 @@ class CardPaymentViewController: UIViewController {
         errorLabel.text = ""
         return errorLabel
     }()
-    
+    private var subscriptionCard: SubscriptionDetailsCardView?
+    private var termsView: TermsAndConditionsView?
     var paymentInProgress: Bool = false {
         didSet {
             if(self.paymentInProgress) {
@@ -113,6 +115,7 @@ class CardPaymentViewController: UIViewController {
         self.onCancel = onCancel
         self.order = order
         self.isSaudiPaymentEnabled = order.isSaudiPaymentEnabled ?? false
+        self.termsUrl = ""
         super.init(nibName: nil, bundle: nil)
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
             self.makePaymentCallback = makePaymentCallback
@@ -134,6 +137,7 @@ class CardPaymentViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = NISdk.sharedInstance.niSdkColors.payPageBackgroundColor
         setupScrollView()
+        setupSubscriptionDetailsSection()
         setupCardPreviewComponent()
         setupCardInputForm()
         setupCancelButton()
@@ -145,6 +149,38 @@ class CardPaymentViewController: UIViewController {
         super.viewWillDisappear(animated)
         tearDownCancelButton()
     }
+    
+    private func setupSubscriptionDetailsSection() {
+
+        guard
+            let order = self.order,
+            order.type == "RECURRING",
+            order.merchantAttributes?["paymentModel"] == "subscription",
+            let subscriptionDetails = SubscriptionUtils.getSubscriptionDetails(order: order)
+        else {
+            return
+        }
+
+        let subscriptionCard = SubscriptionDetailsCardView(
+            startDate: subscriptionDetails.startDate,
+            endDate: subscriptionDetails.lastPaymentDate,
+            amount: subscriptionDetails.amount,
+            frequency: String(subscriptionDetails.frequency)
+        )
+
+        self.subscriptionCard = subscriptionCard
+        contentView.addSubview(subscriptionCard)
+
+        subscriptionCard.anchor(
+            top: contentView.topAnchor,
+            leading: contentView.leadingAnchor,
+            bottom:  NSLayoutYAxisAnchor?.none,
+            trailing: contentView.trailingAnchor,
+            padding: UIEdgeInsets(top: 20, left: 20, bottom: 0, right: 20)
+        )
+    }
+
+
     
     private func setupCancelButton() {
         self.parent?.navigationController?.setNavigationBarHidden(false, animated: false)
@@ -201,13 +237,18 @@ class CardPaymentViewController: UIViewController {
     func setupCardPreviewComponent() {
         let cardPreviewController = CardPreviewController()
         cardPreviewController.isSaudiPaymentEnabled = self.isSaudiPaymentEnabled
-        contentView.addSubview(cardPreviewContainer)
-        cardPreviewContainer.anchor(top: contentView.topAnchor,
-                                    leading: contentView.leadingAnchor,
-                                    bottom: nil, trailing: contentView.trailingAnchor,
-                                    padding: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30),
-                                    size: CGSize(width: 0, height: 200))
         
+        contentView.addSubview(cardPreviewContainer)
+
+        cardPreviewContainer.anchor(
+            top: subscriptionCard?.bottomAnchor ?? contentView.topAnchor,
+            leading: contentView.leadingAnchor,
+            bottom: nil,
+            trailing: contentView.trailingAnchor,
+            padding: UIEdgeInsets(top: 30, left: 30, bottom: 0, right: 30),
+            size: CGSize(width: 0, height: 200)
+        )
+
         add(cardPreviewController, inside: cardPreviewContainer)
         cardPreviewController.didMove(toParent: self)
     }
@@ -279,9 +320,40 @@ class CardPaymentViewController: UIViewController {
 
         payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
 
+        var lastAnchor: NSLayoutYAxisAnchor = errorContainer.bottomAnchor
+
+        if !isSaudiPaymentEnabled {
+            let termsView = TermsAndConditionsView()
+            self.termsView = termsView
+
+            let orderType = OrderType(rawValue: self.order?.type ?? "") ?? .unknown
+            let config = TermsConfigResolver.resolve(
+                orderType: orderType,
+                isSubscriptionOrder: SubscriptionUtils.isSubscriptionOrder(order: self.order!)
+            )
+
+            termsView.configure(
+                termsText: config.termsText,
+                linkText: config.linkText,
+                termsUrl: self.termsUrl
+            )
+
+            contentView.addSubview(termsView)
+
+            termsView.anchor(
+                top: errorContainer.bottomAnchor,
+                leading: contentView.leadingAnchor,
+                bottom: nil,
+                trailing: contentView.trailingAnchor,
+                padding: UIEdgeInsets(top: 12, left: 30, bottom: 0, right: 30)
+            )
+
+            lastAnchor = termsView.bottomAnchor
+        }
+        
         contentView.addSubview(payButton)
         payButton.contentHorizontalAlignment = .center
-        payButton.anchor(top: errorContainer.bottomAnchor,
+        payButton.anchor(top: lastAnchor,
                          leading: contentView.leadingAnchor,
                          bottom: contentView.bottomAnchor,
                          trailing: contentView.trailingAnchor,
@@ -294,6 +366,11 @@ class CardPaymentViewController: UIViewController {
                               leading: payButtonLabel?.trailingAnchor,
                               bottom: nil, trailing: nil,
                               padding: UIEdgeInsets(top: 3, left: 10, bottom: 0, right: 0))
+    }
+    
+    func updateTermsUrl(_ url: String) {
+        guard !url.isEmpty else { return }
+        termsView?.updateTermsUrl(url)
     }
     
     @objc lazy private var onChangePan: onChangeTextClosure = { [weak self] textField in
@@ -347,11 +424,22 @@ class CardPaymentViewController: UIViewController {
             errors["cardHolderName"] = "Invalid card holder name".localized
         }
         
+        if !isSaudiPaymentEnabled,
+           let termsView = termsView,
+           !termsView.isAccepted() {
+            errors["terms"] = "Please accept Terms and Conditions".localized
+        }
+
         return (errors.isEmpty, errors)
     }
     
     @objc func payButtonAction() {
         let (isAllValid, errors) = validateAllFields()
+        if !isSaudiPaymentEnabled,
+           let termsView = termsView,
+           errors["terms"] != nil {
+            termsView.showValidationError()
+        }
         if let pan = pan.value,
             let expiryMonth = expiryDate.month,
             let expiryYear = expiryDate.year,
@@ -371,6 +459,7 @@ class CardPaymentViewController: UIViewController {
                     }
                 }
                 updateCancelButtonWith(status: false)
+                paymentRequest.setHasAcceptedTnc(hasAcceptedTnc: true)
                 makePaymentCallback?(paymentRequest)
                 return
             } else {

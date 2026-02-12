@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B00004D2F30BBC1002B6386 /* SubscriptionDetailsCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B00004C2F30BBC1002B6386 /* SubscriptionDetailsCardView.swift */; };
+		4B1DA5CB2F365E8C00A1C2DE /* RecurringDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B1DA5CA2F365E8C00A1C2DE /* RecurringDetails.swift */; };
+		4B87B6A12F3C6E6500272E82 /* ConfigServiceAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B87B6A02F3C6E6500272E82 /* ConfigServiceAdapter.swift */; };
+		4B87B6A32F3C6EBC00272E82 /* ConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B87B6A22F3C6EBC00272E82 /* ConfigService.swift */; };
 		4BE997692EEAAD9400B23771 /* DeviceFingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BE997682EEAAD8000B23771 /* DeviceFingerprint.swift */; };
 		59214BE02AFCE509006EE4E6 /* SDKColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59214BDF2AFCE509006EE4E6 /* SDKColors.swift */; };
 		597641682AD8FB2B004AA08F /* SavedCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597641672AD8FB2B004AA08F /* SavedCardViewController.swift */; };
@@ -106,6 +110,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4B00004C2F30BBC1002B6386 /* SubscriptionDetailsCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionDetailsCardView.swift; sourceTree = "<group>"; };
+		4B1DA5CA2F365E8C00A1C2DE /* RecurringDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringDetails.swift; sourceTree = "<group>"; };
+		4B87B6A02F3C6E6500272E82 /* ConfigServiceAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigServiceAdapter.swift; sourceTree = "<group>"; };
+		4B87B6A22F3C6EBC00272E82 /* ConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigService.swift; sourceTree = "<group>"; };
 		4BE997682EEAAD8000B23771 /* DeviceFingerprint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceFingerprint.swift; sourceTree = "<group>"; };
 		59214BDF2AFCE509006EE4E6 /* SDKColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKColors.swift; sourceTree = "<group>"; };
 		597641672AD8FB2B004AA08F /* SavedCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCardViewController.swift; sourceTree = "<group>"; };
@@ -218,6 +226,7 @@
 		860CCD8A22FC1F6500B85096 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				4B87B6A02F3C6E6500272E82 /* ConfigServiceAdapter.swift */,
 				869DDD6C2316809B0020CB20 /* Utils */,
 				86D2FB5222FC1AE700CF1FA1 /* NISdk.h */,
 				860CCDFE22FC473800B85096 /* NISdk.swift */,
@@ -253,6 +262,7 @@
 				863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */,
 				862CBE3E2306898900767774 /* Card Input Components */,
 				862CBE3B23067BE800767774 /* Card Preview Components */,
+				4B00004C2F30BBC1002B6386 /* SubscriptionDetailsCardView.swift */,
 			);
 			path = "UI Components";
 			sourceTree = "<group>";
@@ -268,6 +278,7 @@
 		860CCE0222FC928500B85096 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				4B87B6A22F3C6EBC00272E82 /* ConfigService.swift */,
 				863FC9B727F4506000692767 /* ThreeDSTwo */,
 				862CBE65230C8C0500767774 /* Payment Fields */,
 				862CBE61230C7F9100767774 /* Transaction Service Responses */,
@@ -337,6 +348,7 @@
 		862CBE61230C7F9100767774 /* Transaction Service Responses */ = {
 			isa = PBXGroup;
 			children = (
+				4B1DA5CA2F365E8C00A1C2DE /* RecurringDetails.swift */,
 				860CCE0622FC934700B85096 /* OrderResponse.swift */,
 				862CBE5F230C6D0100767774 /* PaymentResponse.swift */,
 				862CBDE72305493700767774 /* Amount.swift */,
@@ -572,6 +584,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				863FC9B427F4413700692767 /* ThreeDSTwoViewController.swift in Sources */,
+				4B87B6A32F3C6EBC00272E82 /* ConfigService.swift in Sources */,
 				862CBE53230A4F4D00767774 /* OrderLinks.swift in Sources */,
 				862CBE57230A63F300767774 /* PaymentViewController.swift in Sources */,
 				862CBE4D2307F9D600767774 /* UIView+AutoLayout.swift in Sources */,
@@ -581,6 +594,7 @@
 				860A6043241B81C50067A75B /* UIScreen+Bounds.swift in Sources */,
 				862CBDEC23054C9800767774 /* OrderSummary.swift in Sources */,
 				863FC9CC27FEB13600692767 /* Constants.swift in Sources */,
+				4B1DA5CB2F365E8C00A1C2DE /* RecurringDetails.swift in Sources */,
 				86710F572311C5FD00259AE9 /* String+RemoveWhitespace.swift in Sources */,
 				869DDD6923157E3A0020CB20 /* CardProvider.swift in Sources */,
 				862CBE73230DCF6300767774 /* CardDataNotificationTypes.swift in Sources */,
@@ -610,10 +624,12 @@
 				862CBE7B230E85D500767774 /* String+Insert.swift in Sources */,
 				862CBE69230C8C2C00767774 /* Cvv.swift in Sources */,
 				862CBDF123058F4200767774 /* PaymentMethods.swift in Sources */,
+				4B87B6A12F3C6E6500272E82 /* ConfigServiceAdapter.swift in Sources */,
 				86ECAFDF23223E92008FDDDC /* String+Localized.swift in Sources */,
 				860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */,
 				86C2DFE328EE8C5000E02659 /* String+Env.swift in Sources */,
 				862CBE55230A5F0C00767774 /* URL+QueryParams.swift in Sources */,
+				4B00004D2F30BBC1002B6386 /* SubscriptionDetailsCardView.swift in Sources */,
 				862CBDEA23054C7000767774 /* BillingAddress.swift in Sources */,
 				862CBE77230DD1BB00767774 /* CardHolderName.swift in Sources */,
 				869DDD5D23146F010020CB20 /* ApplePayDelegate.swift in Sources */,
