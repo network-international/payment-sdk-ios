@@ -57,7 +57,7 @@ struct MerchantAttribute: Codable {
     }
 }
 
-struct Environment: Codable {
+struct Environment: Codable, Identifiable {
     let type: EnvironmentType
     let id: String
     let name: String
@@ -72,6 +72,13 @@ struct Environment: Codable {
     private static let KEY_ORDER_TYPE = "order_type"
     private static let KEY_SAVED_LANGUAGE = "saved_language"
     private static let KEY_SAVED_MERCHANT_ATTRIBUTES = "merchant_attributes"
+
+    // SDK Color keys
+    private static let KEY_SDK_COLOR_PAY_BUTTON = "sdk_color_pay_button"
+    private static let KEY_SDK_COLOR_PAY_BUTTON_TEXT = "sdk_color_pay_button_text"
+    private static let KEY_SDK_COLOR_PAGE_BG = "sdk_color_page_bg"
+    private static let KEY_SDK_COLOR_CARD_PREVIEW = "sdk_color_card_preview"
+    private static let KEY_SDK_COLOR_PAGE_TITLE = "sdk_color_page_title"
     
     enum CodingKeys: String, CodingKey {
         case type
@@ -85,6 +92,15 @@ struct Environment: Codable {
     init(type: EnvironmentType, name: String, apiKey: String, outletReference: String, realm: String) {
         self.type = type
         self.id = UUID().uuidString
+        self.name = name
+        self.apiKey = apiKey
+        self.outletReference = outletReference
+        self.realm = realm
+    }
+
+    init(id: String, type: EnvironmentType, name: String, apiKey: String, outletReference: String, realm: String) {
+        self.type = type
+        self.id = id
         self.name = name
         self.apiKey = apiKey
         self.outletReference = outletReference
@@ -255,5 +271,40 @@ struct Environment: Codable {
         } else {
             return ""
         }
+    }
+
+    // MARK: - SDK Colors
+
+    static func setSDKColor(_ key: String, hex: String) {
+        UserDefaults.standard.set(hex, forKey: key)
+    }
+
+    static func getSDKColor(_ key: String) -> String {
+        return UserDefaults.standard.string(forKey: key) ?? ""
+    }
+
+    static var sdkColorPayButton: String {
+        get { getSDKColor(KEY_SDK_COLOR_PAY_BUTTON) }
+        set { setSDKColor(KEY_SDK_COLOR_PAY_BUTTON, hex: newValue) }
+    }
+
+    static var sdkColorPayButtonText: String {
+        get { getSDKColor(KEY_SDK_COLOR_PAY_BUTTON_TEXT) }
+        set { setSDKColor(KEY_SDK_COLOR_PAY_BUTTON_TEXT, hex: newValue) }
+    }
+
+    static var sdkColorPageBackground: String {
+        get { getSDKColor(KEY_SDK_COLOR_PAGE_BG) }
+        set { setSDKColor(KEY_SDK_COLOR_PAGE_BG, hex: newValue) }
+    }
+
+    static var sdkColorCardPreview: String {
+        get { getSDKColor(KEY_SDK_COLOR_CARD_PREVIEW) }
+        set { setSDKColor(KEY_SDK_COLOR_CARD_PREVIEW, hex: newValue) }
+    }
+
+    static var sdkColorPageTitle: String {
+        get { getSDKColor(KEY_SDK_COLOR_PAGE_TITLE) }
+        set { setSDKColor(KEY_SDK_COLOR_PAGE_TITLE, hex: newValue) }
     }
 }

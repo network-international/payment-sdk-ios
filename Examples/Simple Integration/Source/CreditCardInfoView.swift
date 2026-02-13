@@ -140,26 +140,10 @@ class CreditCardInfoView: UIView {
         }
     }
     
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        let maxLength = 3
-        let currentString = (textField.text ?? "") as NSString
-        let newString = currentString.replacingCharacters(in: range, with: string)
-        return newString.count <= maxLength
-    }
-    
     @objc private func payButtonTapped() {
         guard self.savedCard != nil else {
             return
         }
         delegate?.didTapPayButton(withCVV: nil)
-    }
-    
-    private func showErrorAlert(message: String) {
-        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-        alertController.addAction(okAction)
-        if let topViewController = UIApplication.shared.windows.first?.rootViewController {
-            topViewController.present(alertController, animated: true, completion: nil)
-        }
     }
 }
