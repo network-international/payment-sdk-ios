@@ -12,6 +12,26 @@ import NISdk
 import PassKit
 import SwiftUI
 
+/// Payment SDK Integration Guide
+///
+/// PREREQUISITES:
+///   - Add NISdk via CocoaPods or SPM
+///   - Obtain API key and outlet reference from N-Genius portal
+///   - For Apple Pay: configure merchant ID in Apple Developer portal
+///
+/// STEPS:
+///   1. Conform to CardPaymentDelegate (and optionally ApplePayDelegate, ClickToPayDelegate)
+///   2. Create an order via your backend (see OrderCreationViewController / ApiService)
+///   3. Launch payment: NISdk.sharedInstance.showCardPaymentViewWith(...)
+///   4. Handle results in paymentDidComplete(with:) delegate method
+///
+/// OPTIONAL:
+///   - Apple Pay: NISdk.sharedInstance.initiateApplePayWith()
+///   - Click to Pay: NISdk.sharedInstance.launchClickToPay()
+///   - Aani Pay: NISdk.sharedInstance.launchAaniPay()
+///   - Saved Cards: NISdk.sharedInstance.launchSavedCardPayment()
+///   - SDK Colors: NISdk.sharedInstance.setSDKColors()
+///   - Language: NISdk.sharedInstance.setSDKLanguage()
 class StoreFrontViewController:
     UIViewController,
     UICollectionViewDataSource,
@@ -36,18 +56,18 @@ class StoreFrontViewController:
     }()
 
     let pets: [Product] = [
-        Product(name: "🐊", amount: 1),
-        Product(name: "🐅", amount: 2),
-        Product(name: "🐆", amount: 5),
-        Product(name: "🦓", amount: 10),
-        Product(name: "🦏", amount: 450),
-        Product(name: "🐋", amount: 450.12),
-        Product(name: "🦠", amount: 700),
-        Product(name: "🐙", amount: 1000),
-        Product(name: "🐙", amount: 1500),
-        Product(name: "🐡", amount: 2200),
-        Product(name: "🐋", amount: 3000),
-        Product(name: "🐋", amount: 3000.12)
+        Product(name: "Quick Test", amount: 0.10),
+        Product(name: "Micro", amount: 0.50),
+        Product(name: "Small", amount: 1),
+        Product(name: "Basic", amount: 2),
+        Product(name: "Standard", amount: 5),
+        Product(name: "Medium", amount: 10),
+        Product(name: "Large", amount: 50),
+        Product(name: "Premium", amount: 100),
+        Product(name: "Pro", amount: 450),
+        Product(name: "Business", amount: 1000),
+        Product(name: "Enterprise", amount: 2200),
+        Product(name: "Ultimate", amount: 3000),
     ]
     var total: Double = 0 {
         didSet { showHidePayButtonStack() }
@@ -62,7 +82,26 @@ class StoreFrontViewController:
 
         setupPaymentButtons()
 
-        title = "Zoomoji Store"
+        let logoImageView = UIImageView()
+        if let logoImage = UIImage(named: "networklogo", in: Bundle(for: NISdk.self), compatibleWith: nil) {
+            logoImageView.image = logoImage
+        }
+        logoImageView.contentMode = .scaleAspectFit
+        logoImageView.heightAnchor.constraint(equalToConstant: 24).isActive = true
+        logoImageView.widthAnchor.constraint(equalToConstant: 140).isActive = true
+
+        let demoLabel = UILabel()
+        demoLabel.text = "Demo"
+        demoLabel.font = UIFont.systemFont(ofSize: 10, weight: .medium)
+        demoLabel.textColor = .secondaryLabel
+        demoLabel.textAlignment = .center
+
+        let titleStack = UIStackView(arrangedSubviews: [logoImageView, demoLabel])
+        titleStack.axis = .vertical
+        titleStack.alignment = .center
+        titleStack.spacing = 2
+        navigationItem.titleView = titleStack
+
         self.collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView?.register(ProductViewCell.self, forCellWithReuseIdentifier: "collectionCell")
         collectionView?.delegate = self
@@ -127,7 +166,7 @@ class StoreFrontViewController:
         self.present(alert, animated: true, completion: nil)
     }
 
-    // MARK: - CardPaymentDelegate
+    // MARK: - CardPaymentDelegate (Step 4: Handle payment results)
 
     @objc func paymentDidComplete(with status: PaymentStatus) {
         switch status {
@@ -154,10 +193,8 @@ class StoreFrontViewController:
 
     @objc func authorizationDidComplete(with status: AuthorizationStatus) {
         if(status == .AuthFailed) {
-            print("Auth Failed :(")
             return
         }
-        print("Auth Passed :)")
     }
 
     private func getSavedCard() {
@@ -209,39 +246,76 @@ class StoreFrontViewController:
         self.present(orderCreationViewController, animated: false, completion: nil)
     }
 
-    // MARK: - Payment Options
+    // MARK: - SDK Colors
 
-    private func showPaymentOptions(for orderResponse: OrderResponse) {
-        // Build Apple Pay request for unified page
-        let merchantId = ""
-        let applePayRequest = PKPaymentRequest()
-        applePayRequest.merchantIdentifier = merchantId
-        applePayRequest.countryCode = Environment.getRegion() == "KSA" ? "SA" : "AE"
-        applePayRequest.currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
-        applePayRequest.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
-        applePayRequest.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
-        applePayRequest.requiredBillingContactFields = [.postalAddress, .name]
-        applePayRequest.paymentSummaryItems = self.selectedItems.map { PKPaymentSummaryItem(label: $0.name, amount: NSDecimalNumber(value: $0.amount)) }
-        applePayRequest.paymentSummaryItems.append(PKPaymentSummaryItem(label: "NGenius merchant", amount: NSDecimalNumber(value: total)))
-        self.paymentRequest = applePayRequest
+    private func colorFromHex(_ hex: String) -> UIColor? {
+        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        if hexSanitized.hasPrefix("#") {
+            hexSanitized = String(hexSanitized.dropFirst())
+        }
+        guard hexSanitized.count == 6, let rgbValue = UInt64(hexSanitized, radix: 16) else {
+            return nil
+        }
+        return UIColor(
+            red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
+            green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
+            blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
+            alpha: 1.0
+        )
+    }
 
-        // Click to Pay config
-        let clickToPayConfig = ClickToPayConfig(
+    private func applySDKColors() {
+        let colors = NISdkColors()
+
+        if let c = colorFromHex(Environment.sdkColorPayButton) { colors.payButtonBackgroundColor = c }
+        if let c = colorFromHex(Environment.sdkColorPayButtonText) { colors.payButtonTitleColor = c }
+        if let c = colorFromHex(Environment.sdkColorPageBackground) { colors.payPageBackgroundColor = c }
+        if let c = colorFromHex(Environment.sdkColorCardPreview) { colors.cardPreviewColor = c }
+        if let c = colorFromHex(Environment.sdkColorPageTitle) { colors.payPageTitleColor = c }
+
+        NISdk.sharedInstance.setSDKColors(sdkColors: colors)
+    }
+
+    // MARK: - Payment Helpers
+
+    private func makeApplePayRequest() -> PKPaymentRequest {
+        let request = PKPaymentRequest()
+        request.merchantIdentifier = ""
+        request.countryCode = Environment.getRegion() == "KSA" ? "SA" : "AE"
+        request.currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
+        request.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
+        request.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
+        request.requiredBillingContactFields = [.postalAddress, .name]
+        request.paymentSummaryItems = selectedItems.map { PKPaymentSummaryItem(label: $0.name, amount: NSDecimalNumber(value: $0.amount)) }
+        request.paymentSummaryItems.append(PKPaymentSummaryItem(label: "NGenius merchant", amount: NSDecimalNumber(value: total)))
+        return request
+    }
+
+    private func makeClickToPayConfig() -> ClickToPayConfig {
+        return ClickToPayConfig(
             dpaId: "6BDAU1LI2WBPBQR665ED212rYO7vsj9wje83XQxlwzACNikj8",
             dpaClientId: "10c4cb74-3493-4515-ab72-2b303f790241",
             cardBrands: ["visa", "mastercard"],
             dpaName: "Demo Merchant",
             isSandbox: true
         )
+    }
 
-        // Launch unified payment page directly (shows Card, Apple Pay, Click to Pay)
+    // MARK: - Payment Options (Step 3: Launch payment with order response)
+
+    private func showPaymentOptions(for orderResponse: OrderResponse) {
+        let applePayRequest = makeApplePayRequest()
+        self.paymentRequest = applePayRequest
+
+        applySDKColors()
+
         NISdk.sharedInstance.showCardPaymentViewWith(
             cardPaymentDelegate: self,
             applePayDelegate: self,
             overParent: self,
             for: orderResponse,
             with: applePayRequest,
-            clickToPayConfig: clickToPayConfig,
+            clickToPayConfig: makeClickToPayConfig(),
             aaniBackLink: "demoApp://"
         )
     }
@@ -249,34 +323,15 @@ class StoreFrontViewController:
     // MARK: - PaymentOptionsDelegate
 
     func didSelectCardPayment(orderResponse: OrderResponse) {
-        // Build Apple Pay request for unified page
-        let merchantId = ""
-        let applePayRequest = PKPaymentRequest()
-        applePayRequest.merchantIdentifier = merchantId
-        applePayRequest.countryCode = Environment.getRegion() == "KSA" ? "SA" : "AE"
-        applePayRequest.currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
-        applePayRequest.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
-        applePayRequest.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
-        applePayRequest.requiredBillingContactFields = [.postalAddress, .name]
-        applePayRequest.paymentSummaryItems = self.selectedItems.map { PKPaymentSummaryItem(label: $0.name, amount: NSDecimalNumber(value: $0.amount)) }
-        applePayRequest.paymentSummaryItems.append(PKPaymentSummaryItem(label: "NGenius merchant", amount: NSDecimalNumber(value: total)))
-
-        // Click to Pay config
-        let clickToPayConfig = ClickToPayConfig(
-            dpaId: "6BDAU1LI2WBPBQR665ED212rYO7vsj9wje83XQxlwzACNikj8",
-            dpaClientId: "10c4cb74-3493-4515-ab72-2b303f790241",
-            cardBrands: ["visa", "mastercard"],
-            dpaName: "Demo Merchant",
-            isSandbox: true
-        )
+        applySDKColors()
 
         NISdk.sharedInstance.showCardPaymentViewWith(
             cardPaymentDelegate: self,
             applePayDelegate: self,
             overParent: self,
             for: orderResponse,
-            with: applePayRequest,
-            clickToPayConfig: clickToPayConfig,
+            with: makeApplePayRequest(),
+            clickToPayConfig: makeClickToPayConfig(),
             aaniBackLink: "demoApp://"
         )
     }
@@ -291,41 +346,24 @@ class StoreFrontViewController:
     }
 
     func didSelectClickToPay(orderResponse: OrderResponse) {
-        let clickToPayConfig = ClickToPayConfig(
-            dpaId: "6BDAU1LI2WBPBQR665ED212rYO7vsj9wje83XQxlwzACNikj8",
-            dpaClientId: "10c4cb74-3493-4515-ab72-2b303f790241",
-            cardBrands: ["visa", "mastercard"],
-            dpaName: "Demo Merchant",
-            isSandbox: true
-        )
-
         NISdk.sharedInstance.launchClickToPay(
             clickToPayDelegate: self,
             overParent: self,
             for: orderResponse,
-            with: clickToPayConfig
+            with: makeClickToPayConfig()
         )
     }
 
     func didSelectApplePay(orderResponse: OrderResponse) {
-        let merchantId = ""
-        let paymentRequest = PKPaymentRequest()
-        paymentRequest.merchantIdentifier = merchantId
-        paymentRequest.countryCode = Environment.getRegion() == "KSA" ? "SA" : "AE"
-        paymentRequest.currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
-        paymentRequest.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
-        paymentRequest.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
-        paymentRequest.requiredBillingContactFields = [.postalAddress, .name]
-        paymentRequest.paymentSummaryItems = self.selectedItems.map { PKPaymentSummaryItem(label: $0.name, amount: NSDecimalNumber(value: $0.amount)) }
-        paymentRequest.paymentSummaryItems.append(PKPaymentSummaryItem(label: "NGenius merchant", amount: NSDecimalNumber(value: total)))
-        self.paymentRequest = paymentRequest
+        let applePayRequest = makeApplePayRequest()
+        self.paymentRequest = applePayRequest
 
         NISdk.sharedInstance.initiateApplePayWith(
             applePayDelegate: self,
             cardPaymentDelegate: self,
             overParent: self,
             for: orderResponse,
-            with: paymentRequest
+            with: applePayRequest
         )
     }
 
@@ -367,7 +405,7 @@ class StoreFrontViewController:
         }
 
         // Single Pay button
-        payButton.backgroundColor = .black
+        payButton.backgroundColor = UIColor(red: 0.0/255.0, green: 85.0/255.0, blue: 222.0/255.0, alpha: 1.0)
         payButton.setTitleColor(.white, for: .normal)
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         payButton.setTitleColor(UIColor(red: 255, green: 255, blue: 255, alpha: 0.6), for: .highlighted)
