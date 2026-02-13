@@ -386,7 +386,7 @@ class ClickToPayEmailViewController: UIViewController {
 
         // Format amount
         if let amount = orderAmount {
-            amountLabel.text = amount.getFormattedAmount()
+            amountLabel.text = amount.getFormattedAmount2Decimal()
         } else {
             amountLabel.text = ""
         }

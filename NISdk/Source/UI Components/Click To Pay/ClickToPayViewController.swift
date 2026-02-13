@@ -126,12 +126,12 @@ class ClickToPayViewController: UIViewController {
         configuration.userContentController = contentController
         configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
 
-        // Use a non-persistent (ephemeral) data store to ensure the Visa SDK
-        // starts with a clean slate — no stale session tokens, cookies, or
-        // localStorage from previous visits to the pay page domain.
-        // This prevents AUTH_INVALID "Invalid federated id token" errors caused
-        // by expired Visa SDK session data.
-        configuration.websiteDataStore = WKWebsiteDataStore.nonPersistent()
+        // Use the default persistent data store so that Visa SRC SDK cookies
+        // (including "remember me" / skip OTP tokens) survive between sessions.
+        // We clear only localStorage and sessionStorage (which hold stale Visa
+        // session tokens that cause AUTH_INVALID errors) while keeping cookies.
+        configuration.websiteDataStore = WKWebsiteDataStore.default()
+        clearStaleWebData()
 
         if #available(iOS 14.0, *) {
             let webPreferences = WKWebpagePreferences()
@@ -156,6 +156,20 @@ class ClickToPayViewController: UIViewController {
         ])
 
         view.bringSubviewToFront(progressBar)
+    }
+
+    /// Clear localStorage and sessionStorage to prevent stale Visa SDK session
+    /// tokens, while preserving cookies needed for "remember me" / skip OTP.
+    private func clearStaleWebData() {
+        let dataTypes: Set<String> = [
+            WKWebsiteDataTypeLocalStorage,
+            WKWebsiteDataTypeSessionStorage
+        ]
+        WKWebsiteDataStore.default().removeData(
+            ofTypes: dataTypes,
+            modifiedSince: Date.distantPast,
+            completionHandler: {}
+        )
     }
 
     // MARK: - GIF Data URI
@@ -490,6 +504,11 @@ class ClickToPayViewController: UIViewController {
 
         case "onError":
             finish(with: .failed)
+
+        case "onSwitchId":
+            DispatchQueue.main.async {
+                self.navigationController?.popViewController(animated: true)
+            }
 
         case "onCanceled":
             finish(with: .cancelled)

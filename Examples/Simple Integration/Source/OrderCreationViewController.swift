@@ -11,6 +11,12 @@ import UIKit
 import NISdk
 import PassKit
 
+/// Creates an order on the N-Genius gateway and passes the response back to the store front.
+///
+/// Key details:
+///   - The payment amount must be multiplied by 100 (minor units) before sending to the API.
+///   - After a successful order, the SDK language is set via `NISdk.sharedInstance.setSDKLanguage`.
+///   - On failure, an error alert is shown and the view controller is dismissed.
 class OrderCreationViewController: UIViewController {
     let paymentAmount: Double
     let storeFrontDelegate: StoreFrontDelegate
@@ -52,7 +58,6 @@ class OrderCreationViewController: UIViewController {
             errorTitle = userInfo["NSLocalizedDescription"] as? String
                 ?? nsError.localizedDescription
             errorMessage = "Domain: \(nsError.domain), Code: \(nsError.code)"
-            print("❌ [Payment] Error displayed: \(errorTitle) | \(errorMessage) | Full error: \(error)")
         }
 
         DispatchQueue.main.async {
@@ -63,7 +68,6 @@ class OrderCreationViewController: UIViewController {
     }
     
     func createOrder(savedCard: SavedCard? = nil) {
-        print("🔥 [CreateOrder] CALLED - amount: \(paymentAmount)")
         // Multiply amount always by 100 while creating an order
         let merchantAttributes = Environment.getMerchantAttributes()
         let attributeDictionary: [String: String]? = if (merchantAttributes.isEmpty) {
@@ -115,8 +119,6 @@ class OrderCreationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("🔥 [OrderCreationVC] viewDidLoad called")
-//        view.backgroundColor = .white
 
         let authorizationLabel = UILabel()
         authorizationLabel.textColor = .white
@@ -142,31 +144,5 @@ class OrderCreationViewController: UIViewController {
         vStack.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         vStack.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
         self.createOrder(savedCard: savedCard)
-    }
-}
-
-extension Data {
-    func toString(encoding: String.Encoding = .utf8) -> String? {
-        return String(data: self, encoding: encoding)
-    }
-}
-
-extension Data {
-    
-    func printFormatedJSON() {
-        if let json = try? JSONSerialization.jsonObject(with: self, options: .mutableContainers),
-           let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) {
-            pringJSONData(jsonData)
-        } else {
-            assertionFailure("Malformed JSON")
-        }
-    }
-    
-    func printJSON() {
-        pringJSONData(self)
-    }
-    
-    private func pringJSONData(_ data: Data) {
-        print(String(decoding: data, as: UTF8.self))
     }
 }
