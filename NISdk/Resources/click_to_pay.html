@@ -369,10 +369,22 @@
             appearance: none;
             cursor: pointer;
             flex-shrink: 0;
+            position: relative;
         }
         .otp-skip-checkbox:checked {
             background: #1a1f71;
             border-color: #1a1f71;
+        }
+        .otp-skip-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
         }
         .otp-skip-label {
             font-size: 14px;
@@ -1865,19 +1877,30 @@
                     if (emc.mcc) existingConfigData.merchantCategoryCode = '' + emc.mcc;
                 }
 
+                var skipCheckbox = document.getElementById('skipVerificationCheckbox');
+                var skipVerification = skipCheckbox && skipCheckbox.checked;
+
+                var existingComplianceResources = [
+                    {
+                        complianceType: 'PRIVACY_POLICY',
+                        uri: 'ae.visamiddleeast.com/en_AE/legal/global-privacy-notice.html'
+                    },
+                    {
+                        complianceType: 'TERMS_AND_CONDITIONS',
+                        uri: 'ae.visamiddleeast.com/en_AE/legal/checkout/terms-of-service.html'
+                    }
+                ];
+                if (skipVerification) {
+                    existingComplianceResources.push({
+                        complianceType: 'REMEMBER_ME',
+                        uri: 'ae.visamiddleeast.com/en_AE/legal/checkout/terms-of-service.html'
+                    });
+                }
+
                 var checkoutParams = {
                     srcDigitalCardId: srcDigitalCardId,
                     complianceSettings: {
-                        complianceResources: [
-                            {
-                                complianceType: 'PRIVACY_POLICY',
-                                uri: 'ae.visamiddleeast.com/en_AE/legal/global-privacy-notice.html'
-                            },
-                            {
-                                complianceType: 'TERMS_AND_CONDITIONS',
-                                uri: 'ae.visamiddleeast.com/en_AE/legal/checkout/terms-of-service.html'
-                            }
-                        ]
+                        complianceResources: existingComplianceResources
                     },
                     dpaTransactionOptions: Object.assign({
                         transactionAmount: {
@@ -1995,13 +2018,12 @@
             postToNative('onCanceled', {});
         };
 
-        // OTP Switch ID button
+        // OTP Switch ID button — go back to native email screen
         document.getElementById('otpSwitchIdBtn').onclick = function() {
             userEmail = null;
             selectedCard = null;
-            document.getElementById('emailInput').value = '';
             clearOtpBoxes();
-            showView('emailEntry');
+            postToNative('onSwitchId', {});
         };
 
         // OTP individual box handlers
@@ -2114,8 +2136,7 @@
         document.getElementById('switchIdBtn').onclick = function() {
             userEmail = null;
             selectedCard = null;
-            document.getElementById('emailInput').value = '';
-            showView('emailEntry');
+            postToNative('onSwitchId', {});
         };
 
         // Card selection: View more
@@ -2922,8 +2943,13 @@
                         uri: 'ae.visamiddleeast.com/en_AE/legal/checkout/terms-of-service.html'
                     }
                 ];
-                // Note: REMEMBER_ME compliance is optional per PayPageV2
-                // (only added if user checks "Remember me" checkbox)
+                var addCardSkipCheckbox = document.getElementById('skipVerificationCheckbox');
+                if (addCardSkipCheckbox && addCardSkipCheckbox.checked) {
+                    complianceResources.push({
+                        complianceType: 'REMEMBER_ME',
+                        uri: 'ae.visamiddleeast.com/en_AE/legal/checkout/terms-of-service.html'
+                    });
+                }
 
                 // Build dpaTransactionOptions
                 var formattedAmount = (typeof config.amount === 'number')

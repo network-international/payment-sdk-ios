@@ -13,55 +13,60 @@ class ProductViewCell: UICollectionViewCell {
     let productLabel = UILabel()
     let priceLabel = UILabel()
     var price: Double = 0
-    
+
+    private static let niBlue = UIColor(red: 0.0/255.0, green: 85.0/255.0, blue: 222.0/255.0, alpha: 1.0)
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         addViews()
     }
-    
-    private func updateWith(borderColor: UIColor) {
-        contentView.addBorder(.top, color: borderColor, thickness: 5)
-        contentView.addBorder(.bottom, color: borderColor, thickness: 5)
-        contentView.addBorder(.left, color: borderColor, thickness: 5)
-        contentView.addBorder(.right, color: borderColor, thickness: 5)
-    }
-    
+
     func updateBorder(selected: Bool) {
-        var nonSelectedColor: UIColor = UIColor(red:1.00, green:1.00, blue:1.00, alpha:1.0)
-        if #available(iOS 13, *) {
-            nonSelectedColor = UIColor.secondarySystemBackground
+        if selected {
+            contentView.layer.borderColor = ProductViewCell.niBlue.cgColor
+            contentView.layer.borderWidth = 2
+            contentView.backgroundColor = ProductViewCell.niBlue.withAlphaComponent(0.05)
+        } else {
+            contentView.layer.borderColor = UIColor.separator.cgColor
+            contentView.layer.borderWidth = 1
+            contentView.backgroundColor = UIColor.secondarySystemBackground
         }
-        let borderColor = selected
-            ? UIColor(red:0.40, green:0.73, blue:0.40, alpha:1.0)
-            : nonSelectedColor
-        updateWith(borderColor: borderColor)
     }
-    
+
     func setProduct(product: Product) {
         productLabel.text = product.name
         price = product.amount
-        priceLabel.text = "AED \(String(format: "%.2f",price))"
+        priceLabel.text = String(format: "%.2f", price)
     }
-    
+
     func addViews() {
-        productLabel.font = productLabel.font.withSize(50)
-        let vStack = UIStackView(arrangedSubviews: [productLabel, priceLabel])
+        contentView.layer.cornerRadius = 12
+        contentView.layer.masksToBounds = true
+        contentView.backgroundColor = UIColor.secondarySystemBackground
+
+        productLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        productLabel.textColor = .secondaryLabel
+        productLabel.textAlignment = .center
+
+        priceLabel.font = UIFont.systemFont(ofSize: 22, weight: .bold)
+        priceLabel.textColor = .label
+        priceLabel.textAlignment = .center
+
+        let vStack = UIStackView(arrangedSubviews: [priceLabel, productLabel])
         vStack.axis = .vertical
         vStack.alignment = .center
+        vStack.spacing = 4
         contentView.addSubview(vStack)
-        contentView.layer.cornerRadius = 5
-        contentView.layer.masksToBounds = true
+
         updateBorder(selected: false)
 
         vStack.anchor(top: contentView.topAnchor, leading: contentView.leadingAnchor,
                      bottom: contentView.bottomAnchor, trailing: contentView.trailingAnchor,
-                     padding: UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20),
+                     padding: UIEdgeInsets(top: 16, left: 12, bottom: 16, right: 12),
                      size: .zero)
     }
-    
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }

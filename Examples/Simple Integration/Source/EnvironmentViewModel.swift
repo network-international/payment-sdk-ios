@@ -16,6 +16,13 @@ class EnvironmentViewModel: ObservableObject {
     @Published var region: String = ""
     @Published var orderType: String = ""
 
+    // SDK Colors
+    @Published var sdkColorPayButton: String = ""
+    @Published var sdkColorPayButtonText: String = ""
+    @Published var sdkColorPageBackground: String = ""
+    @Published var sdkColorCardPreview: String = ""
+    @Published var sdkColorPageTitle: String = ""
+
     func addEnvironment(name: String, apiKey: String, outletReference: String, realm: String, type: EnvironmentType) {
         let environment = Environment(type:type, name: name, apiKey: apiKey, outletReference: outletReference, realm: realm)
         environments.append(environment)
@@ -35,6 +42,18 @@ class EnvironmentViewModel: ObservableObject {
         language = getLangugae()
         region = getRegion()
         orderType = getOrderType()
+        sdkColorPayButton = Environment.sdkColorPayButton.isEmpty ? "#007AFF" : Environment.sdkColorPayButton
+        sdkColorPayButtonText = Environment.sdkColorPayButtonText.isEmpty ? "#FFFFFF" : Environment.sdkColorPayButtonText
+        sdkColorPageBackground = Environment.sdkColorPageBackground.isEmpty ? "#FFFFFF" : Environment.sdkColorPageBackground
+        sdkColorCardPreview = Environment.sdkColorCardPreview.isEmpty ? "#171618" : Environment.sdkColorCardPreview
+        sdkColorPageTitle = Environment.sdkColorPageTitle.isEmpty ? "#000000" : Environment.sdkColorPageTitle
+
+        // Persist defaults to UserDefaults
+        Environment.sdkColorPayButton = sdkColorPayButton
+        Environment.sdkColorPayButtonText = sdkColorPayButtonText
+        Environment.sdkColorPageBackground = sdkColorPageBackground
+        Environment.sdkColorCardPreview = sdkColorCardPreview
+        Environment.sdkColorPageTitle = sdkColorPageTitle
     }
     
     func saveEnviroments() {
@@ -80,6 +99,14 @@ class EnvironmentViewModel: ObservableObject {
         saveEnviroments()
         updateEnvironment()
     }
+
+    func update(environment: Environment) {
+        if let index = environments.firstIndex(where: { $0.id == environment.id }) {
+            environments[index] = environment
+            saveEnviroments()
+            updateEnvironment()
+        }
+    }
     
     func setOrderAction(action: String) {
         Environment.setOrderAction(action: action)
@@ -111,5 +138,27 @@ class EnvironmentViewModel: ObservableObject {
 
     func getOrderType() -> String {
         return Environment.getOrderType()
+    }
+
+    // MARK: - SDK Colors
+
+    func saveSDKColorPayButton(_ hex: String) {
+        Environment.sdkColorPayButton = hex
+    }
+
+    func saveSDKColorPayButtonText(_ hex: String) {
+        Environment.sdkColorPayButtonText = hex
+    }
+
+    func saveSDKColorPageBackground(_ hex: String) {
+        Environment.sdkColorPageBackground = hex
+    }
+
+    func saveSDKColorCardPreview(_ hex: String) {
+        Environment.sdkColorCardPreview = hex
+    }
+
+    func saveSDKColorPageTitle(_ hex: String) {
+        Environment.sdkColorPageTitle = hex
     }
 }
