@@ -213,13 +213,14 @@ struct VisaHeaderView: View {
 @available(iOS 13.0, *)
 struct PaymentButtonStyle: ButtonStyle {
     let enabled: Bool
-    
+
     func makeBody(configuration: Configuration) -> some View {
+        let colors = NISdk.sharedInstance.niSdkColors
         configuration.label
             .padding(.horizontal, 10)
             .frame(maxWidth: .infinity, maxHeight: 44)
-            .foregroundColor(.white)
-            .background(enabled ? Color.blue : Color.gray)
+            .foregroundColor(enabled ? Color(colors.payButtonTitleColor) : Color(colors.payButtonDisabledTitleColor))
+            .background(enabled ? Color(colors.payButtonBackgroundColor) : Color(colors.payButtonDisabledBackgroundColor))
             .cornerRadius(5)
     }
 }
