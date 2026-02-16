@@ -12,6 +12,12 @@ import WebKit
 
 class ClickToPayViewController: UIViewController {
 
+    /// Shared process pool across all Click to Pay WebView instances.
+    /// This ensures cookies and session data set by the Visa SDK's iframes
+    /// are preserved across VC presentations within the same app session,
+    /// which is required for "remember me" / skip-OTP recognition to work.
+    private static let sharedProcessPool = WKProcessPool()
+
     private var webView: WKWebView!
     private var progressBar: UIActivityIndicatorView!
     private var sdkInitialized = false
@@ -38,6 +44,10 @@ class ClickToPayViewController: UIViewController {
     private var accessToken: String?
     private var paymentCookie: String?
     private var userEmail: String?
+
+    // When true, shows the close (X) button in the nav bar even without userEmail.
+    // Used when launched from the unified page (probe mode) so users can cancel.
+    var showCloseButton = false
 
     // Base64 GIF data URI to inject into the HTML for lookup loading
     private var gifDataUri: String?
@@ -71,9 +81,9 @@ class ClickToPayViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        setupNavigationBar()
         setupProgressBar()
         setupWebView()
+        setupNavigationBar()  // After WebView so floating close button is on top
         loadGifDataUri()
         authorizeAndLoadHtml()
     }
@@ -82,6 +92,7 @@ class ClickToPayViewController: UIViewController {
 
     private func setupNavigationBar() {
         if let email = userEmail, !email.isEmpty {
+            // Pushed onto an existing nav stack (email flow) — use the system nav bar
             self.navigationController?.setNavigationBarHidden(false, animated: false)
             self.navigationItem.title = nil
 
@@ -98,9 +109,35 @@ class ClickToPayViewController: UIViewController {
                 navigationItem.rightBarButtonItem = closeButton
             }
             navigationItem.hidesBackButton = true
+        } else if showCloseButton {
+            // Root of a fresh modal nav controller (probe flow) — use a floating
+            // close button to avoid UIKit nav bar constraint warnings on initial layout
+            self.navigationController?.setNavigationBarHidden(true, animated: false)
+            addFloatingCloseButton()
         } else {
             self.navigationController?.setNavigationBarHidden(true, animated: false)
         }
+    }
+
+    private func addFloatingCloseButton() {
+        let button = UIButton(type: .system)
+        if #available(iOS 13.0, *) {
+            let xImage = UIImage(systemName: "xmark")?.withRenderingMode(.alwaysTemplate)
+            button.setImage(xImage, for: .normal)
+        } else {
+            button.setTitle("✕", for: .normal)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+        }
+        button.tintColor = UIColor(hexString: "#070707")
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(cancelAction), for: .touchUpInside)
+        view.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            button.widthAnchor.constraint(equalToConstant: 32),
+            button.heightAnchor.constraint(equalToConstant: 32)
+        ])
     }
 
     private func setupProgressBar() {
@@ -128,9 +165,12 @@ class ClickToPayViewController: UIViewController {
 
         // Use the default persistent data store so that Visa SRC SDK cookies
         // (including "remember me" / skip OTP tokens) survive between sessions.
-        // We clear only localStorage and sessionStorage (which hold stale Visa
-        // session tokens that cause AUTH_INVALID errors) while keeping cookies.
+        // We clear only sessionStorage (which holds stale Visa session tokens
+        // that cause AUTH_INVALID errors) while keeping cookies and localStorage.
         configuration.websiteDataStore = WKWebsiteDataStore.default()
+        // Share the process pool so that cookies/session state set by the Visa
+        // SDK's iframes persist across VC presentations within the same app session.
+        configuration.processPool = ClickToPayViewController.sharedProcessPool
         clearStaleWebData()
 
         if #available(iOS 14.0, *) {
@@ -158,11 +198,13 @@ class ClickToPayViewController: UIViewController {
         view.bringSubviewToFront(progressBar)
     }
 
-    /// Clear localStorage and sessionStorage to prevent stale Visa SDK session
-    /// tokens, while preserving cookies needed for "remember me" / skip OTP.
+    /// Clear sessionStorage to remove stale per-session data.
+    /// We intentionally keep localStorage because the Visa SDK stores
+    /// "remember me" / skip-OTP recognition tokens there. AUTH_INVALID
+    /// errors from stale session tokens are handled reactively via
+    /// unbindAppInstance + retry in the JS error handlers.
     private func clearStaleWebData() {
         let dataTypes: Set<String> = [
-            WKWebsiteDataTypeLocalStorage,
             WKWebsiteDataTypeSessionStorage
         ]
         WKWebsiteDataStore.default().removeData(
@@ -398,6 +440,9 @@ class ClickToPayViewController: UIViewController {
     private func initializeSdkInWebView() {
         sdkInitialized = true
 
+        // Inject button colors from SDK color configuration
+        injectButtonColors()
+
         let configJson = getInitConfigJson()
         guard let configData = configJson.data(using: .utf8) else {
             return
@@ -408,7 +453,7 @@ class ClickToPayViewController: UIViewController {
         if let email = userEmail, !email.isEmpty {
             js = "setNativeWillLookup(); initializeSdk(atob('\(base64Config)'))"
         } else {
-            js = "initializeSdk(atob('\(base64Config)'))"
+            js = "setProbeMode(); initializeSdk(atob('\(base64Config)'))"
         }
 
         webView.evaluateJavaScript(js) { [weak self] _, error in
@@ -416,6 +461,24 @@ class ClickToPayViewController: UIViewController {
                 self?.progressBar.stopAnimating()
             }
         }
+    }
+
+    private func injectButtonColors() {
+        let colors = NISdk.sharedInstance.niSdkColors
+        let btnBg = colors.payButtonBackgroundColor.toHex()
+        let btnText = colors.payButtonTitleColor.toHex()
+        let disBg = colors.payButtonDisabledBackgroundColor.toHex()
+        let disText = colors.payButtonDisabledTitleColor.toHex()
+        let css = ".btn-primary{background:\(btnBg)!important;color:\(btnText)!important;}" +
+                  ".btn-pay{background:\(btnBg)!important;color:\(btnText)!important;}" +
+                  ".add-card-submit-btn{background:\(btnBg)!important;color:\(btnText)!important;}" +
+                  ".otp-verify-btn{background:\(btnBg)!important;color:\(btnText)!important;}" +
+                  ".btn-primary:disabled{background:\(disBg)!important;color:\(disText)!important;}" +
+                  ".btn-pay:disabled{background:\(disBg)!important;color:\(disText)!important;}" +
+                  ".add-card-submit-btn:disabled{background:\(disBg)!important;color:\(disText)!important;}" +
+                  ".otp-verify-btn:disabled{background:\(disBg)!important;color:\(disText)!important;}"
+        let js = "var s=document.createElement('style');s.textContent='\(css)';document.head.appendChild(s);"
+        webView.evaluateJavaScript(js, completionHandler: nil)
     }
 
     // MARK: - SDK Initialization
@@ -435,7 +498,7 @@ class ClickToPayViewController: UIViewController {
             "amount": majorAmount,
             "currencyCode": clickToPayArgs.currencyCode,
             "formattedAmount": formattedDisplayAmount,
-            "locale": "en_US"
+            "locale": NISdk.sharedInstance.sdkLanguage
         ]
 
         if let dpaClientId = clickToPayConfig.dpaClientId {
@@ -472,11 +535,14 @@ class ClickToPayViewController: UIViewController {
     private func handleBridgeMessage(type: String, data: [String: Any]) {
         switch type {
         case "onSdkInitialized":
+            // Always inject the GIF so it's available for lookup loading
+            DispatchQueue.main.async {
+                self.injectGifIntoHtml()
+            }
             if let email = userEmail, !email.isEmpty {
                 let escapedEmail = email.replacingOccurrences(of: "'", with: "\\'")
                 DispatchQueue.main.async {
-                    let gifEscaped = (self.gifDataUri ?? "").replacingOccurrences(of: "'", with: "\\'")
-                    let combinedJs = "setLookupGif('\(gifEscaped)'); lookupConsumer('\(escapedEmail)')"
+                    let combinedJs = "lookupConsumer('\(escapedEmail)')"
                     self.webView.evaluateJavaScript(combinedJs) { _, _ in }
                 }
             }
@@ -507,7 +573,13 @@ class ClickToPayViewController: UIViewController {
 
         case "onSwitchId":
             DispatchQueue.main.async {
-                self.navigationController?.popViewController(animated: true)
+                if self.userEmail != nil {
+                    // Email was provided via native email VC — pop back to it
+                    self.navigationController?.popViewController(animated: true)
+                } else {
+                    // No email VC to pop to (recognized or standalone) — show in-page email entry
+                    self.webView.evaluateJavaScript("showView('emailEntry')") { _, _ in }
+                }
             }
 
         case "onCanceled":

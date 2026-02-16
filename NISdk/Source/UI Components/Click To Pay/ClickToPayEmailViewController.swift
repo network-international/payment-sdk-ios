@@ -251,7 +251,8 @@ class ClickToPayEmailViewController: UIViewController {
         stopGifAnimation()
         loadingOverlay.isHidden = true
         loadButton.isEnabled = true
-        loadButton.alpha = 1
+        loadButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
+        loadButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
     }
 
     // MARK: - GIF Animation
@@ -467,9 +468,9 @@ class ClickToPayEmailViewController: UIViewController {
 
     private func createLoadButton() -> UIView {
         loadButton.translatesAutoresizingMaskIntoConstraints = false
-        loadButton.backgroundColor = UIColor(hexString: "#FFD882")
+        loadButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
         loadButton.setTitle("Load my cards", for: .normal)
-        loadButton.setTitleColor(UIColor(hexString: "#5C3F00"), for: .normal)
+        loadButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
         loadButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         loadButton.layer.cornerRadius = 8
         loadButton.addTarget(self, action: #selector(loadMyCardsTapped), for: .touchUpInside)
@@ -565,7 +566,8 @@ class ClickToPayEmailViewController: UIViewController {
 
         errorLabel.isHidden = true
         loadButton.isEnabled = false
-        loadButton.alpha = 0.7
+        loadButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonDisabledBackgroundColor
+        loadButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonDisabledTitleColor, for: .normal)
         showLoading()
         onLoadMyCards?(email)
     }

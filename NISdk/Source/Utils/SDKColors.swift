@@ -19,8 +19,10 @@ import Foundation
     public var payButtonTitleColor = UIColor.white
     public var payButtonTitleColorHighlighted = UIColor(displayP3Red: 255, green: 255, blue: 255, alpha: 0.6)
     public var payButtonActivityIndicatorColor = UIColor.white
+    public var payButtonDisabledBackgroundColor = UIColor(hexString: "#d1d1d6")
+    public var payButtonDisabledTitleColor = UIColor(hexString: "#8e8e93")
     public var payPageTitleColor = UIColor.black
-    
+
     public override init() {
         super.init()
     }

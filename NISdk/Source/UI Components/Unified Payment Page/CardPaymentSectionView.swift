@@ -73,10 +73,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     let payButton: UIButton = {
         let btn = UIButton()
-        btn.backgroundColor = UIColor(hexString: "#FFD882")
-        btn.setTitleColor(UIColor(hexString: "#5C3F00"), for: .normal)
+        btn.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
+        btn.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        btn.setTitleColor(UIColor(hexString: "#5C3F00").withAlphaComponent(0.6), for: .highlighted)
+        btn.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColorHighlighted, for: .highlighted)
         btn.layer.cornerRadius = 8
         btn.setTitle("Processing Payment".localized, for: .disabled)
         return btn

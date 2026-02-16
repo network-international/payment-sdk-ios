@@ -137,11 +137,10 @@ struct EnvironmentView: View {
 
                 if sdkColorsExpanded {
                     VStack(spacing: 12) {
-                        SDKColorRow(label: "Pay Button", hex: $viewModel.sdkColorPayButton, onSave: viewModel.saveSDKColorPayButton)
-                        SDKColorRow(label: "Pay Button Text", hex: $viewModel.sdkColorPayButtonText, onSave: viewModel.saveSDKColorPayButtonText)
-                        SDKColorRow(label: "Page Background", hex: $viewModel.sdkColorPageBackground, onSave: viewModel.saveSDKColorPageBackground)
-                        SDKColorRow(label: "Card Preview", hex: $viewModel.sdkColorCardPreview, onSave: viewModel.saveSDKColorCardPreview)
-                        SDKColorRow(label: "Page Title", hex: $viewModel.sdkColorPageTitle, onSave: viewModel.saveSDKColorPageTitle)
+                        SDKColorRow(label: "Button", hex: $viewModel.sdkColorPayButton, onSave: viewModel.saveSDKColorPayButton)
+                        SDKColorRow(label: "Button Text", hex: $viewModel.sdkColorPayButtonText, onSave: viewModel.saveSDKColorPayButtonText)
+                        SDKColorRow(label: "Button Disabled", hex: $viewModel.sdkColorPayButtonDisabled, onSave: viewModel.saveSDKColorPayButtonDisabled)
+                        SDKColorRow(label: "Button Disabled Text", hex: $viewModel.sdkColorPayButtonDisabledText, onSave: viewModel.saveSDKColorPayButtonDisabledText)
                     }
                     .padding(.vertical, 4)
                 }
