@@ -38,12 +38,14 @@ class UnifiedPaymentPageViewController: UIViewController {
             if paymentInProgress {
                 cardSection?.loadingSpinner.startAnimating()
                 cardSection?.payButton.isEnabled = false
-                cardSection?.payButton.alpha = 0.7
+                cardSection?.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonDisabledBackgroundColor
+                cardSection?.payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonDisabledTitleColor, for: .normal)
                 updateCancelButtonWith(status: false)
             } else {
                 cardSection?.loadingSpinner.stopAnimating()
                 cardSection?.payButton.isEnabled = true
-                cardSection?.payButton.alpha = 1.0
+                cardSection?.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
+                cardSection?.payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
                 updateCancelButtonWith(status: true)
             }
         }

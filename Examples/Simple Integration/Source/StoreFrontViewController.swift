@@ -119,7 +119,14 @@ class StoreFrontViewController:
         gearButton.addTarget(self, action: #selector(environmentSetup), for: .touchUpInside)
         gearButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
 
+        let infoIcon = UIImage(systemName: "info.circle.fill")
+        let infoButton = UIButton(type: .custom)
+        infoButton.setImage(infoIcon, for: .normal)
+        infoButton.addTarget(self, action: #selector(showWhatYouNeed), for: .touchUpInside)
+        infoButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
+
         view.addSubview(collectionView!)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: infoButton)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: gearButton)
         guard let data = UserDefaults.standard.data(forKey: "SavedCard") else {
             return
@@ -138,6 +145,18 @@ class StoreFrontViewController:
         let navigationController = UINavigationController(rootViewController: UIHostingController(rootView: environmentView))
 
         navigationController.topViewController?.navigationItem.title = "Configuration"
+        navigationController.topViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(cancelButtonTapped))
+
+        navigationController.modalPresentationStyle = .fullScreen
+        present(navigationController, animated: false, completion: nil)
+    }
+
+    @objc func showWhatYouNeed() {
+        let whatYouNeedView = WhatYouNeedView()
+
+        let navigationController = UINavigationController(rootViewController: UIHostingController(rootView: whatYouNeedView))
+
+        navigationController.topViewController?.navigationItem.title = "What You Need"
         navigationController.topViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(cancelButtonTapped))
 
         navigationController.modalPresentationStyle = .fullScreen
@@ -269,9 +288,8 @@ class StoreFrontViewController:
 
         if let c = colorFromHex(Environment.sdkColorPayButton) { colors.payButtonBackgroundColor = c }
         if let c = colorFromHex(Environment.sdkColorPayButtonText) { colors.payButtonTitleColor = c }
-        if let c = colorFromHex(Environment.sdkColorPageBackground) { colors.payPageBackgroundColor = c }
-        if let c = colorFromHex(Environment.sdkColorCardPreview) { colors.cardPreviewColor = c }
-        if let c = colorFromHex(Environment.sdkColorPageTitle) { colors.payPageTitleColor = c }
+        if let c = colorFromHex(Environment.sdkColorPayButtonDisabled) { colors.payButtonDisabledBackgroundColor = c }
+        if let c = colorFromHex(Environment.sdkColorPayButtonDisabledText) { colors.payButtonDisabledTitleColor = c }
 
         NISdk.sharedInstance.setSDKColors(sdkColors: colors)
     }

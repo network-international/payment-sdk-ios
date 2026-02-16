@@ -32,6 +32,7 @@
 		86EA2239230F2AA300B46FF9 /* OrderRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA2238230F2AA300B46FF9 /* OrderRequest.swift */; };
 		86EA223B230F2BDE00B46FF9 /* OrderAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */; };
 		A1B2C3D52BD901AA00986490 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42BD901AA00986490 /* QRScannerView.swift */; };
+		W1Y00N012BD902AA00986490 /* WhatYouNeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1Y00N002BD902AA00986490 /* WhatYouNeedView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +66,7 @@
 		86EA2238230F2AA300B46FF9 /* OrderRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRequest.swift; sourceTree = "<group>"; };
 		86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderAmount.swift; sourceTree = "<group>"; };
 		A1B2C3D42BD901AA00986490 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		W1Y00N002BD902AA00986490 /* WhatYouNeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatYouNeedView.swift; sourceTree = "<group>"; };
 		86ECAFDD23223D29008FDDDC /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		BB759BA726500270482B263D /* Pods-Demo App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Demo App.debug.xcconfig"; path = "Target Support Files/Pods-Demo App/Pods-Demo App.debug.xcconfig"; sourceTree = "<group>"; };
 		D9BB16541062436DDB8A6A7A /* Pods_Demo_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Demo_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -117,6 +119,7 @@
 				592A15DA2BDA326100986490 /* ApiService.swift */,
 				59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */,
 				A1B2C3D42BD901AA00986490 /* QRScannerView.swift */,
+				W1Y00N002BD902AA00986490 /* WhatYouNeedView.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -328,6 +331,7 @@
 				86EA2237230F204B00B46FF9 /* OrderCreationViewController.swift in Sources */,
 				H1A006022B00000200000001 /* PaymentOptionsViewController.swift in Sources */,
 				A1B2C3D52BD901AA00986490 /* QRScannerView.swift in Sources */,
+				W1Y00N012BD902AA00986490 /* WhatYouNeedView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
