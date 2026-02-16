@@ -1169,6 +1169,513 @@
         var validationChannels = [];
         var sdkInitializing = false;
 
+        // --- i18n Translation System ---
+        var _currentLocale = 'en';
+        var _translations = {
+            en: {
+                CLICK_TO_PAY: 'Click to Pay',
+                INITIALIZING: 'Initializing Click to Pay...',
+                LOOKING_UP_CARDS: 'Click to Pay is looking for your linked cards ....',
+                TOTAL_LABEL: 'Total',
+                CTP_EMAIL_LABEL: 'Enter email to access a set of linked cards',
+                CTP_EMAIL_PLACEHOLDER: 'Email',
+                LOAD_MY_CARDS: 'Load my cards',
+                CTP_INFO_QUESTION: 'How does Click to Pay use my information?',
+                CTP_INFO_CONTENT: 'Click to Pay securely stores your card information with Visa. When you enter your email, we look up cards linked to your account so you can pay without re-entering card details.',
+                SWITCH_ID: 'Switch ID',
+                VIEW_MORE: 'View more',
+                PAY: 'Pay',
+                TERMS_TEXT: 'By clicking "Pay", you agree to the <a href="#" class="terms-link">terms and conditions</a> and authorise the transaction.',
+                OR: 'Or',
+                ENTER_CARD_MANUALLY: 'Enter card manually',
+                CONTACT_DETAILS: 'Contact details',
+                OTP_FOUND_TITLE: 'Click to Pay has found your linked cards',
+                OTP_INSTRUCTION: 'To access your cards, enter the code sent to',
+                RESEND_CODE: 'Resend code',
+                SKIP_VERIFICATION: 'Skip verification for next time',
+                VERIFY_AND_CONTINUE: 'Verify and Continue',
+                OTP_ERROR: 'The OTP entered is invalid, please check and enter a valid OTP received on email/phone',
+                CARD_NUMBER: 'Card number',
+                EXPIRATION_DATE: 'Expiration date',
+                SECURITY_CODE: 'Security code',
+                CVV_HINT: '\u2022 What\'s CVV?',
+                NAME_ON_CARD: 'Name on card',
+                LINK_CARD_TITLE: 'Link this card to <a href="https://km.visamiddleeast.com/en_KM/products/click-to-pay/consumers.html#What_is_Click_to_Pay_" target="_blank">Click to Pay</a>',
+                LINKING_TEXT: 'You are linking this card to',
+                FIRST_NAME: 'First Name',
+                LAST_NAME: 'Last Name',
+                COUNTRY: 'Country',
+                SELECT_COUNTRY: 'Select country',
+                ADDRESS_LINE_1: 'Address Line 1',
+                STREET_ADDRESS: 'Street address',
+                CITY: 'City',
+                STATE_REGION: 'State / Region',
+                STATE: 'State',
+                ZIP_POSTAL_CODE: 'Zip / Postal Code',
+                ZIP_CODE: 'Zip code',
+                MOBILE_NUMBER: 'Mobile Number',
+                ADD_CARD_TERMS: 'By clicking the button below, you agree to the <a href="#">Terms</a> of Click to Pay and understand your data will be processed according to the <a href="#">Privacy Notice</a>',
+                ADD_CARD: 'Add Card',
+                BACK: 'Back',
+                TRY_AGAIN: 'Try Again',
+                CANCEL: 'Cancel',
+                INVALID_CARD_NUMBER: 'Invalid card number',
+                EXPIRY_INVALID: 'Expiry date is invalid.',
+                FIRST_NAME_REQUIRED: 'First name is required',
+                LAST_NAME_REQUIRED: 'Last name is required',
+                COUNTRY_REQUIRED: 'Country is required',
+                ADDRESS_REQUIRED: 'Address is required',
+                CITY_REQUIRED: 'City is required',
+                PHONE_REQUIRED: 'Mobile number is required',
+                PHONE_INVALID: 'Invalid mobile number format',
+                LOOKING_UP: 'Looking up your cards...',
+                PROCESSING_PAYMENT: 'Processing payment...',
+                SENDING_CODE: 'Sending verification code...',
+                VERIFYING: 'Verifying...',
+                VERIFYING_TEST: 'Verifying (test mode)...',
+                ADDING_CARD: 'Adding card...',
+                LOADING: 'Loading...',
+                INVALID_EMAIL: 'Please enter a valid email address',
+                INVALID_CVV: 'Please enter a valid security code',
+                CHECKOUT_FAILED: 'Checkout failed. Please try another card.',
+                CHECKOUT_FAILED_WITH_ERROR: 'Checkout failed: {error}. Please try again.',
+                FAILED_ADD_CARD: 'Failed to add card',
+                FAILED_ADD_CARD_WITH_ERROR: 'Failed to add card: {error}',
+                CARD_ADDED_VERIFY_FAILED: 'Card was added but verification could not complete. Please go back and try loading your cards.',
+                UNABLE_VERIFY: 'Unable to verify identity. No verification method available.',
+                FAILED_SEND_CODE: 'Failed to send verification code: {error}',
+                VERIFICATION_FAILED: 'Verification failed: {error}',
+                SDK_INIT_FAILED: 'Click to Pay SDK failed to initialize. The SDK did not load properly.',
+                FAILED_LOAD_SDK: 'Failed to load Click to Pay SDK',
+                CONFIG_ERROR: 'Configuration error: {error}',
+                LOOKUP_FAILED: 'Click to Pay lookup failed',
+                INVALID_DPA: 'Invalid DPA configuration. Please verify your DPA ID is correct.',
+                VERIFYING_CARD: 'Verifying your card...',
+                NO_INTERNET: 'No internet connection. Please check your network and try again.',
+                CHECKING_SAVED_CARDS: 'Checking for saved cards...',
+                CARD_PLACEHOLDER: '**** **** **** 1234',
+                EXPIRY_PLACEHOLDER: 'MM/YY',
+                CVV_PLACEHOLDER: '123'
+            },
+            ar: {
+                CLICK_TO_PAY: 'انقر للدفع',
+                INITIALIZING: 'جارٍ تهيئة خدمة انقر للدفع...',
+                LOOKING_UP_CARDS: 'خدمة انقر للدفع تبحث عن بطاقاتك المرتبطة....',
+                TOTAL_LABEL: 'الإجمالي',
+                CTP_EMAIL_LABEL: 'أدخل البريد الإلكتروني للوصول إلى البطاقات المرتبطة',
+                CTP_EMAIL_PLACEHOLDER: 'البريد الإلكتروني',
+                LOAD_MY_CARDS: 'تحميل بطاقاتي',
+                CTP_INFO_QUESTION: 'كيف تستخدم خدمة انقر للدفع معلوماتي؟',
+                CTP_INFO_CONTENT: 'تخزّن خدمة انقر للدفع معلومات بطاقتك بشكل آمن مع فيزا. عند إدخال بريدك الإلكتروني، نبحث عن البطاقات المرتبطة بحسابك حتى تتمكن من الدفع دون إعادة إدخال تفاصيل البطاقة.',
+                SWITCH_ID: 'تبديل الهوية',
+                VIEW_MORE: 'عرض المزيد',
+                PAY: 'ادفع',
+                TERMS_TEXT: 'بالنقر على "ادفع"، فإنك توافق على <a href="#" class="terms-link">الشروط والأحكام</a> وتفوّض المعاملة.',
+                OR: 'أو',
+                ENTER_CARD_MANUALLY: 'أدخل البطاقة يدوياً',
+                CONTACT_DETAILS: 'تفاصيل الاتصال',
+                OTP_FOUND_TITLE: 'عثرت خدمة انقر للدفع على بطاقاتك المرتبطة',
+                OTP_INSTRUCTION: 'للوصول إلى بطاقاتك، أدخل الرمز المرسل إلى',
+                RESEND_CODE: 'إعادة إرسال الرمز',
+                SKIP_VERIFICATION: 'تخطي التحقق في المرة القادمة',
+                VERIFY_AND_CONTINUE: 'التحقق والمتابعة',
+                OTP_ERROR: 'رمز التحقق غير صالح، يرجى التحقق وإدخال الرمز الصحيح المستلم على البريد الإلكتروني/الهاتف',
+                CARD_NUMBER: 'رقم البطاقة',
+                EXPIRATION_DATE: 'تاريخ الانتهاء',
+                SECURITY_CODE: 'رمز الأمان',
+                CVV_HINT: '\u2022 ما هو CVV؟',
+                NAME_ON_CARD: 'الاسم على البطاقة',
+                LINK_CARD_TITLE: 'ربط هذه البطاقة بـ <a href="https://km.visamiddleeast.com/en_KM/products/click-to-pay/consumers.html#What_is_Click_to_Pay_" target="_blank">انقر للدفع</a>',
+                LINKING_TEXT: 'أنت تربط هذه البطاقة بـ',
+                FIRST_NAME: 'الاسم الأول',
+                LAST_NAME: 'اسم العائلة',
+                COUNTRY: 'الدولة',
+                SELECT_COUNTRY: 'اختر الدولة',
+                ADDRESS_LINE_1: 'سطر العنوان 1',
+                STREET_ADDRESS: 'عنوان الشارع',
+                CITY: 'المدينة',
+                STATE_REGION: 'الولاية / المنطقة',
+                STATE: 'الولاية',
+                ZIP_POSTAL_CODE: 'الرمز البريدي',
+                ZIP_CODE: 'الرمز البريدي',
+                MOBILE_NUMBER: 'رقم الهاتف المحمول',
+                ADD_CARD_TERMS: 'بالنقر على الزر أدناه، فإنك توافق على <a href="#">الشروط</a> الخاصة بخدمة انقر للدفع وتفهم أنه سيتم معالجة بياناتك وفقاً <a href="#">لإشعار الخصوصية</a>',
+                ADD_CARD: 'إضافة بطاقة',
+                BACK: 'رجوع',
+                TRY_AGAIN: 'حاول مرة أخرى',
+                CANCEL: 'إلغاء',
+                INVALID_CARD_NUMBER: 'رقم البطاقة غير صالح',
+                EXPIRY_INVALID: 'تاريخ الانتهاء غير صالح.',
+                FIRST_NAME_REQUIRED: 'الاسم الأول مطلوب',
+                LAST_NAME_REQUIRED: 'اسم العائلة مطلوب',
+                COUNTRY_REQUIRED: 'الدولة مطلوبة',
+                ADDRESS_REQUIRED: 'العنوان مطلوب',
+                CITY_REQUIRED: 'المدينة مطلوبة',
+                PHONE_REQUIRED: 'رقم الهاتف المحمول مطلوب',
+                PHONE_INVALID: 'صيغة رقم الهاتف غير صالحة',
+                LOOKING_UP: 'جارٍ البحث عن بطاقاتك...',
+                PROCESSING_PAYMENT: 'جارٍ معالجة الدفع...',
+                SENDING_CODE: 'جارٍ إرسال رمز التحقق...',
+                VERIFYING: 'جارٍ التحقق...',
+                VERIFYING_TEST: 'جارٍ التحقق (وضع الاختبار)...',
+                ADDING_CARD: 'جارٍ إضافة البطاقة...',
+                LOADING: 'جارٍ التحميل...',
+                INVALID_EMAIL: 'يرجى إدخال عنوان بريد إلكتروني صالح',
+                INVALID_CVV: 'يرجى إدخال رمز أمان صالح',
+                CHECKOUT_FAILED: 'فشل الدفع. يرجى تجربة بطاقة أخرى.',
+                CHECKOUT_FAILED_WITH_ERROR: 'فشل الدفع: {error}. يرجى المحاولة مرة أخرى.',
+                FAILED_ADD_CARD: 'فشل إضافة البطاقة',
+                FAILED_ADD_CARD_WITH_ERROR: 'فشل إضافة البطاقة: {error}',
+                CARD_ADDED_VERIFY_FAILED: 'تمت إضافة البطاقة ولكن التحقق لم يكتمل. يرجى الرجوع ومحاولة تحميل بطاقاتك.',
+                UNABLE_VERIFY: 'تعذر التحقق من الهوية. لا تتوفر طريقة تحقق.',
+                FAILED_SEND_CODE: 'فشل إرسال رمز التحقق: {error}',
+                VERIFICATION_FAILED: 'فشل التحقق: {error}',
+                SDK_INIT_FAILED: 'فشل تهيئة خدمة انقر للدفع. لم يتم تحميل SDK بشكل صحيح.',
+                FAILED_LOAD_SDK: 'فشل تحميل خدمة انقر للدفع',
+                CONFIG_ERROR: 'خطأ في التهيئة: {error}',
+                LOOKUP_FAILED: 'فشل البحث في خدمة انقر للدفع',
+                INVALID_DPA: 'تهيئة DPA غير صالحة. يرجى التحقق من معرف DPA الخاص بك.',
+                VERIFYING_CARD: 'جارٍ التحقق من بطاقتك...',
+                NO_INTERNET: 'لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة والمحاولة مرة أخرى.',
+                CHECKING_SAVED_CARDS: 'جارٍ التحقق من البطاقات المحفوظة...',
+                CARD_PLACEHOLDER: '**** **** **** 1234',
+                EXPIRY_PLACEHOLDER: 'MM/YY',
+                CVV_PLACEHOLDER: '123'
+            },
+            fr: {
+                CLICK_TO_PAY: 'Click to Pay',
+                INITIALIZING: 'Initialisation de Click to Pay...',
+                LOOKING_UP_CARDS: 'Click to Pay recherche vos cartes enregistrées....',
+                TOTAL_LABEL: 'Total',
+                CTP_EMAIL_LABEL: 'Entrez votre e-mail pour accéder à vos cartes enregistrées',
+                CTP_EMAIL_PLACEHOLDER: 'E-mail',
+                LOAD_MY_CARDS: 'Charger mes cartes',
+                CTP_INFO_QUESTION: 'Comment Click to Pay utilise-t-il mes informations ?',
+                CTP_INFO_CONTENT: 'Click to Pay stocke en toute sécurité les informations de votre carte avec Visa. Lorsque vous entrez votre e-mail, nous recherchons les cartes liées à votre compte afin que vous puissiez payer sans avoir à ressaisir les détails de votre carte.',
+                SWITCH_ID: 'Changer d\'identifiant',
+                VIEW_MORE: 'Voir plus',
+                PAY: 'Payer',
+                TERMS_TEXT: 'En cliquant sur "Payer", vous acceptez les <a href="#" class="terms-link">termes et conditions</a> et autorisez la transaction.',
+                OR: 'Ou',
+                ENTER_CARD_MANUALLY: 'Saisir la carte manuellement',
+                CONTACT_DETAILS: 'Coordonnées',
+                OTP_FOUND_TITLE: 'Click to Pay a trouvé vos cartes enregistrées',
+                OTP_INSTRUCTION: 'Pour accéder à vos cartes, entrez le code envoyé à',
+                RESEND_CODE: 'Renvoyer le code',
+                SKIP_VERIFICATION: 'Ignorer la vérification la prochaine fois',
+                VERIFY_AND_CONTINUE: 'Vérifier et continuer',
+                OTP_ERROR: 'Le code OTP saisi est invalide, veuillez vérifier et entrer un code valide reçu par e-mail/téléphone',
+                CARD_NUMBER: 'Numéro de carte',
+                EXPIRATION_DATE: 'Date d\'expiration',
+                SECURITY_CODE: 'Code de sécurité',
+                CVV_HINT: '\u2022 Qu\'est-ce que le CVV ?',
+                NAME_ON_CARD: 'Nom sur la carte',
+                LINK_CARD_TITLE: 'Lier cette carte à <a href="https://km.visamiddleeast.com/en_KM/products/click-to-pay/consumers.html#What_is_Click_to_Pay_" target="_blank">Click to Pay</a>',
+                LINKING_TEXT: 'Vous liez cette carte à',
+                FIRST_NAME: 'Prénom',
+                LAST_NAME: 'Nom de famille',
+                COUNTRY: 'Pays',
+                SELECT_COUNTRY: 'Sélectionner le pays',
+                ADDRESS_LINE_1: 'Adresse ligne 1',
+                STREET_ADDRESS: 'Adresse',
+                CITY: 'Ville',
+                STATE_REGION: 'État / Région',
+                STATE: 'État',
+                ZIP_POSTAL_CODE: 'Code postal',
+                ZIP_CODE: 'Code postal',
+                MOBILE_NUMBER: 'Numéro de mobile',
+                ADD_CARD_TERMS: 'En cliquant sur le bouton ci-dessous, vous acceptez les <a href="#">Conditions</a> de Click to Pay et comprenez que vos données seront traitées conformément à <a href="#">l\'Avis de confidentialité</a>',
+                ADD_CARD: 'Ajouter une carte',
+                BACK: 'Retour',
+                TRY_AGAIN: 'Réessayer',
+                CANCEL: 'Annuler',
+                INVALID_CARD_NUMBER: 'Numéro de carte invalide',
+                EXPIRY_INVALID: 'Date d\'expiration invalide.',
+                FIRST_NAME_REQUIRED: 'Le prénom est requis',
+                LAST_NAME_REQUIRED: 'Le nom de famille est requis',
+                COUNTRY_REQUIRED: 'Le pays est requis',
+                ADDRESS_REQUIRED: 'L\'adresse est requise',
+                CITY_REQUIRED: 'La ville est requise',
+                PHONE_REQUIRED: 'Le numéro de mobile est requis',
+                PHONE_INVALID: 'Format de numéro de mobile invalide',
+                LOOKING_UP: 'Recherche de vos cartes...',
+                PROCESSING_PAYMENT: 'Traitement du paiement...',
+                SENDING_CODE: 'Envoi du code de vérification...',
+                VERIFYING: 'Vérification...',
+                VERIFYING_TEST: 'Vérification (mode test)...',
+                ADDING_CARD: 'Ajout de la carte...',
+                LOADING: 'Chargement...',
+                INVALID_EMAIL: 'Veuillez entrer une adresse e-mail valide',
+                INVALID_CVV: 'Veuillez entrer un code de sécurité valide',
+                CHECKOUT_FAILED: 'Le paiement a échoué. Veuillez essayer une autre carte.',
+                CHECKOUT_FAILED_WITH_ERROR: 'Le paiement a échoué : {error}. Veuillez réessayer.',
+                FAILED_ADD_CARD: 'Échec de l\'ajout de la carte',
+                FAILED_ADD_CARD_WITH_ERROR: 'Échec de l\'ajout de la carte : {error}',
+                CARD_ADDED_VERIFY_FAILED: 'La carte a été ajoutée mais la vérification n\'a pas pu être complétée. Veuillez revenir en arrière et essayer de charger vos cartes.',
+                UNABLE_VERIFY: 'Impossible de vérifier l\'identité. Aucune méthode de vérification disponible.',
+                FAILED_SEND_CODE: 'Échec de l\'envoi du code de vérification : {error}',
+                VERIFICATION_FAILED: 'Échec de la vérification : {error}',
+                SDK_INIT_FAILED: 'Échec de l\'initialisation de Click to Pay. Le SDK n\'a pas été chargé correctement.',
+                FAILED_LOAD_SDK: 'Échec du chargement de Click to Pay',
+                CONFIG_ERROR: 'Erreur de configuration : {error}',
+                LOOKUP_FAILED: 'Échec de la recherche Click to Pay',
+                INVALID_DPA: 'Configuration DPA invalide. Veuillez vérifier votre identifiant DPA.',
+                VERIFYING_CARD: 'Vérification de votre carte...',
+                NO_INTERNET: 'Pas de connexion Internet. Veuillez vérifier votre réseau et réessayer.',
+                CHECKING_SAVED_CARDS: 'Vérification des cartes enregistrées...',
+                CARD_PLACEHOLDER: '**** **** **** 1234',
+                EXPIRY_PLACEHOLDER: 'MM/YY',
+                CVV_PLACEHOLDER: '123'
+            }
+        };
+
+        function _tr(key, params) {
+            var dict = _translations[_currentLocale] || _translations['en'];
+            var str = dict[key] || _translations['en'][key] || key;
+            if (params) {
+                Object.keys(params).forEach(function(k) {
+                    str = str.replace('{' + k + '}', params[k]);
+                });
+            }
+            return str;
+        }
+
+        function isOffline() {
+            return typeof navigator !== 'undefined' && navigator.onLine === false;
+        }
+
+        function applyLocaleToHtml() {
+            // Loading
+            var el = document.querySelector('#loading .loading-message');
+            if (el) el.textContent = _tr('INITIALIZING');
+
+            // Lookup loading
+            el = document.querySelector('.lookup-loading-title');
+            if (el) el.textContent = _tr('CLICK_TO_PAY');
+            el = document.querySelector('.lookup-loading-message');
+            if (el) el.textContent = _tr('LOOKING_UP_CARDS');
+
+            // All "Click to Pay" titles
+            document.querySelectorAll('.ctp-title, .otp-page-title, .add-card-title').forEach(function(e) {
+                e.textContent = _tr('CLICK_TO_PAY');
+            });
+
+            // Email entry
+            el = document.querySelector('.amount-label');
+            if (el) el.textContent = _tr('TOTAL_LABEL');
+            el = document.querySelector('#emailEntry .form-label');
+            if (el) el.textContent = _tr('CTP_EMAIL_LABEL');
+            el = document.getElementById('emailInput');
+            if (el) el.placeholder = _tr('CTP_EMAIL_PLACEHOLDER');
+            el = document.getElementById('lookupEmailBtn');
+            if (el) el.textContent = _tr('LOAD_MY_CARDS');
+            el = document.querySelector('#infoToggle > span:first-child');
+            if (el) el.textContent = _tr('CTP_INFO_QUESTION');
+            el = document.getElementById('infoContent');
+            if (el) el.textContent = _tr('CTP_INFO_CONTENT');
+
+            // Card selection
+            el = document.querySelector('.amount-row-label');
+            if (el) el.textContent = _tr('TOTAL_LABEL');
+            el = document.getElementById('switchIdBtn');
+            if (el) el.textContent = _tr('SWITCH_ID');
+            el = document.getElementById('viewMoreBtn');
+            if (el) el.textContent = _tr('VIEW_MORE');
+            el = document.getElementById('payBtn');
+            if (el && !selectedCard) el.textContent = _tr('PAY');
+            el = document.querySelector('#cardSelection .terms-text');
+            if (el) el.innerHTML = _tr('TERMS_TEXT');
+            el = document.querySelector('.or-divider span');
+            if (el) el.textContent = _tr('OR');
+            el = document.getElementById('addNewCardBtn');
+            if (el) el.textContent = _tr('ENTER_CARD_MANUALLY');
+
+            // OTP
+            el = document.querySelector('.otp-contact-label');
+            if (el) el.textContent = _tr('CONTACT_DETAILS');
+            el = document.getElementById('otpSwitchIdBtn');
+            if (el) el.textContent = _tr('SWITCH_ID');
+            el = document.querySelector('.otp-found-title');
+            if (el) el.textContent = _tr('OTP_FOUND_TITLE');
+            el = document.querySelector('.otp-instruction');
+            if (el) {
+                el.innerHTML = _tr('OTP_INSTRUCTION') + '<br><span id="otpDestination" class="otp-dest"></span>';
+            }
+            el = document.getElementById('resendOtpBtn');
+            if (el) el.textContent = _tr('RESEND_CODE');
+            el = document.querySelector('.otp-skip-label');
+            if (el) el.textContent = _tr('SKIP_VERIFICATION');
+            el = document.getElementById('verifyOtpBtn');
+            if (el) el.textContent = _tr('VERIFY_AND_CONTINUE');
+            el = document.querySelector('#otpErrorBanner .otp-error-text');
+            if (el) el.textContent = _tr('OTP_ERROR');
+
+            // Add Card form labels
+            var labels = document.querySelectorAll('.add-card-label');
+            var labelMap = {
+                'addCardNumber': 'CARD_NUMBER',
+                'addCardExpiry': 'EXPIRATION_DATE',
+                'addCardCvv': 'SECURITY_CODE',
+                'addCardName': 'NAME_ON_CARD',
+                'addCardFirstName': 'FIRST_NAME',
+                'addCardLastName': 'LAST_NAME',
+                'addCardCountry': 'COUNTRY',
+                'addCardLine1': 'ADDRESS_LINE_1',
+                'addCardCity': 'CITY',
+                'addCardState': 'STATE_REGION',
+                'addCardZip': 'ZIP_POSTAL_CODE',
+                'addCardPhone': 'MOBILE_NUMBER'
+            };
+            labels.forEach(function(label) {
+                var forAttr = label.getAttribute('for');
+                var input = label.nextElementSibling;
+                if (!input) {
+                    var parentField = label.closest('.add-card-field');
+                    if (parentField) input = parentField.querySelector('input, select, .add-card-input-wrapper, .add-card-select-wrapper, .add-card-phone-row');
+                }
+                if (input) {
+                    var inputId = input.id || (input.querySelector && input.querySelector('input, select') ? input.querySelector('input, select').id : '');
+                    if (inputId && labelMap[inputId]) {
+                        var required = label.querySelector('.required');
+                        label.textContent = _tr(labelMap[inputId]);
+                        if (required) {
+                            label.appendChild(document.createTextNode(' '));
+                            var span = document.createElement('span');
+                            span.className = 'required';
+                            span.textContent = '*';
+                            label.appendChild(span);
+                        }
+                    }
+                }
+            });
+
+            // Add Card placeholders
+            el = document.getElementById('addCardNumber');
+            if (el) el.placeholder = _tr('CARD_PLACEHOLDER');
+            el = document.getElementById('addCardExpiry');
+            if (el) el.placeholder = _tr('EXPIRY_PLACEHOLDER');
+            el = document.getElementById('addCardCvv');
+            if (el) el.placeholder = _tr('CVV_PLACEHOLDER');
+            el = document.getElementById('addCardFirstName');
+            if (el) el.placeholder = _tr('FIRST_NAME');
+            el = document.getElementById('addCardLastName');
+            if (el) el.placeholder = _tr('LAST_NAME');
+            el = document.getElementById('addCardLine1');
+            if (el) el.placeholder = _tr('STREET_ADDRESS');
+            el = document.getElementById('addCardCity');
+            if (el) el.placeholder = _tr('CITY');
+            el = document.getElementById('addCardState');
+            if (el) el.placeholder = _tr('STATE');
+            el = document.getElementById('addCardZip');
+            if (el) el.placeholder = _tr('ZIP_CODE');
+            el = document.getElementById('addCardPhone');
+            if (el) el.placeholder = _tr('MOBILE_NUMBER');
+
+            // Select country placeholder
+            el = document.querySelector('#addCardCountry option[disabled]');
+            if (el) el.textContent = _tr('SELECT_COUNTRY');
+
+            // CVV hint
+            el = document.querySelector('.add-card-cvv-hint');
+            if (el) el.textContent = _tr('CVV_HINT');
+
+            // Link card section
+            el = document.querySelector('.add-card-link-title');
+            if (el) el.innerHTML = _tr('LINK_CARD_TITLE');
+            el = document.querySelector('.add-card-linking-text');
+            if (el) {
+                el.innerHTML = _tr('LINKING_TEXT') + '<br><span id="addCardLinkEmail" class="add-card-linking-email"></span>';
+            }
+
+            // Add card terms
+            el = document.querySelector('.add-card-terms');
+            if (el) el.innerHTML = _tr('ADD_CARD_TERMS');
+
+            // Buttons
+            el = document.getElementById('addCardSubmitBtn');
+            if (el) el.textContent = _tr('ADD_CARD');
+            el = document.getElementById('addCardBackBtn');
+            if (el) el.textContent = _tr('BACK');
+            el = document.getElementById('retryBtn');
+            if (el) el.textContent = _tr('TRY_AGAIN');
+            el = document.getElementById('cancelBtn');
+            if (el) el.textContent = _tr('CANCEL');
+
+            // Error texts
+            el = document.getElementById('cardNumberError');
+            if (el) el.textContent = _tr('INVALID_CARD_NUMBER');
+            el = document.getElementById('expiryError');
+            if (el) el.textContent = _tr('EXPIRY_INVALID');
+            el = document.getElementById('firstNameError');
+            if (el) el.textContent = _tr('FIRST_NAME_REQUIRED');
+            el = document.getElementById('lastNameError');
+            if (el) el.textContent = _tr('LAST_NAME_REQUIRED');
+            el = document.getElementById('countryError');
+            if (el) el.textContent = _tr('COUNTRY_REQUIRED');
+            el = document.getElementById('line1Error');
+            if (el) el.textContent = _tr('ADDRESS_REQUIRED');
+            el = document.getElementById('cityError');
+            if (el) el.textContent = _tr('CITY_REQUIRED');
+            el = document.getElementById('phoneError');
+            if (el) el.textContent = _tr('PHONE_REQUIRED');
+        }
+
+        function applyDirectionality() {
+            if (_currentLocale === 'ar') {
+                document.documentElement.dir = 'rtl';
+                document.documentElement.lang = 'ar';
+                var rtlStyle = document.createElement('style');
+                rtlStyle.id = 'rtl-overrides';
+                rtlStyle.textContent = [
+                    'body { text-align: right; }',
+                    '.ctp-header { flex-direction: row-reverse; }',
+                    '.amount-section { flex-direction: row-reverse; }',
+                    '.amount-row { flex-direction: row-reverse; }',
+                    '.email-row { flex-direction: row-reverse; }',
+                    '.card-item { flex-direction: row-reverse; }',
+                    '.card-radio { margin-right: 0; margin-left: 12px; }',
+                    '.card-art { margin-right: 0; margin-left: 12px; }',
+                    '.card-info { text-align: right; }',
+                    '.card-expiry { flex-direction: row-reverse; }',
+                    '.form-input, .add-card-input, .add-card-phone-input, .add-card-select { text-align: right; }',
+                    '.info-toggle { flex-direction: row-reverse; }',
+                    '.info-content { text-align: right; }',
+                    '.otp-contact-card { flex-direction: row-reverse; }',
+                    '.otp-switch-id { margin-left: 0; margin-right: 12px; }',
+                    '.otp-instruction { text-align: right; }',
+                    '.otp-skip-row { flex-direction: row-reverse; }',
+                    '.otp-skip-left { flex-direction: row-reverse; }',
+                    '.add-card-row { flex-direction: row-reverse; }',
+                    '.add-card-link-header { flex-direction: row-reverse; }',
+                    '.add-card-phone-row { flex-direction: row-reverse; }',
+                    '.add-card-phone-code { border-right: none; border-left: 1px solid #DADADA; }',
+                    '.add-card-select-arrow { right: auto; left: 14px; }',
+                    '.add-card-cvv-hint { text-align: left; }',
+                    '.card-brand-icon-inline { right: auto; left: 12px; }',
+                    '.add-card-input-wrapper .add-card-input { padding-right: 16px; padding-left: 52px; }',
+                    '.terms-text, .add-card-terms { text-align: right; }',
+                    '.otp-found-title { text-align: right; }',
+                    '.add-card-linking-text { text-align: right; }'
+                ].join('\n');
+                document.head.appendChild(rtlStyle);
+            } else {
+                document.documentElement.dir = 'ltr';
+                document.documentElement.lang = _currentLocale === 'fr' ? 'fr' : 'en';
+                var existing = document.getElementById('rtl-overrides');
+                if (existing) existing.remove();
+            }
+        }
+
+        function setLocale(locale) {
+            // Extract base language from locale strings like "en_US", "ar", "fr_FR"
+            var lang = (locale || 'en').split(/[_-]/)[0].toLowerCase();
+            if (!_translations[lang]) lang = 'en';
+            _currentLocale = lang;
+            applyDirectionality();
+            applyLocaleToHtml();
+        }
+        // --- End i18n Translation System ---
+
         // JWE Encryption for Click to Pay card data using jose library (ESM dynamic import)
         // Exact same approach as PayPage V2 backend (importX509 + CompactEncrypt)
         var _joseModule = null;
@@ -1239,7 +1746,7 @@
         }
 
         function showLoading(message) {
-            document.querySelector('#loading .loading-message').textContent = message || 'Loading...';
+            document.querySelector('#loading .loading-message').textContent = message || _tr('LOADING');
             showView('loading');
         }
 
@@ -1254,7 +1761,7 @@
 
         function formatAmount(amount, currencyCode) {
             try {
-                return parseFloat(amount).toLocaleString('en', {
+                return parseFloat(amount).toLocaleString(_currentLocale || 'en', {
                     style: 'currency',
                     currency: currencyCode,
                     minimumFractionDigits: 2
@@ -1411,7 +1918,7 @@
                 log('Available SDK-related properties: ' + allProps.join(', '));
 
                 sdkInitializing = false;
-                showError('Click to Pay SDK failed to initialize. The SDK did not load properly.');
+                showError(_tr('SDK_INIT_FAILED'));
                 postToNative('onSdkInitError', {
                     reason: 'VSB_NOT_AVAILABLE',
                     message: 'Click to Pay SDK failed to initialize after timeout'
@@ -1430,6 +1937,9 @@
             try {
                 config = JSON.parse(configJson);
                 log('Initializing SDK with config: ' + JSON.stringify(config));
+
+                // Apply locale from config
+                setLocale(config.locale);
 
                 // Update amount displays
                 updateAmountDisplays();
@@ -1452,11 +1962,18 @@
 
                 script.onerror = function(e) {
                     log('Failed to load SDK script: ' + e);
+                    log('navigator.onLine: ' + navigator.onLine);
                     sdkInitializing = false;
-                    showError('Failed to load Click to Pay SDK');
+                    var reason = 'SCRIPT_LOAD_ERROR';
+                    var message = _tr('FAILED_LOAD_SDK');
+                    if (isOffline()) {
+                        reason = 'NO_INTERNET';
+                        message = _tr('NO_INTERNET');
+                    }
+                    showError(message);
                     postToNative('onSdkInitError', {
-                        reason: 'SCRIPT_LOAD_ERROR',
-                        message: 'Failed to load Click to Pay SDK'
+                        reason: reason,
+                        message: message
                     });
                 };
 
@@ -1464,7 +1981,7 @@
             } catch (e) {
                 log('Error parsing config: ' + e.message);
                 sdkInitializing = false;
-                showError('Configuration error: ' + e.message);
+                showError(_tr('CONFIG_ERROR', { error: e.message }));
                 postToNative('onSdkInitError', {
                     reason: 'CONFIG_ERROR',
                     message: e.message
@@ -1499,27 +2016,42 @@
 
                 var initResult = await Vsb.initialize(initParams);
                 log('SDK initialized successfully, result: ' + JSON.stringify(initResult));
+                log('Vsb methods after init: ' + Object.keys(Vsb).join(', '));
+                log('Vsb.getCards type: ' + typeof Vsb.getCards);
+                log('document.location.href: ' + document.location.href);
+                log('document.documentElement.lang: ' + document.documentElement.lang);
+                log('document.documentElement.dir: ' + document.documentElement.dir);
 
                 postToNative('onSdkInitialized', {});
                 // If native will trigger lookupConsumer, stay on loading spinner
                 // instead of flashing the email entry page
-                if (!nativeWillLookup) {
+                if (nativeWillLookup) {
+                    // Native will trigger lookupConsumer with email
+                } else if (window._doProbe) {
+                    probeRecognition();
+                } else {
                     showView('emailEntry');
                 }
 
             } catch (e) {
                 log('SDK initialization error: ' + JSON.stringify(e));
+                log('navigator.onLine: ' + navigator.onLine);
                 var errorMessage = 'SDK initialization failed';
                 var errorReason = 'INIT_ERROR';
-                if (e) {
+                if (isOffline() || (typeof e === 'object' && e && Object.keys(e).length === 0)) {
+                    // Empty error object from Visa SDK typically means network failure
+                    if (isOffline()) {
+                        errorMessage = _tr('NO_INTERNET');
+                        errorReason = 'NO_INTERNET';
+                    } else {
+                        errorMessage = _tr('INVALID_DPA');
+                        errorReason = 'INVALID_DPA_CONFIG';
+                    }
+                } else if (e) {
                     if (e.message) errorMessage = e.message;
                     if (e.reason) errorReason = e.reason;
                     if (e.error) errorMessage = e.error;
                     if (e.errorCode) errorReason = e.errorCode;
-                    if (typeof e === 'object' && Object.keys(e).length === 0) {
-                        errorMessage = 'Invalid DPA configuration. Please verify your DPA ID is correct.';
-                        errorReason = 'INVALID_DPA_CONFIG';
-                    }
                 }
                 showError(errorMessage);
                 postToNative('onSdkInitError', {
@@ -1540,7 +2072,7 @@
                 if (validationData && nativeWillLookup) {
                     showLookupLoading();
                 } else {
-                    showLoading('Looking up your cards...');
+                    showLoading(_tr('LOOKING_UP'));
                 }
                 log('Calling Vsb.getCards');
 
@@ -1558,6 +2090,9 @@
                 }
 
                 log('getCards params: ' + JSON.stringify(params));
+                log('Vsb exists: ' + (typeof Vsb !== 'undefined') + ', getCards type: ' + typeof Vsb.getCards);
+                log('document.location.href at getCards: ' + document.location.href);
+                log('All Vsb keys: ' + Object.keys(Vsb).join(', '));
                 var result = await Vsb.getCards(params);
                 log('getCards result: ' + JSON.stringify(result));
                 log('getCards actionCode: ' + result.actionCode);
@@ -1579,6 +2114,7 @@
                     }
                     if (cards.length > 0) {
                         displayCards(cards);
+                        storeCtpEmail(userEmail);
                         postToNative('onCardsAvailable', { cards: cards });
                     } else {
                         showAddCardForm();
@@ -1621,7 +2157,12 @@
                     } else if (validationChannels.length > 0) {
                         initiateIdentityValidation(validationChannels[0].id);
                     } else {
-                        showError('Unable to verify identity. No verification method available.');
+                        if (isProbeMode) {
+                            isProbeMode = false;
+                            showView('emailEntry');
+                            return;
+                        }
+                        showError(_tr('UNABLE_VERIFY'));
                         postToNative('onError', {
                             reason: 'NO_VALIDATION_CHANNEL',
                             message: 'No verification method available'
@@ -1647,7 +2188,7 @@
                     if (errorReason === 'VALIDATION_DATA_INVALID' && validationData) {
                         clearOtpBoxes();
                         showView('otpVerification');
-                        showOtpError('The OTP entered is invalid, please check and enter a valid OTP received on email/phone');
+                        showOtpError(_tr('OTP_ERROR'));
                         setTimeout(function() {
                             var firstBox = document.querySelector('.otp-box[data-index="0"]');
                             if (firstBox) firstBox.focus();
@@ -1669,10 +2210,20 @@
                         return;
                     }
 
+                    if (isProbeMode) {
+                        isProbeMode = false;
+                        showView('emailEntry');
+                        return;
+                    }
                     showError(errorMsg);
                     postToNative('onError', { reason: errorReason, message: errorMsg });
                 } else {
                     log('Unknown action code: ' + result.actionCode + ', full result: ' + JSON.stringify(result));
+                    if (isProbeMode) {
+                        isProbeMode = false;
+                        showView('emailEntry');
+                        return;
+                    }
                     showError('Unexpected response: ' + result.actionCode);
                     postToNative('onError', {
                         reason: 'UNKNOWN_ACTION_CODE',
@@ -1682,6 +2233,61 @@
 
             } catch (e) {
                 log('getCards error: ' + JSON.stringify(e));
+                log('navigator.onLine: ' + navigator.onLine);
+                var isEmptyError = typeof e === 'object' && e && Object.keys(e).length === 0;
+
+                // Offline — show no internet message
+                if (isOffline()) {
+                    log('Device is offline');
+                    if (isProbeMode) {
+                        isProbeMode = false;
+                        showView('emailEntry');
+                        return;
+                    }
+                    showError(_tr('NO_INTERNET'));
+                    postToNative('onError', { reason: 'NO_INTERNET', message: _tr('NO_INTERNET') });
+                    return;
+                }
+
+                // Empty {} error while online — stale SDK session, try unbind + retry once
+                if (isEmptyError && !lookupConsumer._emptyRetried) {
+                    log('Empty SDK error while online — calling unbindAppInstance and retrying');
+                    lookupConsumer._emptyRetried = true;
+                    try {
+                        await Vsb.unbindAppInstance();
+                        log('unbindAppInstance succeeded, retrying getCards');
+                    } catch (unbindErr) {
+                        log('unbindAppInstance error: ' + JSON.stringify(unbindErr));
+                    }
+                    lookupConsumer(email, validationData);
+                    return;
+                }
+
+                // Empty {} error after retry — show generic error
+                if (isEmptyError) {
+                    log('Empty SDK error persists after retry');
+                    log('getCards error type: ' + typeof e);
+                    log('getCards error toString: ' + String(e));
+                    if (isProbeMode) {
+                        isProbeMode = false;
+                        showView('emailEntry');
+                        return;
+                    }
+                    showError(_tr('LOOKUP_FAILED'));
+                    postToNative('onError', { reason: 'LOOKUP_ERROR', message: _tr('LOOKUP_FAILED') });
+                    return;
+                }
+
+                log('getCards error type: ' + typeof e);
+                log('getCards error message: ' + (e && e.message));
+                log('getCards error reason: ' + (e && e.reason));
+                log('getCards error stack: ' + (e && e.stack ? e.stack.substring(0, 500) : 'none'));
+                if (isProbeMode) {
+                    isProbeMode = false;
+                    showView('emailEntry');
+                    return;
+                }
+                showError(e.message || _tr('LOOKUP_FAILED'));
                 postToNative('onError', {
                     reason: e.reason || 'LOOKUP_ERROR',
                     message: e.message || 'Failed to look up cards'
@@ -1700,7 +2306,7 @@
             // Format amount as "CURRENCY AMOUNT" (currency code first)
             var amountNum = parseFloat(config.amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
             var currencyFirst = config.currencyCode + ' ' + amountNum;
-            document.getElementById('payBtn').textContent = 'Pay ' + currencyFirst;
+            document.getElementById('payBtn').textContent = _tr('PAY') + ' ' + currencyFirst;
 
             // Update email display (show full email)
             if (userEmail) {
@@ -1779,7 +2385,7 @@
 
         async function initiateIdentityValidation(channelId) {
             try {
-                showLoading('Sending verification code...');
+                showLoading(_tr('SENDING_CODE'));
                 log('Initiating identity validation for channel: ' + channelId);
 
                 var result = await Vsb.initiateIdentityValidation({
@@ -1816,13 +2422,17 @@
 
             } catch (e) {
                 log('IDV initiation error: ' + JSON.stringify(e));
-                showError('Failed to send verification code: ' + (e.message || 'Unknown error'));
+                if (isOffline()) {
+                    showError(_tr('NO_INTERNET'));
+                } else {
+                    showError(_tr('FAILED_SEND_CODE', { error: e.message || 'Unknown error' }));
+                }
             }
         }
 
         async function verifyOtp(otp) {
             try {
-                showLoading('Verifying...');
+                showLoading(_tr('VERIFYING'));
                 log('Verifying OTP with userEmail: ' + userEmail);
 
                 postToNative('onIdentityValidated', {});
@@ -1831,14 +2441,18 @@
 
             } catch (e) {
                 log('IDV verification error: ' + JSON.stringify(e));
-                showError('Verification failed: ' + (e.message || 'Invalid code'));
+                if (isOffline()) {
+                    showError(_tr('NO_INTERNET'));
+                } else {
+                    showError(_tr('VERIFICATION_FAILED', { error: e.message || 'Invalid code' }));
+                }
             }
         }
 
         async function checkout(srcDigitalCardId) {
             try {
                 hideCardSelectionError();
-                showLoading('Processing payment...');
+                showLoading(_tr('PROCESSING_PAYMENT'));
                 log('Starting checkout with card: ' + srcDigitalCardId);
 
                 // Build dpaTransactionOptions matching PayPageV2's buildCheckoutRequest
@@ -1854,7 +2468,7 @@
                     if (emc.merchantCountryCode) existingConfigData.merchantCountryCode = emc.merchantCountryCode;
                     if (emc.acquirerBins) {
                         // Use brand-specific BIN based on the selected card's network
-                        var cardNetwork = selectedCard ? (selectedCard.paymentCardNetwork || selectedCard.network || selectedCard.cardBrand || '').toUpperCase() : '';
+                        var cardNetwork = selectedCard ? (selectedCard.paymentCardDescriptor || selectedCard.paymentCardNetwork || selectedCard.network || selectedCard.cardBrand || '').toUpperCase() : '';
                         var brandKey = '';
                         if (cardNetwork === 'VISA') brandKey = 'VISA';
                         else if (cardNetwork === 'MASTERCARD') brandKey = 'MASTERCARD';
@@ -1930,6 +2544,7 @@
                 log('Existing card configData: ' + JSON.stringify(existingConfigData));
                 var result = await Vsb.checkout(checkoutParams);
                 log('Checkout result: ' + JSON.stringify(result));
+                log('Checkout bindingStatus: ' + (result.bindingStatus || 'NOT PRESENT'));
                 // Log correlation/trace IDs for payment debugging
                 if (result.srcCorrelationId) log('srcCorrelationId: ' + result.srcCorrelationId);
                 if (result.srcClientId) log('srcClientId: ' + result.srcClientId);
@@ -1958,14 +2573,18 @@
                     log('Unexpected checkout result: ' + JSON.stringify(result));
                     // Show error inline and return to card selection
                     showView('cardSelection');
-                    showCardSelectionError('Checkout failed. Please try another card.');
+                    showCardSelectionError(_tr('CHECKOUT_FAILED'));
                 }
 
             } catch (e) {
                 log('Checkout error: ' + JSON.stringify(e));
                 // Show error inline and return to card selection — don't dismiss VC
                 showView('cardSelection');
-                showCardSelectionError('Checkout failed: ' + (e.message || 'Unknown error') + '. Please try again.');
+                if (isOffline()) {
+                    showCardSelectionError(_tr('NO_INTERNET'));
+                } else {
+                    showCardSelectionError(_tr('CHECKOUT_FAILED_WITH_ERROR', { error: e.message || 'Unknown error' }));
+                }
             }
         }
 
@@ -1976,7 +2595,7 @@
             if (email && email.indexOf('@') >= 0) {
                 lookupConsumer(email);
             } else {
-                showError('Please enter a valid email address');
+                showError(_tr('INVALID_EMAIL'));
             }
         };
 
@@ -2022,6 +2641,7 @@
         document.getElementById('otpSwitchIdBtn').onclick = function() {
             userEmail = null;
             selectedCard = null;
+            clearStoredCtpEmail();
             clearOtpBoxes();
             postToNative('onSwitchId', {});
         };
@@ -2136,6 +2756,7 @@
         document.getElementById('switchIdBtn').onclick = function() {
             userEmail = null;
             selectedCard = null;
+            clearStoredCtpEmail();
             postToNative('onSwitchId', {});
         };
 
@@ -2152,6 +2773,136 @@
         // Called from native to tell JS that native will trigger lookupConsumer
         function setNativeWillLookup() {
             nativeWillLookup = true;
+        }
+
+        // --- Stored email cookie helpers ---
+        // Persist the user's email in a cookie so the probe can use it on next visit.
+        // Cookies survive clearStaleWebData() (which only clears localStorage/sessionStorage).
+        function storeCtpEmail(email) {
+            if (email) {
+                document.cookie = 'ctp_user_email=' + encodeURIComponent(email) + ';max-age=31536000;path=/';
+            }
+        }
+        function getStoredCtpEmail() {
+            var match = document.cookie.match(/(?:^|;\s*)ctp_user_email=([^;]*)/);
+            return match ? decodeURIComponent(match[1]) : null;
+        }
+        function clearStoredCtpEmail() {
+            document.cookie = 'ctp_user_email=;max-age=0;path=/';
+        }
+
+        // Probe mode: called from native when no email is provided (unified page flow)
+        // to try recognizing the user via stored email before showing email entry
+        var isProbeMode = false;
+        function setProbeMode() {
+            window._doProbe = true;
+        }
+
+        async function probeRecognition() {
+            // Check for a previously stored email from a successful lookup
+            var storedEmail = getStoredCtpEmail();
+            if (!storedEmail) {
+                log('Probe: no stored email, showing email entry');
+                showView('emailEntry');
+                return;
+            }
+
+            isProbeMode = true;
+            userEmail = storedEmail;
+            try {
+                showLoading(_tr('CHECKING_SAVED_CARDS'));
+                log('Probe: calling Vsb.getCards with stored email: ' + storedEmail);
+                var params = {
+                    consumerIdentity: {
+                        identityProvider: 'SRC',
+                        identityValue: storedEmail,
+                        identityType: 'EMAIL_ADDRESS'
+                    }
+                };
+                var result = await Vsb.getCards(params);
+                log('Probe result: ' + JSON.stringify(result));
+
+                if (result.actionCode === 'SUCCESS') {
+                    var profiles = result.profiles || result.srcProfiles || [];
+                    var cards = profiles.flatMap(function(p) { return p.maskedCards || []; });
+                    log('Probe: found ' + cards.length + ' cards from ' + profiles.length + ' profiles');
+                    // Extract consumer profile data
+                    if (profiles.length > 0) {
+                        var p = profiles[0];
+                        consumerProfileData = {};
+                        if (p.consumerIdentity) consumerProfileData.consumerIdentity = p.consumerIdentity;
+                        if (p.firstName) consumerProfileData.firstName = p.firstName;
+                        if (p.lastName) consumerProfileData.lastName = p.lastName;
+                        if (p.mobileNumber) consumerProfileData.mobileNumber = p.mobileNumber;
+                        if (p.countryCode) consumerProfileData.countryCode = p.countryCode;
+                        if (p.consumerIdentity && p.consumerIdentity.identityValue) {
+                            userEmail = p.consumerIdentity.identityValue;
+                        }
+                    }
+                    if (cards.length > 0) {
+                        isProbeMode = false;
+                        displayCards(cards);
+                        storeCtpEmail(userEmail);
+                        postToNative('onCardsAvailable', { cards: cards });
+                        return;
+                    }
+                    // No cards — fall through to email entry
+                    isProbeMode = false;
+                    showView('emailEntry');
+                } else if (result.actionCode === 'PENDING_CONSUMER_IDV') {
+                    // Recognized user but needs OTP verification
+                    isProbeMode = false;
+                    validationChannels = result.idvOptions ? (result.idvOptions.validationChannels || []) : [];
+                    var maskedChannel = result.maskedValidationChannel ||
+                                      (validationChannels.length > 0 ? validationChannels[0].maskedValue : null);
+                    log('Probe: PENDING_CONSUMER_IDV, maskedChannel: ' + maskedChannel);
+                    postToNative('onIdentityValidationRequired', { channels: validationChannels });
+                    if (maskedChannel) {
+                        var contactHtml = '';
+                        if (userEmail) {
+                            var atIdx = userEmail.indexOf('@');
+                            var maskedEmail = userEmail;
+                            if (atIdx > 3) {
+                                maskedEmail = userEmail.substring(0, 3) + '**' + userEmail.substring(atIdx);
+                            }
+                            contactHtml += maskedEmail;
+                        }
+                        if (maskedChannel && maskedChannel !== userEmail) {
+                            if (contactHtml) contactHtml += '<br>';
+                            contactHtml += maskedChannel;
+                        }
+                        document.getElementById('otpContactDetails').innerHTML = contactHtml;
+                        document.getElementById('otpDestination').textContent = maskedChannel;
+                        clearOtpBoxes();
+                        showView('otpVerification');
+                        setTimeout(function() {
+                            var firstBox = document.querySelector('.otp-box[data-index="0"]');
+                            if (firstBox) firstBox.focus();
+                        }, 300);
+                        postToNative('onOtpSent', { maskedDestination: maskedChannel });
+                    } else if (validationChannels.length > 0) {
+                        initiateIdentityValidation(validationChannels[0].id);
+                    } else {
+                        showView('emailEntry');
+                    }
+                } else {
+                    // ADD_CARD, ERROR, or unknown — graceful fallback
+                    log('Probe: actionCode=' + result.actionCode + ', falling back to email entry');
+                    isProbeMode = false;
+                    showView('emailEntry');
+                }
+            } catch (e) {
+                log('Probe error: ' + JSON.stringify(e));
+                isProbeMode = false;
+                // Reset corrupted state and fall back to email entry
+                try {
+                    await Vsb.unbindAppInstance();
+                    log('Probe: unbindAppInstance succeeded after error');
+                } catch (unbindErr) {
+                    log('Probe: unbindAppInstance error: ' + JSON.stringify(unbindErr));
+                }
+                showView('emailEntry');
+            }
         }
 
         // Set the lookup GIF image source (called from native with base64 data URI)
@@ -2734,7 +3485,7 @@
         document.getElementById('addCardPhone').onblur = function(e) {
             var val = e.target.value.trim();
             if (val && (val.length < 4 || val.length > 14)) {
-                document.getElementById('phoneError').textContent = 'Invalid mobile number format';
+                document.getElementById('phoneError').textContent = _tr('PHONE_INVALID');
                 document.getElementById('phoneError').classList.add('visible');
                 document.getElementById('phoneRow').classList.add('input-error');
             } else {
@@ -2791,7 +3542,7 @@
             }
             var requiredCvvLen = (detectedBrand === 'amex') ? 4 : 3;
             if (cvv.length < requiredCvvLen) {
-                showAddCardError('Please enter a valid security code');
+                showAddCardError(_tr('INVALID_CVV'));
                 hasErrors = true;
             }
 
@@ -2810,7 +3561,7 @@
             // country, addressLine1, city, phone are optional per PayPageV2 reference
             // Only validate phone format if provided (not required)
             if (phone && (phone.length < 4 || phone.length > 14)) {
-                document.getElementById('phoneError').textContent = 'Invalid mobile number format';
+                document.getElementById('phoneError').textContent = _tr('PHONE_INVALID');
                 document.getElementById('phoneError').classList.add('visible');
                 document.getElementById('phoneRow').classList.add('input-error');
                 hasErrors = true;
@@ -2826,7 +3577,7 @@
             }
 
             try {
-                showLoading('Adding card...');
+                showLoading(_tr('ADDING_CARD'));
                 log('Adding new card to Click to Pay');
 
                 // Log all available SDK methods for debugging
@@ -3085,7 +3836,7 @@
                     log('Card enrollment likely succeeded — redirecting to card lookup for OTP verification');
 
                     try {
-                        showLoading('Verifying your card...');
+                        showLoading(_tr('VERIFYING_CARD'));
                         // Small delay to let Visa's backend process the enrollment
                         await new Promise(function(resolve) { setTimeout(resolve, 1500); });
                         // Re-lookup consumer — this will trigger OTP flow if cards exist,
@@ -3093,11 +3844,11 @@
                         lookupConsumer(userEmail);
                     } catch (recoveryErr) {
                         log('Recovery lookup error: ' + (recoveryErr.message || JSON.stringify(recoveryErr)));
-                        showAddCardError('Card was added but verification could not complete. Please go back and try loading your cards.');
+                        showAddCardError(_tr('CARD_ADDED_VERIFY_FAILED'));
                         showView('addCardView');
                     }
                 } else if (result.actionCode === 'ERROR') {
-                    var errMsg = 'Failed to add card';
+                    var errMsg = _tr('FAILED_ADD_CARD');
                     if (result.error && result.error.message) errMsg = result.error.message;
                     if (result.error && result.error.reason) log('Error reason: ' + result.error.reason);
                     log('Full error object: ' + JSON.stringify(result.error, null, 2));
@@ -3116,7 +3867,7 @@
                 if (e.reason) errDetail += ' (reason: ' + e.reason + ')';
                 if (e.details) errDetail += ' details: ' + e.details;
                 log('Add card error detail: ' + errDetail);
-                showAddCardError('Failed to add card' + (errDetail ? ': ' + errDetail : ''));
+                showAddCardError(errDetail ? _tr('FAILED_ADD_CARD_WITH_ERROR', { error: errDetail }) : _tr('FAILED_ADD_CARD'));
                 showView('addCardView');
             }
         };

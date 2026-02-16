@@ -19,9 +19,8 @@ class EnvironmentViewModel: ObservableObject {
     // SDK Colors
     @Published var sdkColorPayButton: String = ""
     @Published var sdkColorPayButtonText: String = ""
-    @Published var sdkColorPageBackground: String = ""
-    @Published var sdkColorCardPreview: String = ""
-    @Published var sdkColorPageTitle: String = ""
+    @Published var sdkColorPayButtonDisabled: String = ""
+    @Published var sdkColorPayButtonDisabledText: String = ""
 
     func addEnvironment(name: String, apiKey: String, outletReference: String, realm: String, type: EnvironmentType) {
         let environment = Environment(type:type, name: name, apiKey: apiKey, outletReference: outletReference, realm: realm)
@@ -44,16 +43,14 @@ class EnvironmentViewModel: ObservableObject {
         orderType = getOrderType()
         sdkColorPayButton = Environment.sdkColorPayButton.isEmpty ? "#007AFF" : Environment.sdkColorPayButton
         sdkColorPayButtonText = Environment.sdkColorPayButtonText.isEmpty ? "#FFFFFF" : Environment.sdkColorPayButtonText
-        sdkColorPageBackground = Environment.sdkColorPageBackground.isEmpty ? "#FFFFFF" : Environment.sdkColorPageBackground
-        sdkColorCardPreview = Environment.sdkColorCardPreview.isEmpty ? "#171618" : Environment.sdkColorCardPreview
-        sdkColorPageTitle = Environment.sdkColorPageTitle.isEmpty ? "#000000" : Environment.sdkColorPageTitle
+        sdkColorPayButtonDisabled = Environment.sdkColorPayButtonDisabled.isEmpty ? "#D1D1D6" : Environment.sdkColorPayButtonDisabled
+        sdkColorPayButtonDisabledText = Environment.sdkColorPayButtonDisabledText.isEmpty ? "#8E8E93" : Environment.sdkColorPayButtonDisabledText
 
         // Persist defaults to UserDefaults
         Environment.sdkColorPayButton = sdkColorPayButton
         Environment.sdkColorPayButtonText = sdkColorPayButtonText
-        Environment.sdkColorPageBackground = sdkColorPageBackground
-        Environment.sdkColorCardPreview = sdkColorCardPreview
-        Environment.sdkColorPageTitle = sdkColorPageTitle
+        Environment.sdkColorPayButtonDisabled = sdkColorPayButtonDisabled
+        Environment.sdkColorPayButtonDisabledText = sdkColorPayButtonDisabledText
     }
     
     func saveEnviroments() {
@@ -150,15 +147,12 @@ class EnvironmentViewModel: ObservableObject {
         Environment.sdkColorPayButtonText = hex
     }
 
-    func saveSDKColorPageBackground(_ hex: String) {
-        Environment.sdkColorPageBackground = hex
+    func saveSDKColorPayButtonDisabled(_ hex: String) {
+        Environment.sdkColorPayButtonDisabled = hex
     }
 
-    func saveSDKColorCardPreview(_ hex: String) {
-        Environment.sdkColorCardPreview = hex
+    func saveSDKColorPayButtonDisabledText(_ hex: String) {
+        Environment.sdkColorPayButtonDisabledText = hex
     }
 
-    func saveSDKColorPageTitle(_ hex: String) {
-        Environment.sdkColorPageTitle = hex
-    }
 }

@@ -303,47 +303,40 @@ class PaymentViewController: UIViewController {
     private func initiateClickToPayFromUnifiedPage() {
         guard let config = clickToPayConfig else { return }
 
-        let emailVC = ClickToPayEmailViewController(orderAmount: order.amount)
+        do {
+            let args = try self.order.toClickToPayArgs()
+            let cookie = self.paymentToken.flatMap { "payment-token=\($0)" }
 
-        emailVC.onCancel = { [weak self] in
-            self?.dismiss(animated: true)
-        }
-
-        emailVC.onLoadMyCards = { [weak self] email in
-            guard let self = self else { return }
-            do {
-                let args = try self.order.toClickToPayArgs()
-                let cookie = self.paymentToken.flatMap { "payment-token=\($0)" }
-                let clickToPayVC = ClickToPayViewController(
-                    clickToPayConfig: config,
-                    clickToPayArgs: args,
-                    orderReference: self.order.reference,
-                    accessToken: self.accessToken,
-                    paymentCookie: cookie,
-                    userEmail: email,
-                    onCompletion: { [weak self] status in
-                        switch status {
-                        case .success:
-                            self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
-                        case .postAuthReview:
-                            self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
-                        default:
-                            // Click to Pay was cancelled or failed, stay on unified page
-                            break
-                        }
+            // Create ClickToPayVC without email — it will check recognition
+            // via getCards({}) first. If recognized, cards are shown directly.
+            // If not, the in-page email entry appears (no second SDK init needed).
+            let clickToPayVC = ClickToPayViewController(
+                clickToPayConfig: config,
+                clickToPayArgs: args,
+                orderReference: self.order.reference,
+                accessToken: self.accessToken,
+                paymentCookie: cookie,
+                userEmail: nil,
+                onCompletion: { [weak self] status in
+                    switch status {
+                    case .success:
+                        self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                    case .postAuthReview:
+                        self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
+                    default:
+                        // Click to Pay was cancelled or failed, stay on unified page
+                        break
                     }
-                )
-                // Push to the same nav controller — ClickToPayViewController shows
-                // a native GIF loading overlay while SDK initializes and looks up cards
-                emailVC.navigationController?.pushViewController(clickToPayVC, animated: true)
-            } catch {
-                print("ClickToPay: Failed to build args - \(error)")
-            }
-        }
+                }
+            )
+            clickToPayVC.showCloseButton = true
 
-        let navController = UINavigationController(rootViewController: emailVC)
-        navController.modalPresentationStyle = .pageSheet
-        self.present(navController, animated: true)
+            let navController = UINavigationController(rootViewController: clickToPayVC)
+            navController.modalPresentationStyle = .pageSheet
+            self.present(navController, animated: true)
+        } catch {
+            print("ClickToPay: Failed to build args - \(error)")
+        }
     }
 
     lazy private var handleApplePayAuthorization: OnAuthorizeApplePayCallback  = {

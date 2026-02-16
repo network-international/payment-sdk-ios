@@ -76,9 +76,8 @@ struct Environment: Codable, Identifiable {
     // SDK Color keys
     private static let KEY_SDK_COLOR_PAY_BUTTON = "sdk_color_pay_button"
     private static let KEY_SDK_COLOR_PAY_BUTTON_TEXT = "sdk_color_pay_button_text"
-    private static let KEY_SDK_COLOR_PAGE_BG = "sdk_color_page_bg"
-    private static let KEY_SDK_COLOR_CARD_PREVIEW = "sdk_color_card_preview"
-    private static let KEY_SDK_COLOR_PAGE_TITLE = "sdk_color_page_title"
+    private static let KEY_SDK_COLOR_PAY_BUTTON_DISABLED = "sdk_color_pay_button_disabled"
+    private static let KEY_SDK_COLOR_PAY_BUTTON_DISABLED_TEXT = "sdk_color_pay_button_disabled_text"
     
     enum CodingKeys: String, CodingKey {
         case type
@@ -293,18 +292,13 @@ struct Environment: Codable, Identifiable {
         set { setSDKColor(KEY_SDK_COLOR_PAY_BUTTON_TEXT, hex: newValue) }
     }
 
-    static var sdkColorPageBackground: String {
-        get { getSDKColor(KEY_SDK_COLOR_PAGE_BG) }
-        set { setSDKColor(KEY_SDK_COLOR_PAGE_BG, hex: newValue) }
+    static var sdkColorPayButtonDisabled: String {
+        get { getSDKColor(KEY_SDK_COLOR_PAY_BUTTON_DISABLED) }
+        set { setSDKColor(KEY_SDK_COLOR_PAY_BUTTON_DISABLED, hex: newValue) }
     }
 
-    static var sdkColorCardPreview: String {
-        get { getSDKColor(KEY_SDK_COLOR_CARD_PREVIEW) }
-        set { setSDKColor(KEY_SDK_COLOR_CARD_PREVIEW, hex: newValue) }
-    }
-
-    static var sdkColorPageTitle: String {
-        get { getSDKColor(KEY_SDK_COLOR_PAGE_TITLE) }
-        set { setSDKColor(KEY_SDK_COLOR_PAGE_TITLE, hex: newValue) }
+    static var sdkColorPayButtonDisabledText: String {
+        get { getSDKColor(KEY_SDK_COLOR_PAY_BUTTON_DISABLED_TEXT) }
+        set { setSDKColor(KEY_SDK_COLOR_PAY_BUTTON_DISABLED_TEXT, hex: newValue) }
     }
 }
