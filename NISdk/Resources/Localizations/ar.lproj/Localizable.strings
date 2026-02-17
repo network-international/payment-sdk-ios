@@ -81,3 +81,14 @@
 "Card number" = "رقم البطاقة";
 "Name on card" = "الاسم على البطاقة";
 "+7 currencies available" = "+7 عملات متاحة";
+
+/* Payment Result Screen */
+"Payment Success Title" = "لقد دفعت %@";
+"Payment Success Title No Amount" = "تمت عملية الدفع بنجاح";
+"Payment Failure Title" = "حدث خطأ ما";
+"Payment Success Subtitle" = "شكراً لك. تم استلام دفعتك.";
+"Payment Failure Subtitle" = "يرجى المحاولة مرة أخرى لاحقاً.";
+"Transaction ID Label" = "رقم المعاملة";
+"Reference Number Label" = "الرقم المرجعي";
+"Date Time Label" = "التاريخ / الوقت";
+"Done" = "تم";

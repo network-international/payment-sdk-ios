@@ -82,3 +82,14 @@
 "Card number" = "Card number";
 "Name on card" = "Name on card";
 "+7 currencies available" = "+7 currencies available";
+
+/* Payment Result Screen */
+"Payment Success Title" = "You paid %@";
+"Payment Success Title No Amount" = "Payment Successful";
+"Payment Failure Title" = "Something Went Wrong";
+"Payment Success Subtitle" = "Thank you. Your payment has been received.";
+"Payment Failure Subtitle" = "Please try again later.";
+"Transaction ID Label" = "Transaction ID";
+"Reference Number Label" = "Reference Number";
+"Date Time Label" = "Date / Time";
+"Done" = "Done";
