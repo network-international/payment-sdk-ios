@@ -119,6 +119,8 @@ class ClickToPayViewController: UIViewController {
         }
     }
 
+    private static let floatingCloseButtonTag = 998
+
     private func addFloatingCloseButton() {
         let button = UIButton(type: .system)
         if #available(iOS 13.0, *) {
@@ -131,6 +133,7 @@ class ClickToPayViewController: UIViewController {
         button.tintColor = UIColor(hexString: "#070707")
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(cancelAction), for: .touchUpInside)
+        button.tag = ClickToPayViewController.floatingCloseButtonTag
         view.addSubview(button)
         NSLayoutConstraint.activate([
             button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
@@ -892,6 +895,9 @@ extension ClickToPayViewController: WKUIDelegate {
         closeButton.addTarget(self, action: #selector(closePopupWebView), for: .touchUpInside)
         closeButton.tag = 999
 
+        // Hide our floating close button while popup is visible
+        view.viewWithTag(ClickToPayViewController.floatingCloseButtonTag)?.isHidden = true
+
         view.addSubview(popup)
         view.addSubview(closeButton)
         popupWebView = popup
@@ -914,6 +920,8 @@ extension ClickToPayViewController: WKUIDelegate {
     private func hidePopupWithDelayedCleanup() {
         popupWebView?.isHidden = true
         view.viewWithTag(999)?.isHidden = true
+        // Restore our floating close button
+        view.viewWithTag(ClickToPayViewController.floatingCloseButtonTag)?.isHidden = false
 
         popupCleanupTimer?.invalidate()
         popupCleanupTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { [weak self] _ in
@@ -932,6 +940,8 @@ extension ClickToPayViewController: WKUIDelegate {
         popupWebView?.removeFromSuperview()
         popupWebView = nil
         view.viewWithTag(999)?.removeFromSuperview()
+        // Restore our floating close button
+        view.viewWithTag(ClickToPayViewController.floatingCloseButtonTag)?.isHidden = false
     }
 
     func webView(_ webView: WKWebView,
