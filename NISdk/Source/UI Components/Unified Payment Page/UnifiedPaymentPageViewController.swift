@@ -223,7 +223,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         container.translatesAutoresizingMaskIntoConstraints = false
 
         // Logo — small, left-aligned
-        let sdkBundle = Bundle(for: NISdk.self)
+        let sdkBundle = NISdk.sharedInstance.getBundle()
         let logo = NISdk.sharedInstance.merchantLogo
             ?? UIImage(named: "networklogo", in: sdkBundle, compatibleWith: nil)
 
