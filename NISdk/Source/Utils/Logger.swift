@@ -46,6 +46,34 @@ class NILogger {
             let truncated = truncateBody(bodyString)
             log("  Body: (\(body.count) bytes) \(truncated)")
         }
+
+        logCurl(request)
+    }
+
+    func logCurl(_ request: URLRequest) {
+        guard isEnabled else { return }
+
+        let method = request.httpMethod ?? "GET"
+        let url = request.url?.absoluteString ?? ""
+
+        var parts = ["curl -X \(method)"]
+
+        if let headers = request.allHTTPHeaderFields {
+            for (key, value) in headers.sorted(by: { $0.key < $1.key }) {
+                let escaped = value.replacingOccurrences(of: "'", with: "'\\''")
+                parts.append("-H '\(key): \(escaped)'")
+            }
+        }
+
+        if let body = request.httpBody, let bodyString = String(data: body, encoding: .utf8) {
+            let escaped = bodyString.replacingOccurrences(of: "'", with: "'\\''")
+            parts.append("-d '\(escaped)'")
+        }
+
+        parts.append("'\(url)'")
+
+        let curl = parts.joined(separator: " \\\n  ")
+        log("🔗 cURL:\n\(curl)")
     }
 
     func logResponse(_ response: URLResponse?, data: Data?, elapsed: TimeInterval) {
@@ -53,15 +81,25 @@ class NILogger {
 
         let httpResponse = response as? HTTPURLResponse
         let statusCode = httpResponse?.statusCode ?? 0
-        let method = httpResponse?.url?.absoluteString ?? "unknown"
+        let url = httpResponse?.url?.absoluteString ?? "unknown"
         let elapsedStr = String(format: "%.3f", elapsed)
 
-        log("⬅️ RESPONSE: \(statusCode) (\(elapsedStr)s) \(method)")
+        log("⬅️ RESPONSE: \(statusCode) (\(elapsedStr)s) \(url)")
+
+        if let headers = httpResponse?.allHeaderFields as? [String: Any], !headers.isEmpty {
+            let headerStr = headers.map { "\($0.key): \($0.value)" }.joined(separator: "\n  ")
+            log("  Headers:\n  \(headerStr)")
+        }
 
         if let data = data {
             let bodyString = String(data: data, encoding: .utf8) ?? "<binary data>"
-            let truncated = truncateBody(bodyString)
-            log("  Body: (\(data.count) bytes) \(truncated)")
+            if let jsonData = try? JSONSerialization.jsonObject(with: data),
+               let pretty = try? JSONSerialization.data(withJSONObject: jsonData, options: .prettyPrinted),
+               let prettyStr = String(data: pretty, encoding: .utf8) {
+                log("  Body: (\(data.count) bytes)\n\(prettyStr)")
+            } else {
+                log("  Body: (\(data.count) bytes) \(truncateBody(bodyString))")
+            }
         }
     }
 
