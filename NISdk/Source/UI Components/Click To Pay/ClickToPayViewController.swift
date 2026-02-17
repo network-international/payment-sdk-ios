@@ -110,37 +110,13 @@ class ClickToPayViewController: UIViewController {
             }
             navigationItem.hidesBackButton = true
         } else if showCloseButton {
-            // Root of a fresh modal nav controller (probe flow) — use a floating
-            // close button to avoid UIKit nav bar constraint warnings on initial layout
+            // The web content already has its own close (X) button that triggers
+            // onCanceled, and the modal sheet can be swiped down — no need for
+            // a duplicate floating close button.
             self.navigationController?.setNavigationBarHidden(true, animated: false)
-            addFloatingCloseButton()
         } else {
             self.navigationController?.setNavigationBarHidden(true, animated: false)
         }
-    }
-
-    private static let floatingCloseButtonTag = 998
-
-    private func addFloatingCloseButton() {
-        let button = UIButton(type: .system)
-        if #available(iOS 13.0, *) {
-            let xImage = UIImage(systemName: "xmark")?.withRenderingMode(.alwaysTemplate)
-            button.setImage(xImage, for: .normal)
-        } else {
-            button.setTitle("✕", for: .normal)
-            button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        }
-        button.tintColor = UIColor(hexString: "#070707")
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(cancelAction), for: .touchUpInside)
-        button.tag = ClickToPayViewController.floatingCloseButtonTag
-        view.addSubview(button)
-        NSLayoutConstraint.activate([
-            button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
-            button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            button.widthAnchor.constraint(equalToConstant: 32),
-            button.heightAnchor.constraint(equalToConstant: 32)
-        ])
     }
 
     private func setupProgressBar() {
@@ -895,9 +871,6 @@ extension ClickToPayViewController: WKUIDelegate {
         closeButton.addTarget(self, action: #selector(closePopupWebView), for: .touchUpInside)
         closeButton.tag = 999
 
-        // Hide our floating close button while popup is visible
-        view.viewWithTag(ClickToPayViewController.floatingCloseButtonTag)?.isHidden = true
-
         view.addSubview(popup)
         view.addSubview(closeButton)
         popupWebView = popup
@@ -920,8 +893,6 @@ extension ClickToPayViewController: WKUIDelegate {
     private func hidePopupWithDelayedCleanup() {
         popupWebView?.isHidden = true
         view.viewWithTag(999)?.isHidden = true
-        // Restore our floating close button
-        view.viewWithTag(ClickToPayViewController.floatingCloseButtonTag)?.isHidden = false
 
         popupCleanupTimer?.invalidate()
         popupCleanupTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { [weak self] _ in
@@ -940,8 +911,6 @@ extension ClickToPayViewController: WKUIDelegate {
         popupWebView?.removeFromSuperview()
         popupWebView = nil
         view.viewWithTag(999)?.removeFromSuperview()
-        // Restore our floating close button
-        view.viewWithTag(ClickToPayViewController.floatingCloseButtonTag)?.isHidden = false
     }
 
     func webView(_ webView: WKWebView,
