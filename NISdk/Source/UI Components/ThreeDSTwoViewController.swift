@@ -248,7 +248,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                 self.completionHandler(true)
                 return
             }
-            transactionService.postThreeDSTwoChallengeResponse(for: paymentResponse, using: threeDSTwoChallengeResponseURL) {
+            transactionService.postThreeDSTwoChallengeResponse(for: paymentResponse, using: self.accessToken) {
                 data, response, error in
                 self.completionHandler(false)
             }
@@ -347,7 +347,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
         self.transactionService.postThreeDSAuthentications(
             for: self.paymentResponse,
             with: threeDSAuthenticationsRequest,
-            using: authenticationsUrl,
+            using: self.accessToken,
             on: { authenticationsData, _, er in
                 // authentications done
                 guard let authenticationsData = authenticationsData else {
