@@ -350,7 +350,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
                 self.completionHandler(true)
                 return
             }
-            transactionService.postThreeDSTwoChallengeResponse(for: paymentResponse, using: threeDSTwoChallengeResponseURL) {
+            transactionService.postThreeDSTwoChallengeResponse(for: paymentResponse, using: self.accessToken) {
                 data, response, error in
                 os_log("[NISdk] 3DS v2 — challenge response posted", log: NISdkLogger.payment, type: .info)
                 self.completionHandler(false)
@@ -456,7 +456,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
         self.transactionService.postThreeDSAuthentications(
             for: self.paymentResponse,
             with: threeDSAuthenticationsRequest,
-            using: authenticationsUrl,
+            using: self.accessToken,
             on: { authenticationsData, _, er in
                 guard let authenticationsData = authenticationsData else {
                     os_log("[NISdk] 3DS v2 — authentications response data is nil, aborting", log: NISdkLogger.payment, type: .error)
