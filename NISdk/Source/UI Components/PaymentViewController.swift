@@ -16,7 +16,7 @@ typealias MakeSaveCardPaymentCallback = (SavedCardRequest) -> Void
 class PaymentViewController: UIViewController {
     private var state: State?
     private weak var shownViewController: UIViewController?
-    
+
     private let transactionService = TransactionServiceAdapter()
     private weak var cardPaymentDelegate: CardPaymentDelegate?
     private let order: OrderResponse
@@ -32,6 +32,7 @@ class PaymentViewController: UIViewController {
     var clickToPayConfig: ClickToPayConfig?
     private weak var clickToPayDelegate: ClickToPayDelegate?
     var aaniBackLink: String?
+    private var lastPaymentResponse: PaymentResponse?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -525,6 +526,7 @@ class PaymentViewController: UIViewController {
     lazy private var handlePaymentResponse: (PaymentResponse?) -> Void = {
         paymentResponse in
         print("ApplePay/Payment: handlePaymentResponse called, state: \(paymentResponse?.state ?? "nil (no response)")")
+        self.lastPaymentResponse = paymentResponse
         DispatchQueue.main.async {
             guard let paymentResponse = paymentResponse else {
                 print("ApplePay/Payment: No payment response - finishing with PaymentFailed")
@@ -668,16 +670,53 @@ class PaymentViewController: UIViewController {
             if let threeDSStatus = threeDSStatus {
                 self.cardPaymentDelegate?.threeDSChallengeDidComplete?(with: threeDSStatus)
             }
-            
+
             if let authStatus = authStatus  {
                 self.cardPaymentDelegate?.authorizationDidComplete?(with: authStatus)
             }
-            
+
+            // Show result screen for success/failure statuses (only if not already on result screen)
+            if paymentStatus == .PaymentSuccess || paymentStatus == .PaymentFailed {
+                if case .renderPaymentResult = self.state {
+                    // Already on result screen, skip
+                } else if #available(iOS 13.0, *) {
+                    self.showPaymentResultScreen(paymentStatus: paymentStatus, threeDSStatus: threeDSStatus, authStatus: authStatus)
+                    return
+                }
+            }
+
             self.closePaymentViewController(completion: {
                 [weak self] in
                 self?.cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
             })
         }
+    }
+
+    @available(iOS 13.0, *)
+    private func showPaymentResultScreen(paymentStatus: PaymentStatus,
+                                          threeDSStatus: ThreeDSStatus?,
+                                          authStatus: AuthorizationStatus?) {
+        let isSuccess = paymentStatus == .PaymentSuccess
+        let formattedAmount = self.order.amount?.getFormattedAmount()
+        let transactionId = self.lastPaymentResponse?.reference ?? self.order.reference ?? ""
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd MMM yyyy, hh:mm a"
+        let dateTime = dateFormatter.string(from: Date())
+
+        let args = PaymentResultArgs(
+            isSuccess: isSuccess,
+            amount: formattedAmount,
+            transactionId: transactionId,
+            dateTime: dateTime
+        )
+
+        let resultVC = PaymentResultViewController(args: args, onDone: { [weak self] in
+            self?.closePaymentViewController(completion: {
+                self?.cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
+            })
+        })
+
+        self.transition(to: .renderPaymentResult(resultVC))
     }
     
     private func closePaymentViewController(completion: (() -> Void)?) {
@@ -690,8 +729,9 @@ private extension PaymentViewController {
         case authorizing
         case renderCardPaymentForm(UIViewController)
         case renderThreeDSChallengeForm(UIViewController)
+        case renderPaymentResult(UIViewController)
     }
-    
+
     private func transition(to newState: State) {
         shownViewController?.remove()
         let vc = viewController(for: newState)
@@ -699,14 +739,15 @@ private extension PaymentViewController {
         shownViewController = vc
         state = newState
     }
-    
+
     func viewController(for state: State) -> UIViewController {
         switch state {
         case .authorizing:
             return AuthorizationViewController()
-            
+
         case .renderCardPaymentForm(let viewController),
-                .renderThreeDSChallengeForm(let viewController):
+                .renderThreeDSChallengeForm(let viewController),
+                .renderPaymentResult(let viewController):
             return viewController
         }
     }
