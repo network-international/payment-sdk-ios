@@ -305,7 +305,6 @@
 				861BDC3A4DB0C0CB67E4CC40 /* PaymentResultView.swift */,
 				5DD111744737A3160BB13136 /* PaymentResultViewController.swift */,
 			);
-			name = "Payment Result";
 			path = "Payment Result";
 			sourceTree = "<group>";
 		};
