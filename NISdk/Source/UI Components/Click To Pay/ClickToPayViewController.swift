@@ -110,13 +110,32 @@ class ClickToPayViewController: UIViewController {
             }
             navigationItem.hidesBackButton = true
         } else if showCloseButton {
-            // The web content already has its own close (X) button that triggers
-            // onCanceled, and the modal sheet can be swiped down — no need for
-            // a duplicate floating close button.
             self.navigationController?.setNavigationBarHidden(true, animated: false)
+            addFloatingCloseButton()
         } else {
             self.navigationController?.setNavigationBarHidden(true, animated: false)
         }
+    }
+
+    private func addFloatingCloseButton() {
+        let button = UIButton(type: .system)
+        if #available(iOS 13.0, *) {
+            let xImage = UIImage(systemName: "xmark")?.withRenderingMode(.alwaysTemplate)
+            button.setImage(xImage, for: .normal)
+        } else {
+            button.setTitle("✕", for: .normal)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+        }
+        button.tintColor = UIColor(hexString: "#070707")
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(cancelAction), for: .touchUpInside)
+        view.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            button.widthAnchor.constraint(equalToConstant: 32),
+            button.heightAnchor.constraint(equalToConstant: 32)
+        ])
     }
 
     private func setupProgressBar() {
@@ -860,19 +879,7 @@ extension ClickToPayViewController: WKUIDelegate {
         popup.navigationDelegate = self
         popup.uiDelegate = self
 
-        let closeButton = UIButton(type: .system)
-        closeButton.setTitle("✕", for: .normal)
-        closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-        closeButton.setTitleColor(UIColor(hexString: "#070707"), for: .normal)
-        closeButton.backgroundColor = UIColor.white.withAlphaComponent(0.9)
-        closeButton.layer.cornerRadius = 16
-        closeButton.frame = CGRect(x: view.bounds.width - 48, y: 52, width: 32, height: 32)
-        closeButton.autoresizingMask = [.flexibleLeftMargin, .flexibleBottomMargin]
-        closeButton.addTarget(self, action: #selector(closePopupWebView), for: .touchUpInside)
-        closeButton.tag = 999
-
         view.addSubview(popup)
-        view.addSubview(closeButton)
         popupWebView = popup
 
         return popup
@@ -892,7 +899,6 @@ extension ClickToPayViewController: WKUIDelegate {
     /// so the Visa SDK can finish communicating with it to resolve the checkout promise.
     private func hidePopupWithDelayedCleanup() {
         popupWebView?.isHidden = true
-        view.viewWithTag(999)?.isHidden = true
 
         popupCleanupTimer?.invalidate()
         popupCleanupTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { [weak self] _ in
@@ -910,7 +916,6 @@ extension ClickToPayViewController: WKUIDelegate {
         guard popupWebView != nil else { return }
         popupWebView?.removeFromSuperview()
         popupWebView = nil
-        view.viewWithTag(999)?.removeFromSuperview()
     }
 
     func webView(_ webView: WKWebView,
