@@ -324,8 +324,10 @@ class PaymentViewController: UIViewController {
                         self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
                     case .postAuthReview:
                         self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
+                    case .failed:
+                        self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
                     default:
-                        // Click to Pay was cancelled or failed, stay on unified page
+                        // Click to Pay was cancelled, stay on unified page
                         break
                     }
                 }
