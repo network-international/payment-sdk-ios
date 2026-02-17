@@ -292,6 +292,7 @@ class StoreFrontViewController:
         if let c = colorFromHex(Environment.sdkColorPayButtonDisabledText) { colors.payButtonDisabledTitleColor = c }
 
         NISdk.sharedInstance.setSDKColors(sdkColors: colors)
+        NISdk.sharedInstance.isLoggingEnabled = true
     }
 
     // MARK: - Payment Helpers
