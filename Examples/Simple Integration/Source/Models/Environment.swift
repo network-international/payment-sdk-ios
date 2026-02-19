@@ -72,6 +72,7 @@ struct Environment: Codable {
     private static let KEY_ORDER_TYPE = "order_type"
     private static let KEY_SAVED_LANGUAGE = "saved_language"
     private static let KEY_SAVED_MERCHANT_ATTRIBUTES = "merchant_attributes"
+    private static let KEY_SUBSCRIPTION = "subscription"
     
     enum CodingKeys: String, CodingKey {
         case type
@@ -255,5 +256,18 @@ struct Environment: Codable {
         } else {
             return ""
         }
+    }
+    
+    static func saveSubscription(_ subscription: Subscription) {
+        if let data = try? JSONEncoder().encode(subscription) {
+            UserDefaults.standard.set(data, forKey: KEY_SUBSCRIPTION)
+        }
+    }
+
+    static func getSubscription() -> Subscription? {
+        if let data = UserDefaults.standard.data(forKey: KEY_SUBSCRIPTION) {
+            return try? JSONDecoder().decode(Subscription.self, from: data)
+        }
+        return nil
     }
 }

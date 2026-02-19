@@ -1,8 +1,9 @@
 //
 //  SubscriptionUtils.swift
-//  Pods
+//  NISDK
 //
 //  Created by Prasath R on 09/02/26.
+//  Copyright © 2026 Network International. All rights reserved.
 //
 
 

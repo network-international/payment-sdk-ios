@@ -52,6 +52,25 @@ class EnvironmentViewModel: ObservableObject {
         Environment.saveMerchantAttributes(merchantAttributes: merchantAttributes)
     }
     
+    func saveSubscription(planReference: String, tenure: Int, totalAmount: Double, trialOfferTenure: Int?, trialOfferAmount: Double?, initialInstallmentAmount: Double?, initialPeriodLength: Int?) {
+        let subscription = Subscription(
+            planReference: planReference,
+            tenure: tenure,
+            totalAmount: totalAmount,
+            trialOfferTenure: trialOfferTenure,
+            trialOfferAmount: trialOfferAmount,
+            initialInstallmentAmount: initialInstallmentAmount,
+            initialPeriodLength: initialPeriodLength
+            
+        )
+        
+        Environment.saveSubscription(subscription)
+    }
+    
+    func getSubscription() -> Subscription? {
+        return Environment.getSubscription()
+    }
+    
     func delete(merchantAttribute: MerchantAttribute) {
         merchantAttributes.removeAll(where: {$0.id == merchantAttribute.id })
         saveMerchantAttributes()

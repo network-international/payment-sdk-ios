@@ -26,6 +26,18 @@ struct EnvironmentView: View {
     @State private var merchantAttributeKey: String = ""
     @State private var merchantAttributeValue: String = ""
     
+    @State private var subscriptionExpanded = false
+    @State private var planReference: String = ""
+    @State private var tenure: String = ""
+    @State private var totalAmount: String = ""
+    @State private var trialOfferTenure: String = ""
+    @State private var trialOfferAmount: String = ""
+    @State private var initialInstallmentAmount: String = ""
+    @State private var initialPeriodLength: String = ""
+
+    @State private var isTrialEnabled: Bool = false
+    @State private var isIntroductoryEnabled: Bool = false
+    
     func actionChange(_ tag: String) {
         viewModel.setOrderAction(action: tag)
     }
@@ -40,6 +52,38 @@ struct EnvironmentView: View {
 
     func orderTypeChange(_ tag: String) {
         viewModel.setOrderType(orderType: tag)
+    }
+    
+    private func loadSubscription() {
+        guard let subscription = viewModel.getSubscription() else { return }
+
+        planReference = subscription.planReference
+        tenure = String(subscription.tenure)
+        totalAmount = String(subscription.totalAmount)
+
+        // Trial Offer
+        if let trialTenure = subscription.trialOfferTenure,
+           let trialAmount = subscription.trialOfferAmount {
+            isTrialEnabled = true
+            trialOfferTenure = String(trialTenure)
+            trialOfferAmount = String(trialAmount)
+        } else {
+            isTrialEnabled = false
+            trialOfferTenure = ""
+            trialOfferAmount = ""
+        }
+
+        // Introductory Offer
+        if let introAmount = subscription.initialInstallmentAmount,
+           let introPeriod = subscription.initialPeriodLength {
+            isIntroductoryEnabled = true
+            initialInstallmentAmount = String(introAmount)
+            initialPeriodLength = String(introPeriod)
+        } else {
+            isIntroductoryEnabled = false
+            initialInstallmentAmount = ""
+            initialPeriodLength = ""
+        }
     }
     
     var body: some View {
@@ -72,9 +116,10 @@ struct EnvironmentView: View {
                     Text("RECURRING").tag("RECURRING")
                     Text("UNSCHEDULED").tag("UNSCHEDULED")
                     Text("INSTALLMENT").tag("INSTALLMENT")
+                    Text("RECURRING_SUBSCRIPTION").tag("RECURRING_SUBSCRIPTION")
+                    Text("INSTALLMENT_SUBSCRIPTION").tag("INSTALLMENT_SUBSCRIPTION")
                 }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding(8)
+                .pickerStyle(.menu)
                 
                 Divider()
                 
@@ -270,6 +315,106 @@ struct EnvironmentView: View {
                         }
                     }
                 }
+                
+                Divider()
+
+                HStack {
+                    Text("Subscription")
+                    Spacer()
+                    Button {
+                        subscriptionExpanded.toggle()
+                    } label: {
+                        Image(systemName: subscriptionExpanded ? "chevron.down" : "chevron.up")
+                    }
+                }
+
+                Divider()
+
+                if subscriptionExpanded {
+                    VStack(spacing: 12) {
+
+                        TextField("Plan Reference", text: $planReference)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+
+                        TextField("Tenure", text: $tenure)
+                            .keyboardType(.numberPad)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+
+                        TextField("Total Amount", text: $totalAmount)
+                            .keyboardType(.decimalPad)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+
+                        Divider()
+
+                        // MARK: - Trial Offer Toggle
+
+                        Toggle("Enable Trial Offer", isOn: $isTrialEnabled)
+                            .onChange(of: isTrialEnabled) { enabled in
+                                if !enabled {
+                                    trialOfferTenure = ""
+                                    trialOfferAmount = ""
+                                }
+                            }
+
+                        if isTrialEnabled {
+
+                            TextField("Trial Offer Tenure", text: $trialOfferTenure)
+                                .keyboardType(.numberPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+
+                            TextField("Trial Offer Amount", text: $trialOfferAmount)
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        }
+
+                        Divider()
+
+                        // MARK: - Introductory Offer Toggle
+
+                        Toggle("Enable Introductory Offer", isOn: $isIntroductoryEnabled)
+                            .onChange(of: isIntroductoryEnabled) { enabled in
+                                if !enabled {
+                                    initialInstallmentAmount = ""
+                                    initialPeriodLength = ""
+                                }
+                            }
+
+                        if isIntroductoryEnabled {
+
+                            TextField("Initial Installment Amount", text: $initialInstallmentAmount)
+                                .keyboardType(.decimalPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+
+                            TextField("Initial Period Length", text: $initialPeriodLength)
+                                .keyboardType(.numberPad)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        }
+
+                        Divider()
+
+                        Button("Save Subscription") {
+                            viewModel.saveSubscription(
+                                planReference: planReference,
+                                tenure: Int(tenure) ?? 0,
+                                totalAmount: Double(totalAmount) ?? 0.0,
+                                trialOfferTenure: isTrialEnabled ? Int(trialOfferTenure) : nil,
+                                trialOfferAmount: isTrialEnabled ? Double(trialOfferAmount) : nil,
+                                initialInstallmentAmount: isIntroductoryEnabled ? Double(initialInstallmentAmount) : nil,
+                                initialPeriodLength: isIntroductoryEnabled ? Int(initialPeriodLength) : nil
+                            )
+                            subscriptionExpanded.toggle()
+                        }
+                        .frame(maxWidth: .infinity)
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .background(Color.green)
+                        .cornerRadius(8)
+                    }
+                    .padding()
+                    .onAppear {
+                            loadSubscription()
+                        }
+                }
                 Spacer()
             }.padding(10)
         }
@@ -298,4 +443,14 @@ extension Binding {
                 handler(selection)
             })
     }
+}
+
+struct Subscription: Codable {
+    let planReference: String
+    let tenure: Int
+    let totalAmount: Double
+    let trialOfferTenure: Int?
+    let trialOfferAmount: Double?
+    let initialInstallmentAmount: Double?
+    let initialPeriodLength: Int?
 }

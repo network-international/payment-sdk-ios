@@ -1,8 +1,9 @@
 //
 //  TermsAndConditionsView.swift
-//  Pods
+//  NISDK
 //
 //  Created by Prasath R on 09/02/26.
+//  Copyright © 2026 Network International. All rights reserved.
 //
 
 import UIKit
@@ -11,7 +12,6 @@ final class TermsAndConditionsView: UIView {
 
     private let checkbox = UIButton(type: .custom)
     private let label = UILabel()
-    private let errorLabel = UILabel()
 
     private var isChecked = false
     private var linkRange: NSRange?
@@ -30,9 +30,18 @@ final class TermsAndConditionsView: UIView {
     }
 
     private func setupUI() {
+
+        let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)
+        checkbox.setPreferredSymbolConfiguration(config, forImageIn: .normal)
+
         checkbox.setImage(UIImage(systemName: "square"), for: .normal)
         checkbox.setImage(UIImage(systemName: "checkmark.square.fill"), for: .selected)
         checkbox.tintColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
+
+        checkbox.translatesAutoresizingMaskIntoConstraints = false
+        checkbox.widthAnchor.constraint(equalToConstant: 24).isActive = true
+        checkbox.heightAnchor.constraint(equalToConstant: 24).isActive = true
+
         checkbox.addTarget(self, action: #selector(toggleCheckbox), for: .touchUpInside)
 
         label.numberOfLines = 0
@@ -43,49 +52,30 @@ final class TermsAndConditionsView: UIView {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         label.addGestureRecognizer(tap)
 
-        errorLabel.textColor = .red
-        errorLabel.font = UIFont.systemFont(ofSize: 11)
-        errorLabel.numberOfLines = 0
-        errorLabel.isHidden = true
-
         let horizontalStack = UIStackView(arrangedSubviews: [checkbox, label])
         horizontalStack.axis = .horizontal
-        horizontalStack.spacing = 6
-        horizontalStack.alignment = .top
+        horizontalStack.spacing = 8
+        horizontalStack.alignment = .center
+        horizontalStack.translatesAutoresizingMaskIntoConstraints = false
 
-        let verticalStack = UIStackView(arrangedSubviews: [horizontalStack, errorLabel])
-        verticalStack.axis = .vertical
-        verticalStack.spacing = 4
-
-        addSubview(verticalStack)
-        verticalStack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(horizontalStack)
 
         NSLayoutConstraint.activate([
-            verticalStack.topAnchor.constraint(equalTo: topAnchor),
-            verticalStack.leadingAnchor.constraint(equalTo: leadingAnchor),
-            verticalStack.trailingAnchor.constraint(equalTo: trailingAnchor),
-            verticalStack.bottomAnchor.constraint(equalTo: bottomAnchor)
+            horizontalStack.topAnchor.constraint(equalTo: topAnchor),
+            horizontalStack.leadingAnchor.constraint(equalTo: leadingAnchor),
+            horizontalStack.trailingAnchor.constraint(equalTo: trailingAnchor),
+            horizontalStack.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
-    
+
+
     func isAccepted() -> Bool {
         return isChecked
     }
 
-    func showValidationError() {
-        errorLabel.text = "Please accept Terms and Conditions".localized
-        errorLabel.isHidden = false
-    }
-
-    func clearValidationError() {
-        errorLabel.text = nil
-        errorLabel.isHidden = true
-    }
-    
     func updateTermsUrl(_ url: String) {
         self.linkUrl = url
     }
-
 
     func configure(
         termsText: String,
@@ -118,29 +108,9 @@ final class TermsAndConditionsView: UIView {
         label.attributedText = attributed
     }
 
-    func validate() -> Bool {
-        if !isChecked {
-            showError("Please accept Terms and Conditions".localized)
-            return false
-        }
-        hideError()
-        return true
-    }
-
-    private func showError(_ message: String) {
-        errorLabel.text = message
-        errorLabel.isHidden = false
-    }
-
-    private func hideError() {
-        errorLabel.text = nil
-        errorLabel.isHidden = true
-    }
-
     @objc private func toggleCheckbox() {
         isChecked.toggle()
         checkbox.isSelected = isChecked
-        clearValidationError()
         onCheckedChange?(isChecked)
     }
 

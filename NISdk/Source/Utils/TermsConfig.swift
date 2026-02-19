@@ -1,8 +1,9 @@
 //
-//  TermsConfig 2.swift
-//  Pods
+//  TermsConfig.swift
+//  NISDK
 //
 //  Created by Prasath R on 10/02/26.
+//  Copyright © 2026 Network International. All rights reserved.
 //
 
 

@@ -313,7 +313,7 @@ class CardPaymentViewController: UIViewController {
                               leading: contentView.leadingAnchor,
                               bottom: nil,
                               trailing: contentView.trailingAnchor,
-                              padding: UIEdgeInsets(top: 20, left: 30, bottom: 0, right: 30),
+                              padding: UIEdgeInsets(top: 0, left: 30, bottom: 0, right: 30),
                               size: CGSize(width: 0, height: 50))
         errorContainer.addSubview(errorLabel)
         errorLabel.alignCenterToCenterOf(parent: errorContainer)
@@ -345,7 +345,7 @@ class CardPaymentViewController: UIViewController {
                 leading: contentView.leadingAnchor,
                 bottom: nil,
                 trailing: contentView.trailingAnchor,
-                padding: UIEdgeInsets(top: 12, left: 30, bottom: 0, right: 30)
+                padding: UIEdgeInsets(top: 2, left: 30, bottom: 0, right: 30)
             )
 
             lastAnchor = termsView.bottomAnchor
@@ -435,11 +435,7 @@ class CardPaymentViewController: UIViewController {
     
     @objc func payButtonAction() {
         let (isAllValid, errors) = validateAllFields()
-        if !isSaudiPaymentEnabled,
-           let termsView = termsView,
-           errors["terms"] != nil {
-            termsView.showValidationError()
-        }
+
         if let pan = pan.value,
             let expiryMonth = expiryDate.month,
             let expiryYear = expiryDate.year,

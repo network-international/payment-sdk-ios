@@ -34,8 +34,10 @@ struct OrderRequest: Encodable {
     var skipInvoiceCreatedEmailNotification: Bool?
     var notifyPayByLink: Bool?
     var paymentStructure: String?
-    var initialInstallmentAmount: Int?
+    var initialInstallmentAmount: Double?
     var initialPeriodLength: Int?
+    var trialOfferTenure: Int?
+    var trialOfferAmount: OrderAmount?
     
     
     private enum OrderRequestCodingKeys: String, CodingKey {
@@ -63,5 +65,7 @@ struct OrderRequest: Encodable {
         case paymentStructure
         case initialInstallmentAmount
         case initialPeriodLength
+        case trailOfferTenure
+        case trialOfferAmount
     }
 }

@@ -73,3 +73,15 @@
 "default_terms" = "By clicking \"Pay\", you agree to the Terms and Conditions and authorize this transaction";
 "default_consent_link_text" = "Terms and Conditions";
 "consent_link_text" = "Terms of Use";
+"first_payment_date" = "FIRST PAYMENT DATE";
+"last_payment_date" = "LAST PAYMENT DATE";
+"recurring_amount" = "RECURRING AMOUNT";
+"frequency" = "FREQUENCY";
+"DAILY_FREQUENCY" = "Daily";
+"WEEKLY_FREQUENCY" = "Weekly";
+"BIWEEKLY_FREQUENCY" = "Bi-Weekly";
+"FORTNIGHTLY_FREQUENCY" = "Fortnightly";
+"MONTHLY_FREQUENCY" = "Monthly";
+"QUARTERLY_FREQUENCY" = "Quarterly";
+"TWICE_YEARLY_FREQUENCY" = "Half Yearly";
+"YEARLY_FREQUENCY" = "Yearly";

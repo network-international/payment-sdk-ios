@@ -49,7 +49,7 @@ class ApiService {
                     if (orderData.type == "RECURRING" || orderData.type == "INSTALLMENT") {
                         url = url.replacingOccurrences(of: "transactions", with: "recurring-payment")
                         contentType = "application/vnd.ni-recurring-payment.v2+json"
-                    } else if (orderData.transactionType == "RECURRING_PURCHASE") {
+                    } else if (orderData.transactionType == "RECURRING_PURCHASE" || orderData.transactionType == "INSTALLMENT") {
                         url = url.replacingOccurrences(of: "transactions", with: "subscription")
                         url = url + "/direct-order"
                         contentType = "application/vnd.ni-subscription.v1+json"
@@ -67,10 +67,6 @@ class ApiService {
                     orderRequest.httpBody = orderRequestData
 
                     URLSession.shared.dataTask(with: orderRequest) { (data, response, error) in
-                        if let data = data,
-                           let jsonString = String(data: data, encoding: .utf8) {
-                            print("DEBUG Payment Response:\n\(jsonString)")
-                        }
                         guard let data = data else {
                             completion(.failure(error ?? NSError(domain: "Failed creating order", code: -1, userInfo: nil)))
                             return
