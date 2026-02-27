@@ -66,15 +66,23 @@
 "aani_passport_id" = "Passport ID";
 "aani_email_id" = "Email ID";
 "aani_alias_type" = "Alias type";
+"aani_qr_code" = "QR Code";
+"aani_generate_qr" = "Generate QR Code";
+"aani_scan_qr_to_pay" = "Scan QR code to complete payment";
 
 /* Unified Payment Page */
 "Or select your payment options" = "Or select your payment options";
 "Use Credit Or Debit Card" = "Use Credit Or Debit Card";
 "What's CVV?" = "What's CVV?";
+"CVV Tooltip" = "Security code can be located on the back of the card";
 "Order summary" = "Order summary";
 "Powered by" = "Powered by";
 "Terms and Conditions" = "Terms and Conditions";
 "Privacy Policy" = "Privacy Policy";
+"Select Other Payment Options" = "Select Other Payment Options";
+"Click to Pay" = "Click to Pay";
+"Pay with Click to Pay" = "Pay with Click to Pay";
+"Pay by card" = "Pay by card";
 "By clicking Pay terms" = "By clicking \"Pay\", you agree to the terms and conditions and authorize this transaction.";
 "Pay With" = "Pay With";
 "Expiration date" = "Expiration date";
@@ -87,7 +95,7 @@
 "Payment Success Title" = "You paid %@";
 "Payment Success Title No Amount" = "Payment Successful";
 "Payment Failure Title" = "Something Went Wrong";
-"Payment Success Subtitle" = "Thank you. Your payment has been received.";
+"Payment Success Subtitle" = "Thank you! your payment has been received.";
 "Payment Failure Subtitle" = "Please try again later.";
 "Transaction ID Label" = "Transaction ID";
 "Reference Number Label" = "Reference Number";

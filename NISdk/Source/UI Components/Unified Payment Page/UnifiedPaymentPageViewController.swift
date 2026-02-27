@@ -394,7 +394,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         ctpLogoView.heightAnchor.constraint(equalToConstant: 32).isActive = true
 
         let ctpTitleLabel = UILabel()
-        ctpTitleLabel.text = "Click to Pay"
+        ctpTitleLabel.text = "Click to Pay".localized
         ctpTitleLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         ctpTitleLabel.textColor = UIColor(hexString: "#070707")
 
@@ -426,7 +426,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         ctpBtnLogo.heightAnchor.constraint(equalToConstant: 24).isActive = true
 
         let ctpBtnLabel = UILabel()
-        ctpBtnLabel.text = "Pay with Click to Pay"
+        ctpBtnLabel.text = "Pay with Click to Pay".localized
         ctpBtnLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         ctpBtnLabel.textColor = UIColor(hexString: "#070707")
 
@@ -667,13 +667,13 @@ class UnifiedPaymentPageViewController: UIViewController {
         if selectedPaymentOption == option {
             selectedPaymentOption = nil
             cardSection?.setSelected(false)
-            cardSection?.setExpanded(false, animated: true)
+            cardSection?.setExpanded(false, animated: false)
             clickToPayRadioButton?.isOn = false
             aaniRadioButton?.isOn = false
+            self.clickToPayButton?.isHidden = true
+            self.aaniButton?.isHidden = true
             UIView.animate(withDuration: 0.25) {
-                self.clickToPayButton?.isHidden = true
                 self.clickToPayButton?.alpha = 0
-                self.aaniButton?.isHidden = true
                 self.aaniButton?.alpha = 0
                 self.view.layoutIfNeeded()
             }
@@ -684,7 +684,7 @@ class UnifiedPaymentPageViewController: UIViewController {
 
         // Update card section
         cardSection?.setSelected(option == .card)
-        cardSection?.setExpanded(option == .card, animated: true)
+        cardSection?.setExpanded(option == .card, animated: false)
 
         // Update click to pay
         clickToPayRadioButton?.isOn = (option == .clickToPay)
@@ -694,10 +694,13 @@ class UnifiedPaymentPageViewController: UIViewController {
         aaniRadioButton?.isOn = (option == .aani)
         let aaniExpanded = (option == .aani)
 
+        // Set hidden states immediately so UIStackView recalculates sizes
+        self.clickToPayButton?.isHidden = !ctpExpanded
+        self.aaniButton?.isHidden = !aaniExpanded
+
+        // Animate alpha and layout together
         UIView.animate(withDuration: 0.25) {
-            self.clickToPayButton?.isHidden = !ctpExpanded
             self.clickToPayButton?.alpha = ctpExpanded ? 1 : 0
-            self.aaniButton?.isHidden = !aaniExpanded
             self.aaniButton?.alpha = aaniExpanded ? 1 : 0
             self.view.layoutIfNeeded()
         }
