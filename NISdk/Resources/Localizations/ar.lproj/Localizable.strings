@@ -26,7 +26,7 @@
 "Invalid card holder name" = "اسم حامل البطاقة غير صحيح";
 "All fields are mandatory" = "كل الحقول مطلوبة";
 "Cancel" = "إلغاء";
-"Authenticating Payment" = "التحقق من الدفع";
+"Authenticating Payment" = "جارٍ التفويض";
 "Authenticating using 3DS" = "التحقق من الدفع";
 "Cancel Payment Title" = "إلغاء الدفع";
 "Cancel Payment Message" = "هل أنت متأكد أنك تريد إلغاء الدفع؟";
@@ -65,15 +65,24 @@
 "aani_passport_id" = "رقم جواز السفر";
 "aani_email_id" = "البريد الإلكتروني";
 "aani_alias_type" = "نوع الاسم المستعار";
+"aani_qr_code" = "رمز QR";
+"aani_generate_qr" = "إنشاء رمز QR";
+"aani_scan_qr_to_pay" = "امسح رمز QR لإتمام الدفع";
+"Pay with Aani" = "الدفع عبر AANI";
 
 /* Unified Payment Page */
 "Or select your payment options" = "أو اختر طريقة الدفع";
 "Use Credit Or Debit Card" = "استخدم بطاقة ائتمان أو خصم";
 "What's CVV?" = "ما هو CVV؟";
+"CVV Tooltip" = "يمكن العثور على رمز الأمان على ظهر البطاقة";
 "Order summary" = "ملخص الطلب";
-"Powered by" = "بدعم من";
+"Powered by" = "مدعوم بواسطة";
 "Terms and Conditions" = "الشروط والأحكام";
 "Privacy Policy" = "سياسة الخصوصية";
+"Select Other Payment Options" = "اختر خيارات الدفع الأخرى";
+"Click to Pay" = "كليك تو باي";
+"Pay with Click to Pay" = "ادفع باستخدام كليك تو باي";
+"Pay by card" = "الدفع بالبطاقة";
 "By clicking Pay terms" = "بالضغط على \"ادفع\"، فإنك توافق على الشروط والأحكام وتصرح بهذه المعاملة.";
 "Pay With" = "ادفع بـ";
 "Expiration date" = "تاريخ الانتهاء";
@@ -86,7 +95,7 @@
 "Payment Success Title" = "لقد دفعت %@";
 "Payment Success Title No Amount" = "تمت عملية الدفع بنجاح";
 "Payment Failure Title" = "حدث خطأ ما";
-"Payment Success Subtitle" = "شكراً لك. تم استلام دفعتك.";
+"Payment Success Subtitle" = "شكراً لك! تم استلام دفعتك.";
 "Payment Failure Subtitle" = "يرجى المحاولة مرة أخرى لاحقاً.";
 "Transaction ID Label" = "رقم المعاملة";
 "Reference Number Label" = "الرقم المرجعي";
