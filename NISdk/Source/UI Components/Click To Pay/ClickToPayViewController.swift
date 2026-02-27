@@ -51,6 +51,8 @@ class ClickToPayViewController: UIViewController {
 
     // Base64 GIF data URI to inject into the HTML for lookup loading
     private var gifDataUri: String?
+    // Base64 Visa logo data URI to inject into the HTML
+    private var visaLogoDataUri: String?
 
     // Encryption keys and merchant config fetched from /vctp/config endpoint
     private var vctpKid: String?
@@ -85,6 +87,7 @@ class ClickToPayViewController: UIViewController {
         setupWebView()
         setupNavigationBar()  // After WebView so floating close button is on top
         loadGifDataUri()
+        loadVisaLogoDataUri()
         authorizeAndLoadHtml()
     }
 
@@ -240,6 +243,27 @@ class ClickToPayViewController: UIViewController {
         guard let dataUri = gifDataUri else { return }
         let escaped = dataUri.replacingOccurrences(of: "'", with: "\\'")
         webView.evaluateJavaScript("setLookupGif('\(escaped)')") { _, _ in }
+    }
+
+    // MARK: - Visa Logo Data URI
+
+    /// Load the Visa logo from the bundle and convert to base64 data URI for injection into HTML
+    private func loadVisaLogoDataUri() {
+        let bundle = NISdk.sharedInstance.getBundle()
+        guard let image = UIImage(named: "visalogo", in: bundle, compatibleWith: nil)
+                ?? UIImage(named: "visalogo", in: Bundle(for: type(of: self)), compatibleWith: nil),
+              let data = image.pngData() else {
+            return
+        }
+        let base64 = data.base64EncodedString()
+        visaLogoDataUri = "data:image/png;base64,\(base64)"
+    }
+
+    /// Inject the Visa logo data URI into the HTML page
+    private func injectVisaLogoIntoHtml() {
+        guard let dataUri = visaLogoDataUri else { return }
+        let escaped = dataUri.replacingOccurrences(of: "'", with: "\\'")
+        webView.evaluateJavaScript("setVisaLogo('\(escaped)')") { _, _ in }
     }
 
     // MARK: - Authorization
@@ -533,9 +557,10 @@ class ClickToPayViewController: UIViewController {
     private func handleBridgeMessage(type: String, data: [String: Any]) {
         switch type {
         case "onSdkInitialized":
-            // Always inject the GIF so it's available for lookup loading
+            // Always inject the GIF and Visa logo so they're available
             DispatchQueue.main.async {
                 self.injectGifIntoHtml()
+                self.injectVisaLogoIntoHtml()
             }
             if let email = userEmail, !email.isEmpty {
                 let escapedEmail = email.replacingOccurrences(of: "'", with: "\\'")
