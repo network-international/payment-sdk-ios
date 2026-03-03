@@ -19,19 +19,16 @@
 		862CBE81230EE14F00767774 /* StoreFrontViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE80230EE14F00767774 /* StoreFrontViewController.swift */; };
 		862CBE83230EF13700767774 /* ProductViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE82230EF13700767774 /* ProductViewCell.swift */; };
 		862CBE85230EF89100767774 /* UIView+AutoLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE84230EF89100767774 /* UIView+AutoLayout.swift */; };
-
 		86710F502310206300259AE9 /* UICollectionView+DeselectAll.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F4F2310206300259AE9 /* UICollectionView+DeselectAll.swift */; };
-
-
 		869DDD6623153A2D0020CB20 /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = 869DDD6523153A2D0020CB20 /* Product.swift */; };
 		86D2FB7622FC1B3300CF1FA1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86D2FB7522FC1B3300CF1FA1 /* AppDelegate.swift */; };
 		86D2FB7D22FC1B3300CF1FA1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 86D2FB7C22FC1B3300CF1FA1 /* Assets.xcassets */; };
 		86D2FB8022FC1B3300CF1FA1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 86D2FB7E22FC1B3300CF1FA1 /* LaunchScreen.storyboard */; };
 		86EA2237230F204B00B46FF9 /* OrderCreationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA2236230F204B00B46FF9 /* OrderCreationViewController.swift */; };
-		H1A006022B00000200000001 /* PaymentOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = H1A006012B00000200000001 /* PaymentOptionsViewController.swift */; };
 		86EA2239230F2AA300B46FF9 /* OrderRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA2238230F2AA300B46FF9 /* OrderRequest.swift */; };
 		86EA223B230F2BDE00B46FF9 /* OrderAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */; };
 		A1B2C3D52BD901AA00986490 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42BD901AA00986490 /* QRScannerView.swift */; };
+		H1A006022B00000200000001 /* PaymentOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = H1A006012B00000200000001 /* PaymentOptionsViewController.swift */; };
 		W1Y00N012BD902AA00986490 /* WhatYouNeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1Y00N002BD902AA00986490 /* WhatYouNeedView.swift */; };
 /* End PBXBuildFile section */
 
@@ -50,11 +47,8 @@
 		862CBE80230EE14F00767774 /* StoreFrontViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreFrontViewController.swift; sourceTree = "<group>"; };
 		862CBE82230EF13700767774 /* ProductViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductViewCell.swift; sourceTree = "<group>"; };
 		862CBE84230EF89100767774 /* UIView+AutoLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+AutoLayout.swift"; sourceTree = "<group>"; };
-
 		86710F4F2310206300259AE9 /* UICollectionView+DeselectAll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionView+DeselectAll.swift"; sourceTree = "<group>"; };
-
 		869DDD6223150E070020CB20 /* Simple Integration.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Simple Integration.entitlements"; sourceTree = "<group>"; };
-
 		869DDD6523153A2D0020CB20 /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
 		86D2FB7222FC1B3300CF1FA1 /* Demo App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Demo App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		86D2FB7522FC1B3300CF1FA1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -62,14 +56,14 @@
 		86D2FB7F22FC1B3300CF1FA1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		86D2FB8122FC1B3300CF1FA1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		86EA2236230F204B00B46FF9 /* OrderCreationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderCreationViewController.swift; sourceTree = "<group>"; };
-		H1A006012B00000200000001 /* PaymentOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentOptionsViewController.swift; sourceTree = "<group>"; };
 		86EA2238230F2AA300B46FF9 /* OrderRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRequest.swift; sourceTree = "<group>"; };
 		86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderAmount.swift; sourceTree = "<group>"; };
-		A1B2C3D42BD901AA00986490 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
-		W1Y00N002BD902AA00986490 /* WhatYouNeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatYouNeedView.swift; sourceTree = "<group>"; };
 		86ECAFDD23223D29008FDDDC /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		A1B2C3D42BD901AA00986490 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
 		BB759BA726500270482B263D /* Pods-Demo App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Demo App.debug.xcconfig"; path = "Target Support Files/Pods-Demo App/Pods-Demo App.debug.xcconfig"; sourceTree = "<group>"; };
 		D9BB16541062436DDB8A6A7A /* Pods_Demo_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Demo_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		H1A006012B00000200000001 /* PaymentOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentOptionsViewController.swift; sourceTree = "<group>"; };
+		W1Y00N002BD902AA00986490 /* WhatYouNeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatYouNeedView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -478,21 +472,22 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = B4EALQHL3S;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration/Supporting Files/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Demo App";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.payment.sdk.demoapp;
+				MARKETING_VERSION = 1.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ni.ksa.payment.sdk.demoapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -512,21 +507,22 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = B4EALQHL3S;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Simple Integration/Supporting Files/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Demo App";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
-				PRODUCT_BUNDLE_IDENTIFIER = com.equalexperts.payment.sdk.demoapp;
+				MARKETING_VERSION = 1.3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ni.ksa.payment.sdk.demoapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

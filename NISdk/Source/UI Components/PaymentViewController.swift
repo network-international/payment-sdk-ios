@@ -279,7 +279,7 @@ class PaymentViewController: UIViewController {
     private func initiateAaniFromUnifiedPage() {
         guard let backLink = aaniBackLink else { return }
         do {
-            let aaniPayArgs = try order.toAaniPayArgs(backLink)
+            let aaniPayArgs = try order.toAaniPayArgs(backLink, accessToken: self.accessToken)
             if #available(iOS 14.0, *) {
                 let aaniVC = AaniPayViewController(aaniPayArgs: aaniPayArgs) { [weak self] status in
                     switch status {
@@ -681,7 +681,7 @@ class PaymentViewController: UIViewController {
             if paymentStatus == .PaymentSuccess || paymentStatus == .PaymentFailed {
                 if case .renderPaymentResult = self.state {
                     // Already on result screen, skip
-                } else if #available(iOS 13.0, *) {
+                } else if #available(iOS 14.0, *) {
                     self.showPaymentResultScreen(paymentStatus: paymentStatus, threeDSStatus: threeDSStatus, authStatus: authStatus)
                     return
                 }
@@ -694,7 +694,7 @@ class PaymentViewController: UIViewController {
         }
     }
 
-    @available(iOS 13.0, *)
+    @available(iOS 14.0, *)
     private func showPaymentResultScreen(paymentStatus: PaymentStatus,
                                           threeDSStatus: ThreeDSStatus?,
                                           authStatus: AuthorizationStatus?) {
@@ -702,6 +702,7 @@ class PaymentViewController: UIViewController {
         let formattedAmount = self.order.amount?.getFormattedAmount()
         let transactionId = self.lastPaymentResponse?.reference ?? self.order.reference ?? ""
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: NISdk.sharedInstance.sdkLanguage)
         dateFormatter.dateFormat = "dd MMM yyyy, hh:mm a"
         let dateTime = dateFormatter.string(from: Date())
 
@@ -709,7 +710,8 @@ class PaymentViewController: UIViewController {
             isSuccess: isSuccess,
             amount: formattedAmount,
             transactionId: transactionId,
-            dateTime: dateTime
+            dateTime: dateTime,
+            cardProviders: self.order.paymentMethods?.card ?? []
         )
 
         let resultVC = PaymentResultViewController(args: args, onDone: { [weak self] in

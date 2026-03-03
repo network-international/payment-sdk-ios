@@ -506,7 +506,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         aaniLogoView.heightAnchor.constraint(equalToConstant: 32).isActive = true
 
         let aaniTitleLabel = UILabel()
-        aaniTitleLabel.text = "Aani Pay"
+        aaniTitleLabel.text = "Pay with Aani".localized
         aaniTitleLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         aaniTitleLabel.textColor = UIColor(hexString: "#070707")
 
@@ -538,7 +538,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         btnLogo.heightAnchor.constraint(equalToConstant: 24).isActive = true
 
         let btnLabel = UILabel()
-        btnLabel.text = "Pay with Aani".localized
+        btnLabel.text = "aani_request_to_pay".localized
         btnLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         btnLabel.textColor = UIColor(hexString: "#070707")
 

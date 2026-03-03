@@ -62,7 +62,7 @@ class FooterView: UIView {
         poweredByLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         poweredByLabel.textColor = UIColor(hexString: "#8F8F8F")
 
-        let sdkBundle = Bundle(for: NISdk.self)
+        let sdkBundle = NISdk.sharedInstance.getBundle()
         let niLogoView = UIImageView(image: UIImage(named: "networklogo", in: sdkBundle, compatibleWith: nil))
         niLogoView.contentMode = .scaleAspectFit
         niLogoView.translatesAutoresizingMaskIntoConstraints = false

@@ -10,4 +10,5 @@ struct PaymentResultArgs {
     let amount: String?
     let transactionId: String
     let dateTime: String
+    let cardProviders: [CardProvider]
 }

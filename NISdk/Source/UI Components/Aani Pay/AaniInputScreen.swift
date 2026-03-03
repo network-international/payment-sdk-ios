@@ -12,7 +12,14 @@ struct AaniInputScreen: View {
     @State private var selectedIdType: AaniIDType = .mobileNumber
     @State private var inputText: String = ""
     @State private var paymentProcessing: Bool = false
+    let qrEnabled: Bool
     let onSubmit: (AaniIDType, String) -> Void
+
+    @Environment(\.layoutDirection) private var layoutDirection
+
+    private var isRTL: Bool {
+        layoutDirection == .rightToLeft
+    }
 
     var body: some View {
         VStack {
@@ -22,46 +29,48 @@ struct AaniInputScreen: View {
                 .padding(20)
             Divider()
 
-            HStack {
-                Spacer()
-                Picker("Select ID Type", selection: $selectedIdType) {
-                    ForEach(AaniIDType.allCases, id: \.self) { idType in
-                        Text(idType.text).tag(idType).font(.subheadline)
-                    }
+            Picker("Select ID Type", selection: $selectedIdType) {
+                ForEach(qrEnabled ? AaniIDType.allCases : AaniIDType.allCases.filter { $0 != .qrCode }, id: \.self) { idType in
+                    Text(idType.text).tag(idType).font(.subheadline)
                 }
-                .accentColor(.black)
-                .disabled(paymentProcessing)
             }
+            .accentColor(.black)
+            .disabled(paymentProcessing)
+            .frame(maxWidth: .infinity, alignment: .leading)
             Divider()
 
-            HStack {
-                if selectedIdType == .mobileNumber {
-                    Text("+971")
+            if selectedIdType.requiresInput {
+                HStack {
+                    if selectedIdType == .mobileNumber {
+                        Text("+971")
+                            .padding()
+                            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 1))
+                    }
+
+                    TextField(selectedIdType.sample, text: $inputText)
+                        .keyboardType(self.keyboardTypeFor(inputType: $selectedIdType))
+                        .multilineTextAlignment(isRTL ? .trailing : .leading)
+                        .id(selectedIdType.id)
                         .padding()
                         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 1))
-                    Spacer()
-                }
-
-                TextField(selectedIdType.sample, text: $inputText)
-                    .keyboardType(self.keyboardTypeFor(inputType: $selectedIdType))
-                    .id(selectedIdType.id)
-                    .padding()
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 1))
-                    .onChange(of: inputText) { newValue in
-                        inputText = formatInputText(newValue, for: selectedIdType)
-                    }
-                    .onChange(of: selectedIdType) { newType in
-                        if newType == .emiratesID {
-                            inputText = formatInputText("784-", for: .emiratesID)
-                        } else {
-                            inputText = ""
+                        .onChange(of: inputText) { newValue in
+                            inputText = formatInputText(newValue, for: selectedIdType)
                         }
-                    }
-                    .disabled(paymentProcessing)
+                        .onChange(of: selectedIdType) { newType in
+                            if newType == .emiratesID {
+                                inputText = formatInputText("784-", for: .emiratesID)
+                            } else {
+                                inputText = ""
+                            }
+                        }
+                        .disabled(paymentProcessing)
+                }
+                .padding(.vertical)
             }
-            .padding(.vertical)
 
-            let isButtonEnabled = selectedIdType.isValid(text: inputText) && !paymentProcessing
+            let isButtonEnabled = selectedIdType.requiresInput
+                ? (selectedIdType.isValid(text: inputText) && !paymentProcessing)
+                : !paymentProcessing
 
             Button(action: {
                 onSubmit(selectedIdType, inputText)
@@ -73,7 +82,7 @@ struct AaniInputScreen: View {
                         ActivityIndicator()
                     }
                 } else {
-                    Text("Make Payment".localized)
+                    Text(selectedIdType == .qrCode ? "aani_generate_qr".localized : "Make Payment".localized)
                 }
             }
             .disabled(!isButtonEnabled)
@@ -120,11 +129,13 @@ struct AaniInputScreen: View {
             return String(text.prefix(inputType.maxLength)).uppercased()
         case .emailID:
             return String(text.prefix(inputType.maxLength)).lowercased()
+        case .qrCode:
+            return text
         }
     }
 }
 
 @available(iOS 14.0, *)
 #Preview {
-    AaniInputScreen { _, _ in }
+    AaniInputScreen(qrEnabled: true) { _, _ in }
 }

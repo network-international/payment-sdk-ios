@@ -60,15 +60,26 @@
 "aani_tap_notification" = "اضغط على الإشعار الذي تلقيته في التطبيق لإكمال عملية الدفع.";
 "aani_note_do_not_close" = "ملاحظة: يرجى عدم إغلاق التطبيق أثناء تشغيل المؤقت.";
 "aani" = "AANI";
-"aani_mobile_number" = "رقم الجوال";
+"aani_mobile_number" = "رقم الهاتف";
 "aani_emirates_id" = "الهوية الإماراتية";
 "aani_passport_id" = "رقم جواز السفر";
-"aani_email_id" = "البريد الإلكتروني";
+"aani_email_id" = "عنوان البريد الالكتروني";
 "aani_alias_type" = "نوع الاسم المستعار";
-"aani_qr_code" = "رمز QR";
+"aani_qr_code" = "الدفع عبر رمز الاستجابة";
 "aani_generate_qr" = "إنشاء رمز QR";
-"aani_scan_qr_to_pay" = "امسح رمز QR لإتمام الدفع";
-"Pay with Aani" = "الدفع عبر AANI";
+"aani_scan_qr_to_pay" = "امسح رمز الاستجابة - قم بالدفع - تم";
+"Pay with Aani" = "الدفع عبر آني";
+"aani_request_to_pay" = "طلب دفع";
+"aani_generating_qr" = "جارٍ إنشاء رمز الاستجابة";
+"aani_keep_modal_open" = "يرجى إبقاء النافذة مفتوحة";
+"aani_qr_expired" = "انتهت صلاحية رمز الاستجابة";
+"aani_qr_expired_message" = "تنتهي صلاحية رموز الاستجابة بعد 5 دقائق";
+"aani_generate_new_qr" = "إنشاء رمز استجابة جديد";
+"aani_qr_failed" = "فشل إنشاء رمز الاستجابة";
+"aani_qr_failed_message" = "تعذر الاتصال ببوابة الدفع";
+"aani_try_again" = "حاول مرة أخرى";
+"aani_payment_timeout" = "انتهت مهلة الدفع";
+"aani_payment_timeout_message" = "لم يتم إكمال الدفع في الوقت المحدد";
 
 /* Unified Payment Page */
 "Or select your payment options" = "أو اختر طريقة الدفع";
@@ -97,7 +108,7 @@
 "Payment Failure Title" = "حدث خطأ ما";
 "Payment Success Subtitle" = "شكراً لك! تم استلام دفعتك.";
 "Payment Failure Subtitle" = "يرجى المحاولة مرة أخرى لاحقاً.";
-"Transaction ID Label" = "رقم المعاملة";
+"Transaction ID Label" = "رقم المرجع";
 "Reference Number Label" = "الرقم المرجعي";
-"Date Time Label" = "التاريخ / الوقت";
+"Date Time Label" = "تاريخ المعاملة";
 "Done" = "تم";

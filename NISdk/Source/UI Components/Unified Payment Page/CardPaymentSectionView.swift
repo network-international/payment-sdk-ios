@@ -107,6 +107,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
     private let formContainer = UIStackView()
     private let collapsedLabel = UILabel()
     private var isExpanded = false
+    private weak var cvvTooltipContainer: UIView?
 
     // MARK: - Init
 
@@ -124,16 +125,19 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     func setExpanded(_ expanded: Bool, animated: Bool) {
         isExpanded = expanded
-        let update = {
-            self.formContainer.isHidden = !expanded
-            self.formContainer.alpha = expanded ? 1 : 0
-            self.collapsedLabel.isHidden = expanded
-            self.collapsedLabel.alpha = expanded ? 0 : 1
-        }
+        // Set hidden state immediately so UIStackView recalculates layout
+        formContainer.isHidden = !expanded
+        collapsedLabel.isHidden = expanded
         if animated {
-            UIView.animate(withDuration: 0.25, animations: update)
+            formContainer.alpha = 0
+            collapsedLabel.alpha = 0
+            UIView.animate(withDuration: 0.25) {
+                self.formContainer.alpha = expanded ? 1 : 0
+                self.collapsedLabel.alpha = expanded ? 0 : 1
+            }
         } else {
-            update()
+            formContainer.alpha = expanded ? 1 : 0
+            collapsedLabel.alpha = expanded ? 0 : 1
         }
     }
 
@@ -173,7 +177,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         rightSideStack.translatesAutoresizingMaskIntoConstraints = false
 
         // Collapsed "Pay by card" label
-        collapsedLabel.text = "Pay by card"
+        collapsedLabel.text = "Pay by card".localized
         collapsedLabel.font = UIFont.systemFont(ofSize: 12, weight: .regular)
         collapsedLabel.textColor = UIColor(hexString: "#070707")
         collapsedLabel.isHidden = false
@@ -206,6 +210,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         // Expiry + CVV side by side
         let expiryCvvRow = createExpiryCvvRow()
         formContainer.addArrangedSubview(expiryCvvRow)
+
+        // "What's CVV?" link + tooltip (full width, below the expiry/CVV row)
+        let cvvTooltipSection = createCvvTooltipSection()
+        formContainer.addArrangedSubview(cvvTooltipSection)
 
         // Name field
         let nameSection = createBorderedFieldSection(
@@ -506,17 +514,92 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         ])
         cvvSection.addArrangedSubview(cvvBox)
 
-        // "What's CVV?" link
+        outerStack.addArrangedSubview(cvvSection)
+
+        return outerStack
+    }
+
+    // MARK: - CVV Tooltip Section
+
+    private func createCvvTooltipSection() -> UIView {
+        let container = UIStackView()
+        container.axis = .vertical
+        container.spacing = 4
+        container.translatesAutoresizingMaskIntoConstraints = false
+
+        // "What's CVV?" label — right-aligned
         let whatsCvvLabel = UILabel()
         whatsCvvLabel.text = "What's CVV?".localized
         whatsCvvLabel.font = UIFont.systemFont(ofSize: 13, weight: .light)
         whatsCvvLabel.textColor = UIColor(hexString: "#8F8F8F")
+        whatsCvvLabel.textAlignment = .right
         whatsCvvLabel.translatesAutoresizingMaskIntoConstraints = false
-        cvvSection.addArrangedSubview(whatsCvvLabel)
+        whatsCvvLabel.isUserInteractionEnabled = true
+        container.addArrangedSubview(whatsCvvLabel)
 
-        outerStack.addArrangedSubview(cvvSection)
+        // Tooltip bubble (hidden by default)
+        let tooltipWrapper = UIView()
+        tooltipWrapper.translatesAutoresizingMaskIntoConstraints = false
+        tooltipWrapper.isHidden = true
 
-        return outerStack
+        // Arrow pointing up
+        let arrowView = UIView()
+        arrowView.translatesAutoresizingMaskIntoConstraints = false
+        arrowView.backgroundColor = .clear
+        tooltipWrapper.addSubview(arrowView)
+
+        let arrowLayer = CAShapeLayer()
+        let arrowPath = UIBezierPath()
+        arrowPath.move(to: CGPoint(x: 0, y: 8))
+        arrowPath.addLine(to: CGPoint(x: 8, y: 0))
+        arrowPath.addLine(to: CGPoint(x: 16, y: 8))
+        arrowPath.close()
+        arrowLayer.path = arrowPath.cgPath
+        arrowLayer.fillColor = UIColor(hexString: "#333333").cgColor
+        arrowView.layer.addSublayer(arrowLayer)
+
+        NSLayoutConstraint.activate([
+            arrowView.topAnchor.constraint(equalTo: tooltipWrapper.topAnchor),
+            arrowView.trailingAnchor.constraint(equalTo: tooltipWrapper.trailingAnchor, constant: -24),
+            arrowView.widthAnchor.constraint(equalToConstant: 16),
+            arrowView.heightAnchor.constraint(equalToConstant: 8),
+        ])
+
+        // Bubble body
+        let bubbleView = UIView()
+        bubbleView.backgroundColor = UIColor(hexString: "#333333")
+        bubbleView.layer.cornerRadius = 8
+        bubbleView.layer.masksToBounds = true
+        bubbleView.translatesAutoresizingMaskIntoConstraints = false
+        tooltipWrapper.addSubview(bubbleView)
+
+        let cvvTooltipLabel = UILabel()
+        cvvTooltipLabel.text = "CVV Tooltip".localized
+        cvvTooltipLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        cvvTooltipLabel.textColor = .white
+        cvvTooltipLabel.numberOfLines = 0
+        cvvTooltipLabel.textAlignment = .center
+        cvvTooltipLabel.translatesAutoresizingMaskIntoConstraints = false
+        bubbleView.addSubview(cvvTooltipLabel)
+
+        NSLayoutConstraint.activate([
+            bubbleView.topAnchor.constraint(equalTo: arrowView.bottomAnchor),
+            bubbleView.leadingAnchor.constraint(equalTo: tooltipWrapper.leadingAnchor),
+            bubbleView.trailingAnchor.constraint(equalTo: tooltipWrapper.trailingAnchor),
+            bubbleView.bottomAnchor.constraint(equalTo: tooltipWrapper.bottomAnchor),
+            cvvTooltipLabel.topAnchor.constraint(equalTo: bubbleView.topAnchor, constant: 12),
+            cvvTooltipLabel.bottomAnchor.constraint(equalTo: bubbleView.bottomAnchor, constant: -12),
+            cvvTooltipLabel.leadingAnchor.constraint(equalTo: bubbleView.leadingAnchor, constant: 16),
+            cvvTooltipLabel.trailingAnchor.constraint(equalTo: bubbleView.trailingAnchor, constant: -16),
+        ])
+
+        container.addArrangedSubview(tooltipWrapper)
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(cvvTooltipTapped))
+        whatsCvvLabel.addGestureRecognizer(tap)
+        self.cvvTooltipContainer = tooltipWrapper
+
+        return container
     }
 
     // MARK: - Pay Button Configuration
@@ -694,5 +777,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     @objc private func payTapped() {
         onPayTapped?()
+    }
+
+    @objc private func cvvTooltipTapped() {
+        guard let container = cvvTooltipContainer else { return }
+        container.isHidden.toggle()
     }
 }
