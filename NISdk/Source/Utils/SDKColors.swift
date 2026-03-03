@@ -22,6 +22,8 @@ import Foundation
     public var payButtonDisabledBackgroundColor = UIColor(hexString: "#d1d1d6")
     public var payButtonDisabledTitleColor = UIColor(hexString: "#8e8e93")
     public var payPageTitleColor = UIColor.black
+    public var payButtonGoldColor = UIColor(hexString: "#FFD882")
+    public var payButtonGoldTextColor = UIColor(hexString: "#5C3F00")
 
     public override init() {
         super.init()

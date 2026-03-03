@@ -15,19 +15,23 @@ private class NISdkBundleLocator {}
     @objc public static let sharedInstance = NISdk()
     
     var niSdkColors = NISdkColors()
-    var sdkLanguage = "en"
+    var sdkLanguage: String
     public var shouldShowOrderAmount = true
     public var shouldShowCancelAlert = false
     public var merchantLogo: UIImage?
+
+    private static let supportedLanguages: Set<String> = ["en", "ar", "fr"]
 
     public var isLoggingEnabled: Bool {
         get { NILogger.shared.isEnabled }
         set { NILogger.shared.isEnabled = newValue }
     }
-    
+
     public var version: String = "6.0.0"
-    
+
     private override init() {
+        let deviceLanguage = Locale.current.languageCode ?? "en"
+        sdkLanguage = NISdk.supportedLanguages.contains(deviceLanguage) ? deviceLanguage : "en"
         super.init()
         let bundle = getBundle()
         UIFont.RegisterFont(withFilenameString: "OCRA.otf", in: bundle)

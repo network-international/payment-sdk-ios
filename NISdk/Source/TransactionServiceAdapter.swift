@@ -219,4 +219,34 @@ import PassKit
             .withHeaders(headers: authorizationRequestHeaders)
             .makeRequest(with: completion)
     }
+
+    func aaniQrCreate(for url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
+        let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
+                       "Authorization": "Bearer \(accessToken)"]
+        HTTPClient(url: url)?
+            .withMethod(method: "POST")
+            .withHeaders(headers: headers)
+            .withBodyData(data: "{}")
+            .makeRequest(with: completion)
+    }
+
+    func aaniQrPollStatus(with url: String, qrCodeId: String, qrTransactionId: String, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
+        let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
+                       "Authorization": "Bearer \(accessToken)"]
+        let pollUrl = "\(url)/status?qrCodeId=\(qrCodeId)&qrTransactionId=\(qrTransactionId)"
+        HTTPClient(url: pollUrl)?
+            .withMethod(method: "GET")
+            .withHeaders(headers: headers)
+            .makeRequest(with: completion)
+    }
+
+    func aaniQrCancel(with url: String, qrCodeId: String, qrTransactionId: String, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
+        let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
+                       "Authorization": "Bearer \(accessToken)"]
+        let cancelUrl = "\(url)?qrCodeId=\(qrCodeId)&qrTransactionId=\(qrTransactionId)"
+        HTTPClient(url: cancelUrl)?
+            .withMethod(method: "DELETE")
+            .withHeaders(headers: headers)
+            .makeRequest(with: completion)
+    }
 }

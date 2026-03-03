@@ -50,4 +50,10 @@ import PassKit
     @objc func aaniPayment(for url: String, with aaniRequest: AaniPayRequest, using accessToken: String, on completion: @escaping (HttpResponseCallback))
     
     @objc func aaniPaymentPooling(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
+
+    @objc func aaniQrCreate(for url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
+
+    @objc func aaniQrPollStatus(with url: String, qrCodeId: String, qrTransactionId: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
+
+    @objc func aaniQrCancel(with url: String, qrCodeId: String, qrTransactionId: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
 }

@@ -240,12 +240,14 @@ struct Environment: Codable, Identifiable {
         UserDefaults.standard.set(language, forKey: KEY_SAVED_LANGUAGE)
     }
     
+    static let supportedLanguages: Set<String> = ["en", "ar", "fr"]
+
     static func getLanguage() -> String {
-        if let action = UserDefaults.standard.string(forKey: KEY_SAVED_LANGUAGE) {
-            return action
-        } else {
-            return "en"
+        if let saved = UserDefaults.standard.string(forKey: KEY_SAVED_LANGUAGE) {
+            return saved
         }
+        let deviceLanguage = Locale.current.languageCode ?? "en"
+        return supportedLanguages.contains(deviceLanguage) ? deviceLanguage : "en"
     }
 
     static func setRegion(region: String) {

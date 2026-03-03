@@ -7,7 +7,7 @@ import Foundation
 import SwiftUI
 import UIKit
 
-@available(iOS 13.0, *)
+@available(iOS 14.0, *)
 class PaymentResultViewController: UIViewController {
 
     private let args: PaymentResultArgs
@@ -33,6 +33,8 @@ class PaymentResultViewController: UIViewController {
         self.parent?.navigationItem.hidesBackButton = true
         self.parent?.navigationItem.title = ""
 
+        let direction: LayoutDirection = Locale.characterDirection(forLanguage: NISdk.sharedInstance.sdkLanguage) == .rightToLeft
+            ? .rightToLeft : .leftToRight
         let child = UIHostingController(
             rootView: PaymentResultView(
                 args: args,
@@ -40,6 +42,7 @@ class PaymentResultViewController: UIViewController {
                     self?.onDone()
                 }
             )
+            .environment(\.layoutDirection, direction)
         )
         addChild(child)
         view.addSubview(child.view)

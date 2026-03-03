@@ -66,9 +66,21 @@
 "aani_passport_id" = "Passport ID";
 "aani_email_id" = "Email ID";
 "aani_alias_type" = "Alias type";
-"aani_qr_code" = "QR Code";
+"aani_qr_code" = "Pay with QR";
 "aani_generate_qr" = "Generate QR Code";
-"aani_scan_qr_to_pay" = "Scan QR code to complete payment";
+"aani_scan_qr_to_pay" = "Scan QR → Approve Payment → Done";
+"Pay with Aani" = "Pay with AANI";
+"aani_request_to_pay" = "Request to Pay";
+"aani_generating_qr" = "Generating QR Code";
+"aani_keep_modal_open" = "Please keep the modal open";
+"aani_qr_expired" = "QR Code Expired";
+"aani_qr_expired_message" = "QR codes expire after 5 minutes";
+"aani_generate_new_qr" = "Generate New QR Code";
+"aani_qr_failed" = "QR Generation Failed";
+"aani_qr_failed_message" = "Unable to connect to payment gateway";
+"aani_try_again" = "Try Again";
+"aani_payment_timeout" = "Payment Timeout";
+"aani_payment_timeout_message" = "Payment was not completed in time";
 
 /* Unified Payment Page */
 "Or select your payment options" = "Or select your payment options";
@@ -97,7 +109,7 @@
 "Payment Failure Title" = "Something Went Wrong";
 "Payment Success Subtitle" = "Thank you! your payment has been received.";
 "Payment Failure Subtitle" = "Please try again later.";
-"Transaction ID Label" = "Transaction ID";
+"Transaction ID Label" = "Reference number";
 "Reference Number Label" = "Reference Number";
-"Date Time Label" = "Date / Time";
+"Date Time Label" = "Transaction Date";
 "Done" = "Done";

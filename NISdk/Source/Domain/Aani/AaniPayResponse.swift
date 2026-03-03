@@ -8,12 +8,12 @@
 import Foundation
 
 class AaniPayResponse: NSObject, Codable {
-    let id: String
-    let links: AaniLinks
+    let id: String?
+    let links: AaniLinks?
     let aani: Aani
     let amount: Amount
     let state: String
-    
+
     enum CodingKeys: String, CodingKey {
         case id = "_id"
         case links = "_links"
@@ -21,11 +21,11 @@ class AaniPayResponse: NSObject, Codable {
         case amount
         case state
     }
-    
+
     public required init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.id = try container.decode(String.self, forKey: .id)
-        self.links = try container.decode(AaniLinks.self, forKey: .links)
+        self.id = try container.decodeIfPresent(String.self, forKey: .id)
+        self.links = try container.decodeIfPresent(AaniLinks.self, forKey: .links)
         self.aani = try container.decode(Aani.self, forKey: .aani)
         self.amount = try container.decode(Amount.self, forKey: .amount)
         self.state = try container.decode(String.self, forKey: .state)
@@ -66,8 +66,12 @@ class AaniLinks: NSObject, Codable {
 
 class Aani: NSObject, Codable {
     let deepLinkUrl: String
-    
-    public required init(deepLinkUrl: String) {
+    let qrCodeId: String?
+    let qrCodeTransactionId: String?
+
+    public required init(deepLinkUrl: String, qrCodeId: String? = nil, qrCodeTransactionId: String? = nil) {
         self.deepLinkUrl = deepLinkUrl
+        self.qrCodeId = qrCodeId
+        self.qrCodeTransactionId = qrCodeTransactionId
     }
 }

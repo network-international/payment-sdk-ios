@@ -4,6 +4,11 @@ import SwiftUI
 enum AaniViewType {
     case inputSelection
     case timer
+    case qrDisplay
+    case qrLoading
+    case qrExpired
+    case qrFailed
+    case paymentTimeout
 }
 
 @objc public enum AaniPaymentStatus: Int, RawRepresentable {
@@ -17,13 +22,18 @@ enum AaniViewType {
 class AaniViewModel: ObservableObject {
     private var aaniPayArgs: AaniPayArgs
     @Published var viewType: AaniViewType = .inputSelection
+    var qrEnabled: Bool { !aaniPayArgs.anniQrPaymentLink.isEmpty }
     @Published var timeString: String = "05:00"
+    @Published var qrContent: String = ""
     private var serviceAdapter: TransactionService
     private var cancellable: AnyCancellable?
     private let onCompletion: (AaniPaymentStatus) -> Void
     private let onPaymentProcessing: (Bool) -> Void
     private var remainingTime: Int = 300
     private var timer: AnyCancellable?
+    private var qrCodeId: String?
+    private var qrTransactionId: String?
+    private var qrAccessToken: String?
 
     init(
         aaniPayArgs: AaniPayArgs,
@@ -37,6 +47,10 @@ class AaniViewModel: ObservableObject {
     }
 
     func onSubmit(idType: AaniIDType, inputText: String) {
+        if idType == .qrCode {
+            onQrSubmit()
+            return
+        }
         onPaymentProcessing(false)
         serviceAdapter.authorizePayment(
             for: aaniPayArgs.authCode,
@@ -57,9 +71,134 @@ class AaniViewModel: ObservableObject {
         }
     }
 
+    // MARK: - QR Flow
+
+    private func onQrSubmit() {
+        onPaymentProcessing(false)
+        DispatchQueue.main.async {
+            self.viewType = .qrLoading
+        }
+        if let accessToken = aaniPayArgs.accessToken {
+            self.qrAccessToken = accessToken
+            self.createQr(accessToken: accessToken)
+        } else {
+            serviceAdapter.authorizePayment(
+                for: aaniPayArgs.authCode,
+                using: aaniPayArgs.authUrl
+            ) { [weak self] tokens in
+                guard let self = self, let accessToken = tokens["access-token"] else {
+                    self?.handleQrFailure()
+                    return
+                }
+                self.qrAccessToken = accessToken
+                self.createQr(accessToken: accessToken)
+            }
+        }
+    }
+
+    private func createQr(accessToken: String) {
+        serviceAdapter.aaniQrCreate(
+            for: aaniPayArgs.anniQrPaymentLink,
+            using: accessToken
+        ) { [weak self] data, response, error in
+            guard let self = self else { return }
+            if let _ = error {
+                self.handleQrFailure()
+                return
+            }
+
+            guard let data = data else {
+                self.handleQrFailure()
+                return
+            }
+
+            do {
+                let response = try JSONDecoder().decode(AaniPayResponse.self, from: data)
+                self.qrCodeId = response.aani.qrCodeId
+                self.qrTransactionId = response.aani.qrCodeTransactionId
+                DispatchQueue.main.async {
+                    self.qrContent = response.aani.deepLinkUrl
+                    self.viewType = .qrDisplay
+                    self.onPaymentProcessing(true)
+                }
+                self.startQrPolling(accessToken: accessToken)
+            } catch {
+                self.handleQrFailure()
+            }
+        }
+    }
+
+    func cancelQr() {
+        cancellable?.cancel()
+        stopTimer()
+        guard let token = qrAccessToken,
+              let codeId = qrCodeId,
+              let transId = qrTransactionId else {
+            onCompletion(.cancelled)
+            return
+        }
+        serviceAdapter.aaniQrCancel(
+            with: aaniPayArgs.anniQrPaymentLink,
+            qrCodeId: codeId,
+            qrTransactionId: transId,
+            using: token
+        ) { [weak self] _, _, _ in
+            DispatchQueue.main.async {
+                self?.onCompletion(.cancelled)
+            }
+        }
+    }
+
+    private func startQrPolling(accessToken: String) {
+        startTimer()
+        cancellable = Timer.publish(every: 5, on: .main, in: .common)
+            .autoconnect()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.callQrPollAPI(accessToken: accessToken)
+            }
+    }
+
+    private func callQrPollAPI(accessToken: String) {
+        guard let codeId = qrCodeId, let transId = qrTransactionId else { return }
+        serviceAdapter.aaniQrPollStatus(
+            with: aaniPayArgs.anniQrPaymentLink,
+            qrCodeId: codeId,
+            qrTransactionId: transId,
+            using: accessToken
+        ) { [weak self] data, response, error in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                if let _ = error {
+                    self.stopPolling(.failed)
+                    return
+                }
+                guard let data = data else {
+                    self.stopPolling(.failed)
+                    return
+                }
+                do {
+                    let state = try JSONDecoder().decode(AaniPoolingResponse.self, from: data).state
+                    switch state {
+                    case "CAPTURED", "PURCHASED":
+                        self.stopPolling(.success)
+                    case "FAILED":
+                        self.stopPolling(.failed)
+                    default:
+                        break
+                    }
+                } catch {
+                    self.stopPolling(.failed)
+                }
+            }
+        }
+    }
+
+    // MARK: - Alias Flow
+
     private func createPaymentRequest(idType: AaniIDType, inputText: String, payerIp: String, backLink: String) -> AaniPayRequest {
         let request = AaniPayRequest(aliasType: idType.key, payerIp: payerIp, backLink: backLink)
-        
+
         switch idType {
         case .mobileNumber:
             request.mobileNumber = MobileNumber(countryCode: "+971", number: inputText)
@@ -69,8 +208,10 @@ class AaniViewModel: ObservableObject {
             request.passportId = inputText
         case .emailID:
             request.emailId = inputText
+        case .qrCode:
+            break
         }
-        
+
         return request
     }
 
@@ -85,15 +226,15 @@ class AaniViewModel: ObservableObject {
                 self.handlePaymentFailure()
                 return
             }
-            
+
             guard let data = data else {
                 self.handlePaymentFailure()
                 return
             }
-            
+
             do {
                 let response = try JSONDecoder().decode(AaniPayResponse.self, from: data)
-                self.startPolling(accessToken: accessToken, url: response.links.aaniStatus ?? "")
+                self.startPolling(accessToken: accessToken, url: response.links?.aaniStatus ?? "")
                 self.openDeepLink(urlString: response.aani.deepLinkUrl)
             } catch {
                 self.handlePaymentFailure()
@@ -105,6 +246,23 @@ class AaniViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.onPaymentProcessing(true)
             self.onCompletion(.failed)
+        }
+    }
+
+    private func handleQrFailure() {
+        DispatchQueue.main.async {
+            self.onPaymentProcessing(true)
+            self.viewType = .qrFailed
+        }
+    }
+
+    func retryQr() {
+        onQrSubmit()
+    }
+
+    func retryPayment() {
+        DispatchQueue.main.async {
+            self.viewType = .inputSelection
         }
     }
 
@@ -143,12 +301,12 @@ class AaniViewModel: ObservableObject {
                     self.stopPolling(.failed)
                     return
                 }
-                
+
                 guard let data = data else {
                     self.stopPolling(.failed)
                     return
                 }
-                
+
                 do {
                     let state = try JSONDecoder().decode(AaniPoolingResponse.self, from: data).state
                     switch state {
@@ -183,6 +341,7 @@ class AaniViewModel: ObservableObject {
     }
 
     func startTimer() {
+        remainingTime = 300
         updateTimeString()
         timer = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
@@ -202,6 +361,13 @@ class AaniViewModel: ObservableObject {
             updateTimeString()
         } else {
             stopTimer()
+            if viewType == .qrDisplay {
+                cancellable?.cancel()
+                viewType = .qrExpired
+            } else if viewType == .timer {
+                cancellable?.cancel()
+                viewType = .paymentTimeout
+            }
         }
     }
 
