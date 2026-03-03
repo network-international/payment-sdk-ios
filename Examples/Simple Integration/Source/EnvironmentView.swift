@@ -107,6 +107,7 @@ struct EnvironmentView: View {
                 Picker("Select Language", selection: $viewModel.language.onChange(languageChange)) {
                     Text("English").tag("en")
                     Text("Arabic").tag("ar")
+                    Text("French").tag("fr")
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(8)

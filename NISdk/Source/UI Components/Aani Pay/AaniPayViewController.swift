@@ -53,7 +53,7 @@ class AaniPayViewController: UIViewController {
     
     private func setupCancelButton() {
         self.navigationController?.setNavigationBarHidden(false, animated: false)
-        self.navigationItem.title = "Aani Pay"
+        self.navigationItem.title = "Pay with Aani".localized
         let textAttributes = [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.payPageTitleColor]
         navigationController?.navigationBar.titleTextAttributes = textAttributes
         self.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))

@@ -1,0 +1,115 @@
+/*
+  Localizable.strings
+  NISdk
+
+  French Localization
+  Copyright © 2019 Network International. All rights reserved.
+*/
+
+"Expires" = "Expire";
+"MM" = "MM";
+"YY" = "AA";
+"Number" = "Numéro";
+"Card Number" = "Numéro de carte";
+"Cardholder Name" = "Nom du titulaire";
+"Name" = "Nom";
+"CVV" = "CVV";
+"Secure Code" = "Code de sécurité";
+"Pay" = "Payer";
+"Make Payment" = "Effectuer le paiement";
+"Processing Payment" = "Traitement du paiement";
+"Pay Button Title" = "Payer  %@";
+"Invalid pan number" = "Numéro de carte invalide";
+"Invalid card provider" = "Ce fournisseur de carte n'est pas autorisé";
+"Invalid expiry date" = "Date d'expiration invalide";
+"Invalid CVV Field" = "Champ CVV invalide";
+"Invalid card holder name" = "Nom du titulaire invalide";
+"All fields are mandatory" = "Tous les champs sont obligatoires";
+"Cancel" = "Annuler";
+"Authenticating Payment" = "Authentification du paiement";
+"Authenticating using 3DS" = "Authentification via 3DS";
+"Cancel Payment Title" = "Annuler le paiement";
+"Cancel Payment Message" = "Êtes-vous sûr de vouloir annuler le paiement ?";
+"Cancel Alert" = "Non";
+"Cancel Confirm" = "Oui, annuler";
+"Yes" = "Oui";
+"Visa Instalment Eligible" = "Éligible aux versements";
+"Visa Monthly Instalment" = "Versement mensuel : %@";
+"Visa Bi Monthly Instalment" = "Versement bimensuel : %@";
+"Visa Weekly Instalment" = "Versement hebdomadaire : %@";
+"Visa Bi Weekly Instalment" = "Versement bihebdomadaire : %@";
+
+"Visa Monthly Rate" = "Taux mensuel : %@ %%";
+"Visa Bi Monthly Rate" = "Taux bimensuel : %@ %%";
+"Visa Weekly Rate" = "Taux hebdomadaire : %@ %%";
+"Visa Bi Weekly Rate" = "Taux bihebdomadaire : %@ %%";
+
+"Visa Processing Fee" = "Frais de traitement : %@";
+"Visa Terms And Conditions" = "Conditions générales";
+"Visa Read Less" = "Lire moins";
+"Visa Read More" = "Lire plus";
+"Visa Pay In Instalment" = "Payer en %@";
+"Visa Pay In Full" = "Payer en totalité";
+
+"Patial Auth Title" = "Confirmation du client";
+"Partial Auth Message With Org" = "Votre banque émettrice %@ a approuvé %@ au lieu du montant total de %@.";
+"Partial Auth Message" = "Votre banque émettrice a approuvé %@ au lieu du montant total de %@.";
+"Partial Auth Message Question" = "Souhaitez-vous poursuivre la transaction avec le montant réduit ?";
+
+
+"aani_paying_amount" = "Paiement de %@";
+"aani_tap_notification" = "Appuyez sur la notification reçue dans votre application pour compléter le paiement.";
+"aani_note_do_not_close" = "Veuillez ne pas fermer l'application pendant que le minuteur est en cours.";
+"aani" = "AANI";
+"aani_mobile_number" = "Numéro de mobile";
+"aani_emirates_id" = "Emirates ID";
+"aani_passport_id" = "Numéro de passeport";
+"aani_email_id" = "Adresse e-mail";
+"aani_alias_type" = "Type d'alias";
+"aani_qr_code" = "Payer avec un QR code";
+"aani_generate_qr" = "Générer un code QR";
+"aani_scan_qr_to_pay" = "Scanner le QR → Approuver le paiement → Terminé";
+"Pay with Aani" = "Payer avec AANI";
+"aani_request_to_pay" = "Demande de paiement";
+"aani_generating_qr" = "Génération du code QR";
+"aani_keep_modal_open" = "Veuillez garder la fenêtre ouverte";
+"aani_qr_expired" = "Code QR expiré";
+"aani_qr_expired_message" = "Les codes QR expirent après 5 minutes";
+"aani_generate_new_qr" = "Générer un nouveau code QR";
+"aani_qr_failed" = "Échec de la génération du code QR";
+"aani_qr_failed_message" = "Impossible de se connecter à la passerelle de paiement";
+"aani_try_again" = "Réessayer";
+"aani_payment_timeout" = "Délai de paiement dépassé";
+"aani_payment_timeout_message" = "Le paiement n\\'a pas été effectué à temps";
+
+/* Unified Payment Page */
+"Or select your payment options" = "Ou sélectionnez vos options de paiement";
+"Use Credit Or Debit Card" = "Utiliser une carte de crédit ou de débit";
+"What's CVV?" = "Qu'est-ce que le CVV ?";
+"CVV Tooltip" = "Le code de sécurité se trouve au dos de la carte";
+"Order summary" = "Résumé de la commande";
+"Powered by" = "Propulsé par";
+"Terms and Conditions" = "Conditions générales";
+"Privacy Policy" = "Politique de confidentialité";
+"Select Other Payment Options" = "Sélectionner d'autres options de paiement";
+"Click to Pay" = "Click to Pay";
+"Pay with Click to Pay" = "Payer avec Click to Pay";
+"Pay by card" = "Payer par carte";
+"By clicking Pay terms" = "En cliquant sur \"Payer\", vous acceptez les conditions générales et autorisez cette transaction.";
+"Pay With" = "Payer avec";
+"Expiration date" = "Date d'expiration";
+"Security code" = "Code de sécurité";
+"Card number" = "Numéro de carte";
+"Name on card" = "Nom sur la carte";
+"+7 currencies available" = "+7 devises disponibles";
+
+/* Payment Result Screen */
+"Payment Success Title" = "Vous avez payé %@";
+"Payment Success Title No Amount" = "Paiement réussi";
+"Payment Failure Title" = "Une erreur est survenue";
+"Payment Success Subtitle" = "Merci ! Votre paiement a été reçu.";
+"Payment Failure Subtitle" = "Veuillez réessayer plus tard.";
+"Transaction ID Label" = "Numéro de référence";
+"Reference Number Label" = "Numéro de référence";
+"Date Time Label" = "Date de transaction";
+"Done" = "Terminé";

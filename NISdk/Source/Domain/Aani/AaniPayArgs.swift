@@ -10,32 +10,38 @@ import Foundation
 class AaniPayArgs {
     let amount: Double
     let anniPaymentLink: String
+    let anniQrPaymentLink: String
     let currencyCode: String
     let authUrl: String
     let payPageUrl: String
     let backLink: String
     let authCode: String
-    
+    let accessToken: String?
+
     init(amount: Double,
          anniPaymentLink: String,
+         anniQrPaymentLink: String,
          currencyCode: String,
          authUrl: String,
          payPageUrl: String,
          backLink: String,
-         authCode: String
+         authCode: String,
+         accessToken: String? = nil
     ) {
         self.amount = amount
         self.anniPaymentLink = anniPaymentLink
+        self.anniQrPaymentLink = anniQrPaymentLink
         self.currencyCode = currencyCode
         self.authUrl = authUrl
         self.payPageUrl = payPageUrl
         self.backLink = backLink
         self.authCode = authCode
+        self.accessToken = accessToken
     }
 }
 
 extension OrderResponse {
-    func toAaniPayArgs(_ backLink: String) throws -> AaniPayArgs  {
+    func toAaniPayArgs(_ backLink: String, accessToken: String? = nil) throws -> AaniPayArgs  {
     guard let payment = embeddedData?.payment?.first else {
             throw NSError(domain: "argument payments missing", code: 99)
         }
@@ -63,14 +69,18 @@ extension OrderResponse {
             throw NSError(domain: "argument auth code missing", code: 99)
         }
         
+        let aaniQrPayLink = payment.paymentLinks?.aaniQrPaymentLink ?? ""
+
         return AaniPayArgs(
             amount: amount,
             anniPaymentLink: aaniPayLink,
+            anniQrPaymentLink: aaniQrPayLink,
             currencyCode: currencyCode,
             authUrl: authUrl,
             payPageUrl: payPageUrl,
             backLink: backLink,
-            authCode: authCode
+            authCode: authCode,
+            accessToken: accessToken
         )
     }
 }

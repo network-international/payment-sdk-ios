@@ -111,6 +111,7 @@
 		AA00000100000000000015 /* AaniInputScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000015 /* AaniInputScreen.swift */; };
 		AA00000100000000000016 /* AaniPayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000016 /* AaniPayView.swift */; };
 		AA00000100000000000017 /* AaniTimerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000017 /* AaniTimerScreen.swift */; };
+		AA00000100000000000100 /* AaniQrDisplayScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000100 /* AaniQrDisplayScreen.swift */; };
 		AA00000100000000000018 /* VisaInstallmentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000018 /* VisaInstallmentViewController.swift */; };
 		AA00000100000000000019 /* VisaInstallmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000019 /* VisaInstallmentView.swift */; };
 		AA0000010000000000001A /* PartialAuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000001A /* PartialAuthViewController.swift */; };
@@ -262,6 +263,7 @@
 		AA00000200000000000015 /* AaniInputScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniInputScreen.swift; sourceTree = "<group>"; };
 		AA00000200000000000016 /* AaniPayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPayView.swift; sourceTree = "<group>"; };
 		AA00000200000000000017 /* AaniTimerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniTimerScreen.swift; sourceTree = "<group>"; };
+		AA00000200000000000100 /* AaniQrDisplayScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniQrDisplayScreen.swift; sourceTree = "<group>"; };
 		AA00000200000000000018 /* VisaInstallmentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaInstallmentViewController.swift; sourceTree = "<group>"; };
 		AA00000200000000000019 /* VisaInstallmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisaInstallmentView.swift; sourceTree = "<group>"; };
 		AA0000020000000000001A /* PartialAuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PartialAuthViewController.swift; sourceTree = "<group>"; };
@@ -613,6 +615,7 @@
 				AA00000200000000000015 /* AaniInputScreen.swift */,
 				AA00000200000000000016 /* AaniPayView.swift */,
 				AA00000200000000000017 /* AaniTimerScreen.swift */,
+				AA00000200000000000100 /* AaniQrDisplayScreen.swift */,
 			);
 			path = "Aani Pay";
 			sourceTree = "<group>";
@@ -890,6 +893,7 @@
 				AA00000100000000000015 /* AaniInputScreen.swift in Sources */,
 				AA00000100000000000016 /* AaniPayView.swift in Sources */,
 				AA00000100000000000017 /* AaniTimerScreen.swift in Sources */,
+				AA00000100000000000100 /* AaniQrDisplayScreen.swift in Sources */,
 				AA00000100000000000018 /* VisaInstallmentViewController.swift in Sources */,
 				AA00000100000000000019 /* VisaInstallmentView.swift in Sources */,
 				AA0000010000000000001A /* PartialAuthViewController.swift in Sources */,
