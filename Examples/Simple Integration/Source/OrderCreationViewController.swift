@@ -158,7 +158,7 @@ class OrderCreationViewController: UIViewController {
                 orderRequest.notifyPayByLink = true
                 orderRequest.paymentStructure = "STANDARD"
                 if (Environment.getSubscription()?.initialInstallmentAmount != nil) {
-                    orderRequest.initialInstallmentAmount = Environment.getSubscription()?.initialInstallmentAmount
+                    orderRequest.initialInstallmentAmount = (Environment.getSubscription()?.initialInstallmentAmount ?? 100) * 100
                     orderRequest.initialPeriodLength =  Environment.getSubscription()?.initialPeriodLength
                     orderRequest.paymentStructure = "INTRODUCTORY"
                 }
