@@ -133,21 +133,21 @@ class OrderCreationViewController: UIViewController {
                 orderRequest.transactionType = "RECURRING_PURCHASE"
                 orderRequest.planReference = Environment.getSubscription()?.planReference ?? "3d3581a2-b366-4a06-bc70-82b62828ffec"
                 orderRequest.tenure = Environment.getSubscription()?.tenure ?? 2
-                orderRequest.total = OrderAmount(currencyCode: currencyCode, value: Environment.getSubscription()?.totalAmount ?? 1100)
+                orderRequest.total = OrderAmount(currencyCode: currencyCode, value: (Environment.getSubscription()?.totalAmount ?? 10) * 100)
                 orderRequest.orderStartDate = Date().ISO8601Format()
                 orderRequest.firstName = "Test"
                 orderRequest.lastName = "User"
                 orderRequest.email = "test@test.com"
                 orderRequest.paymentAttempts = 3
                 if (Environment.getSubscription()?.trialOfferAmount != nil) {
-                    orderRequest.trialOfferAmount = OrderAmount(currencyCode: currencyCode, value: Environment.getSubscription()?.trialOfferAmount ?? 1000)
+                    orderRequest.trialOfferAmount = OrderAmount(currencyCode: currencyCode, value: (Environment.getSubscription()?.trialOfferAmount ?? 10) * 100)
                     orderRequest.trialOfferTenure = Environment.getSubscription()?.trialOfferTenure ?? 3
                 }
             case "INSTALLMENT_SUBSCRIPTION":
                 orderRequest.transactionType = "INSTALLMENT"
                 orderRequest.planReference = Environment.getSubscription()?.planReference ?? "ae27797e-bfd3-454c-9651-5714caf522ae"
                 orderRequest.tenure = Environment.getSubscription()?.tenure ?? 5
-                orderRequest.total = OrderAmount(currencyCode: currencyCode, value: Environment.getSubscription()?.totalAmount ?? 100000)
+                orderRequest.total = OrderAmount(currencyCode: currencyCode, value: (Environment.getSubscription()?.totalAmount ?? 1000) * 100)
                 orderRequest.orderStartDate = Date().ISO8601Format()
                 orderRequest.invoiceExpiryDate = Date().addingTimeInterval(60 * 60 * 24 * 7).ISO8601Format()
                 orderRequest.firstName = "Test"
