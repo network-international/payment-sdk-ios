@@ -1,0 +1,33 @@
+name: Distribute iOS App to Firebase
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "**"
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.1"
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Build and distribute to Firebase
+        env:
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+        run: bundle exec fastlane distribute_to_firebase
