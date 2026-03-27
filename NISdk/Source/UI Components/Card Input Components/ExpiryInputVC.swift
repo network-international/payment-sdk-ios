@@ -87,7 +87,7 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         textField.keyboardType = .asciiCapableNumberPad
         textField.text = ""
         textField.borderStyle = UITextField.BorderStyle.none
-        textField.backgroundColor = ColorCompatibility.systemBackground
+        textField.backgroundColor = NISdk.sharedInstance.niSdkColors.inputFieldBackgroundColor
         textField.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         textField.alignForCurrentLanguage()
         textField.delegate = self

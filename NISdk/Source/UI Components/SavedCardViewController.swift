@@ -68,9 +68,9 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     var makeSaveCardPaymentCallback: MakeSaveCardPaymentCallback
     var cardPreviewController = CardPreviewController()
     let savedCard: SavedCard
-    
+
     let cvvTextField: UITextField = UITextField()
-    
+
     required init(makeSaveCardPaymentCallback: @escaping MakeSaveCardPaymentCallback,
                   savedCard: SavedCard,
                   orderAmount: Amount,
@@ -273,7 +273,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
                          trailing: contentView.trailingAnchor,
                          padding: UIEdgeInsets(top: 20, left: 30, bottom: 0, right: 30),
                          size: CGSize(width: 0, height: 50))
-        
+
         payButton.addSubview(loadingSpinner)
         let payButtonLabel = payButton.titleLabel
         loadingSpinner.anchor(top: payButtonLabel?.topAnchor,

@@ -1,8 +1,14 @@
 PODS:
   - NISdk (6.0.0)
+  - Wormholy (1.7.0)
 
 DEPENDENCIES:
   - NISdk (from `../`)
+  - Wormholy
+
+SPEC REPOS:
+  trunk:
+    - Wormholy
 
 EXTERNAL SOURCES:
   NISdk:
@@ -10,7 +16,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   NISdk: 02313b999f6e2dac563e2de0ba1a2c65adedac1d
+  Wormholy: ab1c8c2f02f58587a0941deb0088555ffbf039a1
 
-PODFILE CHECKSUM: 15f2fc215cff462b6e41932635d9f31a4699f1d7
+PODFILE CHECKSUM: 144c6b5ad925537c234e9c4a34d50f78bf532e84
 
 COCOAPODS: 1.16.2

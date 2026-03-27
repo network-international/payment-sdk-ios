@@ -10,9 +10,10 @@ import UIKit
 
 class FooterView: UIView {
 
-    var onTermsTapped: (() -> Void)?
-    var onPrivacyTapped: (() -> Void)?
     private let cardProviders: [CardProvider]?
+
+    private let termsURL = URL(string: "https://www.network.ae/en/terms-and-conditions")!
+    private let privacyURL = URL(string: "https://www.network.ae/en/privacy-notice")!
 
     init(cardProviders: [CardProvider]? = nil) {
         self.cardProviders = cardProviders
@@ -154,10 +155,10 @@ class FooterView: UIView {
     }
 
     @objc private func termsTapped() {
-        onTermsTapped?()
+        UIApplication.shared.open(termsURL)
     }
 
     @objc private func privacyTapped() {
-        onPrivacyTapped?()
+        UIApplication.shared.open(privacyURL)
     }
 }

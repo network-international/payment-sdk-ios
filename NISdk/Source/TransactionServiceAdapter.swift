@@ -10,34 +10,27 @@ import Foundation
 import PassKit
 
 @objc final class TransactionServiceAdapter: NSObject, TransactionService {
-    
+
+    private lazy var deviceFingerprint: String = UUID().uuidString
+
     // Use this to fetch token
     func authorizePayment(for authCode: String,
                                  using authorizationLink: String,
                                  on completion: @escaping ([String:String]) -> Void) {
-        
+
         let authorizationRequestHeaders = ["Accept": "application/vnd.ni-payment.v2+json",
-                                           "Media-Type": "application/x-www-form-urlencoded",
-                                           "Content-Type": "application/x-www-form-urlencoded"]
+                                           "Content-Type": "application/x-www-form-urlencoded",
+                                           "X-Payer-Fingerprint": deviceFingerprint]
         HTTPClient(url: authorizationLink)?
             .withMethod(method: "POST")
             .withHeaders(headers: authorizationRequestHeaders)
             .withBodyData(data: "code=\(authCode)")
-            .makeRequest(with: { (Data, URLResponse, Error) in
-                if let headers = URLResponse?.getResponseHeaders() {
-                    let paymentTokenHeader = headers.filter {
-                        if let headerKey = $0.key as? String {
-                            return headerKey.contains("Set-Cookie")
-                        }
-                        return false
-                    }
-                    if(paymentTokenHeader.count > 0) {
-                        if let setCookieValue = paymentTokenHeader["Set-Cookie"] as? String {
-                            let tokens = TokenUtils.extractTokens(headerValue: setCookieValue, tokenPatterns: ["payment-token", "access-token"])
-                            completion(tokens)
-                            return
-                        }
-                    }
+            .makeRequest(with: { (data, response, error) in
+                if let httpResponse = response as? HTTPURLResponse,
+                   let setCookieValue = httpResponse.value(forHTTPHeaderField: "Set-Cookie") {
+                    let tokens = TokenUtils.extractTokens(headerValue: setCookieValue, tokenPatterns: ["payment-token", "access-token"])
+                    completion(tokens)
+                } else {
                     completion([:])
                 }
             })
