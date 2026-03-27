@@ -40,27 +40,57 @@ struct AaniPayView: View {
                 onCancel: { viewModel.cancelQr() }
             )
         case .qrExpired:
-            AaniQrStatusScreen(
-                icon: "exclamationmark.circle.fill",
-                iconColor: Color(NISdk.sharedInstance.niSdkColors.payButtonGoldColor),
-                title: "aani_qr_expired".localized,
-                subtitle: "aani_qr_expired_message".localized,
-                borderColor: Color(NISdk.sharedInstance.niSdkColors.payButtonGoldColor),
-                buttonText: "aani_generate_new_qr".localized,
-                onAction: { viewModel.retryQr() },
-                onCancel: { viewModel.cancelQr() }
-            )
+            VStack(spacing: 0) {
+                Spacer()
+                VStack(spacing: 16) {
+                    Image("alert-circle", bundle: NISdk.sharedInstance.getBundle())
+                        .resizable()
+                        .frame(width: 56, height: 56)
+                    Text("aani_qr_expired".localized)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(32)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color(NISdk.sharedInstance.niSdkColors.payButtonGoldColor), lineWidth: 3)
+                )
+                Spacer().frame(height: 16)
+                Text("aani_qr_expired_message".localized)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                Spacer()
+            }
+            .padding(.horizontal, 24)
         case .qrFailed:
-            AaniQrStatusScreen(
-                icon: "xmark.circle.fill",
-                iconColor: .red,
-                title: "aani_qr_failed".localized,
-                subtitle: "aani_qr_failed_message".localized,
-                borderColor: Color(red: 0.95, green: 0.85, blue: 0.85),
-                buttonText: "aani_try_again".localized,
-                onAction: { viewModel.retryQr() },
-                onCancel: { viewModel.cancelQr() }
-            )
+            VStack(spacing: 0) {
+                Spacer()
+                VStack(spacing: 16) {
+                    Image("cross-circle", bundle: NISdk.sharedInstance.getBundle())
+                        .resizable()
+                        .frame(width: 56, height: 56)
+                    Text("aani_qr_failed".localized)
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(32)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color(red: 0.95, green: 0.85, blue: 0.85), lineWidth: 3)
+                )
+                Spacer().frame(height: 16)
+                Text("aani_qr_failed_message".localized)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                Spacer()
+            }
+            .padding(.horizontal, 24)
         case .paymentTimeout:
             AaniQrStatusScreen(
                 icon: "clock.badge.xmark",

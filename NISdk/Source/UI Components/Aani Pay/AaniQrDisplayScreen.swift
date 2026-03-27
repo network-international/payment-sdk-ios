@@ -15,53 +15,55 @@ struct AaniQrDisplayScreen: View {
     let qrContent: String
     let onCancel: () -> Void
 
-    private var goldColor: Color {
-        Color(NISdk.sharedInstance.niSdkColors.payButtonGoldColor)
-    }
-
     var body: some View {
         VStack(spacing: 0) {
             Spacer().frame(height: 24)
 
             Text("aani_scan_qr_to_pay".localized)
-                .font(.subheadline)
-                .fontWeight(.medium)
+                .font(.system(size: 14, weight: .medium))
                 .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
+                .foregroundColor(.gray)
 
             Spacer().frame(height: 20)
 
-            // Golden bordered QR container
-            VStack(spacing: 16) {
-                if let qrImage = generateQRCode(from: qrContent) {
+            // QR container with white exclusion zone
+            ZStack {
+                // White background for exclusion zone
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.white)
+
+                if let qrImage = generateAaniQRCode(from: qrContent) {
                     Image(uiImage: qrImage)
                         .interpolation(.none)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 200, height: 200)
+                        .padding(16) // exclusion zone (2x border width)
                 }
+
+                // Aani logo overlay in center
+                Image("aaniQrLogo", bundle: NISdk.sharedInstance.getBundle())
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 48, height: 48)
+                    .background(Color.white)
+                    .padding(2)
             }
-            .padding(24)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(goldColor, lineWidth: 3)
-            )
+            .frame(width: 240, height: 240)
 
             Spacer().frame(height: 20)
 
             // Timer with clock icon
             HStack(spacing: 8) {
-                Image(systemName: "clock")
-                    .font(.title2)
-                    .foregroundColor(.secondary)
+                Text("\u{23F0}")
+                    .font(.system(size: 24))
                 Text(timeString)
-                    .font(.system(size: 32, weight: .bold, design: .monospaced))
+                    .font(.system(size: 32, weight: .bold))
             }
 
             Spacer().frame(height: 8)
 
             Text("aani_note_do_not_close".localized)
-                .font(.footnote)
+                .font(.system(size: 13))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
 
@@ -69,25 +71,22 @@ struct AaniQrDisplayScreen: View {
 
             // Amount row
             HStack {
-                Text("aani_request_to_pay".localized)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                Text(String(format: "aani_paying_amount".localized, ""))
+                    .font(.system(size: 14))
+                    .foregroundColor(.gray)
                 Spacer()
                 Text(amountFormatted)
-                    .font(.headline)
-                    .fontWeight(.semibold)
+                    .font(.system(size: 16, weight: .semibold))
             }
-            .padding(.horizontal, 4)
 
             Spacer().frame(height: 24)
 
             // Cancel button
             Button(action: onCancel) {
                 Text("Cancel".localized)
-                    .font(.body)
-                    .fontWeight(.medium)
+                    .font(.system(size: 16, weight: .medium))
                     .frame(maxWidth: .infinity)
-                    .padding()
+                    .padding(.vertical, 16)
                     .background(Color.gray.opacity(0.15))
                     .cornerRadius(12)
             }
@@ -96,13 +95,15 @@ struct AaniQrDisplayScreen: View {
             Spacer()
         }
         .padding(.horizontal, 24)
+        .padding(.vertical, 16)
     }
 
-    private func generateQRCode(from string: String) -> UIImage? {
+    /// Generates a QR code with "H" error correction to support the center logo overlay.
+    private func generateAaniQRCode(from string: String) -> UIImage? {
         let context = CIContext()
         let filter = CIFilter.qrCodeGenerator()
         filter.message = Data(string.utf8)
-        filter.correctionLevel = "M"
+        filter.correctionLevel = "H"
 
         guard let outputImage = filter.outputImage else { return nil }
         let transform = CGAffineTransform(scaleX: 10, y: 10)

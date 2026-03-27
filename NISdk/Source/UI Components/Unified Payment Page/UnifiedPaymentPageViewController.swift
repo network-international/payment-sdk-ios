@@ -161,11 +161,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             contentStackView.addArrangedSubview(applePaySection)
         }
 
-        // 3. Separator
-        let separator = PaymentSectionSeparatorView(text: "Or select your payment options".localized)
-        contentStackView.addArrangedSubview(separator)
-
-        // 4. Card Payment Section (if available)
+        // 3. Card Payment Section (if available)
         if availablePaymentOptions.contains(.card) {
             let cardSectionPadding = UIView()
             cardSectionPadding.translatesAutoresizingMaskIntoConstraints = false
@@ -232,6 +228,14 @@ class UnifiedPaymentPageViewController: UIViewController {
         logoView.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(logoView)
 
+        // Order summary label — left-aligned below logo
+        let orderSummaryLabel = UILabel()
+        orderSummaryLabel.translatesAutoresizingMaskIntoConstraints = false
+        orderSummaryLabel.text = "Order summary".localized
+        orderSummaryLabel.font = UIFont.systemFont(ofSize: 14, weight: .regular)
+        orderSummaryLabel.textColor = UIColor.gray
+        container.addSubview(orderSummaryLabel)
+
         // Amount label — right-aligned below logo
         let amountLabel = UILabel()
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -240,8 +244,8 @@ class UnifiedPaymentPageViewController: UIViewController {
             let value = amount.getFormattedAmount2Decimal().replacingOccurrences(of: currency, with: "").trimmingCharacters(in: .whitespaces)
             amountLabel.text = "\(currency) \(value)"
         }
-        amountLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        amountLabel.textColor = UIColor(hexString: "#070707")
+        amountLabel.font = UIFont.systemFont(ofSize: 20, weight: .bold)
+        amountLabel.textColor = UIColor(hexString: "#1A1A1A")
         amountLabel.textAlignment = .right
         container.addSubview(amountLabel)
 
@@ -251,9 +255,12 @@ class UnifiedPaymentPageViewController: UIViewController {
             logoView.heightAnchor.constraint(equalToConstant: 28),
             logoView.widthAnchor.constraint(lessThanOrEqualToConstant: 120),
 
-            amountLabel.topAnchor.constraint(equalTo: logoView.bottomAnchor, constant: 6),
+            orderSummaryLabel.topAnchor.constraint(equalTo: logoView.bottomAnchor, constant: 8),
+            orderSummaryLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            orderSummaryLabel.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -12),
+
+            amountLabel.centerYAnchor.constraint(equalTo: orderSummaryLabel.centerYAnchor),
             amountLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
-            amountLabel.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -12),
         ])
 
         return container
@@ -482,10 +489,6 @@ class UnifiedPaymentPageViewController: UIViewController {
         radioButton.translatesAutoresizingMaskIntoConstraints = false
         aaniRadioButton = radioButton
 
-        let radioTap = UITapGestureRecognizer(target: self, action: #selector(aaniRadioTapped))
-        radioButton.addGestureRecognizer(radioTap)
-        radioButton.isUserInteractionEnabled = true
-
         // Right content stack
         let contentStack = UIStackView()
         contentStack.axis = .vertical
@@ -570,6 +573,11 @@ class UnifiedPaymentPageViewController: UIViewController {
             contentStack.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             contentStack.bottomAnchor.constraint(equalTo: container.bottomAnchor),
         ])
+
+        // Make the entire row tappable (not just the radio button)
+        let rowTap = UITapGestureRecognizer(target: self, action: #selector(aaniRadioTapped))
+        container.addGestureRecognizer(rowTap)
+        container.isUserInteractionEnabled = true
 
         outerContainer.addSubview(container)
         container.anchor(top: outerContainer.topAnchor, leading: outerContainer.leadingAnchor,

@@ -45,9 +45,6 @@ class ClickToPayViewController: UIViewController {
     private var paymentCookie: String?
     private var userEmail: String?
 
-    // When true, shows the close (X) button in the nav bar even without userEmail.
-    // Used when launched from the unified page (probe mode) so users can cancel.
-    var showCloseButton = false
 
     // Base64 GIF data URI to inject into the HTML for lookup loading
     private var gifDataUri: String?
@@ -94,51 +91,7 @@ class ClickToPayViewController: UIViewController {
     // MARK: - Setup
 
     private func setupNavigationBar() {
-        if let email = userEmail, !email.isEmpty {
-            // Pushed onto an existing nav stack (email flow) — use the system nav bar
-            self.navigationController?.setNavigationBarHidden(false, animated: false)
-            self.navigationItem.title = nil
-
-            if #available(iOS 13.0, *) {
-                let xImage = UIImage(systemName: "xmark")?.withRenderingMode(.alwaysTemplate)
-                let closeButton = UIBarButtonItem(image: xImage, style: .plain,
-                                                  target: self, action: #selector(cancelAction))
-                closeButton.tintColor = UIColor(hexString: "#070707")
-                navigationItem.rightBarButtonItem = closeButton
-            } else {
-                let closeButton = UIBarButtonItem(title: "✕", style: .plain,
-                                                  target: self, action: #selector(cancelAction))
-                closeButton.tintColor = UIColor(hexString: "#070707")
-                navigationItem.rightBarButtonItem = closeButton
-            }
-            navigationItem.hidesBackButton = true
-        } else if showCloseButton {
-            self.navigationController?.setNavigationBarHidden(true, animated: false)
-            addFloatingCloseButton()
-        } else {
-            self.navigationController?.setNavigationBarHidden(true, animated: false)
-        }
-    }
-
-    private func addFloatingCloseButton() {
-        let button = UIButton(type: .system)
-        if #available(iOS 13.0, *) {
-            let xImage = UIImage(systemName: "xmark")?.withRenderingMode(.alwaysTemplate)
-            button.setImage(xImage, for: .normal)
-        } else {
-            button.setTitle("✕", for: .normal)
-            button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
-        }
-        button.tintColor = UIColor(hexString: "#070707")
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(cancelAction), for: .touchUpInside)
-        view.addSubview(button)
-        NSLayoutConstraint.activate([
-            button.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
-            button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            button.widthAnchor.constraint(equalToConstant: 32),
-            button.heightAnchor.constraint(equalToConstant: 32)
-        ])
+        self.navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
     private func setupProgressBar() {
@@ -634,7 +587,6 @@ class ClickToPayViewController: UIViewController {
         let srcDigitalCardId = data["srcDigitalCardId"] as? String
 
         DispatchQueue.main.async {
-            self.navigationItem.rightBarButtonItem?.isEnabled = false
             self.progressBar.startAnimating()
         }
 
@@ -858,6 +810,14 @@ extension ClickToPayViewController: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        // Open target="_blank" links in Safari instead of navigating the WebView
+        // (e.g. Terms & Conditions, Privacy Notice). Navigating away would destroy
+        // the Click to Pay JS state and force the user back to the login screen.
+        if navigationAction.targetFrame == nil, let url = navigationAction.request.url {
+            UIApplication.shared.open(url)
+            decisionHandler(.cancel)
+            return
+        }
         decisionHandler(.allow)
     }
 

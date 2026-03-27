@@ -16,6 +16,7 @@ enum AaniViewType {
     case failed
     case cancelled
     case invalidRequest
+    case dismissedToPaymentPage
 }
 
 @available(iOS 14.0, *)
@@ -52,22 +53,30 @@ class AaniViewModel: ObservableObject {
             return
         }
         onPaymentProcessing(false)
-        serviceAdapter.authorizePayment(
-            for: aaniPayArgs.authCode,
-            using: aaniPayArgs.authUrl
-        ) { [weak self] tokens in
-            guard let self = self, let accessToken = tokens["access-token"] else {
-                self?.handlePaymentFailure()
-                return
-            }
-            self.getPayerIp(payPageLink: self.aaniPayArgs.payPageUrl) { payerIp in
-                guard let ip = payerIp else {
-                    self.handlePaymentFailure()
+        if let accessToken = aaniPayArgs.accessToken {
+            self.makeAaniPayment(idType: idType, inputText: inputText, accessToken: accessToken)
+        } else {
+            serviceAdapter.authorizePayment(
+                for: aaniPayArgs.authCode,
+                using: aaniPayArgs.authUrl
+            ) { [weak self] tokens in
+                guard let self = self, let accessToken = tokens["access-token"] else {
+                    self?.handlePaymentFailure()
                     return
                 }
-                let request = self.createPaymentRequest(idType: idType, inputText: inputText, payerIp: ip, backLink: self.aaniPayArgs.backLink)
-                self.processPayment(request: request, accessToken: accessToken)
+                self.makeAaniPayment(idType: idType, inputText: inputText, accessToken: accessToken)
             }
+        }
+    }
+
+    private func makeAaniPayment(idType: AaniIDType, inputText: String, accessToken: String) {
+        self.getPayerIp(payPageLink: self.aaniPayArgs.payPageUrl) { payerIp in
+            guard let ip = payerIp else {
+                self.handlePaymentFailure()
+                return
+            }
+            let request = self.createPaymentRequest(idType: idType, inputText: inputText, payerIp: ip, backLink: self.aaniPayArgs.backLink)
+            self.processPayment(request: request, accessToken: accessToken)
         }
     }
 
@@ -116,8 +125,12 @@ class AaniViewModel: ObservableObject {
                 let response = try JSONDecoder().decode(AaniPayResponse.self, from: data)
                 self.qrCodeId = response.aani.qrCodeId
                 self.qrTransactionId = response.aani.qrCodeTransactionId
+                guard let qrData = response.aani.emvQrData else {
+                    self.handleQrFailure()
+                    return
+                }
                 DispatchQueue.main.async {
-                    self.qrContent = response.aani.deepLinkUrl
+                    self.qrContent = qrData
                     self.viewType = .qrDisplay
                     self.onPaymentProcessing(true)
                 }
@@ -128,13 +141,34 @@ class AaniViewModel: ObservableObject {
         }
     }
 
+    /// Cleanup for swipe-to-dismiss. Stops polling/timer and cancels QR if active.
+    /// Does NOT call onCompletion — the VC handles that directly since it's already dismissed.
+    func handleSwipeDismiss() {
+        cancellable?.cancel()
+        stopTimer()
+        if viewType == .qrDisplay,
+           let token = qrAccessToken,
+           let codeId = qrCodeId,
+           let transId = qrTransactionId {
+            serviceAdapter.aaniQrCancel(
+                with: aaniPayArgs.anniQrPaymentLink,
+                qrCodeId: codeId,
+                qrTransactionId: transId,
+                using: token
+            ) { _, _, _ in }
+        }
+    }
+
     func cancelQr() {
         cancellable?.cancel()
         stopTimer()
+        onPaymentProcessing(true)
         guard let token = qrAccessToken,
               let codeId = qrCodeId,
               let transId = qrTransactionId else {
-            onCompletion(.cancelled)
+            DispatchQueue.main.async {
+                self.onCompletion(.dismissedToPaymentPage)
+            }
             return
         }
         serviceAdapter.aaniQrCancel(
@@ -144,7 +178,7 @@ class AaniViewModel: ObservableObject {
             using: token
         ) { [weak self] _, _, _ in
             DispatchQueue.main.async {
-                self?.onCompletion(.cancelled)
+                self?.onCompletion(.dismissedToPaymentPage)
             }
         }
     }
@@ -169,6 +203,8 @@ class AaniViewModel: ObservableObject {
         ) { [weak self] data, response, error in
             guard let self = self else { return }
             DispatchQueue.main.async {
+                // Ignore late responses if QR is no longer active
+                guard self.viewType == .qrDisplay else { return }
                 if let _ = error {
                     self.stopPolling(.failed)
                     return
@@ -235,7 +271,7 @@ class AaniViewModel: ObservableObject {
             do {
                 let response = try JSONDecoder().decode(AaniPayResponse.self, from: data)
                 self.startPolling(accessToken: accessToken, url: response.links?.aaniStatus ?? "")
-                self.openDeepLink(urlString: response.aani.deepLinkUrl)
+                self.openDeepLink(urlString: response.aani.deepLinkUrl ?? "")
             } catch {
                 self.handlePaymentFailure()
             }
@@ -253,6 +289,9 @@ class AaniViewModel: ObservableObject {
         DispatchQueue.main.async {
             self.onPaymentProcessing(true)
             self.viewType = .qrFailed
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+            self?.onCompletion(.cancelled)
         }
     }
 
@@ -364,6 +403,20 @@ class AaniViewModel: ObservableObject {
             if viewType == .qrDisplay {
                 cancellable?.cancel()
                 viewType = .qrExpired
+                // Cancel QR on the backend
+                if let token = qrAccessToken,
+                   let codeId = qrCodeId,
+                   let transId = qrTransactionId {
+                    serviceAdapter.aaniQrCancel(
+                        with: aaniPayArgs.anniQrPaymentLink,
+                        qrCodeId: codeId,
+                        qrTransactionId: transId,
+                        using: token
+                    ) { _, _, _ in }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+                    self?.onCompletion(.cancelled)
+                }
             } else if viewType == .timer {
                 cancellable?.cancel()
                 viewType = .paymentTimeout

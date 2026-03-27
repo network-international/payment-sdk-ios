@@ -20,7 +20,8 @@ public class HTTPClient {
     
     public init?(url: String) {
         if let url = URL(string: url) {
-            self.session = URLSession(configuration: URLSessionConfiguration.default)
+            let config = URLSessionConfiguration.ephemeral
+            self.session = URLSession(configuration: config)
             self.request = NSMutableURLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 60.0)
             self.request.httpMethod = "GET" // default value
         } else {

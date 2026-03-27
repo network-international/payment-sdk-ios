@@ -50,7 +50,6 @@ struct AaniInputScreen: View {
                     TextField(selectedIdType.sample, text: $inputText)
                         .keyboardType(self.keyboardTypeFor(inputType: $selectedIdType))
                         .multilineTextAlignment(isRTL ? .trailing : .leading)
-                        .id(selectedIdType.id)
                         .padding()
                         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 1))
                         .onChange(of: inputText) { newValue in

@@ -77,7 +77,7 @@ class OrderCreationViewController: UIViewController {
                 dict[attribute.key] = attribute.value
             }
         }
-        let currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
+        let currencyCode = Environment.getCurrency()
         var orderRequest = OrderRequest(action: Environment.getOrderAction(),
                                         amount: OrderAmount(currencyCode: currencyCode, value: paymentAmount * 100),
                                         language: Environment.getLanguage(),

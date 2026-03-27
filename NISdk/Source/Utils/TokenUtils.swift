@@ -17,8 +17,11 @@ class TokenUtils {
         }
         var requiredTokens: [String:String] = [:]
         for tokenPattern in tokenPatterns {
-            let tokenValue: String = tokenSubComponents.filter { $0.contains(tokenPattern) }[0]
-            requiredTokens[tokenPattern] = tokenValue.components(separatedBy: "\(tokenPattern)=")[1]
+            guard let tokenValue = tokenSubComponents.first(where: { $0.contains(tokenPattern) }),
+                  let extractedValue = tokenValue.components(separatedBy: "\(tokenPattern)=").last else {
+                continue
+            }
+            requiredTokens[tokenPattern] = extractedValue
         }
         return requiredTokens
     }

@@ -35,7 +35,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
         self.threeDSTermURL = threeDSTermURL
         self.completionHandler = completion
         activityIndicator.hidesWhenStopped = true
-        activityIndicator.color = .white
+        activityIndicator.color = NISdk.sharedInstance.niSdkColors.threeDSViewActivityIndicatorColor
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -49,8 +49,8 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func setupSubviews() {
-        view.backgroundColor = .white
-        
+        view.backgroundColor = NISdk.sharedInstance.niSdkColors.threeDSViewBackgroundColor
+
         webView.alpha = 0
         webView.navigationDelegate = self
         view.addSubview(webView)

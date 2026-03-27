@@ -66,7 +66,7 @@
 "aani_passport_id" = "Passport ID";
 "aani_email_id" = "Email ID";
 "aani_alias_type" = "Alias type";
-"aani_qr_code" = "Pay with QR";
+"aani_qr_code" = "QR Code";
 "aani_generate_qr" = "Generate QR Code";
 "aani_scan_qr_to_pay" = "Scan QR → Approve Payment → Done";
 "Pay with Aani" = "Pay with AANI";
@@ -113,3 +113,4 @@
 "Reference Number Label" = "Reference Number";
 "Date Time Label" = "Transaction Date";
 "Done" = "Done";
+"Add card manually" = "Add card manually";

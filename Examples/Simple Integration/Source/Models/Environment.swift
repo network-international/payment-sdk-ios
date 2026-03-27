@@ -69,6 +69,7 @@ struct Environment: Codable, Identifiable {
     private static let KEY_SAVED_ENVIRONMENTS = "saved_environments"
     private static let KEY_ORDER_ACTION = "order_action"
     private static let KEY_REGION = "region"
+    private static let KEY_CURRENCY = "currency"
     private static let KEY_ORDER_TYPE = "order_type"
     private static let KEY_SAVED_LANGUAGE = "saved_language"
     private static let KEY_SAVED_MERCHANT_ATTRIBUTES = "merchant_attributes"
@@ -78,6 +79,13 @@ struct Environment: Codable, Identifiable {
     private static let KEY_SDK_COLOR_PAY_BUTTON_TEXT = "sdk_color_pay_button_text"
     private static let KEY_SDK_COLOR_PAY_BUTTON_DISABLED = "sdk_color_pay_button_disabled"
     private static let KEY_SDK_COLOR_PAY_BUTTON_DISABLED_TEXT = "sdk_color_pay_button_disabled_text"
+    private static let KEY_SDK_COLOR_INPUT_FIELD_BG = "sdk_color_input_field_bg"
+    private static let KEY_SDK_COLOR_AUTH_VIEW_BG = "sdk_color_auth_view_bg"
+    private static let KEY_SDK_COLOR_AUTH_VIEW_INDICATOR = "sdk_color_auth_view_indicator"
+    private static let KEY_SDK_COLOR_AUTH_VIEW_LABEL = "sdk_color_auth_view_label"
+    private static let KEY_SDK_COLOR_3DS_VIEW_BG = "sdk_color_3ds_view_bg"
+    private static let KEY_SDK_COLOR_3DS_VIEW_LABEL = "sdk_color_3ds_view_label"
+    private static let KEY_SDK_COLOR_3DS_VIEW_INDICATOR = "sdk_color_3ds_view_indicator"
     
     enum CodingKeys: String, CodingKey {
         case type
@@ -142,7 +150,7 @@ struct Environment: Codable, Identifiable {
         case .DEV:
             "https://api-gateway-dev.ngenius-payments.com/transactions/outlets/\(outletReference)/orders"
         case .UAT:
-            "https://api-gateway-sandbox.platform.network.ae/transactions/outlets/\(outletReference)/orders"
+            "https://api-gateway.sandbox.ngenius-payments.com/transactions/outlets/\(outletReference)/orders"
         case .PROD:
             "https://api-gateway.ngenius-payments.com/transactions/outlets/\(outletReference)/orders"
         }
@@ -164,7 +172,7 @@ struct Environment: Codable, Identifiable {
         case .DEV:
             "https://api-gateway-dev.ngenius-payments.com/identity/auth/access-token"
         case .UAT:
-            "https://api-gateway-uat.ngenius-payments.com/identity/auth/access-token"
+            "https://api-gateway.sandbox.ngenius-payments.com/identity/auth/access-token"
         case .PROD:
             "https://api-gateway.ngenius-payments.com/identity/auth/access-token"
         }
@@ -262,6 +270,18 @@ struct Environment: Codable, Identifiable {
         }
     }
 
+    static func setCurrency(currency: String) {
+        UserDefaults.standard.set(currency, forKey: KEY_CURRENCY)
+    }
+
+    static func getCurrency() -> String {
+        if let currency = UserDefaults.standard.string(forKey: KEY_CURRENCY) {
+            return currency
+        } else {
+            return "AED"
+        }
+    }
+
     static func setOrderType(orderType: String) {
         UserDefaults.standard.set(orderType, forKey: KEY_ORDER_TYPE)
     }
@@ -302,5 +322,40 @@ struct Environment: Codable, Identifiable {
     static var sdkColorPayButtonDisabledText: String {
         get { getSDKColor(KEY_SDK_COLOR_PAY_BUTTON_DISABLED_TEXT) }
         set { setSDKColor(KEY_SDK_COLOR_PAY_BUTTON_DISABLED_TEXT, hex: newValue) }
+    }
+
+    static var sdkColorInputFieldBg: String {
+        get { getSDKColor(KEY_SDK_COLOR_INPUT_FIELD_BG) }
+        set { setSDKColor(KEY_SDK_COLOR_INPUT_FIELD_BG, hex: newValue) }
+    }
+
+    static var sdkColorAuthViewBg: String {
+        get { getSDKColor(KEY_SDK_COLOR_AUTH_VIEW_BG) }
+        set { setSDKColor(KEY_SDK_COLOR_AUTH_VIEW_BG, hex: newValue) }
+    }
+
+    static var sdkColorAuthViewIndicator: String {
+        get { getSDKColor(KEY_SDK_COLOR_AUTH_VIEW_INDICATOR) }
+        set { setSDKColor(KEY_SDK_COLOR_AUTH_VIEW_INDICATOR, hex: newValue) }
+    }
+
+    static var sdkColorAuthViewLabel: String {
+        get { getSDKColor(KEY_SDK_COLOR_AUTH_VIEW_LABEL) }
+        set { setSDKColor(KEY_SDK_COLOR_AUTH_VIEW_LABEL, hex: newValue) }
+    }
+
+    static var sdkColorThreeDSViewBg: String {
+        get { getSDKColor(KEY_SDK_COLOR_3DS_VIEW_BG) }
+        set { setSDKColor(KEY_SDK_COLOR_3DS_VIEW_BG, hex: newValue) }
+    }
+
+    static var sdkColorThreeDSViewLabel: String {
+        get { getSDKColor(KEY_SDK_COLOR_3DS_VIEW_LABEL) }
+        set { setSDKColor(KEY_SDK_COLOR_3DS_VIEW_LABEL, hex: newValue) }
+    }
+
+    static var sdkColorThreeDSViewIndicator: String {
+        get { getSDKColor(KEY_SDK_COLOR_3DS_VIEW_INDICATOR) }
+        set { setSDKColor(KEY_SDK_COLOR_3DS_VIEW_INDICATOR, hex: newValue) }
     }
 }

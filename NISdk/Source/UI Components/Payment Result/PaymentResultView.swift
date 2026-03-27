@@ -147,6 +147,11 @@ private struct PaymentResultFooterView: View {
                 Text("Terms and Conditions".localized)
                     .font(.system(size: 13))
                     .foregroundColor(Color(UIColor(hexString: "#8F8F8F")))
+                    .onTapGesture {
+                        if let url = URL(string: "https://www.network.ae/en/terms-and-conditions") {
+                            UIApplication.shared.open(url)
+                        }
+                    }
 
                 Text("|")
                     .font(.system(size: 13))
@@ -155,6 +160,11 @@ private struct PaymentResultFooterView: View {
                 Text("Privacy Policy".localized)
                     .font(.system(size: 13))
                     .foregroundColor(Color(UIColor(hexString: "#8F8F8F")))
+                    .onTapGesture {
+                        if let url = URL(string: "https://www.network.ae/en/privacy-notice") {
+                            UIApplication.shared.open(url)
+                        }
+                    }
             }
 
             // Card logos

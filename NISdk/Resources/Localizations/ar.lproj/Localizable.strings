@@ -56,7 +56,7 @@
 "Partial Auth Message" = "تمت الموافقة من قبل البنك على %@ بدلاً من المبلغ الكامل لـ %@";
 "Partial Auth Message Question" = "هل ترغب في المضي قدما مع المبلغ المخفض؟";
   
-"aani_paying_amount" = "جارٍ دفع %@";
+"aani_paying_amount" = "طلب الدفع %@";
 "aani_tap_notification" = "اضغط على الإشعار الذي تلقيته في التطبيق لإكمال عملية الدفع.";
 "aani_note_do_not_close" = "ملاحظة: يرجى عدم إغلاق التطبيق أثناء تشغيل المؤقت.";
 "aani" = "AANI";
@@ -65,7 +65,7 @@
 "aani_passport_id" = "رقم جواز السفر";
 "aani_email_id" = "عنوان البريد الالكتروني";
 "aani_alias_type" = "نوع الاسم المستعار";
-"aani_qr_code" = "الدفع عبر رمز الاستجابة";
+"aani_qr_code" = "رمز الاستجابة";
 "aani_generate_qr" = "إنشاء رمز QR";
 "aani_scan_qr_to_pay" = "امسح رمز الاستجابة - قم بالدفع - تم";
 "Pay with Aani" = "الدفع عبر آني";
@@ -112,3 +112,4 @@
 "Reference Number Label" = "الرقم المرجعي";
 "Date Time Label" = "تاريخ المعاملة";
 "Done" = "تم";
+"Add card manually" = "إضافة بطاقة يدوياً";

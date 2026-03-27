@@ -24,6 +24,13 @@ import Foundation
     public var payPageTitleColor = UIColor.black
     public var payButtonGoldColor = UIColor(hexString: "#FFD882")
     public var payButtonGoldTextColor = UIColor(hexString: "#5C3F00")
+    public var inputFieldBackgroundColor = ColorCompatibility.systemBackground
+    public var authorizationViewBackgroundColor = UIColor.white
+    public var authorizationViewActivityIndicatorColor = UIColor.gray
+    public var authorizationViewLabelColor = UIColor.black
+    public var threeDSViewBackgroundColor = UIColor.white
+    public var threeDSViewLabelColor = UIColor.black
+    public var threeDSViewActivityIndicatorColor = UIColor.gray
 
     public override init() {
         super.init()

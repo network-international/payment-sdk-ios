@@ -338,9 +338,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
             (.dinersClubInternational, "dinerslogo"),
             (.discover, "discoverlogo"),
             (.jcb, "jcblogo"),
+            (.mada, "madalogo"),
         ]
 
-        let sdkBundle = Bundle(for: NISdk.self)
+        let sdkBundle = NISdk.sharedInstance.getBundle()
         for (provider, imageName) in logos {
             if let allowedProviders = providers, !allowedProviders.contains(provider) {
                 continue
@@ -662,32 +663,41 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
 
-        let label = UILabel()
-        let text = NSMutableAttributedString(
-            string: "By clicking \"Pay\", you agree to the ",
+        let termsURL = URL(string: "https://www.network.ae/en/terms-and-conditions")!
+
+        let textView = UITextView()
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.backgroundColor = .clear
+        textView.textContainerInset = .zero
+        textView.textContainer.lineFragmentPadding = 0
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.linkTextAttributes = [
+            .foregroundColor: UIColor(hexString: "#8F8F8F"),
+            .underlineStyle: NSUnderlineStyle.single.rawValue,
+            .font: UIFont.systemFont(ofSize: 13, weight: .light),
+        ]
+
+        let fullText = "By clicking Pay terms".localized
+        let termsLinkText = "Terms and Conditions".localized
+
+        let attributed = NSMutableAttributedString(
+            string: fullText,
             attributes: [
                 .font: UIFont.systemFont(ofSize: 13, weight: .light),
                 .foregroundColor: UIColor(hexString: "#8F8F8F"),
             ])
-        text.append(NSAttributedString(
-            string: "terms and conditions",
-            attributes: [
-                .font: UIFont.systemFont(ofSize: 13, weight: .light),
-                .foregroundColor: UIColor(hexString: "#8F8F8F"),
-                .underlineStyle: NSUnderlineStyle.single.rawValue,
-            ]))
-        text.append(NSAttributedString(
-            string: " and authorize this transaction.",
-            attributes: [
-                .font: UIFont.systemFont(ofSize: 13, weight: .light),
-                .foregroundColor: UIColor(hexString: "#8F8F8F"),
-            ]))
-        label.attributedText = text
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
 
-        container.addSubview(label)
-        label.anchor(top: container.topAnchor, leading: container.leadingAnchor,
+        if let range = fullText.range(of: termsLinkText, options: .caseInsensitive) {
+            let nsRange = NSRange(range, in: fullText)
+            attributed.addAttribute(.link, value: termsURL, range: nsRange)
+        }
+
+        textView.attributedText = attributed
+        textView.delegate = nil
+
+        container.addSubview(textView)
+        textView.anchor(top: container.topAnchor, leading: container.leadingAnchor,
                      bottom: container.bottomAnchor, trailing: container.trailingAnchor,
                      padding: UIEdgeInsets(top: 12, left: 0, bottom: 8, right: 0))
 
