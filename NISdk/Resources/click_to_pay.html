@@ -264,7 +264,13 @@
             color: #070707;
         }
         .otp-close-btn {
-            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #070707;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
         }
         .otp-body {
             padding: 20px;
@@ -318,6 +324,7 @@
             gap: 8px;
             justify-content: center;
             margin-bottom: 20px;
+            direction: ltr;
         }
         .otp-box {
             width: 48px;
@@ -427,6 +434,7 @@
             justify-content: center;
             gap: 12px;
             padding-top: 8px;
+            direction: ltr;
         }
         .otp-error-banner {
             background: #FFF0F0;
@@ -520,7 +528,13 @@
 
         /* Close button — hidden, native floating X is used instead */
         .close-btn {
-            display: none;
+            font-size: 24px;
+            color: #8e8e93;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
         }
 
         /* Amount row (inline) */
@@ -595,6 +609,7 @@
             gap: 12px;
             margin-top: 16px;
             padding-top: 8px;
+            direction: ltr;
         }
 
         /* Or divider */
@@ -649,7 +664,18 @@
             color: #070707;
         }
         .add-card-close-btn {
-            display: none;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #070707;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
         }
         .add-card-body {
             padding: 20px;
@@ -674,6 +700,8 @@
             background: white;
             -webkit-appearance: none;
             outline: none;
+            direction: ltr;
+            text-align: left;
         }
         .add-card-input:focus {
             border-color: #1a1f71;
@@ -931,6 +959,7 @@
     <div id="emailEntry" class="card hidden">
         <div class="ctp-header">
             <span class="ctp-title">Click to Pay</span>
+            <span id="emailCloseBtn" class="ctp-close-btn">&times;</span>
         </div>
 
         <div id="emailErrorBanner" class="add-card-error-banner">
@@ -962,7 +991,16 @@
     <div id="switchIdView" class="card hidden">
         <div class="ctp-header">
             <span class="ctp-title">Click to Pay</span>
-            <span id="switchIdCloseBtn" class="close-btn">&times;</span>
+            <span id="switchIdCloseBtn" class="ctp-close-btn">&times;</span>
+        </div>
+
+        <div id="switchIdErrorBanner" class="add-card-error-banner">
+            <span class="add-card-error-text"></span>
+        </div>
+
+        <div class="amount-section">
+            <div class="amount-label">Total</div>
+            <div id="switchIdAmountDisplay" class="amount-value"></div>
         </div>
 
         <div class="form-group">
@@ -974,16 +1012,12 @@
 
         <button id="switchIdBackBtn" class="add-card-back-btn">Back</button>
 
-        <div class="or-divider">
-            <span>Or</span>
+        <div class="info-toggle" id="switchIdInfoToggle">
+            <span>How does Click to Pay use my information?</span>
+            <span class="chevron">&#9660;</span>
         </div>
-
-        <button id="switchIdManualBtn" class="enter-card-link">Enter card manually</button>
-
-        <div class="brand-logos">
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAUCAYAAADskT9PAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAK4SURBVHgBrVZdbtpAEN61HakSeUDKj/JWHwErgNKnwg3CCRpOAJwg5gTQExBOQG4Ab0WBCI7gxyhpJUsNUqTY3s5n7zaLZTcpZiRrf5id+Wa+2Vk4IzmuLho0XNOHcUs4517p1XS8teOTXpe2Bixb3J/LWl8toEtnO6ZpNh/mjpdzhhmn9eUljVM450J46U/Ql3PWVzqYA8Bxdd7VFeisHYbh9OxiZecB4IR0RWOFvh5FMGTvyNH5csi56HDG1qXAaiIzJ7W7ihAcQZQNwVuP99XbPN20PQPOkeaPOIf8uq8iypmgc5uDMKbjaVFfk6Me5hEXIwDK080C8N8SBFaLHIKeq5PaQoG4oQE1UCazE5V2XZeyfb0XAD6l0jTDJqZCsK4yTFl0qSbGinu7sirruiyjTnYCAHmYf/FoaMmle1RffsPkNTyAgzVAbKwgBrGtaw5Oz+PCLwYAQhHPaIi555G4AfeI2LKCJO0a97quXieFAEjDQ7oB3zHHTQD3iPiNojfuNd2/dVIYAERVOwyDe+wBBDlrSxWXIr7SdVWd7AUAhHNEtS2GEX1O79mNVZnosZOV8C22B6EUD+g2xP0ErRd7sjmp3tKX15Q9PwcTgmtL3VbhDEh+kVZf9f2zix82rSf4nRPnuJ6abkMBhW4hAPIdcTE3DN6GQaQ4DM0pRW/T9u1TwrlyDl3qB1FLPVA7A0CUUSRGctl7vEv6P6V4BOeI8vDQamcBRetWdnYCAOeIksXXifXVOyKjvFQp9maOnwJaV0B3BqCnWOeXiq7DZIr1WkgBddP2ACC+k+kened88zscJClma8WvXvGqFjAPQ2uSABXjLOcQrr/l7IOiV7GKUhYd49ofGMEl0EXNybNloSDIiENGXBaxr+wdIaPjUskcgl+sX14+off7PPuf08w0rfa/7P0BQl/IPUTRP3wAAAAASUVORK5CYII=" height="20" alt="Click to Pay" style="object-fit:contain;">
-            <img class="visa-logo-img" src="" height="20" alt="Visa" style="object-fit:contain;">
-            <svg width="40" height="24" viewBox="0 0 40 24"><circle cx="14" cy="12" r="10" fill="#EB001B"/><circle cx="26" cy="12" r="10" fill="#F79E1B"/><path d="M20 4.6a10 10 0 0 1 0 14.8 10 10 0 0 1 0-14.8z" fill="#FF5F00"/></svg>
+        <div class="info-content" id="switchIdInfoContent">
+            Click to Pay will use this information to check if you have saved cards. A one-time passcode may be sent to confirm it's you. Message and data rates may apply. <a href="https://usa.visa.com/pay-with-visa/checkout-faq.html" target="_blank" style="color:#1a1f71;">What is Click to Pay?</a>
         </div>
     </div>
 
@@ -1030,6 +1064,7 @@
         </div>
 
         <button id="addNewCardBtn" class="enter-card-link">Enter card manually</button>
+
     </div>
 
     <!-- OTP verification state -->
@@ -1255,7 +1290,7 @@
                 ADDRESS_REQUIRED: 'Address is required',
                 CITY_REQUIRED: 'City is required',
                 PHONE_REQUIRED: 'Mobile number is required',
-                PHONE_INVALID: 'Invalid mobile number format',
+                PHONE_INVALID: 'Please enter a valid mobile number',
                 LOOKING_UP: 'Looking up your cards...',
                 PROCESSING_PAYMENT: 'Processing payment...',
                 SENDING_CODE: 'Sending verification code...',
@@ -1271,6 +1306,7 @@
                 FAILED_ADD_CARD_WITH_ERROR: 'Failed to add card: {error}',
                 CARD_ADDED_VERIFY_FAILED: 'Card was added but verification could not complete. Please go back and try loading your cards.',
                 UNABLE_VERIFY: 'Unable to verify identity. No verification method available.',
+                ACCOUNT_INACCESSIBLE: 'The user account exists but is not currently accessible.',
                 FAILED_SEND_CODE: 'Failed to send verification code: {error}',
                 VERIFICATION_FAILED: 'Verification failed: {error}',
                 SDK_INIT_FAILED: 'Click to Pay SDK failed to initialize. The SDK did not load properly.',
@@ -1343,7 +1379,7 @@
                 ADDRESS_REQUIRED: 'العنوان مطلوب',
                 CITY_REQUIRED: 'المدينة مطلوبة',
                 PHONE_REQUIRED: 'رقم الهاتف المحمول مطلوب',
-                PHONE_INVALID: 'صيغة رقم الهاتف غير صالحة',
+                PHONE_INVALID: 'يرجى إدخال رقم هاتف محمول صالح',
                 LOOKING_UP: 'جارٍ البحث عن بطاقاتك...',
                 PROCESSING_PAYMENT: 'جارٍ معالجة الدفع...',
                 SENDING_CODE: 'جارٍ إرسال رمز التحقق...',
@@ -1359,6 +1395,7 @@
                 FAILED_ADD_CARD_WITH_ERROR: 'فشل إضافة البطاقة: {error}',
                 CARD_ADDED_VERIFY_FAILED: 'تمت إضافة البطاقة ولكن التحقق لم يكتمل. يرجى الرجوع ومحاولة تحميل بطاقاتك.',
                 UNABLE_VERIFY: 'تعذر التحقق من الهوية. لا تتوفر طريقة تحقق.',
+                ACCOUNT_INACCESSIBLE: 'حساب المستخدم موجود ولكنه غير قابل للوصول حاليًا.',
                 FAILED_SEND_CODE: 'فشل إرسال رمز التحقق: {error}',
                 VERIFICATION_FAILED: 'فشل التحقق: {error}',
                 SDK_INIT_FAILED: 'فشل تهيئة خدمة كليك تو باي. لم يتم تحميل SDK بشكل صحيح.',
@@ -1431,7 +1468,7 @@
                 ADDRESS_REQUIRED: 'L\'adresse est requise',
                 CITY_REQUIRED: 'La ville est requise',
                 PHONE_REQUIRED: 'Le numéro de mobile est requis',
-                PHONE_INVALID: 'Format de numéro de mobile invalide',
+                PHONE_INVALID: 'Veuillez entrer un numéro de mobile valide',
                 LOOKING_UP: 'Recherche de vos cartes...',
                 PROCESSING_PAYMENT: 'Traitement du paiement...',
                 SENDING_CODE: 'Envoi du code de vérification...',
@@ -1447,6 +1484,7 @@
                 FAILED_ADD_CARD_WITH_ERROR: 'Échec de l\'ajout de la carte : {error}',
                 CARD_ADDED_VERIFY_FAILED: 'La carte a été ajoutée mais la vérification n\'a pas pu être complétée. Veuillez revenir en arrière et essayer de charger vos cartes.',
                 UNABLE_VERIFY: 'Impossible de vérifier l\'identité. Aucune méthode de vérification disponible.',
+                ACCOUNT_INACCESSIBLE: 'Le compte utilisateur existe mais n\'est pas accessible actuellement.',
                 FAILED_SEND_CODE: 'Échec de l\'envoi du code de vérification : {error}',
                 VERIFICATION_FAILED: 'Échec de la vérification : {error}',
                 SDK_INIT_FAILED: 'Échec de l\'initialisation de Click to Pay. Le SDK n\'a pas été chargé correctement.',
@@ -1505,8 +1543,7 @@
             });
 
             // Email entry
-            el = document.querySelector('.amount-label');
-            if (el) el.textContent = _tr('TOTAL_LABEL');
+            document.querySelectorAll('.amount-label').forEach(function(e) { e.textContent = _tr('TOTAL_LABEL'); });
             el = document.querySelector('#emailEntry .form-label');
             if (el) el.textContent = _tr('CTP_EMAIL_LABEL');
             el = document.getElementById('emailInput');
@@ -1525,11 +1562,10 @@
             if (el) el.textContent = _tr('LOAD_MY_CARDS');
             el = document.getElementById('switchIdBackBtn');
             if (el) el.textContent = _tr('BACK');
-            el = document.querySelector('#switchIdView .or-divider span');
-            if (el) el.textContent = _tr('OR');
-            el = document.getElementById('switchIdManualBtn');
-            if (el) el.textContent = _tr('ENTER_CARD_MANUALLY');
-
+            el = document.querySelector('#switchIdInfoToggle > span:first-child');
+            if (el) el.textContent = _tr('CTP_INFO_QUESTION');
+            el = document.getElementById('switchIdInfoContent');
+            if (el) el.innerHTML = _tr('CTP_INFO_CONTENT');
             // Card selection
             el = document.querySelector('.amount-row-label');
             if (el) el.textContent = _tr('TOTAL_LABEL');
@@ -1541,7 +1577,7 @@
             if (el && !selectedCard) el.textContent = _tr('PAY');
             el = document.querySelector('#cardSelection .terms-text');
             if (el) el.innerHTML = _tr('TERMS_TEXT');
-            el = document.querySelector('.or-divider span');
+            el = document.querySelector('#cardSelection .or-divider span');
             if (el) el.textContent = _tr('OR');
             el = document.getElementById('addNewCardBtn');
             if (el) el.textContent = _tr('ENTER_CARD_MANUALLY');
@@ -1695,7 +1731,14 @@
                     '.add-card-input-wrapper .add-card-input { padding-right: 16px; padding-left: 52px; }',
                     '.terms-text, .add-card-terms { text-align: right; }',
                     '.otp-found-title { text-align: right; }',
-                    '.add-card-linking-text { text-align: right; }'
+                    '.add-card-linking-text { text-align: right; }',
+                    '.otp-contact-label { text-align: right; }',
+                    '.otp-contact-details { text-align: right; direction: ltr; display: inline-block; }',
+                    '.email-masked { direction: ltr; unicode-bidi: embed; }',
+                    '.otp-skip-checkbox:checked::after { left: auto; right: 6px; }',
+                    '.add-card-label .required { margin-left: 0; margin-right: 2px; }',
+                    '.info-toggle { text-align: right; }',
+                    '.brand-logos, .otp-brand-logos { flex-direction: row !important; direction: ltr !important; }'
                 ].join('\n');
                 document.head.appendChild(rtlStyle);
             } else {
@@ -1799,6 +1842,33 @@
             showView('errorState');
         }
 
+        function buildOtpContactHtml(maskedChannel) {
+            var contactHtml = '';
+            var displayDestination = maskedChannel;
+            // Split comma-separated channel (e.g. "aya**@gmail.com,********6293")
+            var parts = maskedChannel ? maskedChannel.split(',') : [];
+            if (userEmail) {
+                var atIdx = userEmail.indexOf('@');
+                var maskedEmail = userEmail;
+                if (atIdx > 3) {
+                    maskedEmail = userEmail.substring(0, 3) + '**' + userEmail.substring(atIdx);
+                }
+                contactHtml = maskedEmail;
+                displayDestination = maskedEmail;
+                // Add non-email parts (phone numbers)
+                for (var i = 0; i < parts.length; i++) {
+                    var part = parts[i].trim();
+                    if (part && part.indexOf('@') === -1) {
+                        contactHtml += '<br>' + part;
+                    }
+                }
+            } else {
+                // No userEmail — show each part on its own line
+                contactHtml = parts.join('<br>');
+            }
+            return { html: contactHtml, destination: displayDestination };
+        }
+
         function showEmailError(message) {
             var banner = document.getElementById('emailErrorBanner');
             if (banner) {
@@ -1831,8 +1901,10 @@
             var formatted = config.formattedAmount || formatAmount(config.amount, config.currencyCode);
             var emailAmt = document.getElementById('emailAmountDisplay');
             var cardAmt = document.getElementById('cardAmountDisplay');
+            var switchIdAmt = document.getElementById('switchIdAmountDisplay');
             if (emailAmt) emailAmt.textContent = formatted;
             if (cardAmt) cardAmt.textContent = formatted;
+            if (switchIdAmt) switchIdAmt.textContent = formatted;
         }
 
         // Wait for SDK to become available using Visa's provided initialization methods
@@ -2118,10 +2190,16 @@
         var userEmail = null;
         var consumerProfileData = null; // Stores consumer profile info from getCards for pre-populating add card form
         var nativeWillLookup = false; // Set by native when email is provided from native email page
+        var autoCheckoutAfterAdd = false; // Set after add-card recovery to auto-checkout with the enrolled card
 
         async function lookupConsumer(email, validationData) {
             try {
-                showLookupLoading();
+                if (autoCheckoutAfterAdd) {
+                    showLoading(_tr('PROCESSING_PAYMENT'));
+                } else {
+                    showLookupLoading();
+                }
+                allCards = [];
                 log('Calling Vsb.getCards');
 
                 var params = {};
@@ -2161,11 +2239,27 @@
                         log('Stored consumer profile data: ' + JSON.stringify(consumerProfileData));
                     }
                     if (cards.length > 0) {
-                        displayCards(cards);
-                        storeCtpEmail(userEmail);
-                        postToNative('onCardsAvailable', { cards: cards });
+                        if (autoCheckoutAfterAdd) {
+                            // After add-card recovery, auto-checkout with the first card
+                            autoCheckoutAfterAdd = false;
+                            isAutoCheckout = true;
+                            log('Auto-checkout after add card with: ' + cards[0].srcDigitalCardId);
+                            selectedCard = cards[0];
+                            checkout(cards[0].srcDigitalCardId);
+                        } else {
+                            displayCards(cards);
+                            postToNative('onCardsAvailable', { cards: cards });
+                        }
                     } else {
-                        showAddCardForm();
+                        if (autoCheckoutAfterAdd) {
+                            autoCheckoutAfterAdd = false;
+                            log('Recovery found 0 cards — showing error on add card view');
+                            showAddCardError(_tr('CARD_ADDED_VERIFY_FAILED'));
+                            showView('addCardView');
+                            updateAddCardButtonState();
+                        } else {
+                            showAddCardForm();
+                        }
                     }
                 } else if (result.actionCode === 'PENDING_CONSUMER_IDV') {
                     validationChannels = result.idvOptions ? (result.idvOptions.validationChannels || []) : [];
@@ -2177,27 +2271,12 @@
                     postToNative('onIdentityValidationRequired', { channels: validationChannels });
 
                     if (maskedChannel) {
-                        // Populate OTP page contact details
-                        var contactHtml = '';
-                        if (userEmail) {
-                            // Mask email: show first 3 chars + ** + @domain
-                            var atIdx = userEmail.indexOf('@');
-                            var maskedEmail = userEmail;
-                            if (atIdx > 3) {
-                                maskedEmail = userEmail.substring(0, 3) + '**' + userEmail.substring(atIdx);
-                            }
-                            contactHtml += maskedEmail;
-                        }
-                        if (maskedChannel && maskedChannel !== userEmail) {
-                            if (contactHtml) contactHtml += '<br>';
-                            contactHtml += maskedChannel;
-                        }
-                        document.getElementById('otpContactDetails').innerHTML = contactHtml;
-                        document.getElementById('otpDestination').textContent = maskedChannel;
+                        var contact = buildOtpContactHtml(maskedChannel);
+                        document.getElementById('otpContactDetails').innerHTML = contact.html;
+                        document.getElementById('otpDestination').textContent = contact.destination;
                         clearOtpBoxes();
                         showView('otpVerification');
                         startResendTimer();
-                        // Focus first OTP box
                         setTimeout(function() {
                             var firstBox = document.querySelector('.otp-box[data-index="0"]');
                             if (firstBox) firstBox.focus();
@@ -2214,8 +2293,17 @@
                         showEmailError(_tr('UNABLE_VERIFY'));
                     }
                 } else if (result.actionCode === 'ADD_CARD') {
-                    showAddCardForm();
+                    if (autoCheckoutAfterAdd) {
+                        autoCheckoutAfterAdd = false;
+                        log('Recovery got ADD_CARD — showing error on add card view');
+                        showAddCardError(_tr('CARD_ADDED_VERIFY_FAILED'));
+                        showView('addCardView');
+                        updateAddCardButtonState();
+                    } else {
+                        showAddCardForm();
+                    }
                 } else if (result.actionCode === 'ERROR') {
+                    autoCheckoutAfterAdd = false;
                     log('getCards returned ERROR: ' + JSON.stringify(result));
                     var errorMsg = 'Click to Pay lookup failed';
                     var errorReason = 'LOOKUP_ERROR';
@@ -2260,6 +2348,9 @@
                         showView('emailEntry');
                         return;
                     }
+                    if (errorReason === 'ACCT_INACCESSIBLE' || (errorMsg && errorMsg.indexOf('not currently accessible') !== -1)) {
+                        errorMsg = _tr('ACCOUNT_INACCESSIBLE');
+                    }
                     showEmailError(errorMsg);
                 } else {
                     log('Unknown action code: ' + result.actionCode + ', full result: ' + JSON.stringify(result));
@@ -2272,6 +2363,7 @@
                 }
 
             } catch (e) {
+                autoCheckoutAfterAdd = false;
                 log('getCards error: ' + JSON.stringify(e));
                 log('navigator.onLine: ' + navigator.onLine);
                 var isEmptyError = typeof e === 'object' && e && Object.keys(e).length === 0;
@@ -2432,22 +2524,9 @@
                 log('IDV initiation result: ' + JSON.stringify(result));
 
                 var maskedDestination = result.maskedValidationChannel || 'your device';
-                // Populate OTP page contact details
-                var contactHtml = '';
-                if (userEmail) {
-                    var atIdx = userEmail.indexOf('@');
-                    var maskedEmail = userEmail;
-                    if (atIdx > 3) {
-                        maskedEmail = userEmail.substring(0, 3) + '**' + userEmail.substring(atIdx);
-                    }
-                    contactHtml += maskedEmail;
-                }
-                if (maskedDestination && maskedDestination !== userEmail) {
-                    if (contactHtml) contactHtml += '<br>';
-                    contactHtml += maskedDestination;
-                }
-                document.getElementById('otpContactDetails').innerHTML = contactHtml;
-                document.getElementById('otpDestination').textContent = maskedDestination;
+                var contact = buildOtpContactHtml(maskedDestination);
+                document.getElementById('otpContactDetails').innerHTML = contact.html;
+                document.getElementById('otpDestination').textContent = contact.destination;
                 clearOtpBoxes();
                 showView('otpVerification');
                 startResendTimer();
@@ -2486,6 +2565,8 @@
                 }
             }
         }
+
+        var isAutoCheckout = false; // Set when auto-checking out after add card
 
         async function checkout(srcDigitalCardId) {
             try {
@@ -2547,6 +2628,9 @@
                         complianceType: 'REMEMBER_ME',
                         uri: 'ae.visamiddleeast.com/en_AE/legal/checkout/terms-of-service.html'
                     });
+                    storeCtpEmail(userEmail);
+                } else {
+                    clearStoredCtpEmail();
                 }
 
                 var checkoutParams = {
@@ -2592,12 +2676,21 @@
 
                 if (result.actionCode === 'ERROR' && result.error) {
                     log('Checkout returned ERROR: ' + JSON.stringify(result.error));
-                    // Show error inline and return to card selection — don't dismiss VC
-                    showView('cardSelection');
-                    showCardSelectionError(result.error.message || 'Checkout failed. Please try another card.');
+                    if (isAutoCheckout) {
+                        isAutoCheckout = false;
+                        postToNative('onError', {
+                            reason: result.error.reason || 'CHECKOUT_ERROR',
+                            message: result.error.message || 'Checkout failed'
+                        });
+                    } else {
+                        // Show error inline and return to card selection — don't dismiss VC
+                        showView('cardSelection');
+                        showCardSelectionError(result.error.message || 'Checkout failed. Please try another card.');
+                    }
                     return;
                 }
 
+                isAutoCheckout = false;
                 if (result.actionCode === 'SUCCESS' || result.checkoutResponse) {
                     postToNative('onCheckoutSuccess', {
                         checkoutResponse: result.checkoutResponse,
@@ -2609,13 +2702,28 @@
                     });
                 } else {
                     log('Unexpected checkout result: ' + JSON.stringify(result));
-                    // Show error inline and return to card selection
-                    showView('cardSelection');
-                    showCardSelectionError(_tr('CHECKOUT_FAILED'));
+                    if (isAutoCheckout) {
+                        postToNative('onError', {
+                            reason: 'CHECKOUT_ERROR',
+                            message: 'Checkout failed'
+                        });
+                    } else {
+                        // Show error inline and return to card selection
+                        showView('cardSelection');
+                        showCardSelectionError(_tr('CHECKOUT_FAILED'));
+                    }
                 }
 
             } catch (e) {
                 log('Checkout error: ' + JSON.stringify(e));
+                if (isAutoCheckout) {
+                    isAutoCheckout = false;
+                    postToNative('onError', {
+                        reason: 'CHECKOUT_ERROR',
+                        message: e.message || 'Checkout failed'
+                    });
+                    return;
+                }
                 // Show error inline and return to card selection — don't dismiss VC
                 showView('cardSelection');
                 if (isOffline()) {
@@ -2659,10 +2767,6 @@
             }
         };
 
-        document.getElementById('addNewCardBtn').onclick = function() {
-            showAddCardForm();
-        };
-
         document.getElementById('verifyOtpBtn').onclick = function() {
             var otp = getOtpFromBoxes();
             if (otp.length >= 6) {
@@ -2672,11 +2776,17 @@
 
         var resendTimerInterval = null;
 
+        function formatTimer(seconds) {
+            var m = Math.floor(seconds / 60);
+            var s = seconds % 60;
+            return m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
         function startResendTimer() {
             var btn = document.getElementById('resendOtpBtn');
             var seconds = 30;
             btn.disabled = true;
-            btn.textContent = _tr('RESEND_CODE') + ' (' + seconds + 's)';
+            btn.textContent = _tr('RESEND_CODE') + ' (' + formatTimer(seconds) + ')';
             if (resendTimerInterval) clearInterval(resendTimerInterval);
             resendTimerInterval = setInterval(function() {
                 seconds--;
@@ -2686,7 +2796,7 @@
                     btn.disabled = false;
                     btn.textContent = _tr('RESEND_CODE');
                 } else {
-                    btn.textContent = _tr('RESEND_CODE') + ' (' + seconds + 's)';
+                    btn.textContent = _tr('RESEND_CODE') + ' (' + formatTimer(seconds) + ')';
                 }
             }, 1000);
         }
@@ -2696,11 +2806,29 @@
             btn.disabled = true;
             btn.textContent = _tr('SENDING_CODE') + '...';
             try {
-                if (userEmail) {
-                    await lookupConsumer(userEmail);
-                } else if (validationChannels.length > 0) {
-                    await initiateIdentityValidation(validationChannels[0].id);
+                if (validationChannels.length > 0) {
+                    log('Resending OTP via initiateIdentityValidation');
+                    await Vsb.initiateIdentityValidation({
+                        requestedValidationChannelId: validationChannels[0].id
+                    });
+                } else {
+                    log('No validation channels — re-triggering getCards to resend OTP');
+                    var params = {};
+                    if (userEmail) {
+                        params.consumerIdentity = {
+                            identityProvider: 'SRC',
+                            identityValue: userEmail,
+                            identityType: 'EMAIL_ADDRESS'
+                        };
+                    }
+                    await Vsb.getCards(params);
                 }
+                clearOtpBoxes();
+                startResendTimer();
+                setTimeout(function() {
+                    var firstBox = document.querySelector('.otp-box[data-index="0"]');
+                    if (firstBox) firstBox.focus();
+                }, 300);
             } catch (e) {
                 log('Resend OTP error: ' + JSON.stringify(e));
                 btn.disabled = false;
@@ -2826,9 +2954,26 @@
             content.classList.toggle('visible');
         };
 
+        // Switch ID: Info toggle
+        document.getElementById('switchIdInfoToggle').onclick = function() {
+            var toggle = document.getElementById('switchIdInfoToggle');
+            var content = document.getElementById('switchIdInfoContent');
+            toggle.classList.toggle('expanded');
+            content.classList.toggle('visible');
+        };
+
+        // Email entry: close button
+        document.getElementById('emailCloseBtn').onclick = function() {
+            postToNative('onCanceled', {});
+        };
+
         // Card selection: close button
         document.getElementById('cardCloseBtn').onclick = function() {
             postToNative('onCanceled', {});
+        };
+
+        document.getElementById('addNewCardBtn').onclick = function() {
+            showAddCardForm();
         };
 
         // Card selection: Switch ID
@@ -2869,11 +3014,7 @@
             postToNative('onCanceled', {});
         };
 
-        // Switch ID view: Enter card manually
-        document.getElementById('switchIdManualBtn').onclick = function() {
-            previousView = 'switchIdView';
-            showView('addCardView');
-        };
+
 
         // Card selection: View more / View less toggle
         var _cardsExpanded = false;
@@ -2968,7 +3109,6 @@
                     if (cards.length > 0) {
                         isProbeMode = false;
                         displayCards(cards);
-                        storeCtpEmail(userEmail);
                         postToNative('onCardsAvailable', { cards: cards });
                         return;
                     }
@@ -2984,21 +3124,9 @@
                     log('Probe: PENDING_CONSUMER_IDV, maskedChannel: ' + maskedChannel);
                     postToNative('onIdentityValidationRequired', { channels: validationChannels });
                     if (maskedChannel) {
-                        var contactHtml = '';
-                        if (userEmail) {
-                            var atIdx = userEmail.indexOf('@');
-                            var maskedEmail = userEmail;
-                            if (atIdx > 3) {
-                                maskedEmail = userEmail.substring(0, 3) + '**' + userEmail.substring(atIdx);
-                            }
-                            contactHtml += maskedEmail;
-                        }
-                        if (maskedChannel && maskedChannel !== userEmail) {
-                            if (contactHtml) contactHtml += '<br>';
-                            contactHtml += maskedChannel;
-                        }
-                        document.getElementById('otpContactDetails').innerHTML = contactHtml;
-                        document.getElementById('otpDestination').textContent = maskedChannel;
+                        var contact = buildOtpContactHtml(maskedChannel);
+                        document.getElementById('otpContactDetails').innerHTML = contact.html;
+                        document.getElementById('otpDestination').textContent = contact.destination;
                         clearOtpBoxes();
                         showView('otpVerification');
                         startResendTimer();
@@ -3686,9 +3814,15 @@
             }
         };
 
-        // Close button
+        // Close button — go back to card selection (not cancel entire flow)
         document.getElementById('addCardCloseBtn').onclick = function() {
-            postToNative('onCanceled', {});
+            if (allCards && allCards.length > 0) {
+                showView('cardSelection');
+            } else if (userEmail) {
+                showView('emailEntry');
+            } else {
+                postToNative('onCanceled', {});
+            }
         };
 
         // Back button — go back to card selection or email entry
@@ -3895,6 +4029,9 @@
                         complianceType: 'REMEMBER_ME',
                         uri: 'ae.visamiddleeast.com/en_AE/legal/checkout/terms-of-service.html'
                     });
+                    storeCtpEmail(userEmail);
+                } else {
+                    clearStoredCtpEmail();
                 }
 
                 // Build dpaTransactionOptions
@@ -4017,38 +4154,33 @@
                         srciTransactionId: result.srciTransactionId || ''
                     });
                 } else if (result.actionCode === 'ERROR' && result.error &&
-                           result.error.reason === 'CARD_ADD_FAILED') {
-                    // CARD_ADD_FAILED: The card enrollment succeeds on Visa's backend
-                    // (user gets confirmation email), but the SDK can't complete its
-                    // DCF verification flow in WKWebView (no postMessage target).
-                    // The card is enrolled but unbound (bindingStatus: UNBIND).
-                    //
-                    // Recovery: Re-do the consumer lookup with the user's email.
-                    // This triggers the OTP identity validation flow. After OTP,
-                    // the newly enrolled card should appear in the cards list and
-                    // the user can complete checkout with the existing card flow.
-                    log('CARD_ADD_FAILED (bindingStatus: ' + (result.bindingStatus || 'unknown') + ')');
+                           (result.error.reason === 'CARD_ADD_FAILED' || result.error.reason === 'CARD_NOT_RECOGNIZED')) {
+                    log(result.error.reason + ' (bindingStatus: ' + (result.bindingStatus || 'unknown') + ')');
                     log('Card enrollment likely succeeded — redirecting to card lookup for OTP verification');
-
                     try {
-                        showLoading(_tr('VERIFYING_CARD'));
-                        // Small delay to let Visa's backend process the enrollment
+                        autoCheckoutAfterAdd = true;
+                        showLoading(_tr('PROCESSING_PAYMENT'));
                         await new Promise(function(resolve) { setTimeout(resolve, 1500); });
-                        // Re-lookup consumer — this will trigger OTP flow if cards exist,
-                        // or show the card list if identity is already validated
                         lookupConsumer(userEmail);
                     } catch (recoveryErr) {
+                        autoCheckoutAfterAdd = false;
                         log('Recovery lookup error: ' + (recoveryErr.message || JSON.stringify(recoveryErr)));
                         showAddCardError(_tr('CARD_ADDED_VERIFY_FAILED'));
                         showView('addCardView');
                         updateAddCardButtonState();
                     }
                 } else if (result.actionCode === 'ERROR') {
+                    log('Checkout error: ' + JSON.stringify(result.error, null, 2));
                     var errMsg = _tr('FAILED_ADD_CARD');
-                    if (result.error && result.error.message) errMsg = result.error.message;
                     if (result.error && result.error.reason) log('Error reason: ' + result.error.reason);
-                    log('Full error object: ' + JSON.stringify(result.error, null, 2));
-                    log('Full result keys: ' + Object.keys(result).join(', '));
+                    if (result.error && result.error.message && result.error.message.indexOf('mobileNumber') !== -1) {
+                        errMsg = _tr('PHONE_INVALID');
+                        document.getElementById('phoneError').textContent = _tr('PHONE_INVALID');
+                        document.getElementById('phoneError').classList.add('visible');
+                        document.getElementById('phoneRow').classList.add('input-error');
+                    } else if (result.error && result.error.message) {
+                        errMsg = result.error.message;
+                    }
                     showAddCardError(errMsg);
                     showView('addCardView');
                     updateAddCardButtonState();

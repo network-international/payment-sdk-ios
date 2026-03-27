@@ -14,6 +14,7 @@ class EnvironmentViewModel: ObservableObject {
     @Published var action: String = ""
     @Published var language: String = ""
     @Published var region: String = ""
+    @Published var currency: String = ""
     @Published var orderType: String = ""
 
     // SDK Colors
@@ -21,6 +22,13 @@ class EnvironmentViewModel: ObservableObject {
     @Published var sdkColorPayButtonText: String = ""
     @Published var sdkColorPayButtonDisabled: String = ""
     @Published var sdkColorPayButtonDisabledText: String = ""
+    @Published var sdkColorInputFieldBg: String = ""
+    @Published var sdkColorAuthViewBg: String = ""
+    @Published var sdkColorAuthViewIndicator: String = ""
+    @Published var sdkColorAuthViewLabel: String = ""
+    @Published var sdkColorThreeDSViewBg: String = ""
+    @Published var sdkColorThreeDSViewLabel: String = ""
+    @Published var sdkColorThreeDSViewIndicator: String = ""
 
     func addEnvironment(name: String, apiKey: String, outletReference: String, realm: String, type: EnvironmentType) {
         let environment = Environment(type:type, name: name, apiKey: apiKey, outletReference: outletReference, realm: realm)
@@ -40,17 +48,32 @@ class EnvironmentViewModel: ObservableObject {
         action = getOrderAction()
         language = getLangugae()
         region = getRegion()
+        currency = getCurrency()
         orderType = getOrderType()
         sdkColorPayButton = Environment.sdkColorPayButton.isEmpty ? "#007AFF" : Environment.sdkColorPayButton
         sdkColorPayButtonText = Environment.sdkColorPayButtonText.isEmpty ? "#FFFFFF" : Environment.sdkColorPayButtonText
         sdkColorPayButtonDisabled = Environment.sdkColorPayButtonDisabled.isEmpty ? "#D1D1D6" : Environment.sdkColorPayButtonDisabled
         sdkColorPayButtonDisabledText = Environment.sdkColorPayButtonDisabledText.isEmpty ? "#8E8E93" : Environment.sdkColorPayButtonDisabledText
+        sdkColorInputFieldBg = Environment.sdkColorInputFieldBg.isEmpty ? "#FFFFFF" : Environment.sdkColorInputFieldBg
+        sdkColorAuthViewBg = Environment.sdkColorAuthViewBg.isEmpty ? "#FFFFFF" : Environment.sdkColorAuthViewBg
+        sdkColorAuthViewIndicator = Environment.sdkColorAuthViewIndicator.isEmpty ? "#8E8E93" : Environment.sdkColorAuthViewIndicator
+        sdkColorAuthViewLabel = Environment.sdkColorAuthViewLabel.isEmpty ? "#000000" : Environment.sdkColorAuthViewLabel
+        sdkColorThreeDSViewBg = Environment.sdkColorThreeDSViewBg.isEmpty ? "#FFFFFF" : Environment.sdkColorThreeDSViewBg
+        sdkColorThreeDSViewLabel = Environment.sdkColorThreeDSViewLabel.isEmpty ? "#000000" : Environment.sdkColorThreeDSViewLabel
+        sdkColorThreeDSViewIndicator = Environment.sdkColorThreeDSViewIndicator.isEmpty ? "#8E8E93" : Environment.sdkColorThreeDSViewIndicator
 
         // Persist defaults to UserDefaults
         Environment.sdkColorPayButton = sdkColorPayButton
         Environment.sdkColorPayButtonText = sdkColorPayButtonText
         Environment.sdkColorPayButtonDisabled = sdkColorPayButtonDisabled
         Environment.sdkColorPayButtonDisabledText = sdkColorPayButtonDisabledText
+        Environment.sdkColorInputFieldBg = sdkColorInputFieldBg
+        Environment.sdkColorAuthViewBg = sdkColorAuthViewBg
+        Environment.sdkColorAuthViewIndicator = sdkColorAuthViewIndicator
+        Environment.sdkColorAuthViewLabel = sdkColorAuthViewLabel
+        Environment.sdkColorThreeDSViewBg = sdkColorThreeDSViewBg
+        Environment.sdkColorThreeDSViewLabel = sdkColorThreeDSViewLabel
+        Environment.sdkColorThreeDSViewIndicator = sdkColorThreeDSViewIndicator
     }
     
     func saveEnviroments() {
@@ -129,6 +152,14 @@ class EnvironmentViewModel: ObservableObject {
         return Environment.getRegion()
     }
 
+    func setCurrency(currency: String) {
+        Environment.setCurrency(currency: currency)
+    }
+
+    func getCurrency() -> String {
+        return Environment.getCurrency()
+    }
+
     func setOrderType(orderType: String) {
         Environment.setOrderType(orderType: orderType)
     }
@@ -153,6 +184,34 @@ class EnvironmentViewModel: ObservableObject {
 
     func saveSDKColorPayButtonDisabledText(_ hex: String) {
         Environment.sdkColorPayButtonDisabledText = hex
+    }
+
+    func saveSDKColorInputFieldBg(_ hex: String) {
+        Environment.sdkColorInputFieldBg = hex
+    }
+
+    func saveSDKColorAuthViewBg(_ hex: String) {
+        Environment.sdkColorAuthViewBg = hex
+    }
+
+    func saveSDKColorAuthViewIndicator(_ hex: String) {
+        Environment.sdkColorAuthViewIndicator = hex
+    }
+
+    func saveSDKColorAuthViewLabel(_ hex: String) {
+        Environment.sdkColorAuthViewLabel = hex
+    }
+
+    func saveSDKColorThreeDSViewBg(_ hex: String) {
+        Environment.sdkColorThreeDSViewBg = hex
+    }
+
+    func saveSDKColorThreeDSViewLabel(_ hex: String) {
+        Environment.sdkColorThreeDSViewLabel = hex
+    }
+
+    func saveSDKColorThreeDSViewIndicator(_ hex: String) {
+        Environment.sdkColorThreeDSViewIndicator = hex
     }
 
 }

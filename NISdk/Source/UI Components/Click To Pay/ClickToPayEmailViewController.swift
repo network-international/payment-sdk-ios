@@ -87,22 +87,7 @@ class ClickToPayEmailViewController: UIViewController {
     // MARK: - Navigation Bar
 
     private func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(false, animated: false)
-        navigationItem.title = nil
-        navigationController?.navigationBar.titleTextAttributes = nil
-
-        if #available(iOS 13.0, *) {
-            let xImage = UIImage(systemName: "xmark")?.withRenderingMode(.alwaysTemplate)
-            let closeButton = UIBarButtonItem(image: xImage, style: .plain,
-                                              target: self, action: #selector(cancelTapped))
-            closeButton.tintColor = UIColor(hexString: "#070707")
-            navigationItem.rightBarButtonItem = closeButton
-        } else {
-            let closeButton = UIBarButtonItem(title: "✕", style: .plain,
-                                              target: self, action: #selector(cancelTapped))
-            closeButton.tintColor = UIColor(hexString: "#070707")
-            navigationItem.rightBarButtonItem = closeButton
-        }
+        navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
     // MARK: - Layout

@@ -142,10 +142,13 @@ class StoreFrontViewController:
         let environmentViewModel = EnvironmentViewModel()
         let environmentView = EnvironmentView(viewModel: environmentViewModel)
 
-        let navigationController = UINavigationController(rootViewController: UIHostingController(rootView: environmentView))
+        let hostingController = UIHostingController(rootView: environmentView)
+        let navigationController = UINavigationController(rootViewController: hostingController)
 
-        navigationController.topViewController?.navigationItem.title = "Configuration"
-        navigationController.topViewController?.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(cancelButtonTapped))
+        navigationController.view.semanticContentAttribute = .forceLeftToRight
+        navigationController.navigationBar.semanticContentAttribute = .forceLeftToRight
+        hostingController.navigationItem.title = "Configuration"
+        hostingController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(cancelButtonTapped))
 
         navigationController.modalPresentationStyle = .fullScreen
         present(navigationController, animated: false, completion: nil)
@@ -290,6 +293,13 @@ class StoreFrontViewController:
         if let c = colorFromHex(Environment.sdkColorPayButtonText) { colors.payButtonTitleColor = c }
         if let c = colorFromHex(Environment.sdkColorPayButtonDisabled) { colors.payButtonDisabledBackgroundColor = c }
         if let c = colorFromHex(Environment.sdkColorPayButtonDisabledText) { colors.payButtonDisabledTitleColor = c }
+        if let c = colorFromHex(Environment.sdkColorInputFieldBg) { colors.inputFieldBackgroundColor = c }
+        if let c = colorFromHex(Environment.sdkColorAuthViewBg) { colors.authorizationViewBackgroundColor = c }
+        if let c = colorFromHex(Environment.sdkColorAuthViewIndicator) { colors.authorizationViewActivityIndicatorColor = c }
+        if let c = colorFromHex(Environment.sdkColorAuthViewLabel) { colors.authorizationViewLabelColor = c }
+        if let c = colorFromHex(Environment.sdkColorThreeDSViewBg) { colors.threeDSViewBackgroundColor = c }
+        if let c = colorFromHex(Environment.sdkColorThreeDSViewLabel) { colors.threeDSViewLabelColor = c }
+        if let c = colorFromHex(Environment.sdkColorThreeDSViewIndicator) { colors.threeDSViewActivityIndicatorColor = c }
 
         NISdk.sharedInstance.setSDKColors(sdkColors: colors)
         NISdk.sharedInstance.isLoggingEnabled = true
@@ -301,7 +311,7 @@ class StoreFrontViewController:
         let request = PKPaymentRequest()
         request.merchantIdentifier = ""
         request.countryCode = Environment.getRegion() == "KSA" ? "SA" : "AE"
-        request.currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
+        request.currencyCode = Environment.getCurrency()
         request.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
         request.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
         request.requiredBillingContactFields = [.postalAddress, .name]
@@ -445,7 +455,7 @@ class StoreFrontViewController:
     func showHidePayButtonStack() {
         if(total > 0) {
             buttonStack.isHidden = false
-            let currencyCode = Environment.getRegion() == "KSA" ? "SAR" : "AED"
+            let currencyCode = Environment.getCurrency()
             payButton.setTitle("Pay \(currencyCode) \(String(format: "%.2f", total))", for: .normal)
         } else {
             buttonStack.isHidden = true
@@ -543,6 +553,8 @@ extension StoreFrontViewController: AaniPaymentDelegate {
             showAlertWith(title: "Payment Aborted", message: "You cancelled the payment request. You can try again!")
         case .invalidRequest:
             showAlertWith(title: "Error", message: "InValid Request")
+        case .dismissedToPaymentPage:
+            break
         }
     }
 }

@@ -286,8 +286,9 @@ class PaymentViewController: UIViewController {
                     case .success:
                         self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
                     case .cancelled:
-                        // Stay on unified page
-                        break
+                        self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+                    case .dismissedToPaymentPage:
+                        break // Aani modal already dismissed, return to unified payment page
                     default:
                         self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
                     }
@@ -332,8 +333,6 @@ class PaymentViewController: UIViewController {
                     }
                 }
             )
-            clickToPayVC.showCloseButton = true
-
             let navController = UINavigationController(rootViewController: clickToPayVC)
             navController.modalPresentationStyle = .pageSheet
             self.present(navController, animated: true)

@@ -65,12 +65,14 @@ class AaniLinks: NSObject, Codable {
 }
 
 class Aani: NSObject, Codable {
-    let deepLinkUrl: String
+    let deepLinkUrl: String?
+    let emvQrData: String?
     let qrCodeId: String?
     let qrCodeTransactionId: String?
 
-    public required init(deepLinkUrl: String, qrCodeId: String? = nil, qrCodeTransactionId: String? = nil) {
+    public required init(deepLinkUrl: String? = nil, emvQrData: String? = nil, qrCodeId: String? = nil, qrCodeTransactionId: String? = nil) {
         self.deepLinkUrl = deepLinkUrl
+        self.emvQrData = emvQrData
         self.qrCodeId = qrCodeId
         self.qrCodeTransactionId = qrCodeTransactionId
     }
