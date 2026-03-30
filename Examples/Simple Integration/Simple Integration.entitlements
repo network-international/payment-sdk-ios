@@ -2,6 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>com.apple.developer.in-app-payments</key>
+	<array>
+		<string>merchant.com.ngenius-payments.paypage-dev</string>
+		<string>merchant.com.ngenius-payments.paypage-sandbox</string>
+		<string>merchant.com.ngenius-payments.paypage</string>
+		<string>merchant.com.ksa.ngenius-payments.paypage-dev</string>
+		<string>merchant.com.ksa.ngenius-payments.paypage-sandbox</string>
+		<string>merchant.com.ksa.ngenius-payments.paypage</string>
+	</array>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>
 	<key>com.apple.security.network.client</key>
