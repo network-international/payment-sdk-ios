@@ -307,9 +307,32 @@ class StoreFrontViewController:
 
     // MARK: - Payment Helpers
 
+    private func applePayMerchantIdentifier() -> String {
+        let region = Environment.getRegion()
+        let envType: EnvironmentType = {
+            guard let selectedId = Environment.getSelectedEnvironment() else { return .DEV }
+            return Environment.getEnvironments().first(where: { $0.id == selectedId })?.type ?? .DEV
+        }()
+
+        switch (region, envType) {
+        case ("KSA", .DEV):
+            return "merchant.com.ksa.ngenius-payments.paypage-dev"
+        case ("KSA", .UAT):
+            return "merchant.com.ksa.ngenius-payments.paypage-sandbox"
+        case ("KSA", .PROD):
+            return "merchant.com.ksa.ngenius-payments.paypage"
+        case (_, .DEV):
+            return "merchant.com.ngenius-payments.paypage-dev"
+        case (_, .UAT):
+            return "merchant.com.ngenius-payments.paypage-sandbox"
+        case (_, .PROD):
+            return "merchant.com.ngenius-payments.paypage"
+        }
+    }
+
     private func makeApplePayRequest() -> PKPaymentRequest {
         let request = PKPaymentRequest()
-        request.merchantIdentifier = ""
+        request.merchantIdentifier = applePayMerchantIdentifier()
         request.countryCode = Environment.getRegion() == "KSA" ? "SA" : "AE"
         request.currencyCode = Environment.getCurrency()
         request.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
