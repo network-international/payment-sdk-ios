@@ -16,6 +16,7 @@ public struct PaymentLinks {
     public let threeDSTwoAuthenticationURL: String?
     public let threeDSTwoChallengeResponseURL: String?
     public let applePayLink: String?
+    public let directApplePayLink: String?
     public let partialAuthAccept: String?
     public let partialAuthDecline: String?
     public let aaniPaymentLink: String?
@@ -33,6 +34,7 @@ extension PaymentLinks: Codable {
         case threeDSTwoAuthenticationURL = "cnp:3ds2-authentication"
         case threeDSTwoChallengeResponseURL = "cnp:3ds2-challenge-response"
         case applePayLink = "payment:apple_pay"
+        case directApplePayLink = "payment:direct_apple_pay"
         case partialAuthAccept = "payment:partial-auth-accept"
         case partialAuthDecline = "payment:partial-auth-decline"
         case aaniPaymentLink = "payment:aani"
@@ -94,6 +96,13 @@ extension PaymentLinks: Codable {
             applePayLink = try applePayLinkContainer.decodeIfPresent(String.self, forKey: .href)
         } catch {
             self.applePayLink = nil
+        }
+
+        do {
+            let directApplePayLinkContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .directApplePayLink)
+            directApplePayLink = try directApplePayLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.directApplePayLink = nil
         }
         
         do {

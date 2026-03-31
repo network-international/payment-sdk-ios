@@ -27,7 +27,7 @@ private class NISdkBundleLocator {}
         set { NILogger.shared.isEnabled = newValue }
     }
 
-    public var version: String = "6.0.0"
+    public var version: String = "7.0.0"
 
     private override init() {
         let deviceLanguage = Locale.current.languageCode ?? "en"
