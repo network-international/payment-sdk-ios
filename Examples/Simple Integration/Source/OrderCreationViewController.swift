@@ -123,10 +123,12 @@ class OrderCreationViewController: UIViewController {
         let authorizationLabel = UILabel()
         authorizationLabel.textColor = .white
         authorizationLabel.text = "Creating Order..."
+        authorizationLabel.accessibilityIdentifier = "ordercreation_label_status"
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.isHidden = false
         spinner.color = .white
         spinner.startAnimating()
+        spinner.accessibilityIdentifier = "ordercreation_spinner_loading"
         
         let vStack = UIStackView(arrangedSubviews: [authorizationLabel, spinner])
         vStack.axis = .vertical

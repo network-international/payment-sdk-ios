@@ -61,6 +61,7 @@ class PaymentOptionsViewController: UIViewController {
             target: self,
             action: #selector(cancelTapped)
         )
+        navigationItem.leftBarButtonItem?.accessibilityIdentifier = "paymentoptions_button_cancel"
 
         // Setup scroll view
         view.addSubview(scrollView)
@@ -88,6 +89,7 @@ class PaymentOptionsViewController: UIViewController {
         amountLabel.text = "Amount: \(orderResponse.formattedAmount ?? "")"
         amountLabel.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         amountLabel.textAlignment = .center
+        amountLabel.accessibilityIdentifier = "paymentoptions_label_amount"
         contentStack.addArrangedSubview(amountLabel)
 
         let spacer = UIView()
@@ -109,6 +111,7 @@ class PaymentOptionsViewController: UIViewController {
                 iconName: "creditcard.fill"
             )
             button.addTarget(self, action: #selector(cardPaymentTapped), for: .touchUpInside)
+            button.accessibilityIdentifier = "paymentoptions_button_cardPayment"
             contentStack.addArrangedSubview(button)
         }
 
@@ -120,6 +123,7 @@ class PaymentOptionsViewController: UIViewController {
                 iconName: "bolt.fill"
             )
             button.addTarget(self, action: #selector(clickToPayTapped), for: .touchUpInside)
+            button.accessibilityIdentifier = "paymentoptions_button_clickToPay"
             contentStack.addArrangedSubview(button)
         }
 
@@ -131,6 +135,7 @@ class PaymentOptionsViewController: UIViewController {
                 iconName: "building.columns.fill"
             )
             button.addTarget(self, action: #selector(aaniPayTapped), for: .touchUpInside)
+            button.accessibilityIdentifier = "paymentoptions_button_aaniPay"
             contentStack.addArrangedSubview(button)
         }
 
@@ -138,6 +143,7 @@ class PaymentOptionsViewController: UIViewController {
         if NISdk.sharedInstance.deviceSupportsApplePay() && walletRaw.contains("DIRECT_APPLE_PAY") {
             let applePayButton = PKPaymentButton(paymentButtonType: .buy, paymentButtonStyle: .black)
             applePayButton.addTarget(self, action: #selector(applePayTapped), for: .touchUpInside)
+            applePayButton.accessibilityIdentifier = "paymentoptions_button_applePay"
             applePayButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
             contentStack.addArrangedSubview(applePayButton)
         }
@@ -152,6 +158,7 @@ class PaymentOptionsViewController: UIViewController {
                 iconName: "wallet.pass.fill"
             )
             button.addTarget(self, action: #selector(savedCardTapped), for: .touchUpInside)
+            button.accessibilityIdentifier = "paymentoptions_button_savedCard"
             contentStack.addArrangedSubview(button)
         }
     }

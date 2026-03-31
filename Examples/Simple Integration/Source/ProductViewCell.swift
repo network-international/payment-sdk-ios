@@ -37,6 +37,7 @@ class ProductViewCell: UICollectionViewCell {
         productLabel.text = product.name
         price = product.amount
         priceLabel.text = String(format: "%.2f", price)
+        accessibilityIdentifier = "product_cell_\(product.name.lowercased().replacingOccurrences(of: " ", with: "_"))"
     }
 
     func addViews() {
@@ -47,10 +48,12 @@ class ProductViewCell: UICollectionViewCell {
         productLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
         productLabel.textColor = .secondaryLabel
         productLabel.textAlignment = .center
+        productLabel.accessibilityIdentifier = "product_label_name"
 
         priceLabel.font = UIFont.systemFont(ofSize: 22, weight: .bold)
         priceLabel.textColor = .label
         priceLabel.textAlignment = .center
+        priceLabel.accessibilityIdentifier = "product_label_price"
 
         let vStack = UIStackView(arrangedSubviews: [priceLabel, productLabel])
         vStack.axis = .vertical

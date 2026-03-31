@@ -89,12 +89,14 @@ class StoreFrontViewController:
         logoImageView.contentMode = .scaleAspectFit
         logoImageView.heightAnchor.constraint(equalToConstant: 24).isActive = true
         logoImageView.widthAnchor.constraint(equalToConstant: 140).isActive = true
+        logoImageView.accessibilityIdentifier = "storefront_image_logo"
 
         let demoLabel = UILabel()
         demoLabel.text = "Demo"
         demoLabel.font = UIFont.systemFont(ofSize: 10, weight: .medium)
         demoLabel.textColor = .secondaryLabel
         demoLabel.textAlignment = .center
+        demoLabel.accessibilityIdentifier = "storefront_label_demo"
 
         let titleStack = UIStackView(arrangedSubviews: [logoImageView, demoLabel])
         titleStack.axis = .vertical
@@ -112,18 +114,21 @@ class StoreFrontViewController:
         if #available(iOS 13, *) {
             collectionView?.backgroundColor = UIColor.systemBackground
         }
+        collectionView?.accessibilityIdentifier = "storefront_grid_products"
 
         let gearIcon = UIImage(systemName: "gearshape.fill")
         let gearButton = UIButton(type: .custom)
         gearButton.setImage(gearIcon, for: .normal)
         gearButton.addTarget(self, action: #selector(environmentSetup), for: .touchUpInside)
         gearButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
+        gearButton.accessibilityIdentifier = "storefront_button_settings"
 
         let infoIcon = UIImage(systemName: "info.circle.fill")
         let infoButton = UIButton(type: .custom)
         infoButton.setImage(infoIcon, for: .normal)
         infoButton.addTarget(self, action: #selector(showWhatYouNeed), for: .touchUpInside)
         infoButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
+        infoButton.accessibilityIdentifier = "storefront_button_info"
 
         view.addSubview(collectionView!)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: infoButton)
@@ -464,6 +469,7 @@ class StoreFrontViewController:
         payButton.setTitle("Pay", for: .normal)
         payButton.layer.cornerRadius = 8
         payButton.addTarget(self, action: #selector(payButtonTapped), for: .touchUpInside)
+        payButton.accessibilityIdentifier = "storefront_button_pay"
         buttonStack.addArrangedSubview(payButton)
     }
 
