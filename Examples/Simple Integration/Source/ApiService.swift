@@ -81,8 +81,14 @@ class ApiService {
                             return
                         }
 
+                        if let rawJSON = String(data: data, encoding: .utf8) {
+                            print("Order: RAW RESPONSE:\n\(rawJSON)")
+                        }
+
                         do {
                             let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
+                            print("Order: applePayLink = \(orderResponse.embeddedData?.payment?[0].paymentLinks?.applePayLink ?? "nil")")
+                            print("Order: cardPaymentLink = \(orderResponse.embeddedData?.payment?[0].paymentLinks?.cardPaymentLink ?? "nil")")
                             completion(.success(orderResponse))
                         } catch {
                             print("Order error: \(error.localizedDescription)")

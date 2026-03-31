@@ -699,7 +699,7 @@ class PaymentViewController: UIViewController {
                                           authStatus: AuthorizationStatus?) {
         let isSuccess = paymentStatus == .PaymentSuccess
         let formattedAmount = self.order.amount?.getFormattedAmount()
-        let transactionId = self.lastPaymentResponse?.reference ?? self.order.reference ?? ""
+        let transactionId = self.lastPaymentResponse?.orderReference ?? self.order.reference ?? ""
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: NISdk.sharedInstance.sdkLanguage)
         dateFormatter.dateFormat = "dd MMM yyyy, hh:mm a"

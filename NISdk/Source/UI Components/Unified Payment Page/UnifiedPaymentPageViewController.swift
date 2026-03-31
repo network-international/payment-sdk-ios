@@ -102,7 +102,7 @@ class UnifiedPaymentPageViewController: UIViewController {
 
         // Apple Pay
         if let wallets = order.paymentMethods?.wallet {
-            let hasApplePay = wallets.contains(.applePay) || wallets.contains(.directApplePay)
+            let hasApplePay = wallets.contains(.applePay)
             if hasApplePay && NISdk.sharedInstance.deviceSupportsApplePay() {
                 availablePaymentOptions.append(.applePay)
             }
