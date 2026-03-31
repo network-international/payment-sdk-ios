@@ -62,6 +62,7 @@ struct WhatYouNeedView: View {
             }
             .padding()
         }
+        .accessibilityIdentifier("whatyouneed_scrollview")
     }
 }
 
@@ -129,5 +130,6 @@ private struct SetupItemRow: View {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
         )
+        .accessibilityIdentifier("whatyouneed_item_\(name.lowercased().replacingOccurrences(of: " ", with: "_"))")
     }
 }

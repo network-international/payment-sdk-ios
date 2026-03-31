@@ -99,6 +99,7 @@ struct EnvironmentView: View {
                 Text("SALE").tag("SALE")
                 Text("AUTH").tag("AUTH")
             }
+            .accessibilityIdentifier("environment_picker_orderAction")
 
             Divider()
 
@@ -108,6 +109,7 @@ struct EnvironmentView: View {
                 Text("UNSCHEDULED").tag("UNSCHEDULED")
                 Text("INSTALLMENT").tag("INSTALLMENT")
             }
+            .accessibilityIdentifier("environment_picker_orderType")
 
             Divider()
 
@@ -116,10 +118,12 @@ struct EnvironmentView: View {
                 Text("Arabic").tag("ar")
                 Text("French").tag("fr")
             }
+            .accessibilityIdentifier("environment_picker_language")
 
             Divider()
 
             currencyPicker
+                .accessibilityIdentifier("environment_picker_currency")
 
             Divider()
 
@@ -127,6 +131,7 @@ struct EnvironmentView: View {
                 Text("UAE").tag("UAE")
                 Text("KSA").tag("KSA")
             }
+            .accessibilityIdentifier("environment_picker_region")
         }
     }
 
@@ -183,6 +188,7 @@ struct EnvironmentView: View {
                     Image(systemName: sdkColorsExpanded ? "chevron.down" : "chevron.up")
                         .foregroundColor(niBlue)
                 }
+                .accessibilityIdentifier("environment_button_toggleSdkColors")
             }
 
             if sdkColorsExpanded {
@@ -217,7 +223,9 @@ struct EnvironmentView: View {
                 }.sheet(isPresented: $isAddingMerchantAttributes, content: {
                     Form {
                         TextField("Key", text: $merchantAttributeKey)
+                            .accessibilityIdentifier("merchantattr_field_key")
                         TextField("Value", text: $merchantAttributeValue)
+                            .accessibilityIdentifier("merchantattr_field_value")
 
                         if let errorMessage = errorMessage {
                             Text(errorMessage)
@@ -237,8 +245,10 @@ struct EnvironmentView: View {
                             .padding(6)
                             .background(niBlue)
                             .cornerRadius(6)
+                            .accessibilityIdentifier("merchantattr_button_save")
                     }
                 })
+                .accessibilityIdentifier("environment_button_addMerchantAttribute")
 
                 Button {
                     merchantAtrributesExpanded.toggle()
@@ -246,6 +256,7 @@ struct EnvironmentView: View {
                     Image(systemName: merchantAtrributesExpanded ? "chevron.down" : "chevron.up")
                         .foregroundColor(niBlue)
                 }
+                .accessibilityIdentifier("environment_button_toggleMerchantAttributes")
             }
             Divider()
 
@@ -311,6 +322,7 @@ struct EnvironmentView: View {
                         }
                     )
                 }
+                .accessibilityIdentifier("environment_button_scanQR")
 
                 Button {
                     isAddingEnvironment.toggle()
@@ -325,10 +337,14 @@ struct EnvironmentView: View {
                             Text("PROD").tag("PROD")
                         }
                         .pickerStyle(SegmentedPickerStyle())
+                        .accessibilityIdentifier("addenv_picker_type")
 
                         TextField("API Key", text: $apiKey)
+                            .accessibilityIdentifier("addenv_field_apiKey")
                         TextField("Outlet Reference", text: $outletReference)
+                            .accessibilityIdentifier("addenv_field_outletReference")
                         TextField("Realm", text: $realm)
+                            .accessibilityIdentifier("addenv_field_realm")
 
                         if let errorMessage = errorMessage {
                             Text(errorMessage)
@@ -361,8 +377,10 @@ struct EnvironmentView: View {
                             .padding(6)
                             .background(niBlue)
                             .cornerRadius(6)
+                            .accessibilityIdentifier("addenv_button_save")
                     }
                 })
+                .accessibilityIdentifier("environment_button_addEnvironment")
 
                 Button {
                     environmentExpanded.toggle()
@@ -370,6 +388,7 @@ struct EnvironmentView: View {
                     Image(systemName: environmentExpanded ? "chevron.down" : "chevron.up")
                         .foregroundColor(niBlue)
                 }
+                .accessibilityIdentifier("environment_button_toggleEnvironments")
             }
             Divider()
             if environmentExpanded {
@@ -412,6 +431,7 @@ struct EnvironmentView: View {
                                 .foregroundColor(niBlue)
                         }
                         .padding(4)
+                        .accessibilityIdentifier("environment_button_edit_\(environment.id)")
 
                         Button {
                             viewModel.delete(environemnt: environment)
@@ -421,6 +441,7 @@ struct EnvironmentView: View {
                             .padding(4)
                             .background(Color.red)
                             .cornerRadius(6)
+                            .accessibilityIdentifier("environment_button_delete_\(environment.id)")
                     }
                 }
                 .padding()
@@ -439,6 +460,7 @@ struct EnvironmentView: View {
                         viewModel.setEnvironment(environmentId: environment.id)
                     }
                 }
+                .accessibilityIdentifier("environment_item_\(environment.id)")
             }
         }
     }
@@ -465,6 +487,7 @@ struct EnvironmentView: View {
                         Text("PROD").tag("PROD")
                     }
                     .pickerStyle(SegmentedPickerStyle())
+                    .accessibilityIdentifier("qrconfirm_picker_type")
 
                     HStack {
                         Text("Realm")
@@ -506,11 +529,13 @@ struct EnvironmentView: View {
                 .padding(6)
                 .background(niBlue)
                 .cornerRadius(6)
+                .accessibilityIdentifier("qrconfirm_button_add")
 
                 Button("Cancel") {
                     qrScannedData = nil
                 }
                 .frame(maxWidth: .infinity)
+                .accessibilityIdentifier("qrconfirm_button_cancel")
                 .foregroundColor(niBlue)
             }
         }
@@ -570,10 +595,14 @@ struct EditEnvironmentSheet: View {
                     Text("PROD").tag("PROD")
                 }
                 .pickerStyle(SegmentedPickerStyle())
+                .accessibilityIdentifier("editenv_picker_type")
 
                 TextField("Realm", text: $realm)
+                    .accessibilityIdentifier("editenv_field_realm")
                 TextField("API Key", text: $apiKey)
+                    .accessibilityIdentifier("editenv_field_apiKey")
                 TextField("Outlet Reference", text: $outletReference)
+                    .accessibilityIdentifier("editenv_field_outletReference")
 
                 if let errorMessage = errorMessage {
                     Text(errorMessage)
@@ -607,12 +636,14 @@ struct EditEnvironmentSheet: View {
             .padding(6)
             .background(Color(red: 0.0/255.0, green: 85.0/255.0, blue: 222.0/255.0))
             .cornerRadius(6)
+            .accessibilityIdentifier("editenv_button_save")
 
             Button("Cancel") {
                 onCancel()
             }
             .frame(maxWidth: .infinity)
             .foregroundColor(Color(red: 0.0/255.0, green: 85.0/255.0, blue: 222.0/255.0))
+            .accessibilityIdentifier("editenv_button_cancel")
         }
     }
 }
@@ -643,9 +674,11 @@ struct SDKColorRow: View {
                     pickerColor = c
                 }
             }
+            .accessibilityIdentifier("sdkcolor_field_\(label.lowercased().replacingOccurrences(of: " ", with: "_"))")
             ColorPicker("", selection: $pickerColor, supportsOpacity: false)
                 .labelsHidden()
                 .frame(width: 28, height: 28)
+                .accessibilityIdentifier("sdkcolor_picker_\(label.lowercased().replacingOccurrences(of: " ", with: "_"))")
                 .onChange(of: pickerColor) { newColor in
                     if let hexStr = newColor.toHex() {
                         hex = hexStr

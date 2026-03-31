@@ -66,6 +66,7 @@ class QRScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsD
         cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
+        cancelButton.accessibilityIdentifier = "qrscanner_button_cancel"
         view.addSubview(cancelButton)
 
         NSLayoutConstraint.activate([
@@ -80,6 +81,7 @@ class QRScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsD
         instructionLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         instructionLabel.textAlignment = .center
         instructionLabel.translatesAutoresizingMaskIntoConstraints = false
+        instructionLabel.accessibilityIdentifier = "qrscanner_label_instruction"
         view.addSubview(instructionLabel)
 
         NSLayoutConstraint.activate([

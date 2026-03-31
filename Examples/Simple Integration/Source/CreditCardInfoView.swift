@@ -77,6 +77,11 @@ class CreditCardInfoView: UIView {
         addSubview(payButton)
         setupViews()
         setupConstraints()
+        logoImageView.accessibilityIdentifier = "savedcard_image_logo"
+        maskedCardNumberLabel.accessibilityIdentifier = "savedcard_label_cardNumber"
+        expiryDateLabel.accessibilityIdentifier = "savedcard_label_expiry"
+        cardHolderNameLabel.accessibilityIdentifier = "savedcard_label_cardholderName"
+        payButton.accessibilityIdentifier = "savedcard_button_pay"
     }
     
     required init?(coder aDecoder: NSCoder) {
