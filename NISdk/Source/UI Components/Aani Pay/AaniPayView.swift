@@ -18,6 +18,7 @@ struct AaniPayView: View {
 
     var body: some View {
         content
+            .accessibilityIdentifier("sdk_aani_container")
             .environment(\.layoutDirection, layoutDirection)
     }
 

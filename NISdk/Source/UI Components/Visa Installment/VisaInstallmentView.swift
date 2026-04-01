@@ -85,6 +85,7 @@ struct VisaInstallmentView: View {
                                         }) {
                                             Image(systemName: termsAccepted ? "checkmark.square" : "square")
                                         }.buttonStyle(.borderless)
+                                        .accessibilityIdentifier("sdk_visa_toggle_terms")
                                     } else {
                                         Image(systemName: "square.fill").foregroundColor(.gray)
                                     }
@@ -113,6 +114,7 @@ struct VisaInstallmentView: View {
                                 .stroke(isSelected ? Color.blue : Color.gray, lineWidth: 2)
                         )
                         .padding(2)
+                        .accessibilityIdentifier("sdk_visa_button_plan_\(plan.vPlanId)")
                         .contentShape(Rectangle())
                         .onTapGesture {
                             if (selectedPlan?.vPlanId != plan.vPlanId) {
@@ -143,6 +145,7 @@ struct VisaInstallmentView: View {
                         Text("Make Payment".localized)
                     }
                 }
+                .accessibilityIdentifier("sdk_visa_button_accept")
                 .disabled(!buttonEnable)
                 .buttonStyle(PaymentButtonStyle(enabled: buttonEnable))
                 

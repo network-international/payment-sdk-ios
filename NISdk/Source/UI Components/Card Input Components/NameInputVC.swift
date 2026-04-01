@@ -36,6 +36,7 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
         nameTextField.delegate = self
         nameTextField.addTarget(self, action: #selector(onNameChangeCallback), for: .editingChanged)
         nameTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
+        nameTextField.accessibilityIdentifier = "sdk_cardinput_field_name"
         
         let label = UILabel()
         label.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor

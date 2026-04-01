@@ -36,6 +36,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
         self.completionHandler = completion
         activityIndicator.hidesWhenStopped = true
         activityIndicator.color = NISdk.sharedInstance.niSdkColors.threeDSViewActivityIndicatorColor
+        activityIndicator.accessibilityIdentifier = "sdk_3ds_spinner_loading"
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -51,6 +52,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private func setupSubviews() {
         view.backgroundColor = NISdk.sharedInstance.niSdkColors.threeDSViewBackgroundColor
 
+        webView.accessibilityIdentifier = "sdk_3ds_webview"
         webView.alpha = 0
         webView.navigationDelegate = self
         view.addSubview(webView)

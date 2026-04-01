@@ -64,6 +64,7 @@ struct PartialAuthView: View {
                     }) {
                         Text("Yes".localized)
                     }
+                    .accessibilityIdentifier("sdk_partialauth_button_accept")
                     .buttonStyle(PaymentButtonStyle(enabled: true))
                     Button(action: {
                         paymentProcessing = true
@@ -71,6 +72,7 @@ struct PartialAuthView: View {
                     }) {
                         Text("Cancel Alert".localized)
                     }
+                    .accessibilityIdentifier("sdk_partialauth_button_decline")
                     .buttonStyle(BorderButtonStyle())
                 }
             }.padding(.vertical)

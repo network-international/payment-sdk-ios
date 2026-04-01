@@ -101,6 +101,7 @@ class ClickToPayViewController: UIViewController {
             progressBar = UIActivityIndicatorView(style: .whiteLarge)
         }
         progressBar.translatesAutoresizingMaskIntoConstraints = false
+        progressBar.accessibilityIdentifier = "sdk_ctp_spinner_loading"
         progressBar.hidesWhenStopped = true
         view.addSubview(progressBar)
         NSLayoutConstraint.activate([
@@ -136,6 +137,7 @@ class ClickToPayViewController: UIViewController {
         }
 
         webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.accessibilityIdentifier = "sdk_ctp_webview"
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
         webView.uiDelegate = self

@@ -130,6 +130,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     // MARK: - Layout
 
     private func setupScrollView() {
+        scrollView.accessibilityIdentifier = "sdk_paymentpage_scrollview"
         scrollView.keyboardDismissMode = .interactive
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
@@ -226,11 +227,13 @@ class UnifiedPaymentPageViewController: UIViewController {
         let logoView = UIImageView(image: logo)
         logoView.contentMode = .scaleAspectFit
         logoView.translatesAutoresizingMaskIntoConstraints = false
+        logoView.accessibilityIdentifier = "sdk_paymentpage_image_merchantLogo"
         container.addSubview(logoView)
 
         // Order summary label — left-aligned below logo
         let orderSummaryLabel = UILabel()
         orderSummaryLabel.translatesAutoresizingMaskIntoConstraints = false
+        orderSummaryLabel.accessibilityIdentifier = "sdk_paymentpage_label_orderSummary"
         orderSummaryLabel.text = "Order summary".localized
         orderSummaryLabel.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         orderSummaryLabel.textColor = UIColor.gray
@@ -239,6 +242,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         // Amount label — right-aligned below logo
         let amountLabel = UILabel()
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
+        amountLabel.accessibilityIdentifier = "sdk_paymentpage_label_amount"
         if let amount = order.amount {
             let currency = amount.currencyCode ?? ""
             let value = amount.getFormattedAmount2Decimal().replacingOccurrences(of: currency, with: "").trimmingCharacters(in: .whitespaces)
@@ -274,6 +278,7 @@ class UnifiedPaymentPageViewController: UIViewController {
 
         // Custom black "Pay With [Apple logo]" button
         let applePayButton = UIButton()
+        applePayButton.accessibilityIdentifier = "sdk_paymentpage_button_applePay"
         applePayButton.backgroundColor = UIColor(hexString: "#070707")
         applePayButton.layer.cornerRadius = 8
         applePayButton.translatesAutoresizingMaskIntoConstraints = false
@@ -314,6 +319,7 @@ class UnifiedPaymentPageViewController: UIViewController {
 
         // Terms text
         let termsLabel = UILabel()
+        termsLabel.accessibilityIdentifier = "sdk_paymentpage_label_applePayTerms"
         termsLabel.text = "By clicking Pay terms".localized
         termsLabel.font = UIFont.systemFont(ofSize: 11)
         termsLabel.textColor = UIColor(hexString: "#8F8F8F")
@@ -375,6 +381,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         let radioButton = RadioButtonView()
         radioButton.isOn = false
         radioButton.translatesAutoresizingMaskIntoConstraints = false
+        radioButton.accessibilityIdentifier = "sdk_paymentpage_radio_clickToPay"
         clickToPayRadioButton = radioButton
 
         let radioTap = UITapGestureRecognizer(target: self, action: #selector(clickToPayRadioTapped))
@@ -411,6 +418,7 @@ class UnifiedPaymentPageViewController: UIViewController {
 
         // "Pay with Click to Pay" bordered button with CTP logo
         let ctpButton = UIButton()
+        ctpButton.accessibilityIdentifier = "sdk_paymentpage_button_clickToPay"
         ctpButton.backgroundColor = .white
         ctpButton.layer.borderColor = UIColor(hexString: "#8F8F8F").cgColor
         ctpButton.layer.borderWidth = 1
@@ -487,6 +495,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         let radioButton = RadioButtonView()
         radioButton.isOn = false
         radioButton.translatesAutoresizingMaskIntoConstraints = false
+        radioButton.accessibilityIdentifier = "sdk_paymentpage_radio_aani"
         aaniRadioButton = radioButton
 
         // Right content stack
@@ -519,6 +528,7 @@ class UnifiedPaymentPageViewController: UIViewController {
 
         // "Pay with Aani" bordered button
         let payButton = UIButton()
+        payButton.accessibilityIdentifier = "sdk_paymentpage_button_aani"
         payButton.backgroundColor = .white
         payButton.layer.borderColor = UIColor(hexString: "#8F8F8F").cgColor
         payButton.layer.borderWidth = 1
@@ -768,12 +778,15 @@ class UnifiedPaymentPageViewController: UIViewController {
             button.tintColor = UIColor(hexString: "#070707")
             button.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
             button.addTarget(self, action: #selector(cancelAction), for: .touchUpInside)
+            button.accessibilityIdentifier = "sdk_paymentpage_button_cancel"
             let closeButton = UIBarButtonItem(customView: button)
+            closeButton.accessibilityIdentifier = "sdk_paymentpage_button_cancel"
             self.parent?.navigationItem.rightBarButtonItem = closeButton
         } else {
             let closeButton = UIBarButtonItem(title: "✕", style: .plain,
                                               target: self, action: #selector(cancelAction))
             closeButton.tintColor = UIColor(hexString: "#070707")
+            closeButton.accessibilityIdentifier = "sdk_paymentpage_button_cancel"
             self.parent?.navigationItem.rightBarButtonItem = closeButton
         }
     }

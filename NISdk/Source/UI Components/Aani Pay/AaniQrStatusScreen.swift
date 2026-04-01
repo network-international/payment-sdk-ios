@@ -33,11 +33,13 @@ struct AaniQrStatusScreen: View {
                 Image(systemName: icon)
                     .font(.system(size: 56))
                     .foregroundColor(iconColor)
+                    .accessibilityIdentifier("sdk_aani_image_status")
 
                 Text(title)
                     .font(.title3)
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.center)
+                    .accessibilityIdentifier("sdk_aani_label_statusTitle")
 
                 Text(subtitle)
                     .font(.subheadline)
@@ -64,6 +66,7 @@ struct AaniQrStatusScreen: View {
                     .foregroundColor(goldTextColor)
                     .cornerRadius(12)
             }
+            .accessibilityIdentifier("sdk_aani_button_action")
 
             Spacer().frame(height: 12)
 

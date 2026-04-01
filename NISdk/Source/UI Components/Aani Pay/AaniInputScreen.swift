@@ -34,6 +34,7 @@ struct AaniInputScreen: View {
                     Text(idType.text).tag(idType).font(.subheadline)
                 }
             }
+            .accessibilityIdentifier("sdk_aani_picker_idType")
             .accentColor(.black)
             .disabled(paymentProcessing)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -48,6 +49,7 @@ struct AaniInputScreen: View {
                     }
 
                     TextField(selectedIdType.sample, text: $inputText)
+                        .accessibilityIdentifier("sdk_aani_field_input")
                         .keyboardType(self.keyboardTypeFor(inputType: $selectedIdType))
                         .multilineTextAlignment(isRTL ? .trailing : .leading)
                         .padding()
@@ -84,6 +86,7 @@ struct AaniInputScreen: View {
                     Text(selectedIdType == .qrCode ? "aani_generate_qr".localized : "Make Payment".localized)
                 }
             }
+            .accessibilityIdentifier("sdk_aani_button_submit")
             .disabled(!isButtonEnabled)
             .buttonStyle(PaymentButtonStyle(enabled: isButtonEnabled))
         }

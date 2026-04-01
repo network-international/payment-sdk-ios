@@ -20,6 +20,7 @@ struct AaniQrLoadingScreen: View {
                 ProgressView()
                     .scaleEffect(1.5)
                     .progressViewStyle(CircularProgressViewStyle())
+                    .accessibilityIdentifier("sdk_aani_spinner_loading")
 
                 Text("aani_generating_qr".localized)
                     .font(.headline)

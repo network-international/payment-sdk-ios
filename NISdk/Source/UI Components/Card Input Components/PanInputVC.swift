@@ -38,6 +38,7 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         panTextField.delegate = self
         panTextField.addTarget(self, action: #selector(onPanFieldChange), for: .editingChanged)
         panTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
+        panTextField.accessibilityIdentifier = "sdk_cardinput_field_pan"
 
         let label = UILabel()
         label.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor

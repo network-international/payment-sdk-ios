@@ -13,6 +13,7 @@ class AuthorizationViewController: UIViewController {
         let authLabel = UILabel()
         authLabel.text = "Authenticating Payment".localized
         authLabel.textColor = NISdk.sharedInstance.niSdkColors.authorizationViewLabelColor
+        authLabel.accessibilityIdentifier = "sdk_auth_label_status"
         return authLabel
     }
 
@@ -28,6 +29,7 @@ class AuthorizationViewController: UIViewController {
         }
         spinner.color = NISdk.sharedInstance.niSdkColors.authorizationViewActivityIndicatorColor
         spinner.isHidden = false
+        spinner.accessibilityIdentifier = "sdk_auth_spinner_loading"
         spinner.startAnimating()
         
         let vStack = UIStackView(arrangedSubviews: [authorizationLabel, spinner])

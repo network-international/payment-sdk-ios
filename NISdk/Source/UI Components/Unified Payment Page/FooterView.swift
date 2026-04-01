@@ -59,6 +59,7 @@ class FooterView: UIView {
         lockIcon.heightAnchor.constraint(equalToConstant: 12).isActive = true
 
         let poweredByLabel = UILabel()
+        poweredByLabel.accessibilityIdentifier = "sdk_footer_label_poweredBy"
         poweredByLabel.text = "Powered by".localized
         poweredByLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         poweredByLabel.textColor = UIColor(hexString: "#8F8F8F")
@@ -83,6 +84,7 @@ class FooterView: UIView {
         linksStack.alignment = .center
 
         let termsButton = UIButton(type: .system)
+        termsButton.accessibilityIdentifier = "sdk_footer_button_terms"
         termsButton.setTitle("Terms and Conditions".localized, for: .normal)
         termsButton.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         termsButton.setTitleColor(UIColor(hexString: "#8F8F8F"), for: .normal)
@@ -94,6 +96,7 @@ class FooterView: UIView {
         separatorLabel.textColor = UIColor(hexString: "#8F8F8F")
 
         let privacyButton = UIButton(type: .system)
+        privacyButton.accessibilityIdentifier = "sdk_footer_button_privacy"
         privacyButton.setTitle("Privacy Policy".localized, for: .normal)
         privacyButton.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         privacyButton.setTitleColor(UIColor(hexString: "#8F8F8F"), for: .normal)
