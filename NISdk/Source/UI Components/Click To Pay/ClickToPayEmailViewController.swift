@@ -418,6 +418,7 @@ class ClickToPayEmailViewController: UIViewController {
         inputBox.layer.cornerRadius = 8
         inputBox.backgroundColor = .white
 
+        emailField.accessibilityIdentifier = "sdk_ctp_field_email"
         emailField.placeholder = "Email"
         emailField.font = UIFont.systemFont(ofSize: 16, weight: .light)
         emailField.textColor = UIColor(hexString: "#070707")
@@ -439,6 +440,7 @@ class ClickToPayEmailViewController: UIViewController {
         stack.addArrangedSubview(inputBox)
 
         // Error label (hidden by default)
+        errorLabel.accessibilityIdentifier = "sdk_ctp_label_error"
         errorLabel.font = UIFont.systemFont(ofSize: 13)
         errorLabel.textColor = .red
         errorLabel.text = ""
@@ -453,6 +455,7 @@ class ClickToPayEmailViewController: UIViewController {
 
     private func createLoadButton() -> UIView {
         loadButton.translatesAutoresizingMaskIntoConstraints = false
+        loadButton.accessibilityIdentifier = "sdk_ctp_button_load"
         loadButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
         loadButton.setTitle("Load my cards", for: .normal)
         loadButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)

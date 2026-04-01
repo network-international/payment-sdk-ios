@@ -21,6 +21,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     var allowedCardProviders: [CardProvider]?
     let payButton: UIButton = {
         let payButton = UIButton()
+        payButton.accessibilityIdentifier = "sdk_savedcard_button_pay"
         payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
         payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
@@ -62,6 +63,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         spinner.color = .gray
         spinner.isHidden = true
         spinner.hidesWhenStopped = true
+        spinner.accessibilityIdentifier = "sdk_savedcard_spinner_loading"
         return spinner
     }()
     
@@ -69,7 +71,11 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     var cardPreviewController = CardPreviewController()
     let savedCard: SavedCard
 
-    let cvvTextField: UITextField = UITextField()
+    let cvvTextField: UITextField = {
+        let tf = UITextField()
+        tf.accessibilityIdentifier = "sdk_savedcard_field_cvv"
+        return tf
+    }()
 
     required init(makeSaveCardPaymentCallback: @escaping MakeSaveCardPaymentCallback,
                   savedCard: SavedCard,

@@ -59,6 +59,7 @@ class OrderHeaderView: UIView {
         flagLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let amountLabel = UILabel()
+        amountLabel.accessibilityIdentifier = "sdk_orderheader_label_amount"
         amountLabel.text = order.amount?.getFormattedAmount() ?? ""
         amountLabel.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
         amountLabel.textColor = NISdk.sharedInstance.niSdkColors.payPageLabelColor
@@ -96,6 +97,7 @@ class OrderHeaderView: UIView {
         container.translatesAutoresizingMaskIntoConstraints = false
 
         let summaryButton = UIButton(type: .system)
+        summaryButton.accessibilityIdentifier = "sdk_orderheader_button_summary"
         summaryButton.setTitle("Order summary".localized, for: .normal)
         summaryButton.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .regular)
         summaryButton.setTitleColor(UIColor.gray, for: .normal)

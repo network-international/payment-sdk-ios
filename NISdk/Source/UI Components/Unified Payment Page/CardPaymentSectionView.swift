@@ -21,6 +21,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         tf.borderStyle = .none
         tf.autocorrectionType = .no
         tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.accessibilityIdentifier = "sdk_card_field_cardNumber"
         return tf
     }()
 
@@ -32,6 +33,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         tf.textColor = UIColor(hexString: "#070707")
         tf.borderStyle = .none
         tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.accessibilityIdentifier = "sdk_card_field_expiry"
         return tf
     }()
 
@@ -44,6 +46,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         tf.borderStyle = .none
         tf.isSecureTextEntry = true
         tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.accessibilityIdentifier = "sdk_card_field_cvv"
         return tf
     }()
 
@@ -56,6 +59,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         tf.borderStyle = .none
         tf.autocorrectionType = .no
         tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.accessibilityIdentifier = "sdk_card_field_cardholderName"
         return tf
     }()
 
@@ -73,6 +77,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     let payButton: UIButton = {
         let btn = UIButton()
+        btn.accessibilityIdentifier = "sdk_card_button_pay"
         btn.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
         btn.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
@@ -84,6 +89,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     let errorLabel: UILabel = {
         let lbl = UILabel()
+        lbl.accessibilityIdentifier = "sdk_card_label_error"
         lbl.textColor = .red
         lbl.font = UIFont.systemFont(ofSize: 13)
         lbl.text = ""
@@ -100,10 +106,15 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         }
         spinner.color = UIColor(hexString: "#5C3F00")
         spinner.hidesWhenStopped = true
+        spinner.accessibilityIdentifier = "sdk_card_spinner_loading"
         return spinner
     }()
 
-    private let radioButton = RadioButtonView()
+    private let radioButton: RadioButtonView = {
+        let rb = RadioButtonView()
+        rb.accessibilityIdentifier = "sdk_card_radio_cardPayment"
+        return rb
+    }()
     private let formContainer = UIStackView()
     private let collapsedLabel = UILabel()
     private var isExpanded = false

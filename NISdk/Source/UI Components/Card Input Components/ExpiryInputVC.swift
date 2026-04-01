@@ -31,9 +31,11 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         
         self.setup(textField: monthTextField, placeholder: "MM".localized, huggingPriority: nil)
         monthTextField.addTarget(self, action: #selector(onMonthChangeCallback), for: .editingChanged)
-        
+        monthTextField.accessibilityIdentifier = "sdk_cardinput_field_expiryMonth"
+
         self.setup(textField: yearTextField, placeholder: "YY".localized, huggingPriority: 249)
         yearTextField.addTarget(self, action: #selector(onYearChangeCallback), for: .editingChanged)
+        yearTextField.accessibilityIdentifier = "sdk_cardinput_field_expiryYear"
         
         let label = UILabel()
         label.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor

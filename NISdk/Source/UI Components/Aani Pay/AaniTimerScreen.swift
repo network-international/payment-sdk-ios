@@ -18,6 +18,7 @@ struct AaniTimerScreen: View {
             Text(String.localizedStringWithFormat("aani_paying_amount".localized, amountFormatted)).font(.title)
                 .multilineTextAlignment(.center)
                 .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
+                .accessibilityIdentifier("sdk_aani_label_amount")
             
             Text("aani_tap_notification".localized).font(.caption)
                 .multilineTextAlignment(.center)
@@ -25,6 +26,7 @@ struct AaniTimerScreen: View {
             
             Text(timeString).font(.largeTitle)
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier("sdk_aani_label_timer")
             Text("aani_note_do_not_close".localized).font(.footnote)
                 .multilineTextAlignment(.center)
                 .padding(.vertical)

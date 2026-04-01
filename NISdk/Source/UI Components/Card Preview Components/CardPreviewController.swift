@@ -51,7 +51,12 @@ class CardPreviewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
+        panLabel.accessibilityIdentifier = "sdk_cardpreview_label_pan"
+        cardHolderNameLabel.accessibilityIdentifier = "sdk_cardpreview_label_name"
+        expiryDateLabel.accessibilityIdentifier = "sdk_cardpreview_label_expiry"
+        cardLogo.accessibilityIdentifier = "sdk_cardpreview_image_logo"
+
         let providerLogoView = setupProviderLogoView()
         let panView = setupPanView()
         let nameAndExpiryView = setupNameAndExpiryView()

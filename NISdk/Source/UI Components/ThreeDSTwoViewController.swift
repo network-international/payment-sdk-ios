@@ -12,6 +12,7 @@ import WebKit
 class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
     private var webView: WKWebView = {
         let wk = WKWebView()
+        wk.accessibilityIdentifier = "sdk_3ds2_webview"
         return wk
     }()
     private var hasInitialisedRequest: Bool = false
@@ -35,6 +36,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
         let authLabel = UILabel()
         authLabel.text = "Authenticating using 3DS".localized
         authLabel.textColor = NISdk.sharedInstance.niSdkColors.threeDSViewLabelColor
+        authLabel.accessibilityIdentifier = "sdk_3ds2_label_status"
         return authLabel
     }
     private let vStack = UIStackView()
@@ -46,6 +48,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
         self.accessToken = accessToken
         self.paypageLink = ""
         self.activityIndicator.color = NISdk.sharedInstance.niSdkColors.threeDSViewActivityIndicatorColor
+        self.activityIndicator.accessibilityIdentifier = "sdk_3ds2_spinner_loading"
         self.paymentResponse = paymentResponse
         activityIndicator.hidesWhenStopped = true
         super.init(nibName: nil, bundle: nil)

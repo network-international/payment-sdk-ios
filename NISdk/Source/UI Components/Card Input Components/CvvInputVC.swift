@@ -40,6 +40,7 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
         cvvTextField.isSecureTextEntry = true;
         cvvTextField.addTarget(self, action: #selector(onCVVChangeCallback), for: .editingChanged)
         cvvTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)
+        cvvTextField.accessibilityIdentifier = "sdk_cardinput_field_cvv"
         
         let label = UILabel()
         label.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor

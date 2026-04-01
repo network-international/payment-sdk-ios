@@ -28,6 +28,7 @@ class CardPaymentViewController: UIViewController {
     var allowedCardProviders: [CardProvider]?
     let payButton: UIButton = {
         let payButton = UIButton()
+        payButton.accessibilityIdentifier = "sdk_cardpayment_button_pay"
         payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
         payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
@@ -38,6 +39,7 @@ class CardPaymentViewController: UIViewController {
     }()
     var errorLabel: UILabel = {
         let errorLabel = UILabel()
+        errorLabel.accessibilityIdentifier = "sdk_cardpayment_label_error"
         errorLabel.textColor = .red
         errorLabel.text = ""
         return errorLabel
@@ -68,6 +70,7 @@ class CardPaymentViewController: UIViewController {
         spinner.color = NISdk.sharedInstance.niSdkColors.payButtonActivityIndicatorColor
         spinner.isHidden = true
         spinner.hidesWhenStopped = true
+        spinner.accessibilityIdentifier = "sdk_cardpayment_spinner_loading"
         return spinner
     }()
     

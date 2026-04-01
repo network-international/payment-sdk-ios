@@ -23,11 +23,13 @@ struct PaymentResultView: View {
                     .resizable()
                     .frame(width: 80, height: 80)
                     .foregroundColor(successGreen)
+                    .accessibilityIdentifier("sdk_result_image_status")
             } else {
                 Image(systemName: "xmark.circle")
                     .resizable()
                     .frame(width: 80, height: 80)
                     .foregroundColor(failureRed)
+                    .accessibilityIdentifier("sdk_result_image_status")
             }
 
             Spacer().frame(height: 24)
@@ -40,12 +42,14 @@ struct PaymentResultView: View {
                         .fontWeight(.semibold)
                         .foregroundColor(successGreen)
                         .multilineTextAlignment(.center)
+                        .accessibilityIdentifier("sdk_result_label_title")
                 } else {
                     Text("Payment Success Title No Amount".localized)
                         .font(.title2)
                         .fontWeight(.semibold)
                         .foregroundColor(successGreen)
                         .multilineTextAlignment(.center)
+                        .accessibilityIdentifier("sdk_result_label_title")
                 }
             } else {
                 Text("Payment Failure Title".localized)
@@ -53,6 +57,7 @@ struct PaymentResultView: View {
                     .fontWeight(.semibold)
                     .foregroundColor(failureRed)
                     .multilineTextAlignment(.center)
+                    .accessibilityIdentifier("sdk_result_label_title")
             }
 
             Spacer().frame(height: 8)
@@ -108,6 +113,7 @@ struct PaymentResultView: View {
                     .background(args.isSuccess ? successGreen : failureRed)
                     .cornerRadius(8)
             }
+            .accessibilityIdentifier("sdk_result_button_done")
 
             Spacer().frame(height: 16)
         }

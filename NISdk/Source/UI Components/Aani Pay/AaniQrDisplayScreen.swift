@@ -38,6 +38,7 @@ struct AaniQrDisplayScreen: View {
                         .resizable()
                         .scaledToFit()
                         .padding(16) // exclusion zone (2x border width)
+                        .accessibilityIdentifier("sdk_aani_image_qr")
                 }
 
                 // Aani logo overlay in center
@@ -58,6 +59,7 @@ struct AaniQrDisplayScreen: View {
                     .font(.system(size: 24))
                 Text(timeString)
                     .font(.system(size: 32, weight: .bold))
+                    .accessibilityIdentifier("sdk_aani_label_timer")
             }
 
             Spacer().frame(height: 8)
@@ -90,6 +92,7 @@ struct AaniQrDisplayScreen: View {
                     .background(Color.gray.opacity(0.15))
                     .cornerRadius(12)
             }
+            .accessibilityIdentifier("sdk_aani_button_cancel")
             .foregroundColor(.primary)
 
             Spacer()
