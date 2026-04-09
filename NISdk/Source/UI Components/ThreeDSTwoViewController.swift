@@ -71,7 +71,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
         vStack.axis = .vertical
         vStack.spacing = 0
         vStack.alignment = .center
-        
+
         view.addSubview(vStack)
         vStack.anchor(top: nil,
                       leading: view.safeAreaLayoutGuide.leadingAnchor,
@@ -79,10 +79,10 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                       trailing: view.safeAreaLayoutGuide.trailingAnchor,
                       padding: .zero,
                       size: CGSize(width: 0, height: 100))
-        
+
         vStack.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         vStack.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        
+
         view.backgroundColor = NISdk.sharedInstance.niSdkColors.threeDSViewBackgroundColor
         webView.navigationDelegate = self
         view.addSubview(webView)
@@ -90,8 +90,32 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                        leading: view.safeAreaLayoutGuide.leadingAnchor,
                        bottom: view.safeAreaLayoutGuide.bottomAnchor,
                        trailing: view.safeAreaLayoutGuide.trailingAnchor)
-        
+
         view.addSubview(vStack)
+
+        let closeButton = UIButton(type: .system)
+        closeButton.accessibilityIdentifier = "sdk_3ds2_close_button"
+        if #available(iOS 13.0, *) {
+            closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        } else {
+            closeButton.setTitle("✕", for: .normal)
+        }
+        closeButton.tintColor = NISdk.sharedInstance.niSdkColors.threeDSViewLabelColor
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        view.addSubview(closeButton)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            closeButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            closeButton.widthAnchor.constraint(equalToConstant: 44),
+            closeButton.heightAnchor.constraint(equalToConstant: 44)
+        ])
+    }
+
+    @objc private func closeButtonTapped() {
+        frictionlessTimer?.invalidate()
+        webView.stopLoading()
+        completionHandler(false)
     }
     
     private func showActivityIndicator() {
