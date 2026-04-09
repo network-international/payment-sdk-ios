@@ -60,9 +60,34 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
                        leading: view.safeAreaLayoutGuide.leadingAnchor,
                        bottom: view.safeAreaLayoutGuide.bottomAnchor,
                        trailing: view.safeAreaLayoutGuide.trailingAnchor)
-        
+
         view.addSubview(activityIndicator)
         activityIndicator.alignCenterToCenterOf(parent: view)
+
+        let closeButton = UIButton(type: .system)
+        closeButton.accessibilityIdentifier = "sdk_3ds_close_button"
+        if #available(iOS 13.0, *) {
+            closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        } else {
+            closeButton.setTitle("✕", for: .normal)
+        }
+        closeButton.tintColor = NISdk.sharedInstance.niSdkColors.threeDSViewLabelColor
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        view.addSubview(closeButton)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
+            closeButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            closeButton.widthAnchor.constraint(equalToConstant: 44),
+            closeButton.heightAnchor.constraint(equalToConstant: 44)
+        ])
+    }
+
+    @objc private func closeButtonTapped() {
+        guard !hasClosedWebView else { return }
+        hasClosedWebView = true
+        webView.stopLoading()
+        completionHandler(false)
     }
     
     override func viewWillAppear(_ animated: Bool) {
