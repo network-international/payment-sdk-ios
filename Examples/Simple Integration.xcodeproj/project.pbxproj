@@ -13,6 +13,7 @@
 		591CC0B12BE3ED4B00FB6086 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 591CC0B02BE3ED4B00FB6086 /* Bundle.swift */; };
 		592A15D72BD9013C00986490 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D62BD9013C00986490 /* EnvironmentView.swift */; };
 		592A15D92BD9878900986490 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D82BD9878900986490 /* Environment.swift */; };
+		543C35E6F33D4DDBB8F5728D /* LocalConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34939859BA1F4163968C859B /* LocalConfig.swift */; };
 		592A15DB2BDA326100986490 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15DA2BDA326100986490 /* ApiService.swift */; };
 		59ED19AE2AD401960000E024 /* CreditCardInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */; };
 		59FEB0072BE49E410094C943 /* EnvironmentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */; };
@@ -41,6 +42,7 @@
 		591CC0B02BE3ED4B00FB6086 /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		592A15D62BD9013C00986490 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
 		592A15D82BD9878900986490 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
+		34939859BA1F4163968C859B /* LocalConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalConfig.swift; sourceTree = "<group>"; };
 		592A15DA2BDA326100986490 /* ApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiService.swift; sourceTree = "<group>"; };
 		59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditCardInfoView.swift; sourceTree = "<group>"; };
 		59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentViewModel.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 				86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */,
 				869DDD6523153A2D0020CB20 /* Product.swift */,
 				592A15D82BD9878900986490 /* Environment.swift */,
+				34939859BA1F4163968C859B /* LocalConfig.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -268,13 +271,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Demo App/Pods-Demo App-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Demo App/Pods-Demo App-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -313,6 +312,7 @@
 				4B6428BA2DEDBE0A00E7A1EA /* RecurringDetails.swift in Sources */,
 				86EA2239230F2AA300B46FF9 /* OrderRequest.swift in Sources */,
 				592A15D92BD9878900986490 /* Environment.swift in Sources */,
+				543C35E6F33D4DDBB8F5728D /* LocalConfig.swift in Sources */,
 				4B6428B82DEDB90400E7A1EA /* InstallmentDetails.swift in Sources */,
 				59FEB0072BE49E410094C943 /* EnvironmentViewModel.swift in Sources */,
 				862CBE85230EF89100767774 /* UIView+AutoLayout.swift in Sources */,
@@ -476,7 +476,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.3;
+				CURRENT_PROJECT_VERSION = 3.4;
 				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -511,7 +511,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.3;
+				CURRENT_PROJECT_VERSION = 3.4;
 				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

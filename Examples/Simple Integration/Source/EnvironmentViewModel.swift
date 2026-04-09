@@ -43,6 +43,7 @@ class EnvironmentViewModel: ObservableObject {
     }
     
     init() {
+        LocalConfig.prePopulate(into: self)
         updateEnvironment()
         self.merchantAttributes = getMerchantAttributes()
         action = getOrderAction()
