@@ -1,0 +1,8 @@
+title = "Gitleaks config"
+
+[allowlist]
+  description = "Allowlisted test fixture values"
+  regexes = [
+    # Placeholder replacing a 3DS ACS signed content JWT used in old test fixtures — not a real credential
+    "test-acs-signed-content-placeholder",
+  ]
