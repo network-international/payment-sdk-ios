@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import NISdk
 
 // This is just a sample order request class
 // Check docs for all possible fields available
@@ -16,7 +15,6 @@ struct OrderRequest: Encodable {
     let amount: OrderAmount
     let language: String
     let merchantAttributes: [String: String]?
-    var savedCard: SavedCard?
     var type: String?
     var frequency: String?
     var installmentDetails: InstallmentDetails?
@@ -27,7 +25,6 @@ struct OrderRequest: Encodable {
         case amount
         case language
         case merchantAttributes
-        case savedCard
         case type
         case frequency
         case installmentDetails

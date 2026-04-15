@@ -67,7 +67,7 @@ class OrderCreationViewController: UIViewController {
         }
     }
     
-    func createOrder(savedCard: SavedCard? = nil) {
+    func createOrder() {
         // Multiply amount always by 100 while creating an order
         let merchantAttributes = Environment.getMerchantAttributes()
         let attributeDictionary: [String: String]? = if (merchantAttributes.isEmpty) {
@@ -81,8 +81,7 @@ class OrderCreationViewController: UIViewController {
         var orderRequest = OrderRequest(action: Environment.getOrderAction(),
                                         amount: OrderAmount(currencyCode: currencyCode, value: paymentAmount * 100),
                                         language: Environment.getLanguage(),
-                                        merchantAttributes: attributeDictionary,
-                                        savedCard: savedCard)
+                                        merchantAttributes: attributeDictionary)
 
         // add required parameters for order type
         let orderType = Environment.getOrderType()
@@ -145,6 +144,6 @@ class OrderCreationViewController: UIViewController {
         
         vStack.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         vStack.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        self.createOrder(savedCard: savedCard)
+        self.createOrder()
     }
 }
