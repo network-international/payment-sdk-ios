@@ -32,40 +32,27 @@ public struct Amount: Codable {
     }
     
     func getFormattedAmount() -> String {
-        var orderAmountValue = ""
-        if let value = value {
-            let minorUnit = self.getMinorUnit()
-            let exponent: Decimal = pow(10.00, minorUnit)
-            let roundedValue = Decimal(value) / exponent
-            orderAmountValue = "\(roundedValue)";
-        }
-        
-        let language = NISdk.sharedInstance.sdkLanguage
-        let direction = Locale.characterDirection(forLanguage: language)
-        if (direction == .rightToLeft) {
-            return "\(currencyCode ?? "") \(orderAmountValue)"
-        } else {
-            return "\(orderAmountValue) \(currencyCode ?? "")"
-        }
+        let orderAmountValue = formattedAmountValue()
+        return "\(currencyCode ?? "") \(orderAmountValue)"
     }
-    
+
     func getFormattedAmount2Decimal() -> String {
-        var orderAmountValue = ""
-        if let value = value {
-            let minorUnit = self.getMinorUnit()
-            let exponent: Decimal = pow(10.00, minorUnit)
-            let roundedValue = Decimal(value) / exponent
-            let doubleValue = NSDecimalNumber(decimal: roundedValue).doubleValue
-            orderAmountValue = String(format: "%.2f", doubleValue);
-        }
-        
-        let language = NISdk.sharedInstance.sdkLanguage
-        let direction = Locale.characterDirection(forLanguage: language)
-        if (direction == .rightToLeft) {
-            return "\(currencyCode ?? "") \(orderAmountValue)"
-        } else {
-            return "\(orderAmountValue) \(currencyCode ?? "")"
-        }
+        let orderAmountValue = formattedAmountValue()
+        return "\(currencyCode ?? "") \(orderAmountValue)"
+    }
+
+    private func formattedAmountValue() -> String {
+        guard let value = value else { return "" }
+        let minorUnit = self.getMinorUnit()
+        let exponent: Decimal = pow(10.00, minorUnit)
+        let roundedValue = Decimal(value) / exponent
+        let doubleValue = NSDecimalNumber(decimal: roundedValue).doubleValue
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter.string(from: NSNumber(value: doubleValue)) ?? String(format: "%.2f", doubleValue)
     }
     
     func getFormattedAmountValue() -> String {
@@ -74,7 +61,8 @@ public struct Amount: Codable {
             let minorUnit = self.getMinorUnit()
             let exponent: Decimal = pow(10.00, minorUnit)
             let roundedValue = Decimal(value) / exponent
-            orderAmountValue = "\(roundedValue)";
+            let doubleValue = NSDecimalNumber(decimal: roundedValue).doubleValue
+            orderAmountValue = String(format: "%.2f", doubleValue);
         }
 
         return orderAmountValue

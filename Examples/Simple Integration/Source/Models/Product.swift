@@ -11,4 +11,5 @@ import Foundation
 struct Product {
     let name: String
     let amount: Double
+    var isLocal: Bool = false
 }

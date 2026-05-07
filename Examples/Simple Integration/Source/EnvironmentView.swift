@@ -13,18 +13,23 @@ private let niBlue = Color(red: 0.0/255.0, green: 85.0/255.0, blue: 222.0/255.0)
 
 struct QRScannedData: Identifiable {
     let id = UUID()
+    let nickname: String
     let realm: String
     let outletReference: String
     let apiKey: String
+    let applePayMerchantId: String
+    let type: String
 }
 
 struct EnvironmentView: View {
     @ObservedObject var viewModel: EnvironmentViewModel
     @State private var isAddingEnvironment = false
     @State private var selectedEnvironment: String = "DEV"
+    @State private var nickname: String = ""
     @State private var apiKey: String = ""
     @State private var outletReference: String = ""
     @State private var realm: String = ""
+    @State private var applePayMerchantId: String = ""
     @State private var errorMessage: String?
     @State private var environmentExpanded = false
 
@@ -298,12 +303,31 @@ struct EnvironmentView: View {
                 .fullScreenCover(isPresented: $isShowingQRScanner) {
                     QRScannerView(
                         onCodeScanned: { code in
-                            let parts = code.split(separator: "|").map(String.init)
-                            if parts.count == 3 {
+                            let parts = code.split(separator: "|", omittingEmptySubsequences: false).map(String.init)
+                            if parts.count == 5 {
+                                // Current format: nickname|realm|outletReference|apiKey|applePayMerchantId
                                 let data = QRScannedData(
+                                    nickname: parts[0],
+                                    realm: parts[1],
+                                    outletReference: parts[2],
+                                    apiKey: parts[3],
+                                    applePayMerchantId: parts[4],
+                                    type: "DEV"
+                                )
+                                isShowingQRScanner = false
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    qrSelectedType = "DEV"
+                                    qrScannedData = data
+                                }
+                            } else if parts.count == 3 {
+                                // Legacy format: realm|outletReference|apiKey
+                                let data = QRScannedData(
+                                    nickname: "",
                                     realm: parts[0],
                                     outletReference: parts[1],
-                                    apiKey: parts[2]
+                                    apiKey: parts[2],
+                                    applePayMerchantId: "",
+                                    type: "DEV"
                                 )
                                 isShowingQRScanner = false
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -313,7 +337,7 @@ struct EnvironmentView: View {
                             } else {
                                 isShowingQRScanner = false
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    qrErrorMessage = "Invalid QR format. Expected: realm|outletReference|apiKey"
+                                    qrErrorMessage = "Invalid QR format. Expected: nickname|realm|outletReference|apiKey|applePayMerchantId"
                                 }
                             }
                         },
@@ -339,12 +363,16 @@ struct EnvironmentView: View {
                         .pickerStyle(SegmentedPickerStyle())
                         .accessibilityIdentifier("addenv_picker_type")
 
+                        TextField("Nickname (optional)", text: $nickname)
+                            .accessibilityIdentifier("addenv_field_nickname")
+                        TextField("Realm", text: $realm)
+                            .accessibilityIdentifier("addenv_field_realm")
                         TextField("API Key", text: $apiKey)
                             .accessibilityIdentifier("addenv_field_apiKey")
                         TextField("Outlet Reference", text: $outletReference)
                             .accessibilityIdentifier("addenv_field_outletReference")
-                        TextField("Realm", text: $realm)
-                            .accessibilityIdentifier("addenv_field_realm")
+                        TextField("Apple Pay Merchant ID (optional)", text: $applePayMerchantId)
+                            .accessibilityIdentifier("addenv_field_applePayMerchantId")
 
                         if let errorMessage = errorMessage {
                             Text(errorMessage)
@@ -364,11 +392,13 @@ struct EnvironmentView: View {
                                 default:
                                     EnvironmentType.DEV
                                 }
-                                viewModel.addEnvironment(name: realm, apiKey: apiKey, outletReference: outletReference, realm: realm, type: env)
+                                viewModel.addEnvironment(nickname: nickname, apiKey: apiKey, outletReference: outletReference, realm: realm, type: env, applePayMerchantId: applePayMerchantId)
 
+                                nickname = ""
                                 apiKey = ""
                                 outletReference = ""
                                 realm = ""
+                                applePayMerchantId = ""
                                 isAddingEnvironment.toggle()
                                 errorMessage = nil
                             }
@@ -404,7 +434,7 @@ struct EnvironmentView: View {
                 VStack(alignment: .leading) {
                     HStack {
                         VStack(alignment: .leading) {
-                            Text(environment.name)
+                            Text(environment.nickname.isEmpty ? environment.realm : environment.nickname)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -489,6 +519,14 @@ struct EnvironmentView: View {
                     .pickerStyle(SegmentedPickerStyle())
                     .accessibilityIdentifier("qrconfirm_picker_type")
 
+                    if !data.nickname.isEmpty {
+                        HStack {
+                            Text("Nickname")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text(data.nickname)
+                        }
+                    }
                     HStack {
                         Text("Realm")
                             .foregroundColor(.secondary)
@@ -511,6 +549,16 @@ struct EnvironmentView: View {
                             .lineLimit(1)
                             .truncationMode(.middle)
                     }
+                    if !data.applePayMerchantId.isEmpty {
+                        HStack {
+                            Text("Apple Pay Merchant ID")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text(data.applePayMerchantId)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
+                    }
                 }
 
                 Button("Add Environment") {
@@ -520,7 +568,7 @@ struct EnvironmentView: View {
                     case "PROD": EnvironmentType.PROD
                     default: EnvironmentType.DEV
                     }
-                    viewModel.addEnvironment(name: data.realm, apiKey: data.apiKey, outletReference: data.outletReference, realm: data.realm, type: envType)
+                    viewModel.addEnvironment(nickname: data.nickname, apiKey: data.apiKey, outletReference: data.outletReference, realm: data.realm, type: envType, applePayMerchantId: data.applePayMerchantId)
                     environmentExpanded = true
                     qrScannedData = nil
                 }
@@ -571,9 +619,11 @@ struct EditEnvironmentSheet: View {
     let onCancel: () -> Void
 
     @State private var type: String
+    @State private var nickname: String
     @State private var apiKey: String
     @State private var outletReference: String
     @State private var realm: String
+    @State private var applePayMerchantId: String
     @State private var errorMessage: String?
 
     init(environment: Environment, onSave: @escaping (Environment) -> Void, onCancel: @escaping () -> Void) {
@@ -581,9 +631,11 @@ struct EditEnvironmentSheet: View {
         self.onSave = onSave
         self.onCancel = onCancel
         _type = State(initialValue: environment.type.rawValue)
+        _nickname = State(initialValue: environment.nickname)
         _apiKey = State(initialValue: environment.apiKey)
         _outletReference = State(initialValue: environment.outletReference)
         _realm = State(initialValue: environment.realm)
+        _applePayMerchantId = State(initialValue: environment.applePayMerchantId)
     }
 
     var body: some View {
@@ -597,12 +649,16 @@ struct EditEnvironmentSheet: View {
                 .pickerStyle(SegmentedPickerStyle())
                 .accessibilityIdentifier("editenv_picker_type")
 
+                TextField("Nickname (optional)", text: $nickname)
+                    .accessibilityIdentifier("editenv_field_nickname")
                 TextField("Realm", text: $realm)
                     .accessibilityIdentifier("editenv_field_realm")
                 TextField("API Key", text: $apiKey)
                     .accessibilityIdentifier("editenv_field_apiKey")
                 TextField("Outlet Reference", text: $outletReference)
                     .accessibilityIdentifier("editenv_field_outletReference")
+                TextField("Apple Pay Merchant ID (optional)", text: $applePayMerchantId)
+                    .accessibilityIdentifier("editenv_field_applePayMerchantId")
 
                 if let errorMessage = errorMessage {
                     Text(errorMessage)
@@ -623,10 +679,11 @@ struct EditEnvironmentSheet: View {
                     let updated = Environment(
                         id: environment.id,
                         type: envType,
-                        name: realm,
+                        nickname: nickname,
                         apiKey: apiKey,
                         outletReference: outletReference,
-                        realm: realm
+                        realm: realm,
+                        applePayMerchantId: applePayMerchantId
                     )
                     onSave(updated)
                 }
@@ -722,7 +779,7 @@ extension Color {
 struct EnvironmentView_Previews: PreviewProvider {
     static var previews: some View {
         let viewModel = EnvironmentViewModel()
-        viewModel.addEnvironment(name: "DEV", apiKey: "api_key_123", outletReference: "outlet_ref_123", realm: "realm_123", type: EnvironmentType.DEV)
+        viewModel.addEnvironment(nickname: "DEV", apiKey: "api_key_123", outletReference: "outlet_ref_123", realm: "realm_123", type: EnvironmentType.DEV)
 
         viewModel.addMerchantAtrribute(key: "some", value: "some")
         viewModel.addMerchantAtrribute(key: "some", value: "some")

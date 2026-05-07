@@ -13,6 +13,16 @@ class ProductViewCell: UICollectionViewCell {
     let productLabel = UILabel()
     let priceLabel = UILabel()
     var price: Double = 0
+    var onDelete: (() -> Void)?
+
+    private let deleteButton: UIButton = {
+        let btn = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+        btn.setImage(UIImage(systemName: "trash", withConfiguration: config), for: .normal)
+        btn.tintColor = .systemRed
+        btn.accessibilityIdentifier = "product_button_delete"
+        return btn
+    }()
 
     private static let niBlue = UIColor(red: 0.0/255.0, green: 85.0/255.0, blue: 222.0/255.0, alpha: 1.0)
 
@@ -38,6 +48,7 @@ class ProductViewCell: UICollectionViewCell {
         price = product.amount
         priceLabel.text = String(format: "%.2f", price)
         accessibilityIdentifier = "product_cell_\(product.name.lowercased().replacingOccurrences(of: " ", with: "_"))"
+        deleteButton.isHidden = !product.isLocal
     }
 
     func addViews() {
@@ -61,12 +72,28 @@ class ProductViewCell: UICollectionViewCell {
         vStack.spacing = 4
         contentView.addSubview(vStack)
 
+        deleteButton.translatesAutoresizingMaskIntoConstraints = false
+        deleteButton.isHidden = true
+        deleteButton.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
+        contentView.addSubview(deleteButton)
+
         updateBorder(selected: false)
 
         vStack.anchor(top: contentView.topAnchor, leading: contentView.leadingAnchor,
                      bottom: contentView.bottomAnchor, trailing: contentView.trailingAnchor,
                      padding: UIEdgeInsets(top: 16, left: 12, bottom: 16, right: 12),
                      size: .zero)
+
+        NSLayoutConstraint.activate([
+            deleteButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            deleteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
+            deleteButton.widthAnchor.constraint(equalToConstant: 28),
+            deleteButton.heightAnchor.constraint(equalToConstant: 28),
+        ])
+    }
+
+    @objc private func deleteTapped() {
+        onDelete?()
     }
 
     required init?(coder aDecoder: NSCoder) {

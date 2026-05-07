@@ -22,6 +22,7 @@ class ApiService {
 
         let identityUrl = environment.getIdentityUrl()
 
+        print("Auth: identityUrl=\(identityUrl), realm=\(environment.realm)")
         var authRequest = URLRequest(url: URL(string: identityUrl)!)
         authRequest.httpMethod = "POST"
         authRequest.setValue("application/vnd.ni-identity.v1+json", forHTTPHeaderField: "Content-Type")
@@ -40,7 +41,8 @@ class ApiService {
                 if let accessToken = jsonResponse["access_token"] as? String {
                     completion(.success(accessToken))
                 } else {
-                    print("Auth error: missing access_token")
+                    let raw = String(data: data, encoding: .utf8) ?? "(unreadable)"
+                    print("Auth error: missing access_token — server response: \(raw)")
                     completion(.failure(NSError(domain: "Invalid Access Token", code: -1, userInfo: [NSLocalizedDescriptionKey: "Auth response missing access_token"])))
                 }
             } catch {

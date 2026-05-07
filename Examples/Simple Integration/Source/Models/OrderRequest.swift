@@ -15,6 +15,7 @@ struct OrderRequest: Encodable {
     let amount: OrderAmount
     let language: String
     let merchantAttributes: [String: String]?
+    let emailAddress: String = "info@network.global"
     var type: String?
     var frequency: String?
     var installmentDetails: InstallmentDetails?

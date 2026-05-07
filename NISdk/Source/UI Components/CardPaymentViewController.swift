@@ -53,10 +53,26 @@ class CardPaymentViewController: UIViewController {
                 self.payButton.isEnabled = false
             } else {
                 self.loadingSpinner.stopAnimating()
-                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
-                self.payButton.isEnabled = true
+                self.updatePayButtonState()
             }
         }
+    }
+
+    private var areAllFieldsFilled: Bool {
+        let panFilled = !(pan.value ?? "").isEmpty
+        let monthFilled = !(expiryDate.month ?? "").isEmpty
+        let yearFilled = !(expiryDate.year ?? "").isEmpty
+        let cvvFilled = !(cvv.value ?? "").isEmpty
+        let nameFilled = !(cardHolderName.value ?? "").trimmingCharacters(in: .whitespaces).isEmpty
+        return panFilled && monthFilled && yearFilled && cvvFilled && nameFilled
+    }
+
+    private func updatePayButtonState() {
+        let filled = areAllFieldsFilled
+        payButton.isEnabled = filled
+        payButton.backgroundColor = filled
+            ? NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
+            : NISdk.sharedInstance.niSdkColors.payButtonDisabledBackgroundColor
     }
     
     let cardPreviewContainer = UIView()
@@ -145,6 +161,8 @@ class CardPaymentViewController: UIViewController {
         setupCardPreviewComponent()
         setupCardInputForm()
         setupCancelButton()
+        // Start disabled — enabled once all fields have content
+        updatePayButtonState()
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -306,22 +324,27 @@ class CardPaymentViewController: UIViewController {
     
     @objc lazy private var onChangePan: onChangeTextClosure = { [weak self] textField in
         self?.pan.value = textField.text ?? ""
+        self?.updatePayButtonState()
     }
-    
+
     @objc lazy private var onChangeMonth: onChangeTextClosure = { [weak self] textField in
         self?.expiryDate.month = textField.text ?? ""
+        self?.updatePayButtonState()
     }
-    
+
     @objc lazy private var onChangeYear: onChangeTextClosure = { [weak self] textField in
         self?.expiryDate.year = textField.text ?? ""
+        self?.updatePayButtonState()
     }
-    
+
     @objc lazy private var onChangeCVV: onChangeTextClosure = { [weak self] textField in
         self?.cvv.value = textField.text ?? ""
+        self?.updatePayButtonState()
     }
-    
+
     @objc lazy private var onChangeName: onChangeTextClosure = { [weak self] textField in
         self?.cardHolderName.value = textField.text ?? ""
+        self?.updatePayButtonState()
     }
     
     func validateAllFields() -> (Bool, [String:String]) {
