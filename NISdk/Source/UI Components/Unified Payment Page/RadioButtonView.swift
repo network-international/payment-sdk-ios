@@ -14,11 +14,11 @@ class RadioButtonView: UIView {
         didSet { setNeedsDisplay() }
     }
 
-    private let outerSize: CGFloat = 18
-    private let innerSize: CGFloat = 9
+    private let outerSize: CGFloat = PgSize.radioOuter
+    private let innerSize: CGFloat = PgSize.radioInner
 
-    private let selectedColor = UIColor(hexString: "#0069B1")
-    private let unselectedBorderColor = UIColor(hexString: "#DADADA")
+    private let selectedColor = PgColors.accentPrimary
+    private let unselectedBorderColor = PgColors.borderInput
 
     override init(frame: CGRect) {
         super.init(frame: frame)

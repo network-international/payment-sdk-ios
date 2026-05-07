@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SavedCard: Codable {
+public struct SavedCard: Codable, Equatable {
 
     public var maskedPan: String?
     public var expiry: String?

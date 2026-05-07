@@ -87,7 +87,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
         guard !hasClosedWebView else { return }
         hasClosedWebView = true
         webView.stopLoading()
-        completionHandler(false)
+        completionHandler(true)
     }
     
     override func viewWillAppear(_ animated: Bool) {

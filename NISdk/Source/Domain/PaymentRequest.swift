@@ -25,7 +25,8 @@ class PaymentRequest: NSObject, Codable {
     }
     var payerIp: String?
     var visaRequest: VisaRequest?
-    
+    var sliceRequest: SliceRequest?
+
     override init() {
         pan = nil
         expiryMonth = nil
@@ -33,6 +34,7 @@ class PaymentRequest: NSObject, Codable {
         cvv = nil
         cardHolderName = nil
         visaRequest = nil
+        sliceRequest = nil
     }
     
     init(pan: String, expiryMonth: String, expiryYear: String,
@@ -76,6 +78,7 @@ class PaymentRequest: NSObject, Codable {
         case payerIp
         case cardHolderName = "cardholderName"
         case visaRequest = "vis"
+        case sliceRequest = "slice"
     }
     
     required public init(from decoder: Decoder) throws {
@@ -94,6 +97,7 @@ class PaymentRequest: NSObject, Codable {
         try container.encode(cardHolderName, forKey: .cardHolderName)
         try container.encode(expiry, forKey: .expiry)
         try container.encode(payerIp, forKey: .payerIp)
-        try container.encode(visaRequest, forKey: .visaRequest)
+        try container.encodeIfPresent(visaRequest, forKey: .visaRequest)
+        try container.encodeIfPresent(sliceRequest, forKey: .sliceRequest)
     }
 }

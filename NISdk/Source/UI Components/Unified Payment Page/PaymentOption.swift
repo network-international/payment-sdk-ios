@@ -11,6 +11,7 @@ import Foundation
 enum PaymentOption: Equatable {
     case applePay
     case card
+    case savedCard(SavedCard)
     case clickToPay
     case aani
 }

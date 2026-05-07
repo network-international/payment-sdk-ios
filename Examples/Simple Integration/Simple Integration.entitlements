@@ -4,12 +4,15 @@
 <dict>
 	<key>com.apple.developer.in-app-payments</key>
 	<array>
-		<string>merchant.com.ngenius-payments.paypage-dev</string>
-		<string>merchant.com.ngenius-payments.paypage-sandbox</string>
-		<string>merchant.com.ngenius-payments.paypage</string>
+		<string>merchant.com.ksa.ngenius-payments.paypage</string>
 		<string>merchant.com.ksa.ngenius-payments.paypage-dev</string>
 		<string>merchant.com.ksa.ngenius-payments.paypage-sandbox</string>
-		<string>merchant.com.ksa.ngenius-payments.paypage</string>
+		<string>merchant.com.ngenius-payments.paypage</string>
+		<string>merchant.com.ngenius-payments.paypage-sandbox</string>
+		<string>merchant.com.ni.ksa.payment.sdk.demoapp</string>
+		<string>merchant.com.sandbox.ksa.demo</string>
+		<string>merchant.com.sandbox.ksa.newdemoapp1</string>
+		<string>merchant.com.ngenius-payments.paypage-dev</string>
 	</array>
 	<key>com.apple.security.app-sandbox</key>
 	<true/>

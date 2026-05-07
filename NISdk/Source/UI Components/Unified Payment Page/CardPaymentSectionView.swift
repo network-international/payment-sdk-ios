@@ -8,16 +8,36 @@
 
 import UIKit
 
+// UIStackView queries intrinsicContentSize synchronously, so this wrapper
+// uses systemLayoutSizeFitting (synchronous for UIKit views) to give the
+// outer stack the correct height without any async timing issues.
+private final class SelfSizingContainerView: UIView {
+    override var intrinsicContentSize: CGSize {
+        guard let sub = subviews.first else { return .zero }
+        let w = max(bounds.width, 1)
+        return sub.systemLayoutSizeFitting(
+            CGSize(width: w, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+    }
+
+    override func invalidateIntrinsicContentSize() {
+        super.invalidateIntrinsicContentSize()
+        superview?.setNeedsLayout()
+    }
+}
+
 class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     // MARK: - Public text fields
 
     let cardNumberField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Card Number".localized
+        tf.placeholder = "0000 0000 0000 0000"
         tf.keyboardType = .numberPad
-        tf.font = UIFont.systemFont(ofSize: 14, weight: .light)
-        tf.textColor = UIColor(hexString: "#070707")
+        tf.font = PgType.bodyInput
+        tf.textColor = PgColors.textPrimary
         tf.borderStyle = .none
         tf.autocorrectionType = .no
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -25,15 +45,29 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         return tf
     }()
 
-    let expiryField: UITextField = {
+    let monthField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "MM/YY"
+        tf.placeholder = "MM"
         tf.keyboardType = .numberPad
-        tf.font = UIFont.systemFont(ofSize: 14, weight: .light)
-        tf.textColor = UIColor(hexString: "#070707")
+        tf.font = PgType.bodyInput
+        tf.textColor = PgColors.textPrimary
         tf.borderStyle = .none
+        tf.textAlignment = .center
         tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.accessibilityIdentifier = "sdk_card_field_expiry"
+        tf.accessibilityIdentifier = "sdk_card_field_expiryMonth"
+        return tf
+    }()
+
+    let yearField: UITextField = {
+        let tf = UITextField()
+        tf.placeholder = "YY"
+        tf.keyboardType = .numberPad
+        tf.font = PgType.bodyInput
+        tf.textColor = PgColors.textPrimary
+        tf.borderStyle = .none
+        tf.textAlignment = .center
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.accessibilityIdentifier = "sdk_card_field_expiryYear"
         return tf
     }()
 
@@ -41,8 +75,8 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let tf = UITextField()
         tf.placeholder = "CVV".localized
         tf.keyboardType = .numberPad
-        tf.font = UIFont.systemFont(ofSize: 14, weight: .light)
-        tf.textColor = UIColor(hexString: "#070707")
+        tf.font = PgType.bodyInput
+        tf.textColor = PgColors.textPrimary
         tf.borderStyle = .none
         tf.isSecureTextEntry = true
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -52,10 +86,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     let nameField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Cardholder Name".localized
+        tf.placeholder = "Name on card".localized
         tf.keyboardType = .asciiCapable
-        tf.font = UIFont.systemFont(ofSize: 14, weight: .light)
-        tf.textColor = UIColor(hexString: "#070707")
+        tf.font = PgType.bodyInput
+        tf.textColor = PgColors.textPrimary
         tf.borderStyle = .none
         tf.autocorrectionType = .no
         tf.translatesAutoresizingMaskIntoConstraints = false
@@ -71,43 +105,18 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
     var onCvvChanged: ((String) -> Void)?
     var onNameChanged: ((String) -> Void)?
     var onSelected: (() -> Void)?
-    var onPayTapped: (() -> Void)?
+    var onFormValidityChanged: ((Bool) -> Void)?
 
     // MARK: - UI Components
-
-    let payButton: UIButton = {
-        let btn = UIButton()
-        btn.accessibilityIdentifier = "sdk_card_button_pay"
-        btn.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
-        btn.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
-        btn.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        btn.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColorHighlighted, for: .highlighted)
-        btn.layer.cornerRadius = 8
-        btn.setTitle("Processing Payment".localized, for: .disabled)
-        return btn
-    }()
 
     let errorLabel: UILabel = {
         let lbl = UILabel()
         lbl.accessibilityIdentifier = "sdk_card_label_error"
         lbl.textColor = .red
-        lbl.font = UIFont.systemFont(ofSize: 13)
+        lbl.font = PgType.captionDisclaimer
         lbl.text = ""
         lbl.textAlignment = .center
         return lbl
-    }()
-
-    let loadingSpinner: UIActivityIndicatorView = {
-        let spinner: UIActivityIndicatorView
-        if #available(iOS 13.0, *) {
-            spinner = UIActivityIndicatorView(style: .medium)
-        } else {
-            spinner = UIActivityIndicatorView(style: .white)
-        }
-        spinner.color = UIColor(hexString: "#5C3F00")
-        spinner.hidesWhenStopped = true
-        spinner.accessibilityIdentifier = "sdk_card_spinner_loading"
-        return spinner
     }()
 
     private let radioButton: RadioButtonView = {
@@ -119,6 +128,63 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
     private let collapsedLabel = UILabel()
     private var isExpanded = false
     private weak var cvvTooltipContainer: UIView?
+    private weak var cardNumberIconView: UIImageView?
+
+    // Populated by parent VC to insert saved card rows between brand icons and "Pay by card"
+    let savedCardsContainer: UIStackView = {
+        let sv = UIStackView()
+        sv.axis = .vertical
+        sv.spacing = 0
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        sv.isHidden = true
+        return sv
+    }()
+
+    // Slice UI elements (managed by parent VC for hosting controller lifecycle)
+    private let sliceLoaderRow: UIView = {
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.isHidden = true
+
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.color = PgColors.spinnerPrimary
+        spinner.startAnimating()
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+
+        let label = UILabel()
+        label.text = "Checking Slice eligibility..."
+        label.font = PgType.captionSlicePeriod
+        label.textColor = PgColors.spinnerPrimary
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        let stack = UIStackView(arrangedSubviews: [spinner, label])
+        stack.axis = .horizontal
+        stack.spacing = 6
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        container.addSubview(stack)
+        NSLayoutConstraint.activate([
+            container.heightAnchor.constraint(equalToConstant: 24),
+            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            stack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+        ])
+        return container
+    }()
+
+    let sliceInstallmentContainer: UIView = {
+        let v = SelfSizingContainerView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.isHidden = true
+        return v
+    }()
+
+    let visaInstallmentContainer: UIView = {
+        let v = SelfSizingContainerView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.isHidden = true
+        return v
+    }()
 
     // MARK: - Init
 
@@ -136,19 +202,14 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     func setExpanded(_ expanded: Bool, animated: Bool) {
         isExpanded = expanded
-        // Set hidden state immediately so UIStackView recalculates layout
         formContainer.isHidden = !expanded
-        collapsedLabel.isHidden = expanded
         if animated {
             formContainer.alpha = 0
-            collapsedLabel.alpha = 0
             UIView.animate(withDuration: 0.25) {
                 self.formContainer.alpha = expanded ? 1 : 0
-                self.collapsedLabel.alpha = expanded ? 0 : 1
             }
         } else {
             formContainer.alpha = expanded ? 1 : 0
-            collapsedLabel.alpha = expanded ? 0 : 1
         }
     }
 
@@ -156,7 +217,33 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         radioButton.isOn = selected
     }
 
+    /// Swap the card-number trailing icon to a brand logo, or fall back to the generic credit-card glyph
+    /// when no brand is detected. `logoName` is the SDK bundle asset name (e.g. "visalogo"), or nil.
+    func updateCardBrand(logoName: String?) {
+        guard let iconView = cardNumberIconView else { return }
+        if let logoName = logoName,
+           let image = UIImage(named: logoName, in: NISdk.sharedInstance.getBundle(), compatibleWith: nil) {
+            iconView.image = image
+            iconView.tintColor = nil
+        } else {
+            if #available(iOS 13.0, *) {
+                iconView.image = UIImage(systemName: "creditcard")
+            }
+            iconView.tintColor = PgColors.textSecondary
+        }
+    }
+
     // MARK: - Setup
+
+    private func padded(_ view: UIView) -> UIView {
+        let wrapper = UIView()
+        wrapper.translatesAutoresizingMaskIntoConstraints = false
+        wrapper.addSubview(view)
+        view.anchor(top: wrapper.topAnchor, leading: wrapper.leadingAnchor,
+                    bottom: wrapper.bottomAnchor, trailing: wrapper.trailingAnchor,
+                    padding: UIEdgeInsets(top: 0, left: PgSpacing.rowPaddingH, bottom: 0, right: PgSpacing.rowPaddingH))
+        return wrapper
+    }
 
     private func setupView(allowedCardProviders: [CardProvider]?, orderAmount: Amount?, order: OrderResponse?) {
         translatesAutoresizingMaskIntoConstraints = false
@@ -168,11 +255,14 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
         // Title: "Use Credit Or Debit Card"
         let titleRow = createTitleRow()
-        mainStack.addArrangedSubview(titleRow)
+        mainStack.addArrangedSubview(padded(titleRow))
 
         // Card logos row
         let logosRow = createCardLogosRow(providers: allowedCardProviders)
-        mainStack.addArrangedSubview(logosRow)
+        mainStack.addArrangedSubview(padded(logosRow))
+
+        // Saved cards slot — no horizontal padding so selection background goes edge-to-edge
+        mainStack.addArrangedSubview(savedCardsContainer)
 
         radioButton.isOn = false
         radioButton.translatesAutoresizingMaskIntoConstraints = false
@@ -189,8 +279,8 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
         // Collapsed "Pay by card" label
         collapsedLabel.text = "Pay by card".localized
-        collapsedLabel.font = UIFont.systemFont(ofSize: 12, weight: .regular)
-        collapsedLabel.textColor = UIColor(hexString: "#070707")
+        collapsedLabel.font = PgType.bodyRowTitle
+        collapsedLabel.textColor = PgColors.textPrimary
         collapsedLabel.isHidden = false
 
         let collapsedWrapper = UIView()
@@ -205,7 +295,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
         // Expandable form container
         formContainer.axis = .vertical
-        formContainer.spacing = 8
+        formContainer.spacing = PgSpacing.fieldsStackGap
         formContainer.translatesAutoresizingMaskIntoConstraints = false
 
         // Card number field
@@ -215,8 +305,14 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
             trailingIcon: {
                 if #available(iOS 13.0, *) { return UIImage(systemName: "creditcard") }
                 return nil
-            }())
+            }(),
+            iconViewHandler: { [weak self] iconView in
+                self?.cardNumberIconView = iconView
+            })
         formContainer.addArrangedSubview(cardNumberSection)
+
+        // Slice eligibility loader (hidden until triggered)
+        formContainer.addArrangedSubview(sliceLoaderRow)
 
         // Expiry + CVV side by side
         let expiryCvvRow = createExpiryCvvRow()
@@ -231,7 +327,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
             label: "Name on card".localized,
             field: nameField,
             trailingIcon: {
-                if #available(iOS 13.0, *) { return UIImage(systemName: "lock.fill") }
+                if #available(iOS 13.0, *) { return UIImage(systemName: "person") }
                 return nil
             }())
         formContainer.addArrangedSubview(nameSection)
@@ -240,30 +336,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         errorLabel.translatesAutoresizingMaskIntoConstraints = false
         formContainer.addArrangedSubview(errorLabel)
 
-        // Pay button
-        let payButtonContainer = UIView()
-        payButtonContainer.translatesAutoresizingMaskIntoConstraints = false
-        payButton.translatesAutoresizingMaskIntoConstraints = false
-        payButtonContainer.addSubview(payButton)
-        payButton.anchor(top: payButtonContainer.topAnchor, leading: payButtonContainer.leadingAnchor,
-                         bottom: payButtonContainer.bottomAnchor, trailing: payButtonContainer.trailingAnchor,
-                         padding: UIEdgeInsets(top: 12, left: 0, bottom: 0, right: 0),
-                         size: CGSize(width: 0, height: 52))
-        payButton.addTarget(self, action: #selector(payTapped), for: .touchUpInside)
-
-        loadingSpinner.translatesAutoresizingMaskIntoConstraints = false
-        payButton.addSubview(loadingSpinner)
-        NSLayoutConstraint.activate([
-            loadingSpinner.centerYAnchor.constraint(equalTo: payButton.centerYAnchor),
-            loadingSpinner.trailingAnchor.constraint(equalTo: payButton.trailingAnchor, constant: -16),
-        ])
-
-        configurePayButton(orderAmount: orderAmount, order: order)
-        formContainer.addArrangedSubview(payButtonContainer)
-
-        // Terms text
-        let termsLabel = createTermsLabel()
-        formContainer.addArrangedSubview(termsLabel)
+        // Slice installment section (hidden until eligible)
+        formContainer.addArrangedSubview(sliceInstallmentContainer)
+        // Visa installment lives at section level (added to mainStack below) so it can render
+        // for saved-card selection too, when the manual form is collapsed.
 
         // Start collapsed: form hidden, collapsed label visible
         formContainer.isHidden = true
@@ -298,13 +374,17 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         paddingWrapper.addSubview(radioRow)
         radioRow.anchor(top: paddingWrapper.topAnchor, leading: paddingWrapper.leadingAnchor,
                         bottom: paddingWrapper.bottomAnchor, trailing: paddingWrapper.trailingAnchor,
-                        padding: UIEdgeInsets(top: 0, left: 12, bottom: 12, right: 12))
+                        padding: UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0))
 
-        mainStack.addArrangedSubview(paddingWrapper)
+        mainStack.addArrangedSubview(padded(paddingWrapper))
+
+        // Section-level Visa installment slot — visible for both manual and saved-card selections.
+        mainStack.addArrangedSubview(padded(visaInstallmentContainer))
 
         addSubview(mainStack)
         mainStack.anchor(top: topAnchor, leading: leadingAnchor,
-                         bottom: bottomAnchor, trailing: trailingAnchor)
+                         bottom: bottomAnchor, trailing: trailingAnchor,
+                         padding: UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0))
     }
 
     // MARK: - Title Row
@@ -315,8 +395,8 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
         let titleLabel = UILabel()
         titleLabel.text = "Use Credit Or Debit Card".localized
-        titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        titleLabel.textColor = .black
+        titleLabel.font = PgType.headingSection
+        titleLabel.textColor = PgColors.textPrimary
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         container.addSubview(titleLabel)
@@ -324,7 +404,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
             container.heightAnchor.constraint(equalToConstant: 40),
             titleLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 0),
             titleLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -16),
+            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: 0),
         ])
 
         return container
@@ -377,7 +457,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     // MARK: - Bordered Field Section
 
-    private func createBorderedFieldSection(label: String, field: UITextField, trailingIcon: UIImage?) -> UIView {
+    private func createBorderedFieldSection(label: String, field: UITextField, trailingIcon: UIImage?, iconViewHandler: ((UIImageView) -> Void)? = nil) -> UIView {
         let container = UIStackView()
         container.axis = .vertical
         container.spacing = 0
@@ -386,8 +466,8 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         // Label
         let labelView = UILabel()
         labelView.text = label
-        labelView.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        labelView.textColor = UIColor(hexString: "#070707")
+        labelView.font = PgType.labelField
+        labelView.textColor = PgColors.textPrimary
         labelView.translatesAutoresizingMaskIntoConstraints = false
 
         let labelWrapper = UIView()
@@ -403,10 +483,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         // Bordered input box
         let inputBox = UIView()
         inputBox.translatesAutoresizingMaskIntoConstraints = false
-        inputBox.layer.borderColor = UIColor(hexString: "#DADADA").cgColor
+        inputBox.layer.borderColor = PgColors.borderInput.cgColor
         inputBox.layer.borderWidth = 1
-        inputBox.layer.cornerRadius = 8
-        inputBox.backgroundColor = .white
+        inputBox.layer.cornerRadius = PgRadius.input
+        inputBox.backgroundColor = PgColors.surfacePage
 
         inputBox.addSubview(field)
 
@@ -414,11 +494,12 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
             let iconView = UIImageView(image: icon)
             iconView.translatesAutoresizingMaskIntoConstraints = false
             iconView.contentMode = .scaleAspectFit
-            iconView.tintColor = UIColor(hexString: "#4A4A4A")
+            iconView.tintColor = PgColors.textSecondary
             inputBox.addSubview(iconView)
+            iconViewHandler?(iconView)
 
             NSLayoutConstraint.activate([
-                inputBox.heightAnchor.constraint(equalToConstant: 48),
+                inputBox.heightAnchor.constraint(equalToConstant: PgSize.inputMinHeight),
                 field.leadingAnchor.constraint(equalTo: inputBox.leadingAnchor, constant: 12),
                 field.trailingAnchor.constraint(equalTo: iconView.leadingAnchor, constant: -8),
                 field.centerYAnchor.constraint(equalTo: inputBox.centerYAnchor),
@@ -429,7 +510,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
             ])
         } else {
             NSLayoutConstraint.activate([
-                inputBox.heightAnchor.constraint(equalToConstant: 48),
+                inputBox.heightAnchor.constraint(equalToConstant: PgSize.inputMinHeight),
                 field.leadingAnchor.constraint(equalTo: inputBox.leadingAnchor, constant: 12),
                 field.trailingAnchor.constraint(equalTo: inputBox.trailingAnchor, constant: -12),
                 field.centerYAnchor.constraint(equalTo: inputBox.centerYAnchor),
@@ -457,8 +538,8 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let expiryLabel = UILabel()
         expiryLabel.text = "Expiration date".localized
 
-        expiryLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        expiryLabel.textColor = UIColor(hexString: "#070707")
+        expiryLabel.font = PgType.labelField
+        expiryLabel.textColor = PgColors.textPrimary
 
         let expiryLabelWrapper = UIView()
         expiryLabelWrapper.translatesAutoresizingMaskIntoConstraints = false
@@ -473,17 +554,35 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
         let expiryBox = UIView()
         expiryBox.translatesAutoresizingMaskIntoConstraints = false
-        expiryBox.layer.borderColor = UIColor(hexString: "#DADADA").cgColor
+        expiryBox.layer.borderColor = PgColors.borderInput.cgColor
         expiryBox.layer.borderWidth = 1
-        expiryBox.layer.cornerRadius = 8
-        expiryBox.backgroundColor = .white
+        expiryBox.layer.cornerRadius = PgRadius.input
+        expiryBox.backgroundColor = PgColors.surfacePage
 
-        expiryBox.addSubview(expiryField)
+        let slashLabel = UILabel()
+        slashLabel.text = "/"
+        slashLabel.font = PgType.bodyInput
+        slashLabel.textColor = PgColors.textPrimary
+        slashLabel.textAlignment = .center
+
+        let expiryStack = UIStackView(arrangedSubviews: [monthField, slashLabel, yearField])
+        expiryStack.axis = .horizontal
+        expiryStack.spacing = 4
+        expiryStack.distribution = .fill
+        expiryStack.alignment = .center
+        expiryStack.translatesAutoresizingMaskIntoConstraints = false
+        slashLabel.setContentHuggingPriority(.required, for: .horizontal)
+        slashLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        monthField.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        yearField.setContentHuggingPriority(.defaultLow, for: .horizontal)
+
+        expiryBox.addSubview(expiryStack)
         NSLayoutConstraint.activate([
-            expiryBox.heightAnchor.constraint(equalToConstant: 48),
-            expiryField.leadingAnchor.constraint(equalTo: expiryBox.leadingAnchor, constant: 12),
-            expiryField.trailingAnchor.constraint(equalTo: expiryBox.trailingAnchor, constant: -12),
-            expiryField.centerYAnchor.constraint(equalTo: expiryBox.centerYAnchor),
+            expiryBox.heightAnchor.constraint(equalToConstant: PgSize.inputMinHeight),
+            expiryStack.leadingAnchor.constraint(equalTo: expiryBox.leadingAnchor, constant: 12),
+            expiryStack.trailingAnchor.constraint(equalTo: expiryBox.trailingAnchor, constant: -12),
+            expiryStack.centerYAnchor.constraint(equalTo: expiryBox.centerYAnchor),
+            monthField.widthAnchor.constraint(equalTo: yearField.widthAnchor),
         ])
         expirySection.addArrangedSubview(expiryBox)
 
@@ -496,8 +595,8 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
         let securityLabel = UILabel()
         securityLabel.text = "Security code".localized
-        securityLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        securityLabel.textColor = UIColor(hexString: "#070707")
+        securityLabel.font = PgType.labelField
+        securityLabel.textColor = PgColors.textPrimary
 
         let securityLabelWrapper = UIView()
         securityLabelWrapper.translatesAutoresizingMaskIntoConstraints = false
@@ -512,14 +611,14 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
         let cvvBox = UIView()
         cvvBox.translatesAutoresizingMaskIntoConstraints = false
-        cvvBox.layer.borderColor = UIColor(hexString: "#DADADA").cgColor
+        cvvBox.layer.borderColor = PgColors.borderInput.cgColor
         cvvBox.layer.borderWidth = 1
-        cvvBox.layer.cornerRadius = 8
-        cvvBox.backgroundColor = .white
+        cvvBox.layer.cornerRadius = PgRadius.input
+        cvvBox.backgroundColor = PgColors.surfacePage
 
         cvvBox.addSubview(cvvField)
         NSLayoutConstraint.activate([
-            cvvBox.heightAnchor.constraint(equalToConstant: 48),
+            cvvBox.heightAnchor.constraint(equalToConstant: PgSize.inputMinHeight),
             cvvField.leadingAnchor.constraint(equalTo: cvvBox.leadingAnchor, constant: 12),
             cvvField.trailingAnchor.constraint(equalTo: cvvBox.trailingAnchor, constant: -12),
             cvvField.centerYAnchor.constraint(equalTo: cvvBox.centerYAnchor),
@@ -542,8 +641,8 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         // "What's CVV?" label — right-aligned
         let whatsCvvLabel = UILabel()
         whatsCvvLabel.text = "What's CVV?".localized
-        whatsCvvLabel.font = UIFont.systemFont(ofSize: 13, weight: .light)
-        whatsCvvLabel.textColor = UIColor(hexString: "#8F8F8F")
+        whatsCvvLabel.font = PgType.captionDisclaimer
+        whatsCvvLabel.textColor = PgColors.textMuted
         whatsCvvLabel.textAlignment = .right
         whatsCvvLabel.translatesAutoresizingMaskIntoConstraints = false
         whatsCvvLabel.isUserInteractionEnabled = true
@@ -587,7 +686,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
         let cvvTooltipLabel = UILabel()
         cvvTooltipLabel.text = "CVV Tooltip".localized
-        cvvTooltipLabel.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        cvvTooltipLabel.font = PgType.captionDisclaimer
         cvvTooltipLabel.textColor = .white
         cvvTooltipLabel.numberOfLines = 0
         cvvTooltipLabel.textAlignment = .center
@@ -614,149 +713,138 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         return container
     }
 
-    // MARK: - Pay Button Configuration
+    // MARK: - Slice UI Control
 
-    private func configurePayButton(orderAmount: Amount?, order: OrderResponse?) {
-        guard let orderAmount = orderAmount else {
-            payButton.setTitle("Pay".localized, for: .normal)
-            return
-        }
-
-        if NISdk.sharedInstance.shouldShowOrderAmount {
-            if let order = order, order.isSaudiPaymentEnabled == true, orderAmount.currencyCode == "SAR" {
-                configureSaudiPayButton(orderAmount: orderAmount)
-            } else {
-                let title = String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.getFormattedAmount())
-                payButton.setTitle(title, for: .normal)
-            }
-        } else {
-            payButton.setTitle("Pay".localized, for: .normal)
-        }
+    func showSliceLoader() {
+        sliceLoaderRow.isHidden = false
     }
 
-    private func configureSaudiPayButton(orderAmount: Amount) {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.spacing = 6
-        stack.alignment = .center
+    func hideSliceLoader() {
+        sliceLoaderRow.isHidden = true
+    }
 
-        let payLabel = UILabel()
-        payLabel.text = "Pay".localized
-        payLabel.textColor = UIColor(hexString: "#5C3F00")
-        payLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-
-        let icon = UIImageView(image: UIImage(named: "riyal", in: Bundle(for: NISdk.self), compatibleWith: nil))
-        icon.contentMode = .scaleAspectFit
-        icon.widthAnchor.constraint(equalToConstant: 18).isActive = true
-        icon.heightAnchor.constraint(equalToConstant: 14).isActive = true
-
-        let amountLabel = UILabel()
-        amountLabel.text = orderAmount.getFormattedAmountValue()
-        amountLabel.textColor = UIColor(hexString: "#5C3F00")
-        amountLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-
-        stack.addArrangedSubview(payLabel)
-        stack.addArrangedSubview(icon)
-        stack.addArrangedSubview(amountLabel)
-
-        stack.isUserInteractionEnabled = false
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        payButton.addSubview(stack)
+    func showSliceInstallmentView(_ embeddedView: UIView) {
+        sliceInstallmentContainer.subviews.forEach { $0.removeFromSuperview() }
+        embeddedView.translatesAutoresizingMaskIntoConstraints = false
+        sliceInstallmentContainer.addSubview(embeddedView)
+        // Pin all four edges: the bottom anchor lets Auto Layout self-size the container
+        // to match the SwiftUI view's computed height once SwiftUI completes layout.
         NSLayoutConstraint.activate([
-            stack.centerXAnchor.constraint(equalTo: payButton.centerXAnchor),
-            stack.centerYAnchor.constraint(equalTo: payButton.centerYAnchor),
+            embeddedView.topAnchor.constraint(equalTo: sliceInstallmentContainer.topAnchor),
+            embeddedView.leadingAnchor.constraint(equalTo: sliceInstallmentContainer.leadingAnchor),
+            embeddedView.trailingAnchor.constraint(equalTo: sliceInstallmentContainer.trailingAnchor),
+            embeddedView.bottomAnchor.constraint(equalTo: sliceInstallmentContainer.bottomAnchor),
         ])
+        sliceInstallmentContainer.isHidden = false
     }
 
-    // MARK: - Terms Label
+    func hideSliceInstallmentContainer() {
+        sliceInstallmentContainer.subviews.forEach { $0.removeFromSuperview() }
+        sliceInstallmentContainer.isHidden = true
+    }
 
-    private func createTermsLabel() -> UIView {
-        let container = UIView()
-        container.translatesAutoresizingMaskIntoConstraints = false
+    func showVisaInstallmentView(_ embeddedView: UIView) {
+        visaInstallmentContainer.subviews.forEach { $0.removeFromSuperview() }
+        embeddedView.translatesAutoresizingMaskIntoConstraints = false
+        visaInstallmentContainer.addSubview(embeddedView)
+        NSLayoutConstraint.activate([
+            embeddedView.topAnchor.constraint(equalTo: visaInstallmentContainer.topAnchor),
+            embeddedView.leadingAnchor.constraint(equalTo: visaInstallmentContainer.leadingAnchor),
+            embeddedView.trailingAnchor.constraint(equalTo: visaInstallmentContainer.trailingAnchor),
+            embeddedView.bottomAnchor.constraint(equalTo: visaInstallmentContainer.bottomAnchor),
+        ])
+        visaInstallmentContainer.isHidden = false
+    }
 
-        let termsURL = URL(string: "https://www.network.ae/en/terms-and-conditions")!
+    func hideVisaInstallmentContainer() {
+        visaInstallmentContainer.subviews.forEach { $0.removeFromSuperview() }
+        visaInstallmentContainer.isHidden = true
+    }
 
-        let textView = UITextView()
-        textView.isEditable = false
-        textView.isScrollEnabled = false
-        textView.backgroundColor = .clear
-        textView.textContainerInset = .zero
-        textView.textContainer.lineFragmentPadding = 0
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        textView.linkTextAttributes = [
-            .foregroundColor: UIColor(hexString: "#8F8F8F"),
-            .underlineStyle: NSUnderlineStyle.single.rawValue,
-            .font: UIFont.systemFont(ofSize: 13, weight: .light),
-        ]
+    // MARK: - Pay Button Field-State Management
 
-        let fullText = "By clicking Pay terms".localized
-        let termsLinkText = "Terms and Conditions".localized
+    private var areAllFieldsFilled: Bool {
+        let cardDigits = (cardNumberField.text ?? "").filter { $0.isNumber }
+        let monthDigits = (monthField.text ?? "").filter { $0.isNumber }
+        let yearDigits = (yearField.text ?? "").filter { $0.isNumber }
+        let cvvDigits = (cvvField.text ?? "").filter { $0.isNumber }
+        let name = (nameField.text ?? "").trimmingCharacters(in: .whitespaces)
+        return !cardDigits.isEmpty && monthDigits.count == 2 && yearDigits.count == 2 && !cvvDigits.isEmpty && !name.isEmpty
+    }
 
-        let attributed = NSMutableAttributedString(
-            string: fullText,
-            attributes: [
-                .font: UIFont.systemFont(ofSize: 13, weight: .light),
-                .foregroundColor: UIColor(hexString: "#8F8F8F"),
-            ])
-
-        if let range = fullText.range(of: termsLinkText, options: .caseInsensitive) {
-            let nsRange = NSRange(range, in: fullText)
-            attributed.addAttribute(.link, value: termsURL, range: nsRange)
-        }
-
-        textView.attributedText = attributed
-        textView.delegate = nil
-
-        container.addSubview(textView)
-        textView.anchor(top: container.topAnchor, leading: container.leadingAnchor,
-                     bottom: container.bottomAnchor, trailing: container.trailingAnchor,
-                     padding: UIEdgeInsets(top: 12, left: 0, bottom: 8, right: 0))
-
-        return container
+    private func updatePayButtonState() {
+        let filled = areAllFieldsFilled
+        onFormValidityChanged?(filled)
     }
 
     // MARK: - Text Field Delegates
 
     private func setupTextFieldDelegates() {
         cardNumberField.delegate = self
-        expiryField.delegate = self
+        monthField.delegate = self
+        yearField.delegate = self
         cvvField.delegate = self
         nameField.delegate = self
 
         cardNumberField.addTarget(self, action: #selector(cardNumberDidChange(_:)), for: .editingChanged)
-        expiryField.addTarget(self, action: #selector(expiryDidChange(_:)), for: .editingChanged)
+        monthField.addTarget(self, action: #selector(monthDidChange(_:)), for: .editingChanged)
+        yearField.addTarget(self, action: #selector(yearDidChange(_:)), for: .editingChanged)
         cvvField.addTarget(self, action: #selector(cvvDidChange(_:)), for: .editingChanged)
         nameField.addTarget(self, action: #selector(nameDidChange(_:)), for: .editingChanged)
+
+        let toolbar = makeDoneToolbar()
+        cardNumberField.inputAccessoryView = toolbar
+        monthField.inputAccessoryView = toolbar
+        yearField.inputAccessoryView = toolbar
+        cvvField.inputAccessoryView = toolbar
+        nameField.inputAccessoryView = toolbar
+    }
+
+    private func makeDoneToolbar() -> UIToolbar {
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+        let spacer = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let done = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))
+        toolbar.items = [spacer, done]
+        return toolbar
+    }
+
+    @objc private func dismissKeyboard() {
+        endEditing(true)
     }
 
     @objc private func cardNumberDidChange(_ textField: UITextField) {
-        onCardNumberChanged?(textField.text ?? "")
+        let digits = (textField.text ?? "").filter { $0.isNumber }
+        onCardNumberChanged?(digits)
+        updatePayButtonState()
     }
 
-    @objc private func expiryDidChange(_ textField: UITextField) {
-        let text = textField.text ?? ""
-        // Parse MM/YY format
-        let digits = text.replacingOccurrences(of: "/", with: "")
-        if digits.count >= 2 {
-            let month = String(digits.prefix(2))
-            let year = String(digits.dropFirst(2))
-            onExpiryMonthChanged?(month)
-            onExpiryYearChanged?(year)
-        } else {
-            onExpiryMonthChanged?(digits)
-            onExpiryYearChanged?("")
-        }
+    @objc private func monthDidChange(_ textField: UITextField) {
+        onExpiryMonthChanged?(textField.text ?? "")
+        updatePayButtonState()
+    }
+
+    @objc private func yearDidChange(_ textField: UITextField) {
+        onExpiryYearChanged?(textField.text ?? "")
+        updatePayButtonState()
     }
 
     @objc private func cvvDidChange(_ textField: UITextField) {
         onCvvChanged?(textField.text ?? "")
+        updatePayButtonState()
     }
 
     @objc private func nameDidChange(_ textField: UITextField) {
         onNameChanged?(textField.text ?? "")
+        updatePayButtonState()
     }
 
     // MARK: - UITextFieldDelegate
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
 
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let currentText = textField.text ?? ""
@@ -765,19 +853,40 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
         if textField == cardNumberField {
             let digits = updatedText.filter { $0.isNumber }
-            return digits.count <= 19
-        } else if textField == expiryField {
-            // Handle MM/YY format with auto-slash
-            let digits = updatedText.replacingOccurrences(of: "/", with: "").filter { $0.isNumber }
-            if digits.count > 4 { return false }
+            if digits.count > 19 { return false }
+            textField.text = formatCardNumber(digits)
+            onCardNumberChanged?(digits)
+            updatePayButtonState()
+            return false
+        } else if textField == monthField {
+            let digits = updatedText.filter { $0.isNumber }
+            if digits.count > 2 { return false }
 
-            // Auto-format as MM/YY
-            if digits.count >= 2 {
-                let month = String(digits.prefix(2))
-                let year = String(digits.dropFirst(2))
-                textField.text = year.isEmpty ? "\(month)/" : "\(month)/\(year)"
-                expiryDidChange(textField)
+            // Single digit > 1 → auto-prefix 0 (e.g., "5" → "05") and jump to year
+            if digits.count == 1, let n = Int(digits), n > 1 {
+                textField.text = "0\(digits)"
+                monthDidChange(textField)
+                yearField.becomeFirstResponder()
                 return false
+            }
+
+            // Two digits: reject if month > 12 or 00
+            if digits.count == 2, let n = Int(digits) {
+                if n < 1 || n > 12 { return false }
+                textField.text = digits
+                monthDidChange(textField)
+                yearField.becomeFirstResponder()
+                return false
+            }
+
+            return true
+        } else if textField == yearField {
+            let digits = updatedText.filter { $0.isNumber }
+            if digits.count > 2 { return false }
+
+            // If empty after deletion, hop back to month for in-place edits
+            if digits.isEmpty && string.isEmpty && (monthField.text?.isEmpty == false) {
+                monthField.becomeFirstResponder()
             }
             return true
         } else if textField == cvvField {
@@ -790,14 +899,24 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         return true
     }
 
+    // MARK: - Card Number Formatting
+
+    private func formatCardNumber(_ digits: String) -> String {
+        // Groups: 4-4-4-4-3 (up to 19 digits). Inserts a space before each new group.
+        var result = ""
+        for (index, char) in digits.enumerated() {
+            if index > 0 && index % 4 == 0 {
+                result += " "
+            }
+            result.append(char)
+        }
+        return result
+    }
+
     // MARK: - Actions
 
     @objc private func headerTapped() {
         onSelected?()
-    }
-
-    @objc private func payTapped() {
-        onPayTapped?()
     }
 
     @objc private func cvvTooltipTapped() {

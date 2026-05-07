@@ -94,12 +94,16 @@ private class NISdkBundleLocator {}
                                         for order: OrderResponse,
                                         with applePayRequest: PKPaymentRequest?,
                                         clickToPayConfig: ClickToPayConfig?,
-                                        aaniBackLink: String? = nil) {
+                                        aaniBackLink: String? = nil,
+                                        orderItems: [OrderItem] = [],
+                                        savedCards: [SavedCard] = []) {
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
                                                           applePayDelegate: applePayDelegate, paymentMedium: .Card)
         paymentViewController.applePayRequest = applePayRequest
         paymentViewController.clickToPayConfig = clickToPayConfig
         paymentViewController.aaniBackLink = aaniBackLink
+        paymentViewController.orderItems = orderItems
+        paymentViewController.savedCards = savedCards
         let navController = UINavigationController(rootViewController: paymentViewController)
 
         paymentViewController.view.backgroundColor = .clear

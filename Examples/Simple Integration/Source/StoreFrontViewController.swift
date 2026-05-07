@@ -55,7 +55,7 @@ class StoreFrontViewController:
         return stack
     }()
 
-    let pets: [Product] = [
+    private let defaultProducts: [Product] = [
         Product(name: "Quick Test", amount: 0.10),
         Product(name: "Micro", amount: 0.50),
         Product(name: "Small", amount: 1),
@@ -69,17 +69,26 @@ class StoreFrontViewController:
         Product(name: "Enterprise", amount: 2200),
         Product(name: "Ultimate", amount: 3000),
     ]
+    var pets: [Product] = []
     var total: Double = 0 {
         didSet { showHidePayButtonStack() }
     }
     var selectedItems: [Product] = []
     var paymentRequest: PKPaymentRequest?
 
-    var savedCard: SavedCard? = nil
+    /// Up to 3 most-recent saved cards persisted across app launches. Most recent first.
+    var savedCards: [SavedCard] = []
+    private static let savedCardsKey = "SavedCards"
+    private static let legacySavedCardKey = "SavedCard"
+    private static let maxSavedCards = 3
+
+    /// Convenience accessor used when a single card is needed (e.g. order-creation pre-fill).
+    var savedCard: SavedCard? { savedCards.first }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        pets = defaultProducts + loadCustomProducts()
         setupPaymentButtons()
 
         let logoImageView = UIImageView()
@@ -123,6 +132,13 @@ class StoreFrontViewController:
         gearButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
         gearButton.accessibilityIdentifier = "storefront_button_settings"
 
+        let addIcon = UIImage(systemName: "plus")
+        let addButton = UIButton(type: .custom)
+        addButton.setImage(addIcon, for: .normal)
+        addButton.addTarget(self, action: #selector(showAddProductDialog), for: .touchUpInside)
+        addButton.frame = CGRect(x: 0, y: 0, width: 35, height: 35)
+        addButton.accessibilityIdentifier = "storefront_button_add_product"
+
         let infoIcon = UIImage(systemName: "info.circle.fill")
         let infoButton = UIButton(type: .custom)
         infoButton.setImage(infoIcon, for: .normal)
@@ -132,15 +148,49 @@ class StoreFrontViewController:
 
         view.addSubview(collectionView!)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: infoButton)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: gearButton)
-        guard let data = UserDefaults.standard.data(forKey: "SavedCard") else {
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(customView: gearButton),
+            UIBarButtonItem(customView: addButton)
+        ]
+        loadSavedCardsFromDefaults()
+    }
+
+    private func loadSavedCardsFromDefaults() {
+        // New storage: an array under "SavedCards"
+        if let data = UserDefaults.standard.data(forKey: Self.savedCardsKey),
+           let cards = try? JSONDecoder().decode([SavedCard].self, from: data) {
+            self.savedCards = Array(cards.prefix(Self.maxSavedCards))
             return
         }
-        do {
-            self.savedCard = try JSONDecoder().decode(SavedCard.self, from: data)
-        } catch _ {
-            print("error getting saved card")
+        // Legacy migration: a single card was stored under "SavedCard"
+        if let data = UserDefaults.standard.data(forKey: Self.legacySavedCardKey),
+           let card = try? JSONDecoder().decode(SavedCard.self, from: data) {
+            self.savedCards = [card]
+            persistSavedCards()
+            UserDefaults.standard.removeObject(forKey: Self.legacySavedCardKey)
         }
+    }
+
+    private func persistSavedCards() {
+        if let data = try? JSONEncoder().encode(savedCards) {
+            UserDefaults.standard.set(data, forKey: Self.savedCardsKey)
+        }
+    }
+
+    /// Adds a newly-issued saved card. If the same `cardToken` is already stored, the existing
+    /// entry is moved to the front. Otherwise the new card is prepended and the list capped at
+    /// `maxSavedCards`.
+    private func addOrPromoteSavedCard(_ card: SavedCard) {
+        var updated = savedCards
+        if let existingIndex = updated.firstIndex(where: { $0.cardToken == card.cardToken }) {
+            updated.remove(at: existingIndex)
+        }
+        updated.insert(card, at: 0)
+        if updated.count > Self.maxSavedCards {
+            updated = Array(updated.prefix(Self.maxSavedCards))
+        }
+        savedCards = updated
+        persistSavedCards()
     }
 
     @objc func environmentSetup() {
@@ -173,6 +223,59 @@ class StoreFrontViewController:
 
     @objc func cancelButtonTapped() {
         dismiss(animated: true, completion: nil)
+    }
+
+    @objc func showAddProductDialog() {
+        let alert = UIAlertController(title: "Add Product", message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.placeholder = "Name"
+            tf.accessibilityIdentifier = "addproduct_field_name"
+        }
+        alert.addTextField { tf in
+            tf.placeholder = "Amount"
+            tf.keyboardType = .decimalPad
+            tf.accessibilityIdentifier = "addproduct_field_amount"
+        }
+        let addAction = UIAlertAction(title: "Add", style: .default) { [weak self, weak alert] _ in
+            guard let self = self,
+                  let name = alert?.textFields?[0].text, !name.isEmpty,
+                  let amountText = alert?.textFields?[1].text,
+                  let amount = Double(amountText), amount > 0 else { return }
+            let product = Product(name: name, amount: amount, isLocal: true)
+            self.pets.append(product)
+            self.saveCustomProducts()
+            self.collectionView?.reloadData()
+        }
+        alert.addAction(addAction)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func deleteProduct(_ product: Product) {
+        if selectedItems.contains(where: { $0.name == product.name }) {
+            remove(amount: product.amount, emoji: product.name)
+        }
+        pets.removeAll { $0.name == product.name && $0.isLocal }
+        saveCustomProducts()
+        collectionView?.reloadData()
+    }
+
+    // MARK: - Custom Product Persistence
+
+    private static let customProductsKey = "CustomProducts"
+
+    private func saveCustomProducts() {
+        let custom = pets.filter { $0.isLocal }
+        let data = custom.map { ["name": $0.name, "amount": $0.amount] }
+        UserDefaults.standard.set(data, forKey: Self.customProductsKey)
+    }
+
+    private func loadCustomProducts() -> [Product] {
+        guard let data = UserDefaults.standard.array(forKey: Self.customProductsKey) as? [[String: Any]] else { return [] }
+        return data.compactMap { dict in
+            guard let name = dict["name"] as? String, let amount = dict["amount"] as? Double else { return nil }
+            return Product(name: name, amount: amount, isLocal: true)
+        }
     }
 
     func resetSelection() {
@@ -229,13 +332,7 @@ class StoreFrontViewController:
             ApiService().saveCardForOrder(orderId: orderId) { result in
                 switch result {
                 case .success(let savedCard):
-                    do {
-                        let json = try JSONEncoder().encode(savedCard)
-                        self.savedCard = savedCard
-                        UserDefaults.standard.set(json, forKey: "SavedCard")
-                    } catch {
-                        print("Error parsing JSON: \(error)")
-                    }
+                    self.addOrPromoteSavedCard(savedCard)
                 case .failure(let error):
                     print("Error saving card: \(error)")
                 }
@@ -313,26 +410,12 @@ class StoreFrontViewController:
     // MARK: - Payment Helpers
 
     private func applePayMerchantIdentifier() -> String {
-        let region = Environment.getRegion()
-        let envType: EnvironmentType = {
-            guard let selectedId = Environment.getSelectedEnvironment() else { return .DEV }
-            return Environment.getEnvironments().first(where: { $0.id == selectedId })?.type ?? .DEV
-        }()
-
-        switch (region, envType) {
-        case ("KSA", .DEV):
-            return "merchant.com.ksa.ngenius-payments.paypage-dev"
-        case ("KSA", .UAT):
-            return "merchant.com.ksa.ngenius-payments.paypage-sandbox"
-        case ("KSA", .PROD):
-            return "merchant.com.ksa.ngenius-payments.paypage"
-        case (_, .DEV):
-            return "merchant.com.ngenius-payments.paypage-dev"
-        case (_, .UAT):
-            return "merchant.com.ngenius-payments.paypage-sandbox"
-        case (_, .PROD):
-            return "merchant.com.ngenius-payments.paypage"
+        if let selectedId = Environment.getSelectedEnvironment(),
+           let env = Environment.getEnvironments().first(where: { $0.id == selectedId }),
+           !env.applePayMerchantId.isEmpty {
+            return env.applePayMerchantId
         }
+        return ""
     }
 
     private func makeApplePayRequest() -> PKPaymentRequest {
@@ -360,6 +443,19 @@ class StoreFrontViewController:
 
     // MARK: - Payment Options (Step 3: Launch payment with order response)
 
+    private func makeOrderItems() -> [OrderItem] {
+        let currency = Environment.getCurrency()
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        formatter.locale = Locale(identifier: "en_US")
+        return selectedItems.map { product in
+            let formattedAmount = formatter.string(from: NSNumber(value: product.amount)) ?? String(format: "%.2f", product.amount)
+            return OrderItem(name: product.name, amount: "\(currency) \(formattedAmount)")
+        }
+    }
+
     private func showPaymentOptions(for orderResponse: OrderResponse) {
         let applePayRequest = makeApplePayRequest()
         self.paymentRequest = applePayRequest
@@ -373,7 +469,9 @@ class StoreFrontViewController:
             for: orderResponse,
             with: applePayRequest,
             clickToPayConfig: makeClickToPayConfig(),
-            aaniBackLink: "demoApp://"
+            aaniBackLink: "demoApp://",
+            orderItems: makeOrderItems(),
+            savedCards: savedCards
         )
     }
 
@@ -389,7 +487,9 @@ class StoreFrontViewController:
             for: orderResponse,
             with: makeApplePayRequest(),
             clickToPayConfig: makeClickToPayConfig(),
-            aaniBackLink: "demoApp://"
+            aaniBackLink: "demoApp://",
+            orderItems: makeOrderItems(),
+            savedCards: savedCards
         )
     }
 
@@ -532,7 +632,11 @@ class StoreFrontViewController:
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath as IndexPath) as! ProductViewCell
-        cell.setProduct(product: pets[indexPath.item])
+        let product = pets[indexPath.item]
+        cell.setProduct(product: product)
+        cell.onDelete = { [weak self] in
+            self?.deleteProduct(product)
+        }
         return cell
     }
 
