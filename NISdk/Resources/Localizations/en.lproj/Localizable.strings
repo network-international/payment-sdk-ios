@@ -20,9 +20,10 @@
 "Processing Payment" = "Processing Payment";
 "Pay Button Title" = "Pay  %@";
 "Invalid pan number" = "Invalid card number";
+"Invalid card number length" = "Invalid card number length";
 "Invalid card provider" = "This card provider is not allowed";
-"Invalid expiry date" = "Invalid expiry date";
-"Invalid CVV Field" = "Invalid CVV Field";
+"Invalid expiry date" = "Expiry date is invalid.";
+"Invalid CVV Field" = "Security code is invalid";
 "Invalid card holder name" = "Invalid card holder name";
 "All fields are mandatory" = "All fields are mandatory";
 "Cancel" = "Cancel";

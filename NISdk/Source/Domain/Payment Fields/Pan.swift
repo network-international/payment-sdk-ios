@@ -31,6 +31,15 @@ class Pan {
         }
         return false
     }
+
+    /// True when the entered digits fall within the valid card-number length
+    /// range (13–19 digits). Used to distinguish "length is wrong" from
+    /// "passes length but fails Luhn" when surfacing validation errors.
+    func hasValidLength() -> Bool {
+        guard let trimmed = trimmedValue, !trimmed.isEmpty else { return false }
+        let length = trimmed.count
+        return length >= 13 && length <= 19
+    }
     
     func notifyPanChange() {
         var userInfo: [String: Any] = [:]

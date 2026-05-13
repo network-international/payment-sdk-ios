@@ -147,7 +147,8 @@ final class SliceInstallmentUIView: UIView {
 
     private let offers: [SliceOffer]
     private let onOfferSelected: (SliceOffer?) -> Void
-    private var selectedIndex = 0
+    private let pillBleed: UIEdgeInsets
+    private var selectedIndex = -1
 
     private let mainStack = UIStackView()
     private var tabButtons: [UIButton] = []
@@ -159,11 +160,15 @@ final class SliceInstallmentUIView: UIView {
     private let rateValueLabel = UILabel()
     private let feeValueLabel = UILabel()
 
-    init(offers: [SliceOffer], onOfferSelected: @escaping (SliceOffer?) -> Void) {
+    init(offers: [SliceOffer],
+         pillBleed: UIEdgeInsets = .zero,
+         onOfferSelected: @escaping (SliceOffer?) -> Void) {
         self.offers = offers
+        self.pillBleed = pillBleed
         self.onOfferSelected = onOfferSelected
         super.init(frame: .zero)
         translatesAutoresizingMaskIntoConstraints = false
+        clipsToBounds = false
         setup()
     }
 
@@ -199,21 +204,21 @@ final class SliceInstallmentUIView: UIView {
 
         let sliceLabel = UILabel()
         sliceLabel.text = "slice »"
-        sliceLabel.font = .systemFont(ofSize: 14, weight: .bold)
-        sliceLabel.textColor = UIColor(red: 0.0, green: 0.75, blue: 0.65, alpha: 1)
+        sliceLabel.font = PgType.bodyRowTitle
+        sliceLabel.textColor = PgColors.accentPrimary
         sliceLabel.setContentHuggingPriority(.required, for: .horizontal)
         sliceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         sliceLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let titleLabel = UILabel()
         titleLabel.text = "Zero fees. Zero interest."
-        titleLabel.font = .systemFont(ofSize: 13, weight: .semibold)
-        titleLabel.textColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1)
+        titleLabel.font = PgType.bodyRowTitle
+        titleLabel.textColor = PgColors.textPrimary
 
         let subtitleLabel = UILabel()
         subtitleLabel.text = "Split your purchases into easy installments"
-        subtitleLabel.font = .systemFont(ofSize: 11)
-        subtitleLabel.textColor = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 1)
+        subtitleLabel.font = PgType.bodyRowSubtitle
+        subtitleLabel.textColor = PgColors.textSecondary
         subtitleLabel.numberOfLines = 2
 
         let textStack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])
@@ -224,8 +229,8 @@ final class SliceInstallmentUIView: UIView {
         container.addSubview(sliceLabel)
         container.addSubview(textStack)
         NSLayoutConstraint.activate([
-            sliceLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 10),
             sliceLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
+            sliceLabel.centerYAnchor.constraint(equalTo: textStack.centerYAnchor),
             textStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 10),
             textStack.leadingAnchor.constraint(equalTo: sliceLabel.trailingAnchor, constant: 8),
             textStack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10),
@@ -249,19 +254,51 @@ final class SliceInstallmentUIView: UIView {
             tabButtons.append(btn)
             stack.addArrangedSubview(btn)
         }
-        let spacer = UIView()
-        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        stack.addArrangedSubview(spacer)
-        return stack
+
+        // Horizontal scroll containing the pill stack.
+        let scroll = UIScrollView()
+        scroll.showsHorizontalScrollIndicator = false
+        scroll.showsVerticalScrollIndicator = false
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        scroll.clipsToBounds = false
+        scroll.addSubview(stack)
+        // Stack pads itself to keep the first pill visually aligned with the section content
+        // even though the scroll's frame extends to the screen edges.
+        stack.layoutMargins = UIEdgeInsets(top: 0, left: pillBleed.left, bottom: 0, right: pillBleed.right)
+        stack.isLayoutMarginsRelativeArrangement = true
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: scroll.topAnchor),
+            stack.bottomAnchor.constraint(equalTo: scroll.bottomAnchor),
+            stack.leadingAnchor.constraint(equalTo: scroll.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: scroll.trailingAnchor),
+            stack.heightAnchor.constraint(equalTo: scroll.heightAnchor),
+        ])
+
+        // Wrap in a hit-test-forwarding container so the scroll can extend past the
+        // wrapper's bounds (negative leading/trailing) and still receive touches.
+        let wrapper = SliceBleedWrapper()
+        wrapper.translatesAutoresizingMaskIntoConstraints = false
+        wrapper.clipsToBounds = false
+        wrapper.addSubview(scroll)
+        wrapper.bleedTarget = scroll
+        NSLayoutConstraint.activate([
+            scroll.topAnchor.constraint(equalTo: wrapper.topAnchor),
+            scroll.bottomAnchor.constraint(equalTo: wrapper.bottomAnchor),
+            scroll.leadingAnchor.constraint(equalTo: wrapper.leadingAnchor, constant: -pillBleed.left),
+            scroll.trailingAnchor.constraint(equalTo: wrapper.trailingAnchor, constant: pillBleed.right),
+        ])
+        return wrapper
     }
 
     private func makeTabButton(title: String, index: Int) -> UIButton {
         let btn = UIButton(type: .custom)
         btn.setTitle(title, for: .normal)
         btn.titleLabel?.font = PgType.pillTabUnselected
-        btn.layer.cornerRadius = PgRadius.pill
+        // Capsule pill: fixed height with cornerRadius = height / 2 (matches Android Radius.pill 20dp ≈ tabHeight/2).
+        btn.layer.cornerRadius = PgSize.tabHeight / 2
         btn.clipsToBounds = true
-        btn.contentEdgeInsets = UIEdgeInsets(top: 8, left: 14, bottom: 8, right: 14)
+        btn.contentEdgeInsets = UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24)
+        btn.heightAnchor.constraint(equalToConstant: PgSize.tabHeight).isActive = true
         btn.tag = index
         btn.addTarget(self, action: #selector(tabTapped(_:)), for: .touchUpInside)
         return btn
@@ -285,11 +322,11 @@ final class SliceInstallmentUIView: UIView {
     private func refreshTabAppearance() {
         for (i, btn) in tabButtons.enumerated() {
             let sel = i == selectedIndex
-            btn.backgroundColor = sel ? PgColors.badgeDarkBg : PgColors.surfacePage
+            btn.backgroundColor = sel ? PgColors.accentPrimary : PgColors.surfaceRow
             btn.setTitleColor(sel ? PgColors.textOnTabSelected : PgColors.textPrimary, for: .normal)
             btn.titleLabel?.font = sel ? PgType.pillTabSelected : PgType.pillTabUnselected
-            btn.layer.borderColor = sel ? UIColor.clear.cgColor : PgColors.borderTabUnselected.cgColor
-            btn.layer.borderWidth = sel ? 0 : 1
+            btn.layer.borderColor = sel ? PgColors.accentPrimary.cgColor : PgColors.borderTabUnselected.cgColor
+            btn.layer.borderWidth = 1
         }
     }
 
@@ -386,6 +423,26 @@ final class SliceInstallmentUIView: UIView {
 
     private func fmtAmt(_ value: Int, _ currency: String) -> String {
         String(format: "\(currency) %.2f", Double(value) / 100.0)
+    }
+}
+
+// MARK: - SliceBleedWrapper
+//
+// Container whose `bleedTarget` (the pill scroll view) extends past its own bounds via
+// negative leading/trailing constraints. UIView's default hitTest is bounded by `self.bounds`,
+// which would drop touches that land on the bleeding subview. Override forwards them.
+
+final class SliceBleedWrapper: UIView {
+    weak var bleedTarget: UIView?
+
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        if let target = bleedTarget {
+            let p = convert(point, to: target)
+            if target.bounds.contains(p), let hit = target.hitTest(p, with: event) {
+                return hit
+            }
+        }
+        return super.hitTest(point, with: event)
     }
 }
 

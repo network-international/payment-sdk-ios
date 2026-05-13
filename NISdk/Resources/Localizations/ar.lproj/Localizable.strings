@@ -20,9 +20,10 @@
 "Processing Payment" = "جاري التحميل";
 "Pay Button Title" = "%@ إدفع";
 "Invalid pan number" = "رقم البطاقة غير صحيح";
+"Invalid card number length" = "طول رقم البطاقة غير صحيح";
 "Invalid card provider" = "مصدر البطاقة غير مسموح";
-"Invalid expiry date" = "تاريخ الصلاحية منتهي";
-"Invalid CVV Field" = "حقل رقم التحقق غير صحيح";
+"Invalid expiry date" = "تاريخ الانتهاء غير صالح.";
+"Invalid CVV Field" = "رمز الأمان غير صحيح";
 "Invalid card holder name" = "اسم حامل البطاقة غير صحيح";
 "All fields are mandatory" = "كل الحقول مطلوبة";
 "Cancel" = "إلغاء";

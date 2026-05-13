@@ -476,7 +476,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.5;
+				CURRENT_PROJECT_VERSION = 3.6;
 				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -511,7 +511,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.5;
+				CURRENT_PROJECT_VERSION = 3.6;
 				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

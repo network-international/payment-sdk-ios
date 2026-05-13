@@ -11,7 +11,12 @@ import Foundation
 class NameInputVC: UIViewController, UITextFieldDelegate {
     let nameTextField: UITextField = UITextField()
     @objc let onChangeName: onChangeTextClosure
-    
+    /// Fired when the name field resigns first responder.
+    var onEditingDidEnd: (() -> Void)?
+    /// Fired when the name field becomes first responder so the parent can
+    /// clear any stale error while the user is editing.
+    var onEditingDidBegin: (() -> Void)?
+
     init(onChangeText: @escaping onChangeTextClosure) {
         self.onChangeName = onChangeText
         super.init(nibName: nil, bundle: nil)
@@ -63,5 +68,13 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
     
     @objc func onNameChangeCallback(textField: UITextField) {
         self.onChangeName(textField)
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        onEditingDidEnd?()
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        onEditingDidBegin?()
     }
 }

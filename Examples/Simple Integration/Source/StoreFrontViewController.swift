@@ -524,6 +524,14 @@ class StoreFrontViewController:
         )
     }
 
+    func didSelectQPay(orderResponse: OrderResponse) {
+        NISdk.sharedInstance.launchQPay(
+            qpayDelegate: self,
+            overParent: self,
+            orderResponse: orderResponse
+        )
+    }
+
     func didSelectSavedCard(orderResponse: OrderResponse, savedCard: SavedCard, cvv: String?) {
         NISdk.sharedInstance.launchSavedCardPayment(
             cardPaymentDelegate: self,
@@ -670,6 +678,24 @@ extension StoreFrontViewController: ClickToPayDelegate {
             showAlertWith(title: "Payment Aborted", message: "You cancelled the payment request. You can try again!")
         case .postAuthReview:
             showAlertWith(title: "Payment In Auth Review", message: "Payment is in review will need to be approved via portal")
+        }
+    }
+}
+
+extension StoreFrontViewController: QPayPaymentDelegate {
+    @objc func qpayPaymentCompleted(with status: QPayPaymentStatus) {
+        switch status {
+        case .success:
+            resetSelection()
+            showAlertWith(title: "Payment Successfull", message: "Your QPay payment was successfull.")
+        case .failed:
+            showAlertWith(title: "Payment Failed", message: "Your QPay payment could not be completed.")
+        case .cancelled:
+            showAlertWith(title: "Payment Aborted", message: "You cancelled the QPay payment. You can try again!")
+        case .invalidRequest:
+            showAlertWith(title: "Error", message: "Invalid QPay request")
+        @unknown default:
+            showAlertWith(title: "Error", message: "Unknown QPay status")
         }
     }
 }
