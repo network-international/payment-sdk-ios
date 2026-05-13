@@ -12,7 +12,12 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
     let cvvTextField: UITextField = UITextField()
     @objc let onChangeCvv: onChangeTextClosure
     let cvv: Cvv
-    
+    /// Fired when the CVV field resigns first responder.
+    var onEditingDidEnd: (() -> Void)?
+    /// Fired when the CVV field becomes first responder so the parent can
+    /// clear any stale error while the user is editing.
+    var onEditingDidBegin: (() -> Void)?
+
     init(onChangeText: @escaping onChangeTextClosure, cvv: Cvv) {
         self.onChangeCvv = onChangeText
         self.cvv = cvv
@@ -75,5 +80,13 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
                    replacementString string: String) -> Bool {
         return textField.hasReachedCharacterLimit(for: string, in: range, with: cvv.length) &&
             textField.hasOnlyDigits(string: string)
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        onEditingDidEnd?()
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        onEditingDidBegin?()
     }
 }

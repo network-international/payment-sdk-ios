@@ -17,6 +17,7 @@ protocol PaymentOptionsDelegate: AnyObject {
     func didSelectClickToPay(orderResponse: OrderResponse)
     func didSelectApplePay(orderResponse: OrderResponse)
     func didSelectSavedCard(orderResponse: OrderResponse, savedCard: SavedCard, cvv: String?)
+    func didSelectQPay(orderResponse: OrderResponse)
     func didCancelPaymentOptions()
 }
 
@@ -124,6 +125,20 @@ class PaymentOptionsViewController: UIViewController {
             )
             button.addTarget(self, action: #selector(clickToPayTapped), for: .touchUpInside)
             button.accessibilityIdentifier = "paymentoptions_button_clickToPay"
+            contentStack.addArrangedSubview(button)
+        }
+
+        // QPay (gated on link presence + QAR currency)
+        let hasQPayLink = orderResponse.embeddedData?.payment?.first?.paymentLinks?.qpayLink != nil
+        let isQar = (orderResponse.amount?.currencyCode?.uppercased() == "QAR")
+        if hasQPayLink && isQar {
+            let button = makePaymentButton(
+                title: "QPay",
+                subtitle: "Qatar national payment gateway",
+                iconName: "qrcode"
+            )
+            button.addTarget(self, action: #selector(qpayTapped), for: .touchUpInside)
+            button.accessibilityIdentifier = "paymentoptions_button_qpay"
             contentStack.addArrangedSubview(button)
         }
 
@@ -245,6 +260,13 @@ class PaymentOptionsViewController: UIViewController {
         dismiss(animated: true) { [weak self] in
             guard let self = self else { return }
             self.delegate?.didSelectSavedCard(orderResponse: self.orderResponse, savedCard: savedCard, cvv: nil)
+        }
+    }
+
+    @objc private func qpayTapped() {
+        dismiss(animated: true) { [weak self] in
+            guard let self = self else { return }
+            self.delegate?.didSelectQPay(orderResponse: self.orderResponse)
         }
     }
 

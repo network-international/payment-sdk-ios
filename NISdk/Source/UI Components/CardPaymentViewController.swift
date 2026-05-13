@@ -42,8 +42,30 @@ class CardPaymentViewController: UIViewController {
         errorLabel.accessibilityIdentifier = "sdk_cardpayment_label_error"
         errorLabel.textColor = .red
         errorLabel.text = ""
+        errorLabel.numberOfLines = 0
+        errorLabel.lineBreakMode = .byWordWrapping
         return errorLabel
     }()
+
+    // Per-field inline error labels. Each sits directly under its field so the
+    // user sees exactly which input failed validation, instead of a single
+    // shared message at the bottom of the form.
+    private static func makeFieldErrorLabel(identifier: String) -> UILabel {
+        let label = UILabel()
+        label.accessibilityIdentifier = identifier
+        label.textColor = .red
+        label.font = UIFont.systemFont(ofSize: 12)
+        label.text = ""
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.isHidden = true
+        return label
+    }
+
+    lazy var panErrorLabel: UILabel = Self.makeFieldErrorLabel(identifier: "sdk_cardpayment_label_panError")
+    lazy var expiryErrorLabel: UILabel = Self.makeFieldErrorLabel(identifier: "sdk_cardpayment_label_expiryError")
+    lazy var cvvErrorLabel: UILabel = Self.makeFieldErrorLabel(identifier: "sdk_cardpayment_label_cvvError")
+    lazy var nameErrorLabel: UILabel = Self.makeFieldErrorLabel(identifier: "sdk_cardpayment_label_nameError")
     
     var paymentInProgress: Bool = false {
         didSet {
@@ -51,8 +73,15 @@ class CardPaymentViewController: UIViewController {
                 self.loadingSpinner.startAnimating()
                 self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonDisabledBackgroundColor
                 self.payButton.isEnabled = false
+                // Lock the entire form so the user can't edit fields, tap
+                // links, or otherwise interact while the payment is in flight.
+                // Animations (loading spinner) keep running because UIView
+                // animations don't depend on user-interaction enablement.
+                self.view.endEditing(true)
+                self.scrollView.isUserInteractionEnabled = false
             } else {
                 self.loadingSpinner.stopAnimating()
+                self.scrollView.isUserInteractionEnabled = true
                 self.updatePayButtonState()
             }
         }
@@ -261,53 +290,54 @@ class CardPaymentViewController: UIViewController {
         
         // Setup Pan field
         let panInputVC = PanInputVC(onChangeText: onChangePan)
+        panInputVC.onEditingDidEnd = { [weak self] in self?.refreshPanFieldError() }
+        panInputVC.onEditingDidBegin = { [weak self] in self?.clearFieldError(self?.panErrorLabel) }
         let panContainer = UIView()
         vStack.addArrangedSubview(panContainer)
         panContainer.anchor(heightConstant: 60)
         add(panInputVC, inside: panContainer)
         panInputVC.didMove(toParent: self)
+        vStack.addArrangedSubview(wrapFieldError(panErrorLabel))
 
         // Setup Expiry field
         let expiryInputVC = ExpiryInputVC(onChangeMonth: onChangeMonth, onChangeYear: onChangeYear)
+        expiryInputVC.onEditingDidEnd = { [weak self] in self?.refreshExpiryFieldError() }
+        expiryInputVC.onEditingDidBegin = { [weak self] in self?.clearFieldError(self?.expiryErrorLabel) }
         let expiryContainer = UIView()
         vStack.addArrangedSubview(expiryContainer)
         expiryContainer.anchor(heightConstant: 60)
         add(expiryInputVC, inside: expiryContainer)
         expiryInputVC.didMove(toParent: self)
+        vStack.addArrangedSubview(wrapFieldError(expiryErrorLabel))
 
 
         // Setup CVV field
         let cvvInputVC = CvvInputVC(onChangeText: onChangeCVV, cvv: self.cvv)
+        cvvInputVC.onEditingDidEnd = { [weak self] in self?.refreshCvvFieldError() }
+        cvvInputVC.onEditingDidBegin = { [weak self] in self?.clearFieldError(self?.cvvErrorLabel) }
         let cvvContainer = UIView()
         vStack.addArrangedSubview(cvvContainer)
         cvvContainer.anchor(heightConstant: 60)
         add(cvvInputVC, inside: cvvContainer)
         cvvInputVC.didMove(toParent: self)
+        vStack.addArrangedSubview(wrapFieldError(cvvErrorLabel))
 
         // Setup Name field
         let nameInputVC = NameInputVC(onChangeText: onChangeName)
+        nameInputVC.onEditingDidEnd = { [weak self] in self?.refreshNameFieldError() }
+        nameInputVC.onEditingDidBegin = { [weak self] in self?.clearFieldError(self?.nameErrorLabel) }
         let nameContainer = UIView()
         vStack.addArrangedSubview(nameContainer)
         nameContainer.anchor(heightConstant: 60)
         add(nameInputVC, inside: nameContainer)
         nameInputVC.didMove(toParent: self)
-        
-        let errorContainer = UIView()
-        contentView.addSubview(errorContainer)
-        errorContainer.anchor(top: vStack.bottomAnchor,
-                              leading: contentView.leadingAnchor,
-                              bottom: nil,
-                              trailing: contentView.trailingAnchor,
-                              padding: UIEdgeInsets(top: 20, left: 30, bottom: 0, right: 30),
-                              size: CGSize(width: 0, height: 50))
-        errorContainer.addSubview(errorLabel)
-        errorLabel.alignCenterToCenterOf(parent: errorContainer)
+        vStack.addArrangedSubview(wrapFieldError(nameErrorLabel))
 
         payButton.addTarget(self, action: #selector(payButtonAction), for: .touchUpInside)
 
         contentView.addSubview(payButton)
         payButton.contentHorizontalAlignment = .center
-        payButton.anchor(top: errorContainer.bottomAnchor,
+        payButton.anchor(top: vStack.bottomAnchor,
                          leading: contentView.leadingAnchor,
                          bottom: contentView.bottomAnchor,
                          trailing: contentView.trailingAnchor,
@@ -347,70 +377,148 @@ class CardPaymentViewController: UIViewController {
         self?.updatePayButtonState()
     }
     
-    func validateAllFields() -> (Bool, [String:String]) {
-        var errors: [String:String] = [:]
-        
-        let isPanValid = pan.validate()
-        if(!isPanValid) {
-            errors["pan"] = "Invalid pan number".localized
+    /// Wraps a per-field error label in a horizontally-padded container so it
+    /// aligns with the input fields above it and starts hidden (zero height
+    /// when empty so it doesn't add visual gap until needed).
+    private func wrapFieldError(_ label: UILabel) -> UIView {
+        let container = UIView()
+        container.addSubview(label)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            label.topAnchor.constraint(equalTo: container.topAnchor, constant: 4),
+            label.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -4),
+            label.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 20),
+            label.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -20),
+        ])
+        return container
+    }
+
+    /// Routes each validation error to its dedicated field label and clears the
+    /// rest. Hidden labels collapse so the form has no extra spacing when valid.
+    private func applyFieldErrors(_ errors: [(String, String)]) {
+        let map: [String: UILabel] = [
+            "pan": panErrorLabel,
+            "card-provider": panErrorLabel,
+            "expiryDate": expiryErrorLabel,
+            "cvv": cvvErrorLabel,
+            "cardHolderName": nameErrorLabel,
+        ]
+        for label in Set(map.values) {
+            label.text = ""
+            label.isHidden = true
         }
-        
+        for (key, message) in errors {
+            guard let label = map[key] else { continue }
+            label.text = label.text?.isEmpty == false ? "\(label.text!)\n\(message)" : message
+            label.isHidden = false
+        }
+    }
+
+    /// Updates a single field's error label from the current validation state
+    /// without disturbing the other fields'. Used by the on-blur callbacks so
+    /// the user sees errors as soon as they leave a field, matching Android.
+    private func updateSingleFieldError(label: UILabel, keys: Set<String>) {
+        let (_, errors) = validateAllFields()
+        let messages = errors.filter { keys.contains($0.0) }.map { $0.1 }
+        if messages.isEmpty {
+            label.text = ""
+            label.isHidden = true
+        } else {
+            label.text = messages.joined(separator: "\n")
+            label.isHidden = false
+        }
+    }
+
+    /// Wipes a per-field error label. Called on focus-gain so the user is not
+    /// staring at a stale error while editing — the error re-evaluates on
+    /// blur if the value is still invalid.
+    private func clearFieldError(_ label: UILabel?) {
+        label?.text = ""
+        label?.isHidden = true
+    }
+
+    private func refreshPanFieldError() {
+        // PAN label surfaces both Luhn/length errors and the "card provider
+        // not allowed" check, since both refer to the card-number input.
+        updateSingleFieldError(label: panErrorLabel, keys: ["pan", "card-provider"])
+    }
+
+    private func refreshExpiryFieldError() {
+        updateSingleFieldError(label: expiryErrorLabel, keys: ["expiryDate"])
+    }
+
+    private func refreshCvvFieldError() {
+        updateSingleFieldError(label: cvvErrorLabel, keys: ["cvv"])
+    }
+
+    private func refreshNameFieldError() {
+        updateSingleFieldError(label: nameErrorLabel, keys: ["cardHolderName"])
+    }
+
+    func validateAllFields() -> (Bool, [(String, String)]) {
+        // Preserve display order so the first invalid field's message reads
+        // top-to-bottom in the error label rather than depending on Dictionary order.
+        var errors: [(String, String)] = []
+
+        if !pan.validate() {
+            // Distinguish wrong length (e.g. partial entry) from a fully-typed
+            // number that fails the Luhn check, so the message is actionable.
+            if pan.hasValidLength() {
+                errors.append(("pan", "Invalid pan number".localized))
+            } else {
+                errors.append(("pan", "Invalid card number length".localized))
+            }
+        }
+
         if let allowedCardProviders = allowedCardProviders {
             let panProvider = pan.getCardProvider()
             let allowedCardProvidersSet: Set<CardProvider> = Set(allowedCardProviders)
             if(panProvider != .unknown && !allowedCardProvidersSet.contains(panProvider)) {
-                errors["card-provider"] = "Invalid card provider".localized
+                errors.append(("card-provider", "Invalid card provider".localized))
             }
         }
-        
-        let isExpiryValid = expiryDate.validate()
-        if(!isExpiryValid) {
-            errors["expiryDate"] = "Invalid expiry date".localized
+
+        if !expiryDate.validate() {
+            errors.append(("expiryDate", "Invalid expiry date".localized))
         }
-        
-        let isCvvValid = cvv.validate()
-        if(!isCvvValid) {
-            errors["cvv"] = "Invalid CVV Field".localized
+
+        if !cvv.validate() {
+            errors.append(("cvv", "Invalid CVV Field".localized))
         }
-        
-        let isNameValid = cardHolderName.validate()
-        if(!isNameValid) {
-            errors["cardHolderName"] = "Invalid card holder name".localized
+
+        if !cardHolderName.validate() {
+            errors.append(("cardHolderName", "Invalid card holder name".localized))
         }
-        
+
         return (errors.isEmpty, errors)
     }
-    
+
     @objc func payButtonAction() {
         let (isAllValid, errors) = validateAllFields()
-        if let pan = pan.value,
-            let expiryMonth = expiryDate.month,
-            let expiryYear = expiryDate.year,
-            let cvv = cvv.value,
-            let cardHolderName = cardHolderName.value {
-            if (isAllValid) {
-                errorLabel.text = ""
-                let paymentRequest = PaymentRequest(pan: pan,
-                                                    expiryMonth: expiryMonth,
-                                                    expiryYear: expiryYear,
-                                                    cvv: cvv,
-                                                    cardHolderName: cardHolderName)
-                paymentInProgress = true
-                for subview in self.payButton.subviews {
-                    if subview is UIStackView || subview is UIActivityIndicatorView {
-                        subview.removeFromSuperview()
-                    }
-                }
-                updateCancelButtonWith(status: false)
-                makePaymentCallback?(paymentRequest)
-                return
-            } else {
-                if(errors.count == 1) {
-                    errorLabel.text = errors.values.first
-                    return
+        if (isAllValid),
+           let pan = pan.value,
+           let expiryMonth = expiryDate.month,
+           let expiryYear = expiryDate.year,
+           let cvv = cvv.value,
+           let cardHolderName = cardHolderName.value {
+            applyFieldErrors([])
+            let paymentRequest = PaymentRequest(pan: pan,
+                                                expiryMonth: expiryMonth,
+                                                expiryYear: expiryYear,
+                                                cvv: cvv,
+                                                cardHolderName: cardHolderName)
+            paymentInProgress = true
+            for subview in self.payButton.subviews {
+                if subview is UIStackView || subview is UIActivityIndicatorView {
+                    subview.removeFromSuperview()
                 }
             }
+            updateCancelButtonWith(status: false)
+            makePaymentCallback?(paymentRequest)
+            return
         }
-        errorLabel.text = "All fields are mandatory".localized
+
+        // Route each error to its dedicated per-field label.
+        applyFieldErrors(errors)
     }
 }

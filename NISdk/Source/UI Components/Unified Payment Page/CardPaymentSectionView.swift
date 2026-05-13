@@ -106,6 +106,15 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
     var onNameChanged: ((String) -> Void)?
     var onSelected: (() -> Void)?
     var onFormValidityChanged: ((Bool) -> Void)?
+    /// Fired when any of the card-input fields resigns first responder. The
+    /// parent uses this to refresh the matching per-field error label so the
+    /// user sees validation feedback as they move on, not only on Pay tap.
+    /// For the expiry section (month + year), this fires only when focus
+    /// leaves BOTH fields — month↔year hops are treated as still editing.
+    var onFieldDidEndEditing: ((UITextField) -> Void)?
+    /// Fired when a card-input field becomes first responder so the parent
+    /// can clear that field's stale error message while the user is editing.
+    var onFieldDidBeginEditing: ((UITextField) -> Void)?
 
     // MARK: - UI Components
 
@@ -116,8 +125,30 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         lbl.font = PgType.captionDisclaimer
         lbl.text = ""
         lbl.textAlignment = .center
+        lbl.numberOfLines = 0
+        lbl.lineBreakMode = .byWordWrapping
         return lbl
     }()
+
+    // Per-field error labels rendered directly beneath each input so the user
+    // can see which field is invalid. The shared `errorLabel` above remains as
+    // a catch-all for non-field errors but is no longer used for validation.
+    private static func makeFieldErrorLabel(identifier: String) -> UILabel {
+        let lbl = UILabel()
+        lbl.accessibilityIdentifier = identifier
+        lbl.textColor = .red
+        lbl.font = PgType.captionDisclaimer
+        lbl.text = ""
+        lbl.numberOfLines = 0
+        lbl.lineBreakMode = .byWordWrapping
+        lbl.isHidden = true
+        return lbl
+    }
+
+    let panErrorLabel: UILabel = makeFieldErrorLabel(identifier: "sdk_card_label_panError")
+    let expiryErrorLabel: UILabel = makeFieldErrorLabel(identifier: "sdk_card_label_expiryError")
+    let cvvErrorLabel: UILabel = makeFieldErrorLabel(identifier: "sdk_card_label_cvvError")
+    let nameErrorLabel: UILabel = makeFieldErrorLabel(identifier: "sdk_card_label_nameError")
 
     private let radioButton: RadioButtonView = {
         let rb = RadioButtonView()
@@ -310,6 +341,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
                 self?.cardNumberIconView = iconView
             })
         formContainer.addArrangedSubview(cardNumberSection)
+        formContainer.addArrangedSubview(panErrorLabel)
 
         // Slice eligibility loader (hidden until triggered)
         formContainer.addArrangedSubview(sliceLoaderRow)
@@ -317,6 +349,18 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         // Expiry + CVV side by side
         let expiryCvvRow = createExpiryCvvRow()
         formContainer.addArrangedSubview(expiryCvvRow)
+
+        // Per-field errors for the side-by-side expiry/CVV row, mirrored
+        // beneath each field so the user knows which one to fix.
+        let expiryCvvErrorRow = UIStackView(arrangedSubviews: [expiryErrorLabel, cvvErrorLabel])
+        expiryCvvErrorRow.axis = .horizontal
+        expiryCvvErrorRow.alignment = .top
+        expiryCvvErrorRow.distribution = .fillEqually
+        // Match the spacing used by `createExpiryCvvRow` above so the error
+        // labels line up under their respective fields.
+        expiryCvvErrorRow.spacing = 10
+        expiryCvvErrorRow.translatesAutoresizingMaskIntoConstraints = false
+        formContainer.addArrangedSubview(expiryCvvErrorRow)
 
         // "What's CVV?" link + tooltip (full width, below the expiry/CVV row)
         let cvvTooltipSection = createCvvTooltipSection()
@@ -331,8 +375,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
                 return nil
             }())
         formContainer.addArrangedSubview(nameSection)
+        formContainer.addArrangedSubview(nameErrorLabel)
 
-        // Error label
+        // Catch-all error label retained for non-field errors (not used by the
+        // per-field validation flow below).
         errorLabel.translatesAutoresizingMaskIntoConstraints = false
         formContainer.addArrangedSubview(errorLabel)
 
@@ -844,6 +890,27 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        // Expiry is split into month + year. When focus moves between them,
+        // defer the blur callback and skip it if the user is still inside
+        // the expiry section — otherwise the error fires mid-entry.
+        if textField === monthField || textField === yearField {
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                if self.monthField.isFirstResponder || self.yearField.isFirstResponder {
+                    return
+                }
+                self.onFieldDidEndEditing?(textField)
+            }
+        } else {
+            onFieldDidEndEditing?(textField)
+        }
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        onFieldDidBeginEditing?(textField)
     }
 
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {

@@ -20,9 +20,10 @@
 "Processing Payment" = "Traitement du paiement";
 "Pay Button Title" = "Payer  %@";
 "Invalid pan number" = "Numéro de carte invalide";
+"Invalid card number length" = "Longueur du numéro de carte invalide";
 "Invalid card provider" = "Ce fournisseur de carte n'est pas autorisé";
-"Invalid expiry date" = "Date d'expiration invalide";
-"Invalid CVV Field" = "Champ CVV invalide";
+"Invalid expiry date" = "La date d'expiration est invalide.";
+"Invalid CVV Field" = "Le code de sécurité est invalide";
 "Invalid card holder name" = "Nom du titulaire invalide";
 "All fields are mandatory" = "Tous les champs sont obligatoires";
 "Cancel" = "Annuler";

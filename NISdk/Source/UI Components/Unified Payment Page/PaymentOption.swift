@@ -14,4 +14,5 @@ enum PaymentOption: Equatable {
     case savedCard(SavedCard)
     case clickToPay
     case aani
+    case qpay
 }

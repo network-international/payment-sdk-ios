@@ -17,6 +17,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     var onApplePayTapped: (() -> Void)?
     var onClickToPayTapped: (() -> Void)?
     var onAaniTapped: (() -> Void)?
+    var onQPayTapped: (() -> Void)?
     var onMakeSavedCardPayment: ((SavedCard, String?, VisaRequest?) -> Void)?
     /// Slice eligibility check. The first param is either a raw PAN (manual entry) or a saved-card
     /// token, distinguished by `isSavedToken`. The receiver routes to the right API field
@@ -79,10 +80,17 @@ class UnifiedPaymentPageViewController: UIViewController {
                 bottomPayButton.isEnabled = false
                 bottomPayButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonDisabledBackgroundColor
                 updateCancelButtonWith(status: false)
+                // Lock all interactive content while the payment is in flight
+                // — fields, radio rows, tooltips, slice/Vis selectors, footer
+                // links, everything inside the scroll view. The bottom pay
+                // button and cancel item are handled separately above.
+                view.endEditing(true)
+                scrollView.isUserInteractionEnabled = false
             } else {
                 bottomPaySpinner?.stopAnimating()
                 updateBottomPayButton()
                 updateCancelButtonWith(status: true)
+                scrollView.isUserInteractionEnabled = true
             }
         }
     }
@@ -95,6 +103,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var applePayRadioButton: RadioButtonView?
     private var clickToPayRadioButton: RadioButtonView?
     private var aaniRadioButton: RadioButtonView?
+    private var qpayRadioButton: RadioButtonView?
     private let bottomBarView = UIView()
     private var bottomBarBottomConstraint: NSLayoutConstraint?
     private let bottomPayButton = UIButton()
@@ -172,6 +181,12 @@ class UnifiedPaymentPageViewController: UIViewController {
         // Aani - show if the order has an aani payment link
         if order.embeddedData?.getAaniPayLink() != nil {
             availablePaymentOptions.append(.aani)
+        }
+
+        // QPay - show if order has a qpay link AND currency is QAR
+        if order.embeddedData?.getQPayLink() != nil,
+           order.amount?.currencyCode?.uppercased() == "QAR" {
+            availablePaymentOptions.append(.qpay)
         }
 
         // No default selection — all sections start collapsed
@@ -284,7 +299,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             let token = card.cardToken ?? ""
             let cvvText = savedCardCvvFields[token]?.text ?? ""
             enabled = !card.recaptureCsc || !cvvText.isEmpty
-        case .applePay, .aani, .clickToPay:
+        case .applePay, .aani, .clickToPay, .qpay:
             enabled = true
         case .none:
             enabled = false
@@ -369,8 +384,10 @@ class UnifiedPaymentPageViewController: UIViewController {
             setupCardInputCallbacks()
         }
 
-        // 4. Other payment options (Click to Pay, Aani)
-        let hasOtherOptions = availablePaymentOptions.contains(.clickToPay) || availablePaymentOptions.contains(.aani)
+        // 4. Other payment options (Click to Pay, Aani, QPay)
+        let hasOtherOptions = availablePaymentOptions.contains(.clickToPay)
+            || availablePaymentOptions.contains(.aani)
+            || availablePaymentOptions.contains(.qpay)
         if hasOtherOptions {
             let otherHeader = createSectionHeader("Or select your payment options".localized)
             contentStackView.addArrangedSubview(otherHeader)
@@ -383,6 +400,11 @@ class UnifiedPaymentPageViewController: UIViewController {
             if availablePaymentOptions.contains(.aani) {
                 let aaniSection = createAaniSection()
                 contentStackView.addArrangedSubview(aaniSection)
+            }
+
+            if availablePaymentOptions.contains(.qpay) {
+                let qpaySection = createQPaySection()
+                contentStackView.addArrangedSubview(qpaySection)
             }
         }
 
@@ -766,6 +788,52 @@ class UnifiedPaymentPageViewController: UIViewController {
         return paddedContainer
     }
 
+    // MARK: - QPay Section
+
+    private func createQPaySection() -> UIView {
+        let radioButton = RadioButtonView()
+        radioButton.isOn = false
+        radioButton.translatesAutoresizingMaskIntoConstraints = false
+        radioButton.accessibilityIdentifier = "sdk_paymentpage_radio_qpay"
+        qpayRadioButton = radioButton
+
+        let titleLabel = UILabel()
+        titleLabel.text = "QPay".localized
+        titleLabel.font = PgType.bodyRowTitle
+        titleLabel.textColor = PgColors.textPrimary
+
+        let row = UIStackView(arrangedSubviews: [radioButton, titleLabel, UIView()])
+        row.axis = .horizontal
+        row.spacing = 12
+        row.alignment = .center
+        row.translatesAutoresizingMaskIntoConstraints = false
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(qpayRadioTapped))
+        row.addGestureRecognizer(tap)
+        row.isUserInteractionEnabled = true
+
+        let rowContainer = UIView()
+        rowContainer.layer.cornerRadius = PgRadius.row
+        rowContainer.layer.borderColor = PgColors.borderRow.cgColor
+        rowContainer.layer.borderWidth = 1
+        rowContainer.backgroundColor = PgColors.surfaceRow
+        rowContainer.translatesAutoresizingMaskIntoConstraints = false
+        rowContainer.addSubview(row)
+        row.anchor(top: rowContainer.topAnchor, leading: rowContainer.leadingAnchor,
+                   bottom: rowContainer.bottomAnchor, trailing: rowContainer.trailingAnchor,
+                   padding: UIEdgeInsets(top: 20, left: PgSpacing.rowPaddingH,
+                                        bottom: 20, right: PgSpacing.rowPaddingH))
+
+        let paddedContainer = UIView()
+        paddedContainer.translatesAutoresizingMaskIntoConstraints = false
+        paddedContainer.addSubview(rowContainer)
+        rowContainer.anchor(top: paddedContainer.topAnchor, leading: paddedContainer.leadingAnchor,
+                            bottom: paddedContainer.bottomAnchor, trailing: paddedContainer.trailingAnchor,
+                            padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
+                                                  bottom: 0, right: PgSpacing.pageH))
+        return paddedContainer
+    }
+
     private func createSavedCardRow(for card: SavedCard) -> UIView {
         let sdkBundle = NISdk.sharedInstance.getBundle()
         let token = card.cardToken ?? ""
@@ -1060,6 +1128,66 @@ class UnifiedPaymentPageViewController: UIViewController {
                 self?.updateBottomPayButton()
             }
         }
+        cardSection.onFieldDidEndEditing = { [weak self] textField in
+            self?.refreshCardSectionFieldError(for: textField)
+        }
+        cardSection.onFieldDidBeginEditing = { [weak self] textField in
+            self?.clearCardSectionFieldError(for: textField)
+        }
+    }
+
+    /// Wipes the per-field error label for the focused input — the user is
+    /// editing, give them a chance to finish before re-evaluating on blur.
+    private func clearCardSectionFieldError(for textField: UITextField) {
+        guard let section = cardSection else { return }
+        let label: UILabel
+        switch textField {
+        case section.cardNumberField:
+            label = section.panErrorLabel
+        case section.monthField, section.yearField:
+            label = section.expiryErrorLabel
+        case section.cvvField:
+            label = section.cvvErrorLabel
+        case section.nameField:
+            label = section.nameErrorLabel
+        default:
+            return
+        }
+        label.text = ""
+        label.isHidden = true
+    }
+
+    /// Updates only the per-field error label corresponding to the field that
+    /// just lost focus, so the user gets validation feedback as they move on.
+    private func refreshCardSectionFieldError(for textField: UITextField) {
+        guard let section = cardSection else { return }
+        let (_, errors) = validateAllFields()
+        let label: UILabel
+        let keys: Set<String>
+        switch textField {
+        case section.cardNumberField:
+            label = section.panErrorLabel
+            keys = ["pan", "card-provider"]
+        case section.monthField, section.yearField:
+            label = section.expiryErrorLabel
+            keys = ["expiryDate"]
+        case section.cvvField:
+            label = section.cvvErrorLabel
+            keys = ["cvv"]
+        case section.nameField:
+            label = section.nameErrorLabel
+            keys = ["cardHolderName"]
+        default:
+            return
+        }
+        let messages = errors.filter { keys.contains($0.0) }.map { $0.1 }
+        if messages.isEmpty {
+            label.text = ""
+            label.isHidden = true
+        } else {
+            label.text = messages.joined(separator: "\n")
+            label.isHidden = false
+        }
     }
 
     private func maybeCheckSliceEligibility() {
@@ -1172,7 +1300,15 @@ class UnifiedPaymentPageViewController: UIViewController {
         guard let cardSection = cardSection else { return }
         sliceInstallmentView?.removeFromSuperview()
 
-        let sliceView = SliceInstallmentUIView(offers: offers) { [weak self] offer in
+        // Bleed past ancestor padding (pageH + rowPaddingH + radio button + 12pt gap on leading;
+        // pageH + rowPaddingH on trailing) so the pill scroll reaches the screen edges.
+        let pillBleed = UIEdgeInsets(
+            top: 0,
+            left: PgSpacing.pageH + PgSpacing.rowPaddingH + PgSize.radioOuter + 12,
+            bottom: 0,
+            right: PgSpacing.pageH + PgSpacing.rowPaddingH
+        )
+        let sliceView = SliceInstallmentUIView(offers: offers, pillBleed: pillBleed) { [weak self] offer in
             self?.selectedSliceOffer = offer
         }
         sliceView.onSizeChange = { [weak self] in
@@ -1226,31 +1362,40 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     // MARK: - Validation & Payment
 
-    func validateAllFields() -> (Bool, [String: String]) {
-        var errors: [String: String] = [:]
+    func validateAllFields() -> (Bool, [(String, String)]) {
+        // Ordered list so messages render top-to-bottom in the section's error
+        // label in the same order the fields appear on screen.
+        var errors: [(String, String)] = []
 
         if !pan.validate() {
-            errors["pan"] = "Invalid pan number".localized
+            // Surface "Invalid card number length" when the entered digits
+            // don't fall in the 13–19 range; otherwise show "Invalid card number"
+            // (Luhn check failed for a fully-typed number).
+            if pan.hasValidLength() {
+                errors.append(("pan", "Invalid pan number".localized))
+            } else {
+                errors.append(("pan", "Invalid card number length".localized))
+            }
         }
 
         if let allowedCardProviders = allowedCardProviders {
             let panProvider = pan.getCardProvider()
             let allowedSet: Set<CardProvider> = Set(allowedCardProviders)
             if panProvider != .unknown && !allowedSet.contains(panProvider) {
-                errors["card-provider"] = "Invalid card provider".localized
+                errors.append(("card-provider", "Invalid card provider".localized))
             }
         }
 
         if !expiryDate.validate() {
-            errors["expiryDate"] = "Invalid expiry date".localized
+            errors.append(("expiryDate", "Invalid expiry date".localized))
         }
 
         if !cvv.validate() {
-            errors["cvv"] = "Invalid CVV Field".localized
+            errors.append(("cvv", "Invalid CVV Field".localized))
         }
 
         if !cardHolderName.validate() {
-            errors["cardHolderName"] = "Invalid card holder name".localized
+            errors.append(("cardHolderName", "Invalid card holder name".localized))
         }
 
         return (errors.isEmpty, errors)
@@ -1258,53 +1403,71 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     private func payCardAction() {
         let (isAllValid, errors) = validateAllFields()
-        if let pan = pan.value,
+        if isAllValid,
+           let pan = pan.value,
            let expiryMonth = expiryDate.month,
            let expiryYear = expiryDate.year,
            let cvv = cvv.value,
            let cardHolderName = cardHolderName.value {
-            if isAllValid {
-                cardSection?.errorLabel.text = ""
-                let paymentRequest = PaymentRequest(pan: pan,
-                                                     expiryMonth: expiryMonth,
-                                                     expiryYear: expiryYear,
-                                                     cvv: cvv,
-                                                     cardHolderName: cardHolderName)
-                if let offer = selectedSliceOffer {
-                    paymentRequest.sliceRequest = SliceRequest(period: offer.period,
-                                                               rate: offer.rate,
-                                                               fee: offer.fee)
-                }
-                if let plan = selectedVisaPlan {
-                    let iso2Code = Locale.iso639_2LanguageCode ?? ""
-                    let acceptedTC = plan.termsAndConditions?.first { $0.languageCode == iso2Code }
-                                       ?? plan.termsAndConditions?.first
-                    paymentRequest.visaRequest = VisaRequest(
-                        planSelectionIndicator: true,
-                        acceptedTAndCVersion: acceptedTC?.version,
-                        vPlanId: plan.vPlanID
-                    )
-                } else if visaPlansResponse != nil {
-                    // The inline Vis selector ran but the user opted out (Pay in full / no plan).
-                    // Send an opt-out VisaRequest so PaymentViewController skips the legacy
-                    // post-tap getVisaPlans + full-screen prompt.
-                    paymentRequest.visaRequest = VisaRequest(
-                        planSelectionIndicator: false,
-                        acceptedTAndCVersion: nil,
-                        vPlanId: nil
-                    )
-                }
-                paymentInProgress = true
-                makePaymentCallback?(paymentRequest)
-                return
-            } else {
-                if errors.count == 1 {
-                    cardSection?.errorLabel.text = errors.values.first
-                    return
-                }
+            applyCardSectionFieldErrors([])
+            let paymentRequest = PaymentRequest(pan: pan,
+                                                 expiryMonth: expiryMonth,
+                                                 expiryYear: expiryYear,
+                                                 cvv: cvv,
+                                                 cardHolderName: cardHolderName)
+            if let offer = selectedSliceOffer {
+                paymentRequest.sliceRequest = SliceRequest(period: offer.period,
+                                                           rate: offer.rate,
+                                                           fee: offer.fee)
             }
+            if let plan = selectedVisaPlan {
+                let iso2Code = Locale.iso639_2LanguageCode ?? ""
+                let acceptedTC = plan.termsAndConditions?.first { $0.languageCode == iso2Code }
+                                   ?? plan.termsAndConditions?.first
+                paymentRequest.visaRequest = VisaRequest(
+                    planSelectionIndicator: true,
+                    acceptedTAndCVersion: acceptedTC?.version,
+                    vPlanId: plan.vPlanID
+                )
+            } else if visaPlansResponse != nil {
+                // The inline Vis selector ran but the user opted out (Pay in full / no plan).
+                // Send an opt-out VisaRequest so PaymentViewController skips the legacy
+                // post-tap getVisaPlans + full-screen prompt.
+                paymentRequest.visaRequest = VisaRequest(
+                    planSelectionIndicator: false,
+                    acceptedTAndCVersion: nil,
+                    vPlanId: nil
+                )
+            }
+            paymentInProgress = true
+            makePaymentCallback?(paymentRequest)
+            return
         }
-        cardSection?.errorLabel.text = "All fields are mandatory".localized
+
+        // Route each error to its dedicated per-field label.
+        applyCardSectionFieldErrors(errors)
+    }
+
+    /// Maps validation errors to the matching per-field labels inside the
+    /// card section so each invalid field shows its own dedicated message.
+    private func applyCardSectionFieldErrors(_ errors: [(String, String)]) {
+        guard let section = cardSection else { return }
+        let map: [String: UILabel] = [
+            "pan": section.panErrorLabel,
+            "card-provider": section.panErrorLabel,
+            "expiryDate": section.expiryErrorLabel,
+            "cvv": section.cvvErrorLabel,
+            "cardHolderName": section.nameErrorLabel,
+        ]
+        for label in Set(map.values) {
+            label.text = ""
+            label.isHidden = true
+        }
+        for (key, message) in errors {
+            guard let label = map[key] else { continue }
+            label.text = label.text?.isEmpty == false ? "\(label.text!)\n\(message)" : message
+            label.isHidden = false
+        }
     }
 
     // MARK: - Selection
@@ -1319,6 +1482,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             cardSection?.setExpanded(false, animated: true)
             clickToPayRadioButton?.isOn = false
             aaniRadioButton?.isOn = false
+            qpayRadioButton?.isOn = false
             savedCardRadioButtons.values.forEach { $0.isOn = false }
             savedCardCvvContainers.values.forEach { $0.isHidden = true }
             savedCardRowContainers.values.forEach {
@@ -1345,6 +1509,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         cardSection?.setExpanded(false, animated: true)
         clickToPayRadioButton?.isOn = false
         aaniRadioButton?.isOn = false
+        qpayRadioButton?.isOn = false
         savedCardRadioButtons.values.forEach { $0.isOn = false }
         savedCardCvvContainers.values.forEach { $0.isHidden = true }
         savedCardRowContainers.values.forEach {
@@ -1404,6 +1569,13 @@ class UnifiedPaymentPageViewController: UIViewController {
             lastVisCheckKey = nil
             lastSliceCheckKey = nil
             applyBottomButtonStyle(forApplePay: false)
+        case .qpay:
+            qpayRadioButton?.isOn = true
+            hideVisaInstallments()
+            hideSliceOffers()
+            lastVisCheckKey = nil
+            lastSliceCheckKey = nil
+            applyBottomButtonStyle(forApplePay: false)
         }
 
         updateBottomPayButton()
@@ -1457,6 +1629,8 @@ class UnifiedPaymentPageViewController: UIViewController {
             onAaniTapped?()
         case .clickToPay:
             onClickToPayTapped?()
+        case .qpay:
+            onQPayTapped?()
         case .none:
             break
         }
@@ -1468,6 +1642,10 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     @objc private func aaniRadioTapped() {
         selectPaymentOption(.aani)
+    }
+
+    @objc private func qpayRadioTapped() {
+        selectPaymentOption(.qpay)
     }
 
     // MARK: - Navigation

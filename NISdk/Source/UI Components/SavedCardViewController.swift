@@ -34,20 +34,31 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         let errorLabel = UILabel()
         errorLabel.textColor = .red
         errorLabel.text = ""
+        errorLabel.numberOfLines = 0
+        errorLabel.lineBreakMode = .byWordWrapping
         return errorLabel
     }()
     
     var paymentInProgress: Bool = false {
         didSet {
-            self.cvvTextField.isEnabled = false
-            self.payButton.isEnabled = self.paymentInProgress
+            // Pre-existing bug: `payButton.isEnabled = paymentInProgress`
+            // ENABLED the button while processing, allowing the user to fire a
+            // second payment. Invert it. Also gate the CVV field on the same
+            // flag so it isn't permanently disabled after the first payment.
+            self.cvvTextField.isEnabled = !self.paymentInProgress
+            self.payButton.isEnabled = !self.paymentInProgress
             if(self.paymentInProgress) {
                 self.loadingSpinner.startAnimating()
                 self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonDisabledBackgroundColor
                 self.payButton.setTitle("Processing Payment".localized, for: .normal)
+                // Lock everything inside the scroll view so taps/typing can't
+                // reach any other field while the payment is in flight.
+                self.view.endEditing(true)
+                self.scrollView.isUserInteractionEnabled = false
             } else {
                 self.loadingSpinner.stopAnimating()
                 self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
+                self.scrollView.isUserInteractionEnabled = true
             }
         }
     }
@@ -247,6 +258,21 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
 
         // Setup CVV field
         let cvvInputVC = CvvInputVC(onChangeText: onChangeCVV, cvv: self.cvv)
+        cvvInputVC.onEditingDidEnd = { [weak self] in
+            // Validate on blur so the user sees the CVV error inline as they
+            // move on, instead of waiting until they tap Pay.
+            guard let self = self else { return }
+            let (_, errors) = self.validateAllFields()
+            if let first = errors.first {
+                self.errorLabel.text = first.1
+            } else {
+                self.errorLabel.text = ""
+            }
+        }
+        cvvInputVC.onEditingDidBegin = { [weak self] in
+            // Clear any stale error while the user is editing.
+            self?.errorLabel.text = ""
+        }
         let cvvContainer = UIView()
         vStack.addArrangedSubview(cvvContainer)
         cvvContainer.anchor(heightConstant: 60)
@@ -292,43 +318,38 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         self?.cvv.value = textField.text ?? ""
     }
     
-    func validateAllFields() -> (Bool, [String:String]) {
-        var errors: [String:String] = [:]
-        
-        let isCvvValid = cvv.validate()
-        if(!isCvvValid) {
-            errors["cvv"] = "Invalid CVV Field".localized
+    func validateAllFields() -> (Bool, [(String, String)]) {
+        var errors: [(String, String)] = []
+
+        if !cvv.validate() {
+            errors.append(("cvv", "Invalid CVV Field".localized))
         }
-        
+
         return (errors.isEmpty, errors)
     }
-    
+
     @objc func payButtonAction() {
         let (isAllValid, errors) = validateAllFields()
-        if let cvv = cvv.value {
-            if (isAllValid) {
-                errorLabel.text = ""
-                let savedCardRequest = SavedCardRequest(
-                    expiry: savedCard.expiry,
-                    cardholderName: savedCard.cardholderName,
-                    cardToken: savedCard.cardToken,
-                    cvv: cvv)
-                paymentInProgress = true
-                for subview in self.payButton.subviews {
-                    if subview is UIStackView {
-                        subview.removeFromSuperview()
-                    }
-                }
-                updateCancelButtonWith(status: false)
-                makeSaveCardPaymentCallback(savedCardRequest)
-                return
-            } else {
-                if(errors.count == 1) {
-                    errorLabel.text = errors.values.first
-                    return
+        if isAllValid, let cvv = cvv.value {
+            errorLabel.text = ""
+            let savedCardRequest = SavedCardRequest(
+                expiry: savedCard.expiry,
+                cardholderName: savedCard.cardholderName,
+                cardToken: savedCard.cardToken,
+                cvv: cvv)
+            paymentInProgress = true
+            for subview in self.payButton.subviews {
+                if subview is UIStackView {
+                    subview.removeFromSuperview()
                 }
             }
+            updateCancelButtonWith(status: false)
+            makeSaveCardPaymentCallback(savedCardRequest)
+            return
         }
-        errorLabel.text = "All fields are mandatory".localized
+
+        // Always show the dedicated CVV message rather than a generic
+        // "All fields are mandatory" string — CVV is the only field here.
+        errorLabel.text = errors.map { $0.1 }.joined(separator: "\n")
     }
 }
