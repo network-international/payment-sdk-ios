@@ -119,6 +119,7 @@
 		AA0000010000000000001C /* ClickToPayEmailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000001C /* ClickToPayEmailViewController.swift */; };
 		AA0000010000000000001D /* Local+iso639.2.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000001D /* Local+iso639.2.swift */; };
 		C2P0080000000000000008 /* ClickToPayConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0010000000000000001 /* ClickToPayConfig.swift */; };
+		C2P00B000000000000000B /* ClickToPayMerchantConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P00A000000000000000A /* ClickToPayMerchantConfigService.swift */; };
 		C2P0090000000000000009 /* ClickToPayResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0020000000000000002 /* ClickToPayResponse.swift */; };
 		C2P0100000000000000010 /* ClickToPayArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0030000000000000003 /* ClickToPayArgs.swift */; };
 		C2P0110000000000000011 /* ClickToPayDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0040000000000000004 /* ClickToPayDelegate.swift */; };
@@ -271,6 +272,7 @@
 		AA0000020000000000001C /* ClickToPayEmailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayEmailViewController.swift; sourceTree = "<group>"; };
 		AA0000020000000000001D /* Local+iso639.2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Local+iso639.2.swift"; sourceTree = "<group>"; };
 		C2P0010000000000000001 /* ClickToPayConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayConfig.swift; sourceTree = "<group>"; };
+		C2P00A000000000000000A /* ClickToPayMerchantConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayMerchantConfigService.swift; sourceTree = "<group>"; };
 		C2P0020000000000000002 /* ClickToPayResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayResponse.swift; sourceTree = "<group>"; };
 		C2P0030000000000000003 /* ClickToPayArgs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayArgs.swift; sourceTree = "<group>"; };
 		C2P0040000000000000004 /* ClickToPayDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayDelegate.swift; sourceTree = "<group>"; };
@@ -642,6 +644,7 @@
 			isa = PBXGroup;
 			children = (
 				C2P0010000000000000001 /* ClickToPayConfig.swift */,
+				C2P00A000000000000000A /* ClickToPayMerchantConfigService.swift */,
 				C2P0020000000000000002 /* ClickToPayResponse.swift */,
 				C2P0030000000000000003 /* ClickToPayArgs.swift */,
 			);
@@ -858,6 +861,7 @@
 				NILOG002000000000000002 /* Logger.swift in Sources */,
 				86710F4C230FE47600259AE9 /* Encodable+PrettyPrint.swift in Sources */,
 				C2P0080000000000000008 /* ClickToPayConfig.swift in Sources */,
+				C2P00B000000000000000B /* ClickToPayMerchantConfigService.swift in Sources */,
 				C2P0090000000000000009 /* ClickToPayResponse.swift in Sources */,
 				C2P0100000000000000010 /* ClickToPayArgs.swift in Sources */,
 				C2P0110000000000000011 /* ClickToPayDelegate.swift in Sources */,
