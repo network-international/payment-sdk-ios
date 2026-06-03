@@ -469,8 +469,6 @@ class ClickToPayViewController: UIViewController {
 
         var config: [String: Any] = [
             "sdkUrl": clickToPayConfig.sdkUrl,
-            "dpaId": clickToPayConfig.dpaId,
-            "dpaName": clickToPayConfig.dpaName,
             "cardBrands": clickToPayConfig.cardBrandsParam,
             "amount": majorAmount,
             "currencyCode": clickToPayArgs.currencyCode,
@@ -478,6 +476,13 @@ class ClickToPayViewController: UIViewController {
             "locale": NISdk.sharedInstance.sdkLanguage
         ]
 
+        if let dpaId = clickToPayConfig.dpaId {
+            config["dpaId"] = dpaId
+        }
+        if let dpaName = clickToPayConfig.dpaName {
+            config["dpaName"] = dpaName
+            config["merchantName"] = dpaName
+        }
         if let dpaClientId = clickToPayConfig.dpaClientId {
             config["dpaClientId"] = dpaClientId
         }
@@ -485,8 +490,6 @@ class ClickToPayViewController: UIViewController {
         if let orderRef = orderReference {
             config["orderReference"] = orderRef
         }
-
-        config["merchantName"] = clickToPayConfig.dpaName
 
         if let kid = clickToPayConfig.kid ?? vctpKid {
             config["kid"] = kid
