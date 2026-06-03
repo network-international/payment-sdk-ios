@@ -203,6 +203,11 @@ private class NISdkBundleLocator {}
                                  overParent parentViewController: UIViewController,
                                  for order: OrderResponse,
                                  with config: ClickToPayConfig) {
+        guard config.dpaId != nil else {
+            print("ClickToPay: dpaId is missing. If you initialized ClickToPayConfig with a merchantId, call `config.resolve(...)` before launching.")
+            clickToPayDelegate.clickToPayDidComplete(with: .failed)
+            return
+        }
         do {
             let args = try order.toClickToPayArgs()
 
