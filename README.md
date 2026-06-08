@@ -5,7 +5,7 @@
 
 ![Banner](assets/banner.jpg)
 
-The Payment SDK for iOS provides a pre-built checkout experience for accepting payments in your iOS app. It supports card payments, Apple Pay, Click to Pay, saved cards, Aani Pay, and Visa Installments — all with 3D Secure support.
+The Payment SDK for iOS provides a pre-built checkout experience for accepting payments in your iOS app. It supports card payments, Apple Pay, Click to Pay, saved cards, Aani Pay, Visa Installments, and Slice installments — all with 3D Secure support.
 
 ## Requirements
 
@@ -300,6 +300,55 @@ extension CheckoutViewController: AaniPaymentDelegate {
     }
 }
 ```
+
+---
+
+## Slice Installments
+
+Slice is a "buy now, pay later" installment option presented **inline** within the card payment screen — there is no separate method to call. It is enabled per-order on the gateway side; the SDK detects it through the `payment:slice-eligibility-check` link on the order response.
+
+When a Slice-eligible order is loaded, the SDK automatically checks eligibility for the entered card (or saved-card token) and, if offers are returned, renders the installment plans inside the card section. The customer picks a plan and the selected offer is submitted with the payment — no extra integration is required from the merchant.
+
+**Flow:**
+
+1. Merchant creates a Slice-enabled order via the gateway. The order response includes the `payment:slice-eligibility-check` link.
+2. Customer enters card details (or selects a saved card); the SDK checks eligibility and surfaces any returned `SliceOffer`s.
+3. Customer selects an installment plan; the SDK includes the corresponding `SliceRequest` (period, rate, fee) in the payment request.
+
+```swift
+// Eligibility response surfaced by the SDK (no merchant call needed)
+struct SliceOffer: Codable {
+    let period: String            // e.g. "3", "6", "12" months
+    let rate: String              // interest rate
+    let fee: String
+    let feeType: String
+    let installmentAmount: SliceAmount
+    let totalAmount: SliceAmount
+}
+```
+
+> Slice eligibility is evaluated automatically. If the order is not Slice-enabled, or no offers are returned, the section is hidden and the standard card flow (and Visa Installments, if applicable) continues unaffected.
+
+---
+
+## Partial Authorization
+
+When a card cannot cover the full order amount, the gateway may **partially authorize** the payment. The SDK presents the partial-auth prompt automatically and reports the outcome through the card payment delegate. Merchants only need to handle the relevant statuses (already returned by `paymentDidComplete`):
+
+```swift
+func paymentDidComplete(with status: PaymentStatus) {
+    switch status {
+    case .PartiallyAuthorised:
+        // Partial amount accepted by the customer
+    case .PartialAuthDeclined:
+        // Customer declined the partial amount
+    default:
+        break
+    }
+}
+```
+
+> Partial authorization is driven by the gateway and the customer's decision in the SDK UI; there is no extra configuration required in the app beyond handling these statuses.
 
 ---
 
