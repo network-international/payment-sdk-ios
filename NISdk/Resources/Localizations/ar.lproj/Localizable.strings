@@ -20,9 +20,10 @@
 "Processing Payment" = "جاري التحميل";
 "Pay Button Title" = "%@ إدفع";
 "Invalid pan number" = "رقم البطاقة غير صحيح";
+"Invalid card number length" = "طول رقم البطاقة غير صحيح";
 "Invalid card provider" = "مصدر البطاقة غير مسموح";
-"Invalid expiry date" = "تاريخ الصلاحية منتهي";
-"Invalid CVV Field" = "حقل رقم التحقق غير صحيح";
+"Invalid expiry date" = "تاريخ الانتهاء غير صالح.";
+"Invalid CVV Field" = "رمز الأمان غير صحيح";
 "Invalid card holder name" = "اسم حامل البطاقة غير صحيح";
 "All fields are mandatory" = "كل الحقول مطلوبة";
 "Cancel" = "إلغاء";
@@ -66,7 +67,7 @@
 "aani_email_id" = "عنوان البريد الالكتروني";
 "aani_alias_type" = "نوع الاسم المستعار";
 "aani_qr_code" = "رمز الاستجابة";
-"aani_generate_qr" = "إنشاء رمز QR";
+"aani_generate_qr" = "إنشاء رمز الاستجابة";
 "aani_scan_qr_to_pay" = "امسح رمز الاستجابة - قم بالدفع - تم";
 "Pay with Aani" = "الدفع عبر آني";
 "aani_request_to_pay" = "طلب دفع";
@@ -87,6 +88,8 @@
 "What's CVV?" = "ما هو CVV؟";
 "CVV Tooltip" = "يمكن العثور على رمز الأمان على ظهر البطاقة";
 "Order summary" = "ملخص الطلب";
+"Item(s)" = "البند(ود)";
+"Amount" = "المبلغ";
 "Powered by" = "مدعوم بواسطة";
 "Terms and Conditions" = "الشروط والأحكام";
 "Privacy Policy" = "سياسة الخصوصية";
@@ -95,6 +98,8 @@
 "Pay with Click to Pay" = "ادفع باستخدام كليك تو باي";
 "Pay by card" = "الدفع بالبطاقة";
 "By clicking Pay terms" = "بالضغط على \"ادفع\"، فإنك توافق على الشروط والأحكام وتصرح بهذه المعاملة.";
+"Saved Cards" = "البطاقات المحفوظة";
+"Enter Security Code" = "أدخل رمز الأمان";
 "Pay With" = "ادفع بـ";
 "Expiration date" = "تاريخ الانتهاء";
 "Security code" = "رمز الأمان";

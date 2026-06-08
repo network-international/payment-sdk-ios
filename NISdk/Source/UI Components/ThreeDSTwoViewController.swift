@@ -115,7 +115,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
     @objc private func closeButtonTapped() {
         frictionlessTimer?.invalidate()
         webView.stopLoading()
-        completionHandler(false)
+        completionHandler(true)
     }
     
     private func showActivityIndicator() {
@@ -207,28 +207,15 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
             }
         }
 
-        decisionHandler(.allow)
-    }
-
-    @available(iOS 13.0, *)
-    private func webView(_ webView: WKWebView, didReceive response: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
-
-        if let httpResponse = response.response as? HTTPURLResponse {
-            if httpResponse.statusCode == 405 {
-
-                let errorHTML = """
-                <html>
-                <head><title>Error</title></head>
-                <body>
-                    <h1>Redirecting...</h1>
-                </body>
-                </html>
-                """
-                webView.loadHTMLString(errorHTML, baseURL: nil)
-                decisionHandler(.cancel)
-                return
-            }
+        if let httpResponse = navigationResponse.response as? HTTPURLResponse,
+           httpResponse.statusCode == 405 {
+            decisionHandler(.cancel)
+            frictionlessTimer?.invalidate()
+            fingerPrintCompleted = true
+            onCompleteFingerPrint(threeDSCompInd: "U")
+            return
         }
+
         decisionHandler(.allow)
     }
 

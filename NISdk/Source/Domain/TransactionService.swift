@@ -56,4 +56,6 @@ import PassKit
     @objc func aaniQrPollStatus(with url: String, qrCodeId: String, qrTransactionId: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
 
     @objc func aaniQrCancel(with url: String, qrCodeId: String, qrTransactionId: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
+
+    @objc func initQPay(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
 }

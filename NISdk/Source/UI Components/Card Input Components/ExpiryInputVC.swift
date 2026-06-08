@@ -12,9 +12,17 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
     let monthTextField: UITextField = UITextField()
     let yearTextField: UITextField = UITextField()
     let expiryCharacterLimit = 2
-    
+
     @objc let onChangeMonth: onChangeTextClosure
     @objc let onChangeYear: onChangeTextClosure
+    /// Fired when focus leaves the expiry SECTION (i.e., when neither the
+    /// month nor year field is first responder anymore). Internal focus
+    /// transitions between month → year don't fire this — the user is still
+    /// editing the expiry.
+    var onEditingDidEnd: (() -> Void)?
+    /// Fired when either the month or year field becomes first responder so
+    /// the parent can clear any stale error while the user is editing.
+    var onEditingDidBegin: (() -> Void)?
     
     init(onChangeMonth: @escaping onChangeTextClosure, onChangeYear: @escaping onChangeTextClosure) {
         self.onChangeMonth = onChangeMonth
@@ -104,5 +112,22 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
                    replacementString string: String) -> Bool {
         return textField.hasReachedCharacterLimit(for: string, in: range, with: expiryCharacterLimit) &&
             textField.hasOnlyDigits(string: string)
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        // Defer one runloop tick so the next first-responder is set, then
+        // skip the validation callback if focus moved to the SIBLING expiry
+        // field (month ↔ year). The user is still entering the expiry.
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if self.monthTextField.isFirstResponder || self.yearTextField.isFirstResponder {
+                return
+            }
+            self.onEditingDidEnd?()
+        }
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        onEditingDidBegin?()
     }
 }

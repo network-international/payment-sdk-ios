@@ -169,6 +169,34 @@ import PassKit
             .makeRequest(with: completion)
     }
     
+    func checkSliceEligibility(with url: String, using accessToken: String, pan: String, expiry: String, on completion: @escaping (HttpResponseCallback)) {
+        checkSliceEligibility(with: url, using: accessToken,
+                              request: SliceEligibilityRequest(pan: pan, expiry: expiry),
+                              on: completion)
+    }
+
+    /// Saved-card variant — sends the token in the `cardToken` field instead of `pan`.
+    func checkSliceEligibility(with url: String, using accessToken: String, cardToken: String, expiry: String, on completion: @escaping (HttpResponseCallback)) {
+        checkSliceEligibility(with: url, using: accessToken,
+                              request: SliceEligibilityRequest(cardToken: cardToken, expiry: expiry),
+                              on: completion)
+    }
+
+    private func checkSliceEligibility(with url: String, using accessToken: String, request: SliceEligibilityRequest, on completion: @escaping (HttpResponseCallback)) {
+        let headers = ["Accept": "application/vnd.ni-payment.v2+json",
+                       "Content-Type": "application/vnd.ni-payment.v2+json",
+                       "Authorization": "Bearer \(accessToken)"]
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = []
+        // Drop nil pan / cardToken so we send only the field that matters.
+        let body = try! encoder.encode(request)
+        HTTPClient(url: url)?
+            .withMethod(method: "POST")
+            .withHeaders(headers: headers)
+            .withBodyData(data: body)
+            .makeRequest(with: completion)
+    }
+
     func getVisaPlans(with url: String, using accessToken: String, cardToken: String?, cardNumber: String?, on completion: @escaping (HttpResponseCallback)) {
         let authorizationRequestHeaders = ["Accept": "application/vnd.ni-payment.v2+json",
                                            "Content-Type": "application/vnd.ni-payment.v2+json",
@@ -240,6 +268,16 @@ import PassKit
         HTTPClient(url: cancelUrl)?
             .withMethod(method: "DELETE")
             .withHeaders(headers: headers)
+            .makeRequest(with: completion)
+    }
+
+    func initQPay(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
+        let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
+                       "Authorization": "Bearer \(accessToken)"]
+        HTTPClient(url: url)?
+            .withMethod(method: "POST")
+            .withHeaders(headers: headers)
+            .withBodyData(data: Data("{}".utf8))
             .makeRequest(with: completion)
     }
 }

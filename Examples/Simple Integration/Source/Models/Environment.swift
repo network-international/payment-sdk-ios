@@ -61,9 +61,11 @@ struct Environment: Codable, Identifiable {
     let type: EnvironmentType
     let id: String
     let name: String
+    let nickname: String
     let apiKey: String
     let outletReference: String
     let realm: String
+    let applePayMerchantId: String
     
     private static let KEY_SAVED_ENVIRONMENT_ID = "saved_env_id"
     private static let KEY_SAVED_ENVIRONMENTS = "saved_environments"
@@ -91,27 +93,33 @@ struct Environment: Codable, Identifiable {
         case type
         case id
         case name
+        case nickname
         case apiKey
         case outletReference
         case realm
+        case applePayMerchantId
     }
     
-    init(type: EnvironmentType, name: String, apiKey: String, outletReference: String, realm: String) {
+    init(type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, applePayMerchantId: String = "") {
         self.type = type
         self.id = UUID().uuidString
-        self.name = name
+        self.nickname = nickname
+        self.name = nickname.isEmpty ? realm : nickname
         self.apiKey = apiKey
         self.outletReference = outletReference
         self.realm = realm
+        self.applePayMerchantId = applePayMerchantId
     }
 
-    init(id: String, type: EnvironmentType, name: String, apiKey: String, outletReference: String, realm: String) {
+    init(id: String, type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, applePayMerchantId: String = "") {
         self.type = type
         self.id = id
-        self.name = name
+        self.nickname = nickname
+        self.name = nickname.isEmpty ? realm : nickname
         self.apiKey = apiKey
         self.outletReference = outletReference
         self.realm = realm
+        self.applePayMerchantId = applePayMerchantId
     }
     
     init(from decoder: Decoder) throws {
@@ -119,9 +127,11 @@ struct Environment: Codable, Identifiable {
         type = try values.decode(EnvironmentType.self, forKey: .type)
         id = try values.decode(String.self, forKey: .id)
         name = try values.decode(String.self, forKey: .name)
+        nickname = try values.decodeIfPresent(String.self, forKey: .nickname) ?? ""
         apiKey = try values.decode(String.self, forKey: .apiKey)
         outletReference = try values.decode(String.self, forKey: .outletReference)
         realm = try values.decode(String.self, forKey: .realm)
+        applePayMerchantId = try values.decodeIfPresent(String.self, forKey: .applePayMerchantId) ?? ""
     }
     
     func encode(to encoder: Encoder) throws {
@@ -129,9 +139,11 @@ struct Environment: Codable, Identifiable {
         try container.encode(type, forKey: .type)
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
+        try container.encode(nickname, forKey: .nickname)
         try container.encode(apiKey, forKey: .apiKey)
         try container.encode(outletReference, forKey: .outletReference)
         try container.encode(realm, forKey: .realm)
+        try container.encode(applePayMerchantId, forKey: .applePayMerchantId)
     }
     
     func getGateWayUrl() -> String {

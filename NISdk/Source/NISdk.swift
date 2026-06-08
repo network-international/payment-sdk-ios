@@ -94,12 +94,16 @@ private class NISdkBundleLocator {}
                                         for order: OrderResponse,
                                         with applePayRequest: PKPaymentRequest?,
                                         clickToPayConfig: ClickToPayConfig?,
-                                        aaniBackLink: String? = nil) {
+                                        aaniBackLink: String? = nil,
+                                        orderItems: [OrderItem] = [],
+                                        savedCards: [SavedCard] = []) {
         let paymentViewController = PaymentViewController(order: order, cardPaymentDelegate: cardPaymentDelegate,
                                                           applePayDelegate: applePayDelegate, paymentMedium: .Card)
         paymentViewController.applePayRequest = applePayRequest
         paymentViewController.clickToPayConfig = clickToPayConfig
         paymentViewController.aaniBackLink = aaniBackLink
+        paymentViewController.orderItems = orderItems
+        paymentViewController.savedCards = savedCards
         let navController = UINavigationController(rootViewController: paymentViewController)
 
         paymentViewController.view.backgroundColor = .clear
@@ -227,6 +231,50 @@ private class NISdkBundleLocator {}
             }
         } catch {
             clickToPayDelegate.clickToPayDidComplete(with: .failed)
+        }
+    }
+
+    public func launchQPay(qpayDelegate: QPayPaymentDelegate,
+                           overParent parentViewController: UIViewController,
+                           orderResponse: OrderResponse) {
+        guard let currency = orderResponse.amount?.currencyCode,
+              currency.uppercased() == "QAR" else {
+            qpayDelegate.qpayPaymentCompleted(with: .invalidRequest)
+            return
+        }
+
+        let args: QPayInitArgs
+        do {
+            args = try orderResponse.toQPayInitArgs()
+        } catch {
+            qpayDelegate.qpayPaymentCompleted(with: .invalidRequest)
+            return
+        }
+
+        let transactionService = TransactionServiceAdapter()
+        transactionService.authorizePayment(for: args.authCode, using: args.authUrl) { tokens in
+            guard let token = tokens["access-token"], !token.isEmpty else {
+                DispatchQueue.main.async {
+                    qpayDelegate.qpayPaymentCompleted(with: .failed)
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                let qpayVC = QPayViewController(
+                    args: args,
+                    transactionService: transactionService,
+                    accessToken: token
+                ) { status in
+                    qpayDelegate.qpayPaymentCompleted(with: status)
+                }
+                let navController = UINavigationController(rootViewController: qpayVC)
+                qpayVC.view.backgroundColor = .white
+                qpayVC.modalPresentationStyle = .overCurrentContext
+                if #available(iOS 13.0, *) {
+                    qpayVC.isModalInPresentation = true
+                }
+                parentViewController.present(navController, animated: true)
+            }
         }
     }
 

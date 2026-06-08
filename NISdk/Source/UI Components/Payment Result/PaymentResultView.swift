@@ -15,6 +15,12 @@ struct PaymentResultView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Merchant header — matches unified payment page style (logo + order summary)
+            MerchantResultHeaderView(
+                amount: args.amount,
+                orderItems: args.orderItems
+            )
+
             Spacer()
 
             // Icon
@@ -211,6 +217,80 @@ private struct PaymentResultFooterView: View {
             }
         }
         return logos
+    }
+}
+
+@available(iOS 14.0, *)
+private struct MerchantResultHeaderView: View {
+    let amount: String?
+    let orderItems: [OrderItem]
+
+    private let surfaceRow = Color(UIColor(hexString: "#F5F9FC"))
+    private let mutedGrey = Color(UIColor(hexString: "#8F8F8F"))
+    private let primaryText = Color(UIColor(hexString: "#1A1A1A"))
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Merchant logo row
+            HStack {
+                if let logo = NISdk.sharedInstance.merchantLogo
+                    ?? UIImage(named: "networklogo", in: NISdk.sharedInstance.getBundle(), compatibleWith: nil) {
+                    Image(uiImage: logo)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 28)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+
+            // Order summary (label + amount)
+            if let amount = amount {
+                HStack {
+                    Text("Order summary".localized)
+                        .font(.system(size: 13))
+                        .foregroundColor(mutedGrey)
+                    Spacer()
+                    Text(amount)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(primaryText)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+            }
+
+            // Optional item breakdown
+            if !orderItems.isEmpty {
+                VStack(spacing: 4) {
+                    HStack {
+                        Text("Item(s)".localized)
+                            .font(.system(size: 12))
+                            .foregroundColor(mutedGrey)
+                        Spacer()
+                        Text("Amount".localized)
+                            .font(.system(size: 12))
+                            .foregroundColor(mutedGrey)
+                    }
+                    ForEach(orderItems.indices, id: \.self) { index in
+                        let item = orderItems[index]
+                        HStack {
+                            Text(item.name)
+                                .font(.system(size: 13))
+                                .foregroundColor(primaryText)
+                            Spacer()
+                            Text(item.amount)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(primaryText)
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 12)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .background(surfaceRow)
     }
 }
 

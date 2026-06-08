@@ -13,7 +13,7 @@
 		591CC0B12BE3ED4B00FB6086 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 591CC0B02BE3ED4B00FB6086 /* Bundle.swift */; };
 		592A15D72BD9013C00986490 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D62BD9013C00986490 /* EnvironmentView.swift */; };
 		592A15D92BD9878900986490 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D82BD9878900986490 /* Environment.swift */; };
-592A15DB2BDA326100986490 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15DA2BDA326100986490 /* ApiService.swift */; };
+		592A15DB2BDA326100986490 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15DA2BDA326100986490 /* ApiService.swift */; };
 		59ED19AE2AD401960000E024 /* CreditCardInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */; };
 		59FEB0072BE49E410094C943 /* EnvironmentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */; };
 		862CBE81230EE14F00767774 /* StoreFrontViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE80230EE14F00767774 /* StoreFrontViewController.swift */; };
@@ -41,7 +41,7 @@
 		591CC0B02BE3ED4B00FB6086 /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		592A15D62BD9013C00986490 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
 		592A15D82BD9878900986490 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
-592A15DA2BDA326100986490 /* ApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiService.swift; sourceTree = "<group>"; };
+		592A15DA2BDA326100986490 /* ApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiService.swift; sourceTree = "<group>"; };
 		59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditCardInfoView.swift; sourceTree = "<group>"; };
 		59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentViewModel.swift; sourceTree = "<group>"; };
 		862CBE80230EE14F00767774 /* StoreFrontViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreFrontViewController.swift; sourceTree = "<group>"; };
@@ -268,9 +268,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Demo App/Pods-Demo App-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Demo App/Pods-Demo App-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -472,7 +476,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.4;
+				CURRENT_PROJECT_VERSION = 3.6;
 				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -507,7 +511,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.4;
+				CURRENT_PROJECT_VERSION = 3.6;
 				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

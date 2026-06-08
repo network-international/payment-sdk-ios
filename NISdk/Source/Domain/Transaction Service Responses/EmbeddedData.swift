@@ -27,6 +27,18 @@ public struct EmbeddedData {
     func getClickToPayLink() -> String? {
         return payment?.first?.paymentLinks?.clickToPayLink
     }
+
+    func getSliceEligibilityCheckLink() -> String? {
+        return payment?.first?.paymentLinks?.sliceEligibilityCheckLink
+    }
+
+    func getVisEligibilityCheckLink() -> String? {
+        return payment?.first?.paymentLinks?.visEligibilityCheckLink
+    }
+
+    func getQPayLink() -> String? {
+        return payment?.first?.paymentLinks?.qpayLink
+    }
 }
 
 extension EmbeddedData: Codable {

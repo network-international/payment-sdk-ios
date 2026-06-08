@@ -24,8 +24,8 @@ class PaymentSectionSeparatorView: UIView {
 
         let label = UILabel()
         label.text = text
-        label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        label.textColor = UIColor.gray
+        label.font = PgType.headingSection
+        label.textColor = PgColors.textPrimary
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
 

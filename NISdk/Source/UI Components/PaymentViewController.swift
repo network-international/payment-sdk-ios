@@ -32,6 +32,8 @@ class PaymentViewController: UIViewController {
     var clickToPayConfig: ClickToPayConfig?
     private weak var clickToPayDelegate: ClickToPayDelegate?
     var aaniBackLink: String?
+    var orderItems: [OrderItem] = []
+    var savedCards: [SavedCard] = []
     private var lastPaymentResponse: PaymentResponse?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
@@ -184,6 +186,80 @@ class PaymentViewController: UIViewController {
             unifiedPaymentPage.onAaniTapped = { [weak self] in
                 self?.initiateAaniFromUnifiedPage()
             }
+            unifiedPaymentPage.onQPayTapped = { [weak self] in
+                self?.initiateQPayFromUnifiedPage()
+            }
+            unifiedPaymentPage.onCheckSliceEligibility = { [weak self] value, expiry, isSavedToken, completion in
+                guard let self = self,
+                      let sliceEligibilityUrl = self.order.embeddedData?.getSliceEligibilityCheckLink(),
+                      let accessToken = self.accessToken else {
+                    completion([])
+                    return
+                }
+                let handle: (Data?, URLResponse?, Error?) -> Void = { data, _, _ in
+                    guard let data = data,
+                          let response = try? JSONDecoder().decode(SliceEligibilityResponse.self, from: data) else {
+                        completion([])
+                        return
+                    }
+                    completion(response.offers)
+                }
+                if isSavedToken {
+                    // Saved-card flow → API expects the token in `cardToken`, not `pan`.
+                    self.transactionService.checkSliceEligibility(
+                        with: sliceEligibilityUrl,
+                        using: accessToken,
+                        cardToken: value,
+                        expiry: expiry,
+                        on: handle
+                    )
+                } else {
+                    self.transactionService.checkSliceEligibility(
+                        with: sliceEligibilityUrl,
+                        using: accessToken,
+                        pan: value,
+                        expiry: expiry,
+                        on: handle
+                    )
+                }
+            }
+            // Visa Installments eligibility check — fires after Slice fails/empty when the
+            // vis-eligibility-check link is present and the entered card is Visa.
+            // Manual entry → send raw PAN in the `pan` field; saved cards → send the token in `cardToken`.
+            unifiedPaymentPage.onCheckVisEligibility = { [weak self] value, isSavedToken, completion in
+                guard let self = self,
+                      self.order.embeddedData?.getVisEligibilityCheckLink() != nil else {
+                    completion(nil)
+                    return
+                }
+                let request = isSavedToken
+                    ? VisaEligibilityRequets(cardToken: value, pan: nil)
+                    : VisaEligibilityRequets(cardToken: nil, pan: value)
+                self.getVisaPlans(
+                    visaEligibilityRequets: request,
+                    onResponse: { visaPlans in
+                        DispatchQueue.main.async { completion(visaPlans) }
+                    }
+                )
+            }
+            var cards = savedCards
+            if cards.isEmpty, let savedCard = order.savedCard {
+                cards = [savedCard]
+            }
+            unifiedPaymentPage.savedCards = cards
+            unifiedPaymentPage.orderItems = orderItems
+            unifiedPaymentPage.allowedCardProviders = order.paymentMethods?.card
+            unifiedPaymentPage.onMakeSavedCardPayment = { [weak self] card, cvv, visaRequest in
+                guard let self = self else { return }
+                let savedCardRequest = SavedCardRequest(
+                    expiry: card.expiry,
+                    cardholderName: card.cardholderName,
+                    cardToken: card.cardToken,
+                    cvv: cvv
+                )
+                savedCardRequest.visaRequest = visaRequest
+                self.makeSavedCardPayment(savedCardRequest)
+            }
             self.transition(to: .renderCardPaymentForm(unifiedPaymentPage))
             break
         case .ApplePay:
@@ -257,7 +333,13 @@ class PaymentViewController: UIViewController {
 
         applePayController = ApplePayController(applePayDelegate: applePayDelegate,
                                                 order: order,
-                                                onDismissCallback: handlePaymentResponse,
+                                                onDismissCallback: { [weak self] paymentResponse in
+                                                    guard let paymentResponse = paymentResponse else {
+                                                        // User cancelled Apple Pay — stay on unified payment page
+                                                        return
+                                                    }
+                                                    self?.handlePaymentResponse(paymentResponse)
+                                                },
                                                 onAuthorizeApplePayCallback: handleApplePayAuthorization)
         if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
             let networks = Array(Set(allowedPKPaymentNetworks))
@@ -299,6 +381,41 @@ class PaymentViewController: UIViewController {
             }
         } catch {
             print("Aani: Failed to build args - \(error)")
+        }
+    }
+
+    private func initiateQPayFromUnifiedPage() {
+        guard let token = self.accessToken, !token.isEmpty else {
+            print("QPay: missing access token; cannot start checkout")
+            finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+            return
+        }
+        do {
+            let args = try order.toQPayInitArgs()
+            let qpayVC = QPayViewController(
+                args: args,
+                transactionService: transactionService,
+                accessToken: token
+            ) { [weak self] status in
+                switch status {
+                case .success:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                case .failed:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                case .cancelled:
+                    // User cancelled QPay — return to unified payment page
+                    break
+                case .invalidRequest:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                @unknown default:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                }
+            }
+            let navController = UINavigationController(rootViewController: qpayVC)
+            navController.modalPresentationStyle = .pageSheet
+            self.present(navController, animated: true)
+        } catch {
+            print("QPay: Failed to build args - \(error)")
         }
     }
 
@@ -395,7 +512,16 @@ class PaymentViewController: UIViewController {
         // 3. Make Payment
         self.getPayerIp() { (payerIp) -> () in
             paymentRequest.payerIp = payerIp
-            
+
+            // The unified-page inline Vis flow already presents the plans and writes the user's
+            // chosen plan into `paymentRequest.visaRequest`. When that's set, skip the legacy
+            // post-tap getVisaPlans + full-screen `VisaInstallmentViewController` so the user
+            // isn't asked to pick a plan a second time.
+            if paymentRequest.visaRequest != nil {
+                self.makeCardPayment(paymentRequest: paymentRequest)
+                return
+            }
+
             self.getVisaPlans(visaEligibilityRequets: VisaEligibilityRequets(cardToken: nil, pan: paymentRequest.pan), onResponse: { visaPlan in
                 if let plans = visaPlan, let fullAmount = self.order.amount, let cardNumber = paymentRequest.pan {
                     if (plans.matchedPlans.isEmpty) {
@@ -445,42 +571,72 @@ class PaymentViewController: UIViewController {
         // 3. Make Payment
         self.getPayerIp() { (payerIp) -> () in
             savedCardRequest.payerIp = payerIp
-            
-            if let savedCardUrl = self.order.embeddedData?.getSavedCardLink(), let accessToken = self.accessToken, let cardToken = self.order.savedCard?.cardToken, let cardNumber = self.order.savedCard?.maskedPan {
-                if let matchedCandidates: [MatchedCandidate] = self.order.visSavedCardMatchedCandidates?.matchedCandidates, let candidate = matchedCandidates.first(where: { $0.cardToken == cardToken }) {
-                    if candidate.eligibilityStatus == "MATCHED" {
-                        self.getVisaPlans(visaEligibilityRequets: VisaEligibilityRequets(cardToken: cardToken, pan: nil), onResponse: { visaPlan in
-                            if let plans = visaPlan, let fullAmount = self.order.amount {
-                                if (plans.matchedPlans.isEmpty) {
-                                    self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
-                                } else {
-                                    DispatchQueue.main.async {
-                                        if #available(iOS 13.0, *) {
-                                        self.transition(to: .renderCardPaymentForm(VisaInstallmentViewController(visaPlan: plans, fullAmount: fullAmount, cardNumber: cardNumber, onMakePayment: { visaRequest in
-                                            savedCardRequest.visaRequest = visaRequest
-                                            self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
-                                        }, onCancel: {
-                                            [weak self] in
-                                            if NISdk.sharedInstance.shouldShowCancelAlert {
-                                                self?.showCancelPaymentAlert(with: .PaymentCancelled, and: nil, and: nil)
-                                            } else {
-                                                self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
-                                            }
-                                        })))
-                                        }
-                                    }
-                                }
+
+            // The savedCardUrl / accessToken are required for the actual PUT.
+            // Fail the flow if either is missing instead of silently leaving
+            // the UI stuck on "Processing Payment" — this is the bug the user
+            // reported when paying with a saved card on the unified pay page.
+            guard let savedCardUrl = self.order.embeddedData?.getSavedCardLink(),
+                  let accessToken = self.accessToken else {
+                self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                return
+            }
+
+            // Inline Vis flow already attached the chosen plan — skip the legacy full-screen prompt.
+            if savedCardRequest.visaRequest != nil {
+                self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
+                return
+            }
+
+            // Use the request's cardToken (set by the unified flow when the
+            // user picks from multiple saved cards) so we don't depend on the
+            // singular `order.savedCard` — which is only populated when the
+            // order has exactly one saved card. Pre-existing code only checked
+            // `order.savedCard?.cardToken`, so the unified multi-card flow
+            // fell through and the function returned without doing anything,
+            // leaving the form stuck in `paymentInProgress = true`.
+            let cardToken = savedCardRequest.cardToken ?? self.order.savedCard?.cardToken
+            let cardNumber = self.order.savedCard?.maskedPan
+            let matchedCandidates = self.order.visSavedCardMatchedCandidates?.matchedCandidates
+            let matchedCandidate = cardToken.flatMap { token in
+                matchedCandidates?.first(where: { $0.cardToken == token })
+            }
+
+            // Vis eligibility lookup is only meaningful if we have a matched
+            // candidate, a cardNumber to display in the plan UI, and an
+            // order amount. Anything missing → straight to the payment PUT.
+            guard let token = cardToken,
+                  let cardNumber = cardNumber,
+                  let candidate = matchedCandidate,
+                  candidate.eligibilityStatus == "MATCHED" else {
+                self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
+                return
+            }
+
+            self.getVisaPlans(visaEligibilityRequets: VisaEligibilityRequets(cardToken: token, pan: nil), onResponse: { visaPlan in
+                guard let plans = visaPlan, let fullAmount = self.order.amount, !plans.matchedPlans.isEmpty else {
+                    self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
+                    return
+                }
+                DispatchQueue.main.async {
+                    if #available(iOS 13.0, *) {
+                        self.transition(to: .renderCardPaymentForm(VisaInstallmentViewController(visaPlan: plans, fullAmount: fullAmount, cardNumber: cardNumber, onMakePayment: { visaRequest in
+                            savedCardRequest.visaRequest = visaRequest
+                            self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
+                        }, onCancel: {
+                            [weak self] in
+                            if NISdk.sharedInstance.shouldShowCancelAlert {
+                                self?.showCancelPaymentAlert(with: .PaymentCancelled, and: nil, and: nil)
                             } else {
-                                self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
+                                self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
                             }
-                        })
+                        })))
                     } else {
+                        // Pre-iOS 13 cannot present the Visa installment UI; fall back to a direct payment.
                         self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
                     }
-                } else {
-                    self.doSavedCardPayment(savedCardUrl: savedCardUrl, savedCardRequest: savedCardRequest, accessToken: accessToken)
                 }
-            }
+            })
         }
     }
     
@@ -562,7 +718,17 @@ class PaymentViewController: UIViewController {
                 }
                 return
             }
-            print("ApplePay/Payment: Unhandled state: \(paymentResponse.state ?? "nil") - finishing with PaymentFailed")
+            if (paymentResponse.state == "FAILED") {
+                print("ApplePay/Payment: Payment failed - state: FAILED")
+                self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                return
+            }
+            if (paymentResponse.state.isEmpty) {
+                print("ApplePay/Payment: Payment failed - no state in response (gateway error)")
+                self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                return
+            }
+            print("ApplePay/Payment: Unhandled state: \(paymentResponse.state) - finishing with PaymentFailed")
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
         }
     }
@@ -710,7 +876,8 @@ class PaymentViewController: UIViewController {
             amount: formattedAmount,
             transactionId: transactionId,
             dateTime: dateTime,
-            cardProviders: self.order.paymentMethods?.card ?? []
+            cardProviders: self.order.paymentMethods?.card ?? [],
+            orderItems: self.orderItems
         )
 
         let resultVC = PaymentResultViewController(args: args, onDone: { [weak self] in

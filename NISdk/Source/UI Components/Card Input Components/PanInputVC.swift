@@ -12,7 +12,15 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
     let panTextField: UITextField = UITextField()
     let panCharacterLimit = 16
     @objc let onChangeText: onChangeTextClosure
-    
+    /// Fired when the PAN field resigns first responder, so the parent can
+    /// run per-field validation and surface errors under the field as the
+    /// user moves on — instead of waiting for the Pay button tap.
+    var onEditingDidEnd: (() -> Void)?
+    /// Fired when the PAN field becomes first responder. Parents use this to
+    /// clear any stale error message — the user is editing, give them a chance
+    /// to finish before showing the error again.
+    var onEditingDidBegin: (() -> Void)?
+
     init(onChangeText: @escaping onChangeTextClosure) {
         self.onChangeText = onChangeText
         super.init(nibName: nil, bundle: nil)
@@ -71,5 +79,13 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
                    shouldChangeCharactersIn range: NSRange,
                    replacementString string: String) -> Bool {
         return textField.hasReachedCharacterLimit(for: string, in: range, with: panCharacterLimit) && textField.hasOnlyDigits(string: string)
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        onEditingDidEnd?()
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        onEditingDidBegin?()
     }
 }
