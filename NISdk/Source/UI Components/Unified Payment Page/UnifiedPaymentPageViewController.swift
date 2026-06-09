@@ -62,22 +62,15 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     // Slice state
     private var selectedSliceOffer: SliceOffer?
-    /// Read-only accessor used by the parent `PaymentViewController` after success to build
-    /// the slice receipt section on the result screen.
-    var paidSliceOffer: SliceOffer? { selectedSliceOffer }
     /// Whether the most recent slice eligibility check returned the Islamic indicator (`"I"`).
-    /// Drives the "Murabaha" vs "Interest rate" label on both the slice card and the receipt.
-    private(set) var paidSliceIsIslamic: Bool = false
+    /// Drives the "Murabaha" vs "Interest rate" label on the slice offer card.
+    private var paidSliceIsIslamic: Bool = false
     private var sliceSelectionMade: Bool = false
     private var lastSliceCheckKey: String?
     private var sliceInstallmentView: UIView?
     private var sliceBannerOnlyWrapper: UIView?
     private lazy var sliceBanner: SliceBannerUIView = {
-        let b = SliceBannerUIView()
-        b.onLearnMoreTapped = { [weak self] in
-            self?.presentSliceLearnMore()
-        }
-        return b
+        SliceBannerUIView()
     }()
     /// True when the order response carries the Slice eligibility link. Set by the host
     /// (PaymentViewController) so we can distinguish "link absent" from "API errored / empty",
@@ -1520,13 +1513,6 @@ class UnifiedPaymentPageViewController: UIViewController {
         if sliceInstallmentView == nil {
             cardSection?.hideSliceInstallmentContainer()
         }
-    }
-
-    private func presentSliceLearnMore() {
-        let vc = SliceLearnMoreViewController()
-        vc.modalPresentationStyle = .overFullScreen
-        vc.modalTransitionStyle = .crossDissolve
-        present(vc, animated: true)
     }
 
     private func showVisaInstallments(_ plans: VisaPlans) {

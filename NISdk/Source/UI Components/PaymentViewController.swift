@@ -35,7 +35,6 @@ class PaymentViewController: UIViewController {
     var orderItems: [OrderItem] = []
     var savedCards: [SavedCard] = []
     private var lastPaymentResponse: PaymentResponse?
-    private weak var unifiedPaymentPageRef: UnifiedPaymentPageViewController?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -220,7 +219,6 @@ class PaymentViewController: UIViewController {
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
                 }
             })
-            unifiedPaymentPageRef = unifiedPaymentPage
             unifiedPaymentPage.makePaymentCallback = self.makePayment
             unifiedPaymentPage.onApplePayTapped = { [weak self] in
                 self?.initiateApplePayFromUnifiedPage()
@@ -919,20 +917,13 @@ class PaymentViewController: UIViewController {
         dateFormatter.dateFormat = "dd MMM yyyy, hh:mm a"
         let dateTime = dateFormatter.string(from: Date())
 
-        let sliceReceipt: SliceReceipt? = {
-            guard isSuccess, let offer = unifiedPaymentPageRef?.paidSliceOffer else { return nil }
-            let isIslamic = unifiedPaymentPageRef?.paidSliceIsIslamic ?? false
-            return Self.makeSliceReceipt(from: offer, isIslamic: isIslamic)
-        }()
-
         let args = PaymentResultArgs(
             isSuccess: isSuccess,
             amount: formattedAmount,
             transactionId: transactionId,
             dateTime: dateTime,
             cardProviders: self.order.paymentMethods?.card ?? [],
-            orderItems: self.orderItems,
-            sliceReceipt: sliceReceipt
+            orderItems: self.orderItems
         )
 
         let resultVC = PaymentResultViewController(args: args, onDone: { [weak self] in
@@ -946,38 +937,6 @@ class PaymentViewController: UIViewController {
     
     private func closePaymentViewController(completion: (() -> Void)?) {
         dismiss(animated: true, completion: completion)
-    }
-
-    /// Format a `SliceOffer` into display-ready strings for the result screen. Currency uses
-    /// the same comma/2-decimal formatting as the payment-page offer card so the values
-    /// match what the user just saw.
-    private static func makeSliceReceipt(from offer: SliceOffer, isIslamic: Bool) -> SliceReceipt {
-        let currency = offer.installmentAmount.currencyCode
-        let feeString: String
-        if offer.feeType == "P" {
-            feeString = "\(offer.fee)%"
-        } else {
-            let feeMinor = Int((Double(offer.fee) ?? 0) * 100)
-            feeString = formatSliceAmount(value: feeMinor, currency: currency)
-        }
-        return SliceReceipt(
-            tenor: "\(offer.period) Months",
-            interestRate: "\(offer.rate)%",
-            fees: feeString,
-            installmentAmount: formatSliceAmount(value: offer.installmentAmount.value, currency: currency),
-            isIslamic: isIslamic
-        )
-    }
-
-    private static func formatSliceAmount(value: Int, currency: String) -> String {
-        let f = NumberFormatter()
-        f.numberStyle = .decimal
-        f.minimumFractionDigits = 2
-        f.maximumFractionDigits = 2
-        f.usesGroupingSeparator = true
-        f.groupingSeparator = ","
-        let n = f.string(from: NSNumber(value: Double(value) / 100.0)) ?? "0.00"
-        return "\(currency) \(n)"
     }
 }
 

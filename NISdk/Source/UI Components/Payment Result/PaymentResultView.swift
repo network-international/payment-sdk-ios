@@ -88,12 +88,6 @@ struct PaymentResultView: View {
 
                     Spacer().frame(height: 32)
 
-                    // Slice success section — only when the user paid via a Slice installment plan.
-                    if args.isSuccess, let receipt = args.sliceReceipt {
-                        SliceSuccessSection(receipt: receipt)
-                        Spacer().frame(height: 24)
-                    }
-
                     // Details - centered text lines
                     HStack(spacing: 0) {
                         Text(args.isSuccess ? "Transaction ID Label".localized : "Reference Number Label".localized)
@@ -141,57 +135,6 @@ struct PaymentResultView: View {
                 }
                 .padding(.horizontal, 12)
             }
-        }
-    }
-}
-
-@available(iOS 14.0, *)
-private struct SliceSuccessSection: View {
-    let receipt: SliceReceipt
-
-    private let textColor = Color(UIColor(hexString: "#070707"))
-    private let lgSize: CGFloat = 16
-    // Letter spacing 1% of 16pt cap height ≈ 0.16pt.
-    private let labelTracking: CGFloat = 0.16
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("Your purchase has been Sliced successfully!")
-                .font(.system(size: lgSize, weight: .medium))
-                .foregroundColor(textColor)
-                .multilineTextAlignment(.center)
-
-            if let logoImage = UIImage(named: "sliceLogo",
-                                       in: NISdk.sharedInstance.getBundle(),
-                                       compatibleWith: nil) {
-                Image(uiImage: logoImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 170, height: 70)
-            }
-
-            VStack(spacing: 12) {
-                row(label: "Tenor", value: receipt.tenor)
-                row(label: receipt.isIslamic ? "Murabaha" : "Interest rate", value: receipt.interestRate)
-                row(label: "Fees", value: receipt.fees)
-                row(label: "Instalment amount", value: receipt.installmentAmount)
-            }
-            .padding(.top, 8)
-        }
-        .padding(.horizontal, 4)
-    }
-
-    @ViewBuilder
-    private func row(label: String, value: String) -> some View {
-        HStack {
-            Text(label)
-                .font(.system(size: lgSize, weight: .regular))
-                .tracking(labelTracking)
-                .foregroundColor(textColor)
-            Spacer()
-            AedSymbol.swiftUIText(value, fontSize: lgSize)
-                .font(.system(size: lgSize, weight: .medium))
-                .foregroundColor(textColor)
         }
     }
 }
