@@ -20,9 +20,20 @@ import Foundation
     required public init(from decoder: Decoder) throws {
         let paymentTypesContainer = try decoder.container(keyedBy: PaymentMethodsCodingKeys.self)
 
-        card = try paymentTypesContainer.decodeIfPresent([CardProvider].self, forKey: .card) ?? []
+        if var cardContainer = try? paymentTypesContainer.nestedUnkeyedContainer(forKey: .card) {
+            var providers: [CardProvider] = []
+            while !cardContainer.isAtEnd {
+                if let provider = try? cardContainer.decode(CardProvider.self) {
+                    providers.append(provider)
+                } else {
+                    _ = try? cardContainer.decode(String.self)
+                }
+            }
+            card = providers
+        } else {
+            card = []
+        }
 
-        // Decode wallet providers gracefully — skip unknown values instead of failing
         if var walletContainer = try? paymentTypesContainer.nestedUnkeyedContainer(forKey: .wallet) {
             var providers: [WalletProvider] = []
             while !walletContainer.isAtEnd {

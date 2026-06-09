@@ -34,7 +34,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     let cardNumberField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "0000 0000 0000 0000"
+        tf.placeholder = "Enter card number".localized
         tf.keyboardType = .numberPad
         tf.font = PgType.bodyInput
         tf.textColor = PgColors.textPrimary
@@ -86,7 +86,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     let nameField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Name on card".localized
+        tf.placeholder = "Enter name on card".localized
         tf.keyboardType = .asciiCapable
         tf.font = PgType.bodyInput
         tf.textColor = PgColors.textPrimary
@@ -150,6 +150,20 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
     let cvvErrorLabel: UILabel = makeFieldErrorLabel(identifier: "sdk_card_label_cvvError")
     let nameErrorLabel: UILabel = makeFieldErrorLabel(identifier: "sdk_card_label_nameError")
 
+    // Inline notice when the typed PAN matches an existing saved card. Same vertical slot
+    // as the panErrorLabel; mutually exclusive with it.
+    let cardAlreadySavedLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        lbl.font = PgType.captionDisclaimer
+        lbl.textColor = PgColors.textEligibility
+        lbl.text = "Card Already Saved".localized
+        lbl.numberOfLines = 0
+        lbl.isHidden = true
+        lbl.accessibilityIdentifier = "sdk_card_label_alreadySaved"
+        return lbl
+    }()
+
     private let radioButton: RadioButtonView = {
         let rb = RadioButtonView()
         rb.accessibilityIdentifier = "sdk_card_radio_cardPayment"
@@ -157,6 +171,8 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
     }()
     private let formContainer = UIStackView()
     private let collapsedLabel = UILabel()
+    private let headerTile = UIView()
+    private var formWrapper: UIView?
     private var isExpanded = false
     private weak var cvvTooltipContainer: UIView?
     private weak var cardNumberIconView: UIImageView?
@@ -233,7 +249,11 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     func setExpanded(_ expanded: Bool, animated: Bool) {
         isExpanded = expanded
+        // The form is wrapped in `padded(...)` so its surrounding view also needs to be
+        // hidden — otherwise UIStackView keeps the wrapper's intrinsic height in the layout
+        // even when the inner stack view is hidden, leaving a blank slot.
         formContainer.isHidden = !expanded
+        formWrapper?.isHidden = !expanded
         if animated {
             formContainer.alpha = 0
             UIView.animate(withDuration: 0.25) {
@@ -252,15 +272,14 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
     /// when no brand is detected. `logoName` is the SDK bundle asset name (e.g. "visalogo"), or nil.
     func updateCardBrand(logoName: String?) {
         guard let iconView = cardNumberIconView else { return }
+        let bundle = NISdk.sharedInstance.getBundle()
         if let logoName = logoName,
-           let image = UIImage(named: logoName, in: NISdk.sharedInstance.getBundle(), compatibleWith: nil) {
+           let image = UIImage(named: logoName, in: bundle, compatibleWith: nil) {
             iconView.image = image
             iconView.tintColor = nil
         } else {
-            if #available(iOS 13.0, *) {
-                iconView.image = UIImage(systemName: "creditcard")
-            }
-            iconView.tintColor = PgColors.textSecondary
+            iconView.image = UIImage(named: "iconCardInput", in: bundle, compatibleWith: nil)
+            iconView.tintColor = nil
         }
     }
 
@@ -298,50 +317,62 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         radioButton.isOn = false
         radioButton.translatesAutoresizingMaskIntoConstraints = false
 
-        // Container: radio on left, right side toggles between collapsed label and form
-        let radioRow = UIView()
-        radioRow.translatesAutoresizingMaskIntoConstraints = false
+        // "Pay by Card" header tile — designed to match the Aani / Samsung Pay / Click to Pay
+        // tiles (same border, background, corner radius, padding, height).
+        headerTile.translatesAutoresizingMaskIntoConstraints = false
+        headerTile.layer.cornerRadius = PgRadius.row
+        headerTile.layer.borderColor = PgColors.borderRow.cgColor
+        headerTile.layer.borderWidth = 1
+        headerTile.backgroundColor = PgColors.surfaceRow
 
-        // Right side content stack (switches between collapsed and expanded)
-        let rightSideStack = UIStackView()
-        rightSideStack.axis = .vertical
-        rightSideStack.spacing = 0
-        rightSideStack.translatesAutoresizingMaskIntoConstraints = false
-
-        // Collapsed "Pay by card" label
         collapsedLabel.text = "Pay by card".localized
         collapsedLabel.font = PgType.bodyRowTitle
         collapsedLabel.textColor = PgColors.textPrimary
         collapsedLabel.isHidden = false
 
-        let collapsedWrapper = UIView()
-        collapsedWrapper.translatesAutoresizingMaskIntoConstraints = false
-        collapsedLabel.translatesAutoresizingMaskIntoConstraints = false
-        collapsedWrapper.addSubview(collapsedLabel)
-        NSLayoutConstraint.activate([
-            collapsedWrapper.heightAnchor.constraint(equalToConstant: 26),
-            collapsedLabel.leadingAnchor.constraint(equalTo: collapsedWrapper.leadingAnchor),
-            collapsedLabel.centerYAnchor.constraint(equalTo: collapsedWrapper.centerYAnchor),
-        ])
+        // Trailing height-only spacer keeps this tile's intrinsic height equal to the
+        // Aani / Samsung Pay / Click-to-Pay tiles, which all carry a 24pt trailing logo.
+        let heightSpacer = UIView()
+        heightSpacer.translatesAutoresizingMaskIntoConstraints = false
+        heightSpacer.widthAnchor.constraint(equalToConstant: 0).isActive = true
+        heightSpacer.heightAnchor.constraint(equalToConstant: PgSize.providerLogoHeight).isActive = true
 
-        // Expandable form container
+        let headerRow = UIStackView(arrangedSubviews: [radioButton, collapsedLabel, UIView(), heightSpacer])
+        headerRow.axis = .horizontal
+        headerRow.spacing = 12
+        headerRow.alignment = .center
+        headerRow.translatesAutoresizingMaskIntoConstraints = false
+
+        headerTile.addSubview(headerRow)
+        headerRow.anchor(top: headerTile.topAnchor, leading: headerTile.leadingAnchor,
+                         bottom: headerTile.bottomAnchor, trailing: headerTile.trailingAnchor,
+                         padding: UIEdgeInsets(top: 20, left: PgSpacing.rowPaddingH,
+                                              bottom: 20, right: PgSpacing.rowPaddingH))
+
+        // Expandable form container.
+        // Indent its contents so the "C" in "Card number" lines up horizontally with the
+        // "P" in "Pay by card" (radio inner padding + radio width + label gap), accounting
+        // for the form's own outer padded() margin (rowPaddingH) vs the tile's (pageH).
         formContainer.axis = .vertical
         formContainer.spacing = PgSpacing.fieldsStackGap
         formContainer.translatesAutoresizingMaskIntoConstraints = false
+        // Indent the form so "C" in "Card number" lines up with "P" in "Pay by card":
+        // "P" sits at (tile inner padding + radio + 12), and the form's outer padded() already
+        // contributes rowPaddingH — so the extra inner shift is (radio + 12).
+        formContainer.layoutMargins = UIEdgeInsets(top: 0, left: PgSize.radioOuter + 12, bottom: 0, right: 0)
+        formContainer.isLayoutMarginsRelativeArrangement = true
 
         // Card number field
         let cardNumberSection = createBorderedFieldSection(
             label: "Card number".localized,
             field: cardNumberField,
-            trailingIcon: {
-                if #available(iOS 13.0, *) { return UIImage(systemName: "creditcard") }
-                return nil
-            }(),
+            trailingIcon: UIImage(named: "iconCardInput", in: NISdk.sharedInstance.getBundle(), compatibleWith: nil),
             iconViewHandler: { [weak self] iconView in
                 self?.cardNumberIconView = iconView
             })
         formContainer.addArrangedSubview(cardNumberSection)
         formContainer.addArrangedSubview(panErrorLabel)
+        formContainer.addArrangedSubview(cardAlreadySavedLabel)
 
         // Slice eligibility loader (hidden until triggered)
         formContainer.addArrangedSubview(sliceLoaderRow)
@@ -370,10 +401,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let nameSection = createBorderedFieldSection(
             label: "Name on card".localized,
             field: nameField,
-            trailingIcon: {
-                if #available(iOS 13.0, *) { return UIImage(systemName: "person") }
-                return nil
-            }())
+            trailingIcon: UIImage(named: "iconUserInput", in: NISdk.sharedInstance.getBundle(), compatibleWith: nil))
         formContainer.addArrangedSubview(nameSection)
         formContainer.addArrangedSubview(nameErrorLabel)
 
@@ -387,42 +415,32 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         // Visa installment lives at section level (added to mainStack below) so it can render
         // for saved-card selection too, when the manual form is collapsed.
 
-        // Start collapsed: form hidden, collapsed label visible
+        // Start collapsed: form hidden, header tile always visible
         formContainer.isHidden = true
         formContainer.alpha = 0
-
-        rightSideStack.addArrangedSubview(collapsedWrapper)
-        rightSideStack.addArrangedSubview(formContainer)
-
-        radioRow.addSubview(radioButton)
-        radioRow.addSubview(rightSideStack)
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
         radioButton.addGestureRecognizer(tap)
         radioButton.isUserInteractionEnabled = true
 
-        let collapsedTap = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
-        collapsedWrapper.addGestureRecognizer(collapsedTap)
-        collapsedWrapper.isUserInteractionEnabled = true
+        let headerTap = UITapGestureRecognizer(target: self, action: #selector(headerTapped))
+        headerTile.addGestureRecognizer(headerTap)
+        headerTile.isUserInteractionEnabled = true
 
-        NSLayoutConstraint.activate([
-            radioButton.topAnchor.constraint(equalTo: radioRow.topAnchor, constant: 4),
-            radioButton.leadingAnchor.constraint(equalTo: radioRow.leadingAnchor),
+        // Tile goes edge-to-edge of CardPaymentSectionView (which is already wrapped in
+        // `cardSectionPadding` with pageH outer in the parent VC). That makes its width
+        // match the Pay-with-Aani / Samsung Pay / Click-to-Pay tiles exactly.
+        // The form below uses the section's standard rowPaddingH inner padding.
+        let paddedForm = padded(formContainer)
+        formWrapper = paddedForm
+        let sectionStack = UIStackView(arrangedSubviews: [headerTile, paddedForm])
+        sectionStack.axis = .vertical
+        sectionStack.spacing = PgSpacing.fieldsStackGap
+        sectionStack.translatesAutoresizingMaskIntoConstraints = false
 
-            rightSideStack.topAnchor.constraint(equalTo: radioRow.topAnchor),
-            rightSideStack.leadingAnchor.constraint(equalTo: radioButton.trailingAnchor, constant: 12),
-            rightSideStack.trailingAnchor.constraint(equalTo: radioRow.trailingAnchor),
-            rightSideStack.bottomAnchor.constraint(equalTo: radioRow.bottomAnchor),
-        ])
-
-        let paddingWrapper = UIView()
-        paddingWrapper.translatesAutoresizingMaskIntoConstraints = false
-        paddingWrapper.addSubview(radioRow)
-        radioRow.anchor(top: paddingWrapper.topAnchor, leading: paddingWrapper.leadingAnchor,
-                        bottom: paddingWrapper.bottomAnchor, trailing: paddingWrapper.trailingAnchor,
-                        padding: UIEdgeInsets(top: 0, left: 0, bottom: 4, right: 0))
-
-        mainStack.addArrangedSubview(padded(paddingWrapper))
+        // Visible gap between the saved-card list and the Pay-by-Card tile.
+        mainStack.setCustomSpacing(PgSpacing.rowGap, after: savedCardsContainer)
+        mainStack.addArrangedSubview(sectionStack)
 
         // Section-level Visa installment slot — visible for both manual and saved-card selections.
         mainStack.addArrangedSubview(padded(visaInstallmentContainer))
@@ -782,11 +800,16 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
             embeddedView.bottomAnchor.constraint(equalTo: sliceInstallmentContainer.bottomAnchor),
         ])
         sliceInstallmentContainer.isHidden = false
+        // Force the container to re-measure for the new subview; without this, a transition
+        // from offers → banner-only leaves the container at its previous (taller) intrinsic
+        // height, which stretches the banner's internal stack via its bottom constraint.
+        sliceInstallmentContainer.invalidateIntrinsicContentSize()
     }
 
     func hideSliceInstallmentContainer() {
         sliceInstallmentContainer.subviews.forEach { $0.removeFromSuperview() }
         sliceInstallmentContainer.isHidden = true
+        sliceInstallmentContainer.invalidateIntrinsicContentSize()
     }
 
     func showVisaInstallmentView(_ embeddedView: UIView) {
@@ -805,6 +828,9 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
     func hideVisaInstallmentContainer() {
         visaInstallmentContainer.subviews.forEach { $0.removeFromSuperview() }
         visaInstallmentContainer.isHidden = true
+        // Force `SelfSizingContainerView` to recompute (now returns .zero since no subviews),
+        // otherwise the container retains its previous height and leaves whitespace below.
+        visaInstallmentContainer.invalidateIntrinsicContentSize()
     }
 
     // MARK: - Pay Button Field-State Management
@@ -919,9 +945,45 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let updatedText = currentText.replacingCharacters(in: textRange, with: string)
 
         if textField == cardNumberField {
-            let digits = updatedText.filter { $0.isNumber }
+            // If the user pressed backspace on an auto-inserted space, delete the digit before
+            // the space instead — otherwise the space is removed but then re-inserted by the
+            // formatter and the keystroke appears to do nothing.
+            var editRange = range
+            var editString = string
+            if string.isEmpty, range.length == 1 {
+                let nsCurrent = currentText as NSString
+                if range.location < nsCurrent.length,
+                   nsCurrent.substring(with: range) == " ",
+                   range.location > 0 {
+                    editRange = NSRange(location: range.location - 1, length: 1)
+                }
+            }
+
+            let nsCurrent = currentText as NSString
+            let editedFormatted = nsCurrent.replacingCharacters(in: editRange, with: editString)
+            let digits = editedFormatted.filter { $0.isNumber }
             if digits.count > 19 { return false }
-            textField.text = formatCardNumber(digits)
+
+            // Cursor position in digit-space: count digits in (prefix-before-edit + replacement).
+            // Mapping this back to the reformatted string after the edit keeps the caret where
+            // the user expects it — at the end of what they just typed, even mid-string.
+            let prefixBeforeEdit = nsCurrent.substring(to: editRange.location)
+            let digitsBeforeCursor = (prefixBeforeEdit + editString).filter { $0.isNumber }.count
+
+            let formatted = formatCardNumber(digits)
+            textField.text = formatted
+
+            var formattedOffset = 0
+            var digitsSeen = 0
+            for char in formatted {
+                if digitsSeen >= digitsBeforeCursor { break }
+                if char.isNumber { digitsSeen += 1 }
+                formattedOffset += 1
+            }
+            if let position = textField.position(from: textField.beginningOfDocument, offset: formattedOffset) {
+                textField.selectedTextRange = textField.textRange(from: position, to: position)
+            }
+
             onCardNumberChanged?(digits)
             updatePayButtonState()
             return false
@@ -933,7 +995,9 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
             if digits.count == 1, let n = Int(digits), n > 1 {
                 textField.text = "0\(digits)"
                 monthDidChange(textField)
-                yearField.becomeFirstResponder()
+                DispatchQueue.main.async { [weak self] in
+                    self?.yearField.becomeFirstResponder()
+                }
                 return false
             }
 
@@ -942,7 +1006,9 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
                 if n < 1 || n > 12 { return false }
                 textField.text = digits
                 monthDidChange(textField)
-                yearField.becomeFirstResponder()
+                DispatchQueue.main.async { [weak self] in
+                    self?.yearField.becomeFirstResponder()
+                }
                 return false
             }
 
@@ -951,10 +1017,45 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
             let digits = updatedText.filter { $0.isNumber }
             if digits.count > 2 { return false }
 
-            // If empty after deletion, hop back to month for in-place edits
-            if digits.isEmpty && string.isEmpty && (monthField.text?.isEmpty == false) {
-                monthField.becomeFirstResponder()
+            // Backspace when the year field is already empty → consume the keystroke by
+            // deleting the last character of the month field AND moving focus there.
+            if string.isEmpty && currentText.isEmpty {
+                if var monthText = monthField.text, !monthText.isEmpty {
+                    monthText.removeLast()
+                    monthField.text = monthText
+                    monthDidChange(monthField)
+                }
+                // becomeFirstResponder during shouldChange can race with the text update;
+                // defer it so the year stays empty and focus shifts cleanly.
+                DispatchQueue.main.async { [weak self] in
+                    self?.monthField.becomeFirstResponder()
+                }
+                return false
             }
+
+            // Year being cleared by the current keystroke — apply the empty text ourselves
+            // and defer the focus shift so the deletion isn't swallowed.
+            if digits.isEmpty && string.isEmpty {
+                textField.text = ""
+                yearDidChange(textField)
+                if monthField.text?.isEmpty == false {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.monthField.becomeFirstResponder()
+                    }
+                }
+                return false
+            }
+
+            // Auto-advance to CVV once the year reaches its full 2-digit length.
+            if digits.count == 2 {
+                textField.text = digits
+                yearDidChange(textField)
+                DispatchQueue.main.async { [weak self] in
+                    self?.cvvField.becomeFirstResponder()
+                }
+                return false
+            }
+
             return true
         } else if textField == cvvField {
             let digits = updatedText.filter { $0.isNumber }

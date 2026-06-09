@@ -77,7 +77,7 @@ struct AaniQrDisplayScreen: View {
                     .font(.system(size: 14))
                     .foregroundColor(.gray)
                 Spacer()
-                Text(amountFormatted)
+                AedSymbol.swiftUIText(amountFormatted, fontSize: 16)
                     .font(.system(size: 16, weight: .semibold))
             }
 

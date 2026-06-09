@@ -19,7 +19,7 @@ enum PgColors {
     static let borderSection      = UIColor(hexString: "#C2DBEC")
     static let borderInput        = UIColor(hexString: "#DADADA")
     static let borderInputFocused = UIColor(hexString: "#91BFDD")
-    static let badgeDarkBg        = UIColor(hexString: "#5C3F00")
+    static let badgeDarkBg        = UIColor(hexString: "#2FBF71")
     static let badgeDarkText      = UIColor.white
     static let spinnerPrimary     = UIColor(hexString: "#EEAA16")
     static let spinnerTrack       = UIColor(hexString: "#FFD781")

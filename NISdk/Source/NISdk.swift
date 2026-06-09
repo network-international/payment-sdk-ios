@@ -203,8 +203,11 @@ private class NISdkBundleLocator {}
                                  overParent parentViewController: UIViewController,
                                  for order: OrderResponse,
                                  with config: ClickToPayConfig) {
-        guard config.dpaId != nil else {
-            print("ClickToPay: dpaId is missing. If you initialized ClickToPayConfig with a merchantId, call `config.resolve(...)` before launching.")
+        // Accept either a resolved dpaId or a merchantId we can use to fetch one mid-launch.
+        // ClickToPayViewController resolves the merchant config from the gateway once it has
+        // the access token from order authorization.
+        if config.dpaId == nil && (config.merchantId?.isEmpty ?? true) {
+            print("ClickToPay: ClickToPayConfig has neither dpaId nor merchantId. Set one to launch.")
             clickToPayDelegate.clickToPayDidComplete(with: .failed)
             return
         }

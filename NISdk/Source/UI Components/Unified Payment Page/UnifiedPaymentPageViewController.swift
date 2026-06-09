@@ -22,7 +22,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     /// Slice eligibility check. The first param is either a raw PAN (manual entry) or a saved-card
     /// token, distinguished by `isSavedToken`. The receiver routes to the right API field
     /// (`pan` vs `cardToken`).
-    var onCheckSliceEligibility: ((_ value: String, _ expiry: String, _ isSavedToken: Bool, _ completion: @escaping ([SliceOffer]) -> Void) -> Void)?
+    var onCheckSliceEligibility: ((_ value: String, _ expiry: String, _ isSavedToken: Bool, _ completion: @escaping (SliceEligibilityResponse?) -> Void) -> Void)?
     /// Called to fetch Visa Installment plans. The first param is either a raw PAN (manual entry)
     /// or a saved-card token, distinguished by `isSavedToken`.
     var onCheckVisEligibility: ((_ value: String, _ isSavedToken: Bool, _ completion: @escaping (VisaPlans?) -> Void) -> Void)?
@@ -62,8 +62,27 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     // Slice state
     private var selectedSliceOffer: SliceOffer?
+    /// Read-only accessor used by the parent `PaymentViewController` after success to build
+    /// the slice receipt section on the result screen.
+    var paidSliceOffer: SliceOffer? { selectedSliceOffer }
+    /// Whether the most recent slice eligibility check returned the Islamic indicator (`"I"`).
+    /// Drives the "Murabaha" vs "Interest rate" label on both the slice card and the receipt.
+    private(set) var paidSliceIsIslamic: Bool = false
+    private var sliceSelectionMade: Bool = false
     private var lastSliceCheckKey: String?
     private var sliceInstallmentView: UIView?
+    private var sliceBannerOnlyWrapper: UIView?
+    private lazy var sliceBanner: SliceBannerUIView = {
+        let b = SliceBannerUIView()
+        b.onLearnMoreTapped = { [weak self] in
+            self?.presentSliceLearnMore()
+        }
+        return b
+    }()
+    /// True when the order response carries the Slice eligibility link. Set by the host
+    /// (PaymentViewController) so we can distinguish "link absent" from "API errored / empty",
+    /// which drives whether the brand banner is shown when the card isn't eligible.
+    var sliceEligibilityLinkPresent: Bool = false
 
     // Visa Installments state — only fired when Slice is unavailable / returns empty.
     // Keyed on the same (pan,expiry) combo so we don't refire while the user is editing.
@@ -132,17 +151,26 @@ class UnifiedPaymentPageViewController: UIViewController {
         setupBottomBar()
         setupScrollView()
         buildUI()
-        if !savedCards.isEmpty && availablePaymentOptions.contains(.card) {
+        populateBottomBar()
+        setupHeaderBackground()
+
+        if availablePaymentOptions.contains(.card) {
             selectPaymentOption(.card)
         }
-        populateBottomBar()
-        setupCancelButton()
-        setupHeaderBackground()
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow),
                                                name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide),
                                                name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Re-install the X every time the page becomes visible — sub-flows
+        // (ClickToPay, saved-card PIN, Visa installments, ...) call
+        // `tearDownCancelButton` on viewWillDisappear so without this the X
+        // never comes back when control returns to the unified page.
+        setupCancelButton()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -189,7 +217,8 @@ class UnifiedPaymentPageViewController: UIViewController {
             availablePaymentOptions.append(.qpay)
         }
 
-        // No default selection — all sections start collapsed
+        // viewDidLoad applies the default selection (Pay by Card if available) after the UI
+        // is built so the radio/expanded state lands on the right row.
         selectedPaymentOption = nil
     }
 
@@ -228,7 +257,17 @@ class UnifiedPaymentPageViewController: UIViewController {
         payBtn.addTarget(self, action: #selector(bottomPayTapped), for: .touchUpInside)
 
         if NISdk.sharedInstance.shouldShowOrderAmount, let amount = order.amount {
-            payBtn.setTitle(String.localizedStringWithFormat("Pay Button Title".localized, amount.getFormattedAmount()), for: .normal)
+            let title = String.localizedStringWithFormat("Pay Button Title".localized, amount.getFormattedAmount())
+            payBtn.setAttributedTitle(
+                AedSymbol.attributed(title,
+                                     font: payBtn.titleLabel?.font ?? PgType.buttonPrimary,
+                                     color: NISdk.sharedInstance.niSdkColors.payButtonTitleColor),
+                for: .normal)
+            payBtn.setAttributedTitle(
+                AedSymbol.attributed(title,
+                                     font: payBtn.titleLabel?.font ?? PgType.buttonPrimary,
+                                     color: NISdk.sharedInstance.niSdkColors.payButtonDisabledTitleColor),
+                for: .disabled)
         } else {
             payBtn.setTitle("Pay".localized, for: .normal)
         }
@@ -288,6 +327,50 @@ class UnifiedPaymentPageViewController: UIViewController {
             termsLabel.trailingAnchor.constraint(equalTo: bottomBarView.trailingAnchor, constant: -20),
             termsLabel.bottomAnchor.constraint(equalTo: bottomBarView.bottomAnchor, constant: -8),
         ])
+    }
+
+    private func showPaymentOptionError() {
+        // Render the validation error under the visible installment pills.
+        // Slice and Vis are mutually exclusive (Vis only fires after Slice fails/empty),
+        // and either view is only attached when offers/plans are non-empty.
+        if let sliceView = sliceInstallmentView as? SliceInstallmentUIView {
+            sliceView.showSelectionError()
+        }
+        visaInstallmentView?.showSelectionError()
+    }
+
+    private func hidePaymentOptionError() {
+        if let sliceView = sliceInstallmentView as? SliceInstallmentUIView {
+            sliceView.hideSelectionError()
+        }
+        visaInstallmentView?.hideSelectionError()
+    }
+
+    /// Shows the "card already saved" inline hint when the typed PAN's first-6 + last-4
+    /// digits match an entry in `savedCards` (their `maskedPan` exposes the same digits
+    /// in the form "411111******1111"). Hidden while the PAN is too short to compare.
+    private func refreshCardAlreadySavedHint(forPan rawPan: String) {
+        guard let cardSection = cardSection else { return }
+        let digits = rawPan.filter { $0.isNumber }
+        guard digits.count >= 10 else {
+            cardSection.cardAlreadySavedLabel.isHidden = true
+            return
+        }
+        let first6 = String(digits.prefix(6))
+        let last4 = String(digits.suffix(4))
+        let isMatch = savedCards.contains { card in
+            guard let masked = card.maskedPan, masked.count >= 10 else { return false }
+            return String(masked.prefix(6)) == first6 && String(masked.suffix(4)) == last4
+        }
+        cardSection.cardAlreadySavedLabel.isHidden = !isMatch
+    }
+
+    private func requiresInstallmentSelection() -> Bool {
+        // Only require a pick when the installment pill view is actually attached —
+        // i.e., the eligibility check returned at least one offer/plan.
+        if sliceInstallmentView != nil && !sliceSelectionMade { return true }
+        if let visa = visaInstallmentView, !visa.hasUserSelection { return true }
+        return false
     }
 
     private func updateBottomPayButton() {
@@ -382,6 +465,11 @@ class UnifiedPaymentPageViewController: UIViewController {
             contentStackView.addArrangedSubview(cardSectionPadding)
             cardSection = section
             setupCardInputCallbacks()
+            // Slice brand banner is driven by the order, not by card entry: as soon as the
+            // create-order response advertises Slice, the banner becomes visible.
+            if sliceEligibilityLinkPresent {
+                showSliceBannerOnly()
+            }
         }
 
         // 4. Other payment options (Click to Pay, Aani, QPay)
@@ -433,12 +521,15 @@ class UnifiedPaymentPageViewController: UIViewController {
         let amountLabel = UILabel()
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
         amountLabel.accessibilityIdentifier = "sdk_paymentpage_label_amount"
-        if let amount = order.amount {
-            amountLabel.text = amount.getFormattedAmount2Decimal()
-        }
         amountLabel.font = PgType.amountSummary
         amountLabel.textColor = PgColors.textPrimary
         amountLabel.textAlignment = .right
+        if let amount = order.amount {
+            amountLabel.attributedText = AedSymbol.attributed(
+                amount.getFormattedAmount2Decimal(),
+                font: amountLabel.font,
+                color: amountLabel.textColor)
+        }
         container.addSubview(amountLabel)
 
         // Order summary row — tappable only when orderItems exist
@@ -513,9 +604,10 @@ class UnifiedPaymentPageViewController: UIViewController {
                 nameLabel.font = PgType.bodyRowTitle
                 nameLabel.textColor = PgColors.textSecondary
                 let amtLabel = UILabel()
-                amtLabel.text = item.amount
                 amtLabel.font = PgType.amountRow
                 amtLabel.textColor = PgColors.textPrimary
+                amtLabel.attributedText = AedSymbol.attributed(
+                    item.amount, font: amtLabel.font, color: amtLabel.textColor)
                 amtLabel.textAlignment = .right
                 row.addArrangedSubview(nameLabel)
                 row.addArrangedSubview(UIView()) // spacer
@@ -752,8 +844,13 @@ class UnifiedPaymentPageViewController: UIViewController {
         let logoView = UIImageView(image: UIImage(named: "aaniLogo", in: sdkBundle, compatibleWith: nil))
         logoView.contentMode = .scaleAspectFit
         logoView.translatesAutoresizingMaskIntoConstraints = false
-        logoView.widthAnchor.constraint(equalToConstant: PgSize.providerLogoHeight).isActive = true
-        logoView.heightAnchor.constraint(equalToConstant: PgSize.providerLogoHeight).isActive = true
+        let aaniLogoHeight: CGFloat = 40
+        let aaniLogoAspect: CGFloat = {
+            guard let s = logoView.image?.size, s.height > 0 else { return 1 }
+            return s.width / s.height
+        }()
+        logoView.heightAnchor.constraint(equalToConstant: aaniLogoHeight).isActive = true
+        logoView.widthAnchor.constraint(equalToConstant: aaniLogoHeight * aaniLogoAspect).isActive = true
         logoView.setContentHuggingPriority(.required, for: .horizontal)
 
         let row = UIStackView(arrangedSubviews: [radioButton, titleLabel, UIView(), logoView])
@@ -791,6 +888,8 @@ class UnifiedPaymentPageViewController: UIViewController {
     // MARK: - QPay Section
 
     private func createQPaySection() -> UIView {
+        let sdkBundle = NISdk.sharedInstance.getBundle()
+
         let radioButton = RadioButtonView()
         radioButton.isOn = false
         radioButton.translatesAutoresizingMaskIntoConstraints = false
@@ -798,11 +897,18 @@ class UnifiedPaymentPageViewController: UIViewController {
         qpayRadioButton = radioButton
 
         let titleLabel = UILabel()
-        titleLabel.text = "QPay".localized
+        titleLabel.text = "Pay with QPay".localized
         titleLabel.font = PgType.bodyRowTitle
         titleLabel.textColor = PgColors.textPrimary
 
-        let row = UIStackView(arrangedSubviews: [radioButton, titleLabel, UIView()])
+        let logoView = UIImageView(image: UIImage(named: "qpayLogo", in: sdkBundle, compatibleWith: nil))
+        logoView.contentMode = .scaleAspectFit
+        logoView.translatesAutoresizingMaskIntoConstraints = false
+        logoView.widthAnchor.constraint(equalToConstant: PgSize.providerLogoHeight).isActive = true
+        logoView.heightAnchor.constraint(equalToConstant: PgSize.providerLogoHeight).isActive = true
+        logoView.setContentHuggingPriority(.required, for: .horizontal)
+
+        let row = UIStackView(arrangedSubviews: [radioButton, titleLabel, UIView(), logoView])
         row.axis = .horizontal
         row.spacing = 12
         row.alignment = .center
@@ -1111,6 +1217,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         }
         cardSection.onExpiryMonthChanged = { [weak self] text in
             self?.expiryDate.month = text
+            self?.maybeCheckSliceEligibility()
         }
         cardSection.onExpiryYearChanged = { [weak self] text in
             self?.expiryDate.year = text
@@ -1190,15 +1297,38 @@ class UnifiedPaymentPageViewController: UIViewController {
         }
     }
 
+    /// Hides Slice offers and VIS plans when the card form is mid-edit / invalid. Selection
+    /// state is wiped so a re-entry never resurrects a stale plan. The Slice brand banner
+    /// (driven by `sliceEligibilityLinkPresent`) is restored automatically by `hideSliceOffers`.
+    private func clearInstallmentOffersOnInvalidCard() {
+        lastSliceCheckKey = nil
+        lastVisCheckKey = nil
+        selectedSliceOffer = nil
+        sliceSelectionMade = false
+        selectedVisaPlan = nil
+        visaTermsAccepted = false
+        hideSliceOffers()
+        hideVisaInstallments()
+        hidePaymentOptionError()
+    }
+
     private func maybeCheckSliceEligibility() {
         guard let panValue = pan.value, pan.validate(),
               expiryDate.validate(),
               let month = expiryDate.month, month.count == 2,
-              let year = expiryDate.year, year.count == 2 else { return }
+              let year = expiryDate.year, year.count == 2 else {
+            // Either PAN or expiry is incomplete/invalid — hide any visible Slice offers and
+            // VIS plans. The brand banner (driven by the order link, not by the card) stays.
+            clearInstallmentOffersOnInvalidCard()
+            return
+        }
 
         if let allowed = allowedCardProviders {
             let provider = pan.getCardProvider()
-            guard provider != .unknown, allowed.contains(provider) else { return }
+            guard provider != .unknown, allowed.contains(provider) else {
+                clearInstallmentOffersOnInvalidCard()
+                return
+            }
         }
 
         let expiry = "20\(year)-\(month)"
@@ -1212,22 +1342,33 @@ class UnifiedPaymentPageViewController: UIViewController {
         lastVisCheckKey = nil
 
         selectedSliceOffer = nil
+        sliceSelectionMade = false
         hideSliceOffers()
         hideVisaInstallments()
         selectedVisaPlan = nil
         visaTermsAccepted = false
+        hidePaymentOptionError()
 
         // Slice path: fire if a callback is wired; on empty/error/missing-link the wrapper in
         // PaymentViewController completes with `[]`, which here trips the Visa fallback.
         if let checkSlice = onCheckSliceEligibility {
             cardSection?.showSliceLoader()
-            checkSlice(panValue, expiry, false) { [weak self] offers in
+            checkSlice(panValue, expiry, false) { [weak self] response in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
                     self.cardSection?.hideSliceLoader()
-                    if !offers.isEmpty {
-                        self.showSliceOffers(offers)
+                    let indicator = response?.indicator
+                    let eligible = response != nil && indicator != "N" && !(response?.offers.isEmpty ?? true)
+                    if let response = response, eligible {
+                        self.showSliceOffers(response.offers,
+                                             transactionAmount: response.transactionAmount,
+                                             isIslamic: indicator == "I")
                     } else {
+                        // Slice link present + no eligible offers (or API failed): show the
+                        // brand banner standalone. VIS, if eligible, will displace it.
+                        if self.sliceEligibilityLinkPresent {
+                            self.showSliceBannerOnly()
+                        }
                         self.maybeCheckVisEligibility(cardTokenOrPan: panValue, key: key)
                     }
                 }
@@ -1254,6 +1395,8 @@ class UnifiedPaymentPageViewController: UIViewController {
                 self.hideVisaInstallments()
                 return
             }
+            // Rule 5: VIS eligibility displaces the Slice banner-only view.
+            self.hideSliceBannerOnly()
             self.showVisaInstallments(plans)
         }
     }
@@ -1271,23 +1414,34 @@ class UnifiedPaymentPageViewController: UIViewController {
         lastVisCheckKey = nil
 
         selectedSliceOffer = nil
+        sliceSelectionMade = false
         hideSliceOffers()
         hideVisaInstallments()
         selectedVisaPlan = nil
         visaTermsAccepted = false
+        hidePaymentOptionError()
 
         let isVisa = (card.scheme ?? "").uppercased() == "VISA"
 
         if let checkSlice = onCheckSliceEligibility {
             cardSection?.showSliceLoader()
-            checkSlice(token, cardExpiry, true) { [weak self] offers in
+            checkSlice(token, cardExpiry, true) { [weak self] response in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
                     self.cardSection?.hideSliceLoader()
-                    if !offers.isEmpty {
-                        self.showSliceOffers(offers)
-                    } else if isVisa {
-                        self.maybeCheckVisEligibility(cardTokenOrPan: token, key: key, isSavedToken: true)
+                    let indicator = response?.indicator
+                    let eligible = response != nil && indicator != "N" && !(response?.offers.isEmpty ?? true)
+                    if let response = response, eligible {
+                        self.showSliceOffers(response.offers,
+                                             transactionAmount: response.transactionAmount,
+                                             isIslamic: indicator == "I")
+                    } else {
+                        if self.sliceEligibilityLinkPresent {
+                            self.showSliceBannerOnly()
+                        }
+                        if isVisa {
+                            self.maybeCheckVisEligibility(cardTokenOrPan: token, key: key, isSavedToken: true)
+                        }
                     }
                 }
             }
@@ -1296,9 +1450,13 @@ class UnifiedPaymentPageViewController: UIViewController {
         }
     }
 
-    private func showSliceOffers(_ offers: [SliceOffer]) {
+    private func showSliceOffers(_ offers: [SliceOffer], transactionAmount: SliceAmount, isIslamic: Bool) {
         guard let cardSection = cardSection else { return }
         sliceInstallmentView?.removeFromSuperview()
+        paidSliceIsIslamic = isIslamic
+        // Pay in Full is preselected inside the slice view, so the user has a valid
+        // default selection from the moment offers appear — clear the validation gate.
+        sliceSelectionMade = true
 
         // Bleed past ancestor padding (pageH + rowPaddingH + radio button + 12pt gap on leading;
         // pageH + rowPaddingH on trailing) so the pill scroll reaches the screen edges.
@@ -1308,23 +1466,67 @@ class UnifiedPaymentPageViewController: UIViewController {
             bottom: 0,
             right: PgSpacing.pageH + PgSpacing.rowPaddingH
         )
-        let sliceView = SliceInstallmentUIView(offers: offers, pillBleed: pillBleed) { [weak self] offer in
+        sliceBanner.removeFromSuperview()
+        let sliceView = SliceInstallmentUIView(banner: sliceBanner, offers: offers, isIslamic: isIslamic, pillBleed: pillBleed) { [weak self] offer in
             self?.selectedSliceOffer = offer
+            self?.sliceSelectionMade = true
+            self?.hidePaymentOptionError()
         }
         sliceView.onSizeChange = { [weak self] in
-            UIView.animate(withDuration: 0.2) {
+            UIView.animate(withDuration: 0.2, animations: {
                 self?.cardSection?.sliceInstallmentContainer.invalidateIntrinsicContentSize()
                 self?.view.layoutIfNeeded()
-            }
+            }, completion: { _ in
+                // After the detail card expands (e.g., switching from Pay-in-Full to an
+                // offer), make sure its bottom is visible — otherwise it lands under the
+                // pay button and the user has to scroll to see it.
+                if self?.selectedSliceOffer != nil {
+                    self?.scrollSliceBottomIntoView()
+                }
+            })
         }
+        // Showing eligible offers takes precedence; clear any banner-only view first.
+        hideSliceBannerOnly()
         sliceInstallmentView = sliceView
         cardSection.showSliceInstallmentView(sliceView)
     }
 
+    /// Removes the Slice OFFER view (if any) and restores the banner-only view when the
+    /// order has the Slice link. Idempotent — leaves an existing banner in place so the user
+    /// doesn't see it flicker on every keystroke while typing card data.
     private func hideSliceOffers() {
         sliceInstallmentView?.removeFromSuperview()
         sliceInstallmentView = nil
-        cardSection?.hideSliceInstallmentContainer()
+        if sliceEligibilityLinkPresent {
+            showSliceBannerOnly()
+        } else {
+            sliceBannerOnlyWrapper?.removeFromSuperview()
+            sliceBannerOnlyWrapper = nil
+            cardSection?.hideSliceInstallmentContainer()
+        }
+    }
+
+    /// Standalone Slice banner is no longer shown — the brand banner only appears when
+    /// eligibility check succeeds and the offer view is rendered (which embeds its own
+    /// banner). Kept as a no-op so existing callers don't need to be reshuffled.
+    private func showSliceBannerOnly() {
+        // Intentionally empty.
+    }
+
+    /// Used by Rule 5: when VIS eligibility succeeds it must hide a previously-shown banner.
+    private func hideSliceBannerOnly() {
+        sliceBannerOnlyWrapper?.removeFromSuperview()
+        sliceBannerOnlyWrapper = nil
+        if sliceInstallmentView == nil {
+            cardSection?.hideSliceInstallmentContainer()
+        }
+    }
+
+    private func presentSliceLearnMore() {
+        let vc = SliceLearnMoreViewController()
+        vc.modalPresentationStyle = .overFullScreen
+        vc.modalTransitionStyle = .crossDissolve
+        present(vc, animated: true)
     }
 
     private func showVisaInstallments(_ plans: VisaPlans) {
@@ -1345,6 +1547,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             guard let self = self else { return }
             self.selectedVisaPlan = plan
             self.visaTermsAccepted = termsAccepted
+            self.hidePaymentOptionError()
             self.updateBottomPayButton()
         }
         visaInstallmentView = view
@@ -1358,6 +1561,12 @@ class UnifiedPaymentPageViewController: UIViewController {
         selectedVisaPlan = nil
         visaTermsAccepted = false
         cardSection?.hideVisaInstallmentContainer()
+        // Force the section to recalculate its height now that the VIS subtree is gone —
+        // otherwise the empty container holds onto its previous height and leaves whitespace
+        // below whatever replaces it (e.g. the Slice banner).
+        UIView.animate(withDuration: 0.2) {
+            self.view.layoutIfNeeded()
+        }
     }
 
     // MARK: - Validation & Payment
@@ -1537,6 +1746,11 @@ class UnifiedPaymentPageViewController: UIViewController {
             hideVisaInstallments()
             lastVisCheckKey = nil
             applyBottomButtonStyle(forApplePay: false)
+            // Re-run eligibility on re-selection: PAN/expiry may already be filled in from a
+            // prior visit to this section, but the slice/visa state was cleared when the user
+            // navigated away. Without this, returning to Pay-by-Card with valid data
+            // populated would leave the installment options invisible until the user retyped.
+            maybeCheckSliceEligibility()
         case .savedCard(let card):
             selectedSavedCard = card
             let token = card.cardToken ?? ""
@@ -1593,6 +1807,15 @@ class UnifiedPaymentPageViewController: UIViewController {
     }
 
     @objc private func bottomPayTapped() {
+        switch selectedPaymentOption {
+        case .card, .savedCard:
+            if requiresInstallmentSelection() {
+                showPaymentOptionError()
+                return
+            }
+        default:
+            break
+        }
         switch selectedPaymentOption {
         case .card:
             payCardAction()
@@ -1724,6 +1947,18 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     @objc private func cancelAction() {
         self.onCancel()
+    }
+
+    // MARK: - Scroll Helpers
+
+    private func scrollSliceBottomIntoView() {
+        guard let container = cardSection?.sliceInstallmentContainer else { return }
+        view.layoutIfNeeded()
+        let rect = container.convert(container.bounds, to: scrollView)
+        // 1pt sliver at the bottom — scrollRectToVisible aligns the *minimum* needed,
+        // so targeting the bottom edge guarantees the detail card's footer is in view.
+        let bottom = CGRect(x: rect.minX, y: rect.maxY - 1, width: rect.width, height: 1)
+        scrollView.scrollRectToVisible(bottom, animated: true)
     }
 
     // MARK: - Keyboard

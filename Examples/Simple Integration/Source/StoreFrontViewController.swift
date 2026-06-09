@@ -85,6 +85,19 @@ class StoreFrontViewController:
     /// Convenience accessor used when a single card is needed (e.g. order-creation pre-fill).
     var savedCard: SavedCard? { savedCards.first }
 
+    /// Single Click-to-Pay config instance reused across launches. The SDK resolves
+    /// `dpaId` / `dpaClientId` / `dpaName` via the gateway's
+    /// `/config/merchants/{id}/configs/vctp` endpoint right after order authorization,
+    /// so the merchant code only declares the `merchantId`.
+    private lazy var clickToPayConfig: ClickToPayConfig = {
+        let env = ApiService().getEnvironment()
+        return ClickToPayConfig(
+            merchantId: env?.clickToPayMerchantId ?? "",
+            isSandbox: (env?.type != .PROD),
+            cardBrands: ["visa", "mastercard"]
+        )
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -432,13 +445,7 @@ class StoreFrontViewController:
     }
 
     private func makeClickToPayConfig() -> ClickToPayConfig {
-        return ClickToPayConfig(
-            dpaId: "6BDAU1LI2WBPBQR665ED212rYO7vsj9wje83XQxlwzACNikj8",
-            dpaClientId: "10c4cb74-3493-4515-ab72-2b303f790241",
-            cardBrands: ["visa", "mastercard"],
-            dpaName: "Demo Merchant",
-            isSandbox: true
-        )
+        return clickToPayConfig
     }
 
     // MARK: - Payment Options (Step 3: Launch payment with order response)

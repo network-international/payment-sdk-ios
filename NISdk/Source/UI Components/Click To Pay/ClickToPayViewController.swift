@@ -224,8 +224,8 @@ class ClickToPayViewController: UIViewController {
     // MARK: - Authorization
 
     private func authorizeAndLoadHtml() {
-        // If tokens were already provided (e.g. from PaymentViewController which already authorized),
-        // skip the authorization step and go straight to fetching vctp config then loading HTML
+        // If tokens were already provided (e.g. from PaymentViewController which already authorized
+        // AND already resolved the merchant config), skip both steps.
         if let existingToken = self.accessToken, !existingToken.isEmpty {
             if self.paymentCookie == nil || self.paymentCookie!.isEmpty {
                 self.paymentCookie = ""
@@ -249,7 +249,43 @@ class ClickToPayViewController: UIViewController {
             let paymentToken = tokens["payment-token"] ?? ""
             self.paymentCookie = "payment-token=\(paymentToken)"
 
-            self.fetchVctpConfigAndLoadHtml()
+            // Resolve merchant config (dpaId / dpaClientId / dpaName) before loading the
+            // Visa SDK HTML — the WebView config-JSON needs those values. Direct
+            // `launchClickToPay` path: PaymentViewController never ran, so this is our
+            // only chance.
+            self.resolveClickToPayMerchantConfigIfNeeded {
+                self.fetchVctpConfigAndLoadHtml()
+            }
+        }
+    }
+
+    /// Calls the gateway VCTP merchant-config endpoint to populate `dpaId` / `dpaClientId` /
+    /// `dpaName` on `clickToPayConfig`. No-op if the values are already set or no `merchantId`
+    /// was supplied. Continues regardless of outcome — if resolution fails the WebView config
+    /// will be missing `dpaId` and the Visa SDK will surface that error.
+    private func resolveClickToPayMerchantConfigIfNeeded(then proceed: @escaping () -> Void) {
+        guard clickToPayConfig.dpaId == nil else { proceed(); return }
+        let resolvedMerchantId: String? = {
+            if let m = clickToPayConfig.merchantId, !m.isEmpty { return m }
+            return clickToPayArgs.merchantReference
+        }()
+        // `orderUrl` is the order's `self` href and is hosted on the api-gateway, so we can
+        // derive the gateway base from it (the paypage host is a different domain entirely).
+        guard let merchantId = resolvedMerchantId, !merchantId.isEmpty,
+              let token = self.accessToken,
+              let url = URL(string: clickToPayArgs.orderUrl),
+              let scheme = url.scheme, let host = url.host
+        else {
+            proceed()
+            return
+        }
+        let apiGatewayBaseUrl = "\(scheme)://\(host)"
+        clickToPayConfig.merchantId = merchantId
+        clickToPayConfig.resolve(accessToken: token, apiGatewayBaseUrl: apiGatewayBaseUrl) { error in
+            if let error = error {
+                print("ClickToPay: VCTP merchant-config resolve failed - \(error.localizedDescription)")
+            }
+            proceed()
         }
     }
 

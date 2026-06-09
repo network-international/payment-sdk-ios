@@ -84,7 +84,7 @@
 "aani_payment_timeout_message" = "Payment was not completed in time";
 
 /* Unified Payment Page */
-"Or select your payment options" = "Or select your payment options";
+"Or select your payment options" = "Other Payment Options";
 "Use Credit Or Debit Card" = "Use Credit Or Debit Card";
 "What's CVV?" = "What's CVV?";
 "CVV Tooltip" = "Security code can be located on the back of the card";
@@ -97,6 +97,7 @@
 "Select Other Payment Options" = "Select Other Payment Options";
 "Click to Pay" = "Click to Pay";
 "Pay with Click to Pay" = "Pay with Click to Pay";
+"Pay with QPay" = "Pay with QPay";
 "Pay by card" = "Pay by Card";
 "By clicking Pay terms" = "By clicking \"Pay\", you agree to the terms and conditions and authorize this transaction.";
 "Saved Cards" = "Saved Cards";
@@ -106,6 +107,8 @@
 "Security code" = "Security code";
 "Card number" = "Card number";
 "Name on card" = "Name on card";
+"Enter card number" = "Enter card number";
+"Enter name on card" = "Enter name on card";
 "+7 currencies available" = "+7 currencies available";
 
 /* Payment Result Screen */
@@ -119,3 +122,5 @@
 "Date Time Label" = "Transaction Date";
 "Done" = "Done";
 "Add card manually" = "Add card manually";
+"Select Payment Option Validation" = "Please select a payment option to proceed";
+"Card Already Saved" = "This card is already saved";

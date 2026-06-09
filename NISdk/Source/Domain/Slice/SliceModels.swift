@@ -17,6 +17,9 @@ struct SliceOffer: Codable {
 struct SliceEligibilityResponse: Codable {
     let transactionAmount: SliceAmount
     let offers: [SliceOffer]
+    /// Backend flag: "Y" = conventional interest-based offers, "I" = Islamic / Murabaha,
+    /// "N" = ineligible (no offers shown). Other values are treated as conventional.
+    let indicator: String?
 }
 
 struct SliceEligibilityRequest: Codable {

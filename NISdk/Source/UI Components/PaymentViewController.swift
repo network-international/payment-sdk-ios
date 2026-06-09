@@ -35,6 +35,7 @@ class PaymentViewController: UIViewController {
     var orderItems: [OrderItem] = []
     var savedCards: [SavedCard] = []
     private var lastPaymentResponse: PaymentResponse?
+    private weak var unifiedPaymentPageRef: UnifiedPaymentPageViewController?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -149,6 +150,7 @@ class PaymentViewController: UIViewController {
                     // Callback hell...
                     self?.paymentToken = paymentToken
                     self?.accessToken = accessToken
+                    self?.resolveClickToPayConfigIfNeeded(accessToken: accessToken)
                     // 2. Show card payment screen after authorization (payment token is received)
                     DispatchQueue.main.async { // Use the main thread to update any UI
                         self?.cardPaymentDelegate?.authorizationDidComplete?(with: .AuthSuccess)
@@ -164,6 +166,48 @@ class PaymentViewController: UIViewController {
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
         }
     }
+
+    /// Fires the gateway VCTP merchant-config lookup the moment the order is authorized.
+    /// We have the access token from `authorizePayment` and the api-gateway host from the
+    /// order's `self` link, so the merchant only ever has to declare `merchantId` —
+    /// `dpaId` / `dpaClientId` / `dpaName` get populated on `clickToPayConfig` before the
+    /// user can possibly tap the Click-to-Pay row. Non-blocking — the form renders in
+    /// parallel; if the user beats the network, `launchClickToPay` will fail-fast.
+    private func resolveClickToPayConfigIfNeeded(accessToken: String) {
+        guard let config = clickToPayConfig else {
+            print("ClickToPay: skip VCTP resolve — no clickToPayConfig on PaymentViewController")
+            return
+        }
+        guard config.dpaId == nil else { return }
+        // The gateway-side merchant id lives in the order's `merchantDetails.reference`.
+        // Falls back to an explicit `config.merchantId` for callers that set it manually.
+        let resolvedMerchantId: String? = {
+            if let m = config.merchantId, !m.isEmpty { return m }
+            return order.merchantDetails?.reference
+        }()
+        guard let merchantId = resolvedMerchantId, !merchantId.isEmpty else {
+            print("ClickToPay: skip VCTP resolve — order.merchantDetails.reference is missing")
+            return
+        }
+        guard let selfHref = order.orderLinks?.orderLink,
+              let url = URL(string: selfHref),
+              let scheme = url.scheme, let host = url.host
+        else {
+            print("ClickToPay: skip VCTP resolve — could not derive api-gateway URL from order self link")
+            return
+        }
+        let apiGatewayBaseUrl = "\(scheme)://\(host)"
+        print("ClickToPay: resolving VCTP merchant config for merchantId=\(merchantId) via \(apiGatewayBaseUrl)")
+        // Inject the merchantId for `resolve(...)` to pick up.
+        config.merchantId = merchantId
+        config.resolve(accessToken: accessToken, apiGatewayBaseUrl: apiGatewayBaseUrl) { error in
+            if let error = error {
+                print("ClickToPay: VCTP merchant-config resolve failed - \(error.localizedDescription)")
+            } else {
+                print("ClickToPay: VCTP merchant-config resolved dpaId=\(config.dpaId ?? "nil"), dpaName=\(config.dpaName ?? "nil")")
+            }
+        }
+    }
     
     private func initiatePaymentForm() {
         switch paymentMedium {
@@ -176,6 +220,7 @@ class PaymentViewController: UIViewController {
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
                 }
             })
+            unifiedPaymentPageRef = unifiedPaymentPage
             unifiedPaymentPage.makePaymentCallback = self.makePayment
             unifiedPaymentPage.onApplePayTapped = { [weak self] in
                 self?.initiateApplePayFromUnifiedPage()
@@ -189,20 +234,23 @@ class PaymentViewController: UIViewController {
             unifiedPaymentPage.onQPayTapped = { [weak self] in
                 self?.initiateQPayFromUnifiedPage()
             }
+            // Signal to UnifiedPaymentPage whether the Slice link is present on the order — drives
+            // whether the brand banner is shown when the entered card returns no eligible offers.
+            unifiedPaymentPage.sliceEligibilityLinkPresent = order.embeddedData?.getSliceEligibilityCheckLink() != nil
             unifiedPaymentPage.onCheckSliceEligibility = { [weak self] value, expiry, isSavedToken, completion in
                 guard let self = self,
                       let sliceEligibilityUrl = self.order.embeddedData?.getSliceEligibilityCheckLink(),
                       let accessToken = self.accessToken else {
-                    completion([])
+                    completion(nil)
                     return
                 }
                 let handle: (Data?, URLResponse?, Error?) -> Void = { data, _, _ in
                     guard let data = data,
                           let response = try? JSONDecoder().decode(SliceEligibilityResponse.self, from: data) else {
-                        completion([])
+                        completion(nil)
                         return
                     }
-                    completion(response.offers)
+                    completion(response)
                 }
                 if isSavedToken {
                     // Saved-card flow → API expects the token in `cardToken`, not `pan`.
@@ -246,7 +294,7 @@ class PaymentViewController: UIViewController {
             if cards.isEmpty, let savedCard = order.savedCard {
                 cards = [savedCard]
             }
-            unifiedPaymentPage.savedCards = cards
+            unifiedPaymentPage.savedCards = Array(cards.suffix(3))
             unifiedPaymentPage.orderItems = orderItems
             unifiedPaymentPage.allowedCardProviders = order.paymentMethods?.card
             unifiedPaymentPage.onMakeSavedCardPayment = { [weak self] card, cvv, visaRequest in
@@ -871,13 +919,20 @@ class PaymentViewController: UIViewController {
         dateFormatter.dateFormat = "dd MMM yyyy, hh:mm a"
         let dateTime = dateFormatter.string(from: Date())
 
+        let sliceReceipt: SliceReceipt? = {
+            guard isSuccess, let offer = unifiedPaymentPageRef?.paidSliceOffer else { return nil }
+            let isIslamic = unifiedPaymentPageRef?.paidSliceIsIslamic ?? false
+            return Self.makeSliceReceipt(from: offer, isIslamic: isIslamic)
+        }()
+
         let args = PaymentResultArgs(
             isSuccess: isSuccess,
             amount: formattedAmount,
             transactionId: transactionId,
             dateTime: dateTime,
             cardProviders: self.order.paymentMethods?.card ?? [],
-            orderItems: self.orderItems
+            orderItems: self.orderItems,
+            sliceReceipt: sliceReceipt
         )
 
         let resultVC = PaymentResultViewController(args: args, onDone: { [weak self] in
@@ -891,6 +946,38 @@ class PaymentViewController: UIViewController {
     
     private func closePaymentViewController(completion: (() -> Void)?) {
         dismiss(animated: true, completion: completion)
+    }
+
+    /// Format a `SliceOffer` into display-ready strings for the result screen. Currency uses
+    /// the same comma/2-decimal formatting as the payment-page offer card so the values
+    /// match what the user just saw.
+    private static func makeSliceReceipt(from offer: SliceOffer, isIslamic: Bool) -> SliceReceipt {
+        let currency = offer.installmentAmount.currencyCode
+        let feeString: String
+        if offer.feeType == "P" {
+            feeString = "\(offer.fee)%"
+        } else {
+            let feeMinor = Int((Double(offer.fee) ?? 0) * 100)
+            feeString = formatSliceAmount(value: feeMinor, currency: currency)
+        }
+        return SliceReceipt(
+            tenor: "\(offer.period) Months",
+            interestRate: "\(offer.rate)%",
+            fees: feeString,
+            installmentAmount: formatSliceAmount(value: offer.installmentAmount.value, currency: currency),
+            isIslamic: isIslamic
+        )
+    }
+
+    private static func formatSliceAmount(value: Int, currency: String) -> String {
+        let f = NumberFormatter()
+        f.numberStyle = .decimal
+        f.minimumFractionDigits = 2
+        f.maximumFractionDigits = 2
+        f.usesGroupingSeparator = true
+        f.groupingSeparator = ","
+        let n = f.string(from: NSNumber(value: Double(value) / 100.0)) ?? "0.00"
+        return "\(currency) \(n)"
     }
 }
 

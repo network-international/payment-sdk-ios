@@ -18,9 +18,10 @@ import Foundation
 ///      provides them.
 @objc public class ClickToPayConfig: NSObject {
 
-    /// Merchant identifier used to fetch the DPA credentials from the gateway.
-    /// Required when using the `resolve(...)` flow; ignored if `dpaId` is already set.
-    public let merchantId: String?
+    /// Merchant identifier used to fetch the DPA credentials from the gateway. The SDK can
+    /// populate this from `order.merchantDetails.reference` if the merchant doesn't supply
+    /// it explicitly; ignored when `dpaId` is already set.
+    public internal(set) var merchantId: String?
 
     /// The DPA (Digital Payment Application) ID. Populated either at init time or via `resolve(...)`.
     public internal(set) var dpaId: String?

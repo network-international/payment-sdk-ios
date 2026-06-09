@@ -83,7 +83,7 @@
 "aani_payment_timeout_message" = "لم يتم إكمال الدفع في الوقت المحدد";
 
 /* Unified Payment Page */
-"Or select your payment options" = "أو اختر طريقة الدفع";
+"Or select your payment options" = "خيارات الدفع الأخرى";
 "Use Credit Or Debit Card" = "استخدم بطاقة ائتمان أو خصم";
 "What's CVV?" = "ما هو CVV؟";
 "CVV Tooltip" = "يمكن العثور على رمز الأمان على ظهر البطاقة";
@@ -96,6 +96,7 @@
 "Select Other Payment Options" = "اختر خيارات الدفع الأخرى";
 "Click to Pay" = "كليك تو باي";
 "Pay with Click to Pay" = "ادفع باستخدام كليك تو باي";
+"Pay with QPay" = "ادفع باستخدام كيو باي";
 "Pay by card" = "الدفع بالبطاقة";
 "By clicking Pay terms" = "بالضغط على \"ادفع\"، فإنك توافق على الشروط والأحكام وتصرح بهذه المعاملة.";
 "Saved Cards" = "البطاقات المحفوظة";
@@ -105,6 +106,8 @@
 "Security code" = "رمز الأمان";
 "Card number" = "رقم البطاقة";
 "Name on card" = "الاسم على البطاقة";
+"Enter card number" = "أدخل رقم البطاقة";
+"Enter name on card" = "أدخل الاسم على البطاقة";
 "+7 currencies available" = "+7 عملات متاحة";
 
 /* Payment Result Screen */
@@ -118,3 +121,5 @@
 "Date Time Label" = "تاريخ المعاملة";
 "Done" = "تم";
 "Add card manually" = "إضافة بطاقة يدوياً";
+"Select Payment Option Validation" = "يرجى اختيار خيار الدفع للمتابعة";
+"Card Already Saved" = "هذه البطاقة محفوظة بالفعل";

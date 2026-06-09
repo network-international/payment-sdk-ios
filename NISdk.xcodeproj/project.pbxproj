@@ -33,6 +33,7 @@
 		862CBDEA23054C7000767774 /* BillingAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDE923054C7000767774 /* BillingAddress.swift */; };
 		862CBDEC23054C9800767774 /* OrderSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDEB23054C9800767774 /* OrderSummary.swift */; };
 		862CBDEE23054E1500767774 /* FormattedOrderSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDED23054E1500767774 /* FormattedOrderSummary.swift */; };
+		MD0000000000000000000001 /* MerchantDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = MD0000000000000000000002 /* MerchantDetails.swift */; };
 		862CBDF123058F4200767774 /* PaymentMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBDF023058F4200767774 /* PaymentMethods.swift */; };
 		862CBE2F2305D75D00767774 /* CardPaymentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE2E2305D75D00767774 /* CardPaymentViewController.swift */; };
 		862CBE3A230678F000767774 /* OCRA.otf in Resources */ = {isa = PBXBuildFile; fileRef = 862CBE39230678F000767774 /* OCRA.otf */; };
@@ -180,6 +181,7 @@
 		862CBDE923054C7000767774 /* BillingAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingAddress.swift; sourceTree = "<group>"; };
 		862CBDEB23054C9800767774 /* OrderSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderSummary.swift; sourceTree = "<group>"; };
 		862CBDED23054E1500767774 /* FormattedOrderSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattedOrderSummary.swift; sourceTree = "<group>"; };
+		MD0000000000000000000002 /* MerchantDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerchantDetails.swift; sourceTree = "<group>"; };
 		862CBDF023058F4200767774 /* PaymentMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMethods.swift; sourceTree = "<group>"; };
 		862CBE2E2305D75D00767774 /* CardPaymentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentViewController.swift; sourceTree = "<group>"; };
 		862CBE39230678F000767774 /* OCRA.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = OCRA.otf; sourceTree = "<group>"; };
@@ -465,6 +467,7 @@
 				862CBDE923054C7000767774 /* BillingAddress.swift */,
 				862CBDEB23054C9800767774 /* OrderSummary.swift */,
 				862CBDED23054E1500767774 /* FormattedOrderSummary.swift */,
+				MD0000000000000000000002 /* MerchantDetails.swift */,
 				862CBE52230A4F4D00767774 /* OrderLinks.swift */,
 				862CBE5D230C66BC00767774 /* EmbeddedData.swift */,
 				862CBE63230C800900767774 /* PaymentLinks.swift */,
@@ -815,6 +818,7 @@
 				862CBE7D230E8C3B00767774 /* String+Luhn.swift in Sources */,
 				862CBE5123089EDB00767774 /* UIView+Border.swift in Sources */,
 				862CBDEE23054E1500767774 /* FormattedOrderSummary.swift in Sources */,
+				MD0000000000000000000001 /* MerchantDetails.swift in Sources */,
 				59ED19AA2AD11B3D0000E024 /* SavedCard.swift in Sources */,
 				862CBE2F2305D75D00767774 /* CardPaymentViewController.swift in Sources */,
 				862CBE79230E6D6D00767774 /* UITextField+CharLimit.swift in Sources */,

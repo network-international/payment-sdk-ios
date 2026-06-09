@@ -21,6 +21,9 @@ class ClickToPayArgs {
     let orderUrl: String
     let accessToken: String
     let paymentCookie: String
+    /// Optional — when present, this is the gateway-side merchant id used by the SDK to
+    /// resolve Click-to-Pay DPA credentials via `/config/merchants/{id}/configs/vctp`.
+    let merchantReference: String?
 
     init(amount: Double,
          currencyCode: String,
@@ -33,7 +36,8 @@ class ClickToPayArgs {
          unifiedClickToPayUrl: String,
          orderUrl: String,
          accessToken: String,
-         paymentCookie: String) {
+         paymentCookie: String,
+         merchantReference: String? = nil) {
         self.amount = amount
         self.currencyCode = currencyCode
         self.authUrl = authUrl
@@ -46,6 +50,7 @@ class ClickToPayArgs {
         self.orderUrl = orderUrl
         self.accessToken = accessToken
         self.paymentCookie = paymentCookie
+        self.merchantReference = merchantReference
     }
 }
 
@@ -108,7 +113,8 @@ extension OrderResponse {
             unifiedClickToPayUrl: unifiedClickToPayUrl,
             orderUrl: orderUrl,
             accessToken: "", // Will be obtained during authorization
-            paymentCookie: "" // Will be obtained during authorization
+            paymentCookie: "", // Will be obtained during authorization
+            merchantReference: merchantDetails?.reference
         )
     }
 }

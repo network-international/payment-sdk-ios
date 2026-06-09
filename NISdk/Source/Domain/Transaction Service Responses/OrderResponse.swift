@@ -30,7 +30,8 @@ import Foundation
     public var savedCard: SavedCard?
     public var visSavedCardMatchedCandidates: VisSavedCardMatchedCandidates?
     public var isSaudiPaymentEnabled: Bool?
-    
+    public var merchantDetails: MerchantDetails?
+
     public enum OrderCodingKeys: String, CodingKey {
         case _id
         case type
@@ -53,6 +54,7 @@ import Foundation
         case embeddedData = "_embedded"
         case visSavedCardMatchedCandidates = "visSavedCardMatchedCandidates"
         case isSaudiPaymentEnabled
+        case merchantDetails
     }
     
     public func getAuthCode() -> String? {
@@ -100,6 +102,7 @@ import Foundation
         embeddedData = try OrderResponseContainer.decodeIfPresent(EmbeddedData.self, forKey: .embeddedData)
         savedCard = try OrderResponseContainer.decodeIfPresent(SavedCard.self, forKey: .savedCard)
         visSavedCardMatchedCandidates = try OrderResponseContainer.decodeIfPresent(VisSavedCardMatchedCandidates.self, forKey: .visSavedCardMatchedCandidates)
+        merchantDetails = try OrderResponseContainer.decodeIfPresent(MerchantDetails.self, forKey: .merchantDetails)
     }
     
     class Builder {

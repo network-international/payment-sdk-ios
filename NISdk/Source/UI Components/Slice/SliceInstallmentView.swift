@@ -9,8 +9,8 @@ struct SliceInstallmentView: View {
     private let yellowBg = Color(red: 1, green: 0.97, blue: 0.88)
     private let selectedTabBg = Color(red: 0.1, green: 0.1, blue: 0.1)
     private let unselectedTabBg = Color(red: 0.94, green: 0.94, blue: 0.94)
-    private let zeroInterestColor = Color(red: 0.0, green: 0.54, blue: 0.48)
-    private let zeroFeeColor = Color(red: 0.36, green: 0.42, blue: 0.75)
+    private let zeroInterestColor = Color(red: 47.0/255.0, green: 191.0/255.0, blue: 113.0/255.0)
+    private let zeroFeeColor = Color(red: 47.0/255.0, green: 191.0/255.0, blue: 113.0/255.0)
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -77,10 +77,15 @@ struct SliceInstallmentView: View {
             : formatAmount(Int((Double(offer.fee) ?? 0) * 100), offer.installmentAmount.currencyCode)
 
         VStack(spacing: 0) {
-            HStack {
-                Text("\(installmentAmt) / month")
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(installmentAmt)
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundColor(Color(red: 0.1, green: 0.1, blue: 0.1))
+                    Text("Per Month")
+                        .font(.system(size: 12))
+                        .foregroundColor(Color(red: 0.4, green: 0.4, blue: 0.4))
+                }
                 Spacer()
                 HStack(spacing: 6) {
                     if isZeroInterest {
@@ -145,25 +150,37 @@ final class SliceInstallmentUIView: UIView {
 
     var onSizeChange: (() -> Void)?
 
+    private let banner: SliceBannerUIView
     private let offers: [SliceOffer]
+    private let isIslamic: Bool
     private let onOfferSelected: (SliceOffer?) -> Void
     private let pillBleed: UIEdgeInsets
-    private var selectedIndex = -1
+    // Pay in Full (index 0) is the default selection — the user can switch to an offer
+    // via the tab row, but never has to start from a no-selection state.
+    private var selectedIndex = 0
 
     private let mainStack = UIStackView()
     private var tabButtons: [UIButton] = []
     private let detailCard = UIView()
+    private let selectionErrorLabel = UILabel()
 
     private let installmentLabel = UILabel()
+    private let amountCaptionLabel = UILabel()
     private let zeroInterestBadge = SlicePaddedLabel()
     private let zeroFeesBadge = SlicePaddedLabel()
     private let rateValueLabel = UILabel()
     private let feeValueLabel = UILabel()
+    private let totalLabelLabel = UILabel()
+    private let totalValueLabel = UILabel()
 
-    init(offers: [SliceOffer],
+    init(banner: SliceBannerUIView,
+         offers: [SliceOffer],
+         isIslamic: Bool = false,
          pillBleed: UIEdgeInsets = .zero,
          onOfferSelected: @escaping (SliceOffer?) -> Void) {
+        self.banner = banner
         self.offers = offers
+        self.isIslamic = isIslamic
         self.pillBleed = pillBleed
         self.onOfferSelected = onOfferSelected
         super.init(frame: .zero)
@@ -180,8 +197,10 @@ final class SliceInstallmentUIView: UIView {
         mainStack.axis = .vertical
         mainStack.spacing = 10
         mainStack.translatesAutoresizingMaskIntoConstraints = false
-        mainStack.addArrangedSubview(makeBanner())
+        banner.removeFromSuperview()
+        mainStack.addArrangedSubview(banner)
         mainStack.addArrangedSubview(makeTabRow())
+        mainStack.addArrangedSubview(makeSelectionErrorLabel())
         mainStack.addArrangedSubview(makeDetailCard())
         addSubview(mainStack)
         NSLayoutConstraint.activate([
@@ -191,52 +210,6 @@ final class SliceInstallmentUIView: UIView {
             mainStack.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
         refreshTabAppearance()
-    }
-
-    // MARK: - Banner
-
-    private func makeBanner() -> UIView {
-        let container = UIView()
-        container.translatesAutoresizingMaskIntoConstraints = false
-        container.layer.borderColor = PgColors.borderInput.cgColor
-        container.layer.borderWidth = 1
-        container.layer.cornerRadius = PgRadius.row
-
-        let sliceLabel = UILabel()
-        sliceLabel.text = "slice »"
-        sliceLabel.font = PgType.bodyRowTitle
-        sliceLabel.textColor = PgColors.accentPrimary
-        sliceLabel.setContentHuggingPriority(.required, for: .horizontal)
-        sliceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        sliceLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        let titleLabel = UILabel()
-        titleLabel.text = "Zero fees. Zero interest."
-        titleLabel.font = PgType.bodyRowTitle
-        titleLabel.textColor = PgColors.textPrimary
-
-        let subtitleLabel = UILabel()
-        subtitleLabel.text = "Split your purchases into easy installments"
-        subtitleLabel.font = PgType.bodyRowSubtitle
-        subtitleLabel.textColor = PgColors.textSecondary
-        subtitleLabel.numberOfLines = 2
-
-        let textStack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel])
-        textStack.axis = .vertical
-        textStack.spacing = 2
-        textStack.translatesAutoresizingMaskIntoConstraints = false
-
-        container.addSubview(sliceLabel)
-        container.addSubview(textStack)
-        NSLayoutConstraint.activate([
-            sliceLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 10),
-            sliceLabel.centerYAnchor.constraint(equalTo: textStack.centerYAnchor),
-            textStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 10),
-            textStack.leadingAnchor.constraint(equalTo: sliceLabel.trailingAnchor, constant: 8),
-            textStack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -10),
-            textStack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -10),
-        ])
-        return container
     }
 
     // MARK: - Tab Row
@@ -305,25 +278,25 @@ final class SliceInstallmentUIView: UIView {
     }
 
     @objc private func tabTapped(_ sender: UIButton) {
-        let wasShowingDetail = selectedIndex > 0
+        let wasShowingDetail = !detailCard.isHidden
         selectedIndex = sender.tag
         refreshTabAppearance()
-        let isShowingDetail = selectedIndex > 0
-        if isShowingDetail {
+        if selectedIndex > 0 {
             updateDetailContent(offer: offers[selectedIndex - 1])
             onOfferSelected(offers[selectedIndex - 1])
+            detailCard.isHidden = false
         } else {
             onOfferSelected(nil)
+            detailCard.isHidden = true
         }
-        detailCard.isHidden = !isShowingDetail
-        if wasShowingDetail != isShowingDetail { onSizeChange?() }
+        if wasShowingDetail != !detailCard.isHidden { onSizeChange?() }
     }
 
     private func refreshTabAppearance() {
         for (i, btn) in tabButtons.enumerated() {
             let sel = i == selectedIndex
-            btn.backgroundColor = sel ? PgColors.accentPrimary : PgColors.surfaceRow
-            btn.setTitleColor(sel ? PgColors.textOnTabSelected : PgColors.textPrimary, for: .normal)
+            btn.backgroundColor = sel ? PgColors.accentPrimary : PgColors.surfacePage
+            btn.setTitleColor(sel ? PgColors.textOnTabSelected : PgColors.textSecondary, for: .normal)
             btn.titleLabel?.font = sel ? PgType.pillTabSelected : PgType.pillTabUnselected
             btn.layer.borderColor = sel ? PgColors.accentPrimary.cgColor : PgColors.borderTabUnselected.cgColor
             btn.layer.borderWidth = 1
@@ -338,22 +311,32 @@ final class SliceInstallmentUIView: UIView {
         detailCard.layer.cornerRadius = PgRadius.row
         detailCard.isHidden = true
 
-        installmentLabel.font = PgType.amountRow
+        installmentLabel.font = .systemFont(ofSize: 13, weight: .medium)
         installmentLabel.textColor = PgColors.textPrimary
+        installmentLabel.adjustsFontSizeToFitWidth = true
+        installmentLabel.minimumScaleFactor = 0.9
         installmentLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        installmentLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        zeroInterestBadge.configure(text: "Zero interest",
-                                    color: UIColor(red: 0.0, green: 0.54, blue: 0.48, alpha: 1))
-        zeroFeesBadge.configure(text: "Zero fees",
-                                color: UIColor(red: 0.36, green: 0.42, blue: 0.75, alpha: 1))
+        amountCaptionLabel.font = PgType.bodyRowSubtitle
+        amountCaptionLabel.textColor = PgColors.textSecondary
+        amountCaptionLabel.isHidden = true
+
+        let amountStack = UIStackView(arrangedSubviews: [installmentLabel, amountCaptionLabel])
+        amountStack.axis = .vertical
+        amountStack.spacing = 2
+        amountStack.alignment = .leading
+
+        zeroInterestBadge.configure(text: "Zero interest", color: PgColors.badgeDarkBg)
+        zeroFeesBadge.configure(text: "Zero fees", color: PgColors.badgeDarkBg)
         zeroInterestBadge.isHidden = true
         zeroFeesBadge.isHidden = true
 
         let badgeStack = UIStackView(arrangedSubviews: [zeroInterestBadge, zeroFeesBadge])
         badgeStack.axis = .horizontal
-        badgeStack.spacing = 6
+        badgeStack.spacing = 4
 
-        let topRow = UIStackView(arrangedSubviews: [installmentLabel, badgeStack])
+        let topRow = UIStackView(arrangedSubviews: [amountStack, badgeStack])
         topRow.axis = .horizontal
         topRow.spacing = 8
         topRow.alignment = .center
@@ -363,19 +346,30 @@ final class SliceInstallmentUIView: UIView {
         divider.backgroundColor = PgColors.dividerSlice
         divider.translatesAutoresizingMaskIntoConstraints = false
 
-        rateValueLabel.font = PgType.captionSlicePeriod
+        rateValueLabel.font = .systemFont(ofSize: PgType.captionSlicePeriod.pointSize, weight: .semibold)
         rateValueLabel.textColor = PgColors.textPrimary
         rateValueLabel.textAlignment = .right
-        feeValueLabel.font = PgType.captionSlicePeriod
+        feeValueLabel.font = .systemFont(ofSize: PgType.captionSlicePeriod.pointSize, weight: .semibold)
         feeValueLabel.textColor = PgColors.textPrimary
         feeValueLabel.textAlignment = .right
 
+        totalLabelLabel.font = PgType.captionSlicePeriod
+        totalLabelLabel.textColor = PgColors.textSecondary
+        totalValueLabel.font = .systemFont(ofSize: PgType.captionSlicePeriod.pointSize, weight: .semibold)
+        totalValueLabel.textColor = PgColors.textPrimary
+        totalValueLabel.textAlignment = .right
+
+        let totalRow = UIStackView(arrangedSubviews: [totalLabelLabel, totalValueLabel])
+        totalRow.axis = .horizontal
+        totalRow.spacing = 8
+
         let detailRows = UIStackView(arrangedSubviews: [
-            makeDetailRow(labelText: "Interest rate", valueLabel: rateValueLabel),
-            makeDetailRow(labelText: "Processing fees", valueLabel: feeValueLabel),
+            makeDetailRow(labelText: (isIslamic ? "Murabaha:" : "Interest rate:"), valueLabel: rateValueLabel),
+            makeDetailRow(labelText: "Processing fees:", valueLabel: feeValueLabel),
+            totalRow,
         ])
         detailRows.axis = .vertical
-        detailRows.spacing = 4
+        detailRows.spacing = 8
         detailRows.translatesAutoresizingMaskIntoConstraints = false
 
         detailCard.addSubview(topRow)
@@ -384,7 +378,7 @@ final class SliceInstallmentUIView: UIView {
         NSLayoutConstraint.activate([
             topRow.topAnchor.constraint(equalTo: detailCard.topAnchor, constant: 12),
             topRow.leadingAnchor.constraint(equalTo: detailCard.leadingAnchor, constant: 12),
-            topRow.trailingAnchor.constraint(equalTo: detailCard.trailingAnchor, constant: -12),
+            topRow.trailingAnchor.constraint(equalTo: detailCard.trailingAnchor, constant: -8),
             divider.topAnchor.constraint(equalTo: topRow.bottomAnchor, constant: 8),
             divider.leadingAnchor.constraint(equalTo: detailCard.leadingAnchor, constant: 12),
             divider.trailingAnchor.constraint(equalTo: detailCard.trailingAnchor, constant: -12),
@@ -410,19 +404,59 @@ final class SliceInstallmentUIView: UIView {
 
     private func updateDetailContent(offer: SliceOffer) {
         let instAmt = fmtAmt(offer.installmentAmount.value, offer.installmentAmount.currencyCode)
-        installmentLabel.text = "\(instAmt) / month"
+        installmentLabel.attributedText = AedSymbol.attributed(
+            instAmt, font: installmentLabel.font, color: PgColors.textPrimary)
+        amountCaptionLabel.text = "Per Month"
+        amountCaptionLabel.isHidden = false
         let isZeroInterest = ["0", "0.0", "0.00"].contains(offer.rate)
         let isZeroFee = ["0", "0.0", "0.00"].contains(offer.fee)
         zeroInterestBadge.isHidden = !isZeroInterest
         zeroFeesBadge.isHidden = !isZeroFee
         rateValueLabel.text = "\(offer.rate)%"
-        feeValueLabel.text = offer.feeType == "P"
+        let feeText = offer.feeType == "P"
             ? "\(offer.fee)%"
             : fmtAmt(Int((Double(offer.fee) ?? 0) * 100), offer.installmentAmount.currencyCode)
+        feeValueLabel.attributedText = AedSymbol.attributed(
+            feeText, font: feeValueLabel.font, color: PgColors.textPrimary)
+        totalLabelLabel.text = "Total after \(offer.period) months"
+        totalValueLabel.attributedText = AedSymbol.attributed(
+            fmtAmt(offer.totalAmount.value, offer.totalAmount.currencyCode),
+            font: totalValueLabel.font, color: PgColors.textPrimary)
     }
 
     private func fmtAmt(_ value: Int, _ currency: String) -> String {
-        String(format: "\(currency) %.2f", Double(value) / 100.0)
+        let f = NumberFormatter()
+        f.numberStyle = .decimal
+        f.minimumFractionDigits = 2
+        f.maximumFractionDigits = 2
+        f.usesGroupingSeparator = true
+        f.groupingSeparator = ","
+        let n = f.string(from: NSNumber(value: Double(value) / 100.0)) ?? "0.00"
+        return "\(currency) \(n)"
+    }
+
+    // MARK: - Selection Error
+
+    private func makeSelectionErrorLabel() -> UIView {
+        selectionErrorLabel.translatesAutoresizingMaskIntoConstraints = false
+        selectionErrorLabel.font = .systemFont(ofSize: 13, weight: .regular)
+        selectionErrorLabel.textColor = UIColor(red: 0.83, green: 0.18, blue: 0.18, alpha: 1.0)
+        selectionErrorLabel.numberOfLines = 0
+        selectionErrorLabel.text = "Select Payment Option Validation".localized
+        selectionErrorLabel.isHidden = true
+        return selectionErrorLabel
+    }
+
+    func showSelectionError() {
+        let wasHidden = selectionErrorLabel.isHidden
+        selectionErrorLabel.isHidden = false
+        if wasHidden { onSizeChange?() }
+    }
+
+    func hideSelectionError() {
+        let wasVisible = !selectionErrorLabel.isHidden
+        selectionErrorLabel.isHidden = true
+        if wasVisible { onSizeChange?() }
     }
 }
 
@@ -449,24 +483,115 @@ final class SliceBleedWrapper: UIView {
 // MARK: - SlicePaddedLabel
 
 final class SlicePaddedLabel: UILabel {
-    private let insets = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
-
     func configure(text: String, color: UIColor) {
         self.text = text
         font = .systemFont(ofSize: 10, weight: .medium)
         textColor = .white
         backgroundColor = color
-        layer.cornerRadius = 4
+        textAlignment = .center
         clipsToBounds = true
+        adjustsFontSizeToFitWidth = true
+        minimumScaleFactor = 0.8
     }
 
     override var intrinsicContentSize: CGSize {
-        let s = super.intrinsicContentSize
-        return CGSize(width: s.width + insets.left + insets.right,
-                      height: s.height + insets.top + insets.bottom)
+        CGSize(width: 80, height: 20)
     }
 
-    override func drawText(in rect: CGRect) {
-        super.drawText(in: rect.inset(by: insets))
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.cornerRadius = bounds.height / 2
+    }
+}
+
+// MARK: - SliceBannerUIView
+//
+// Standalone Slice brand banner. Used both above the offer pills (eligible state) and on its
+// own when the order's Slice link is present but the entered card returned no matched offers.
+final class SliceBannerUIView: UIView {
+
+    init() {
+        super.init(frame: .zero)
+        translatesAutoresizingMaskIntoConstraints = false
+        setup()
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    private func setup() {
+        backgroundColor = PgColors.surfaceRow
+        layer.cornerRadius = PgRadius.row
+
+        let sdkBundle = NISdk.sharedInstance.getBundle()
+
+        let sliceLogo = UIImageView(image: UIImage(named: "sliceLogo", in: sdkBundle, compatibleWith: nil))
+        sliceLogo.contentMode = .scaleAspectFit
+        sliceLogo.translatesAutoresizingMaskIntoConstraints = false
+        sliceLogo.setContentHuggingPriority(.required, for: .horizontal)
+        sliceLogo.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        let topRow = UIStackView(arrangedSubviews: [sliceLogo])
+        topRow.axis = .horizontal
+        topRow.alignment = .center
+        topRow.translatesAutoresizingMaskIntoConstraints = false
+
+        let spacer = UIView()
+        spacer.translatesAutoresizingMaskIntoConstraints = false
+        topRow.addArrangedSubview(spacer)
+
+        let logoAspect: CGFloat = {
+            guard let s = sliceLogo.image?.size, s.height > 0 else { return 2.5 }
+            return s.width / s.height
+        }()
+        NSLayoutConstraint.activate([
+            sliceLogo.heightAnchor.constraint(equalToConstant: 48),
+            sliceLogo.widthAnchor.constraint(equalTo: sliceLogo.heightAnchor, multiplier: logoAspect),
+        ])
+
+        let titleLabel = UILabel()
+        titleLabel.text = "Zero fees, Zero interest installments."
+        titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        titleLabel.textColor = PgColors.textPrimary
+        titleLabel.numberOfLines = 2
+
+        let subtitleLabel = UILabel()
+        subtitleLabel.text = "Split your purchases into easy installments"
+        subtitleLabel.font = PgType.bodyRowSubtitle
+        subtitleLabel.textColor = PgColors.textSecondary
+        subtitleLabel.numberOfLines = 2
+
+        let mainStack = UIStackView(arrangedSubviews: [topRow, titleLabel, subtitleLabel])
+        mainStack.axis = .vertical
+        mainStack.spacing = 10
+        mainStack.setCustomSpacing(4, after: titleLabel)
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(mainStack)
+        // The bottom is a required `<=` plus a low-priority `=`. This pins content tight to
+        // the top while still letting Auto Layout report a natural intrinsic height. If the
+        // banner is ever externally forced taller than its content (e.g., a stale container
+        // height during a state swap), the equality breaks at low priority and the stack
+        // stays at its intrinsic height — leaving any excess as whitespace at the bottom.
+        let bottomEqual = mainStack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -14)
+        bottomEqual.priority = .defaultLow
+        NSLayoutConstraint.activate([
+            mainStack.topAnchor.constraint(equalTo: topAnchor, constant: 14),
+            mainStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 14),
+            mainStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -14),
+            mainStack.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -14),
+            bottomEqual,
+        ])
+    }
+
+    fileprivate static func makeBankLogo(named name: String, in bundle: Bundle?, width: CGFloat, height: CGFloat = 12) -> UIImageView {
+        let iv = UIImageView(image: UIImage(named: name, in: bundle, compatibleWith: nil))
+        iv.contentMode = .scaleAspectFit
+        iv.translatesAutoresizingMaskIntoConstraints = false
+        iv.setContentHuggingPriority(.required, for: .horizontal)
+        iv.setContentCompressionResistancePriority(.required, for: .horizontal)
+        NSLayoutConstraint.activate([
+            iv.widthAnchor.constraint(equalToConstant: width),
+            iv.heightAnchor.constraint(equalToConstant: height),
+        ])
+        return iv
     }
 }

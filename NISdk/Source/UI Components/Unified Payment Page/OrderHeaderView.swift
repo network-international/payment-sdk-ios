@@ -60,9 +60,12 @@ class OrderHeaderView: UIView {
 
         let amountLabel = UILabel()
         amountLabel.accessibilityIdentifier = "sdk_orderheader_label_amount"
-        amountLabel.text = order.amount?.getFormattedAmount() ?? ""
         amountLabel.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
         amountLabel.textColor = NISdk.sharedInstance.niSdkColors.payPageLabelColor
+        amountLabel.attributedText = AedSymbol.attributed(
+            order.amount?.getFormattedAmount() ?? "",
+            font: amountLabel.font,
+            color: amountLabel.textColor)
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let currencyPill = PaddedLabel()
@@ -111,9 +114,12 @@ class OrderHeaderView: UIView {
         chevronLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let rightAmountLabel = UILabel()
-        rightAmountLabel.text = order.amount?.getFormattedAmount() ?? ""
         rightAmountLabel.font = UIFont.systemFont(ofSize: 16, weight: .bold)
         rightAmountLabel.textColor = NISdk.sharedInstance.niSdkColors.payPageLabelColor
+        rightAmountLabel.attributedText = AedSymbol.attributed(
+            order.amount?.getFormattedAmount() ?? "",
+            font: rightAmountLabel.font,
+            color: rightAmountLabel.textColor)
         rightAmountLabel.textAlignment = .right
         rightAmountLabel.translatesAutoresizingMaskIntoConstraints = false
 
