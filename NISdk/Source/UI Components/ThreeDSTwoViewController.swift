@@ -398,18 +398,21 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
 
 extension ThreeDSTwoViewController {
     private func getIpUrl(stringVal: String, outletRef: String, orderRef: String, paymentRef: String, paypageLink: String) -> String {
-        let urlHost = URL(string: paypageLink)?.host ?? ""
-        let slug =
-        "/api/outlets/\(outletRef)/orders/\(orderRef)/payments/\(paymentRef)/3ds2/requester-ip"
-        if (stringVal.localizedCaseInsensitiveContains("-uat") ||
-            stringVal.localizedCaseInsensitiveContains("sandbox")
-        ) {
-            return "https://\(urlHost)\(slug)"
-        }
-        if (stringVal.localizedCaseInsensitiveContains("-dev")) {
-            return "https://\(urlHost)\(slug)"
-        }
-        return "https://\(urlHost)\(slug)"
+        // The payment `_id` is returned as a URN (e.g. "urn:payment:<uuid>") in the saved-card /
+        // merchant-initiated 3DS2 flow. Left in place it produces an invalid request path
+        // (".../payments/urn:payment:<uuid>/3ds2/requester-ip"), so strip the prefix first.
+        let cleanPaymentRef = paymentRef.replacingOccurrences(of: "urn:payment:", with: "")
+
+        // `paypageLink` is absent in some saved-card / merchant-initiated order responses, which
+        // previously left an empty host ("https:///api/...") that fails with "Could not connect to
+        // the server". Fall back to deriving the paypage host from the authentication URL host.
+        let fallbackHost = URL(string: stringVal)?.host?.replacingOccurrences(of: "api-gateway", with: "paypage")
+        let urlHost = URL(string: paypageLink)?.host ?? fallbackHost ?? ""
+
+        let slug = "/api/outlets/\(outletRef)/orders/\(orderRef)/payments/\(cleanPaymentRef)/3ds2/requester-ip"
+        let ipUrl = "https://\(urlHost)\(slug)"
+        print("[NISdk] 3DS v2 — requester-ip URL resolved: \(ipUrl)")
+        return ipUrl
     }
 
     private func getNotificationUrl(stringVal: String, slug: String, paymentLink: String) -> String {
