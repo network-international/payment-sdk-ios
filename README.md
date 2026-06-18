@@ -6,6 +6,12 @@
 
 The NI-payment-sdk-ios allows you to quickly integrate a payment checkout experience in your iOS app.
 
+## Release Notes
+
+### 6.0.1
+
+- **Fix:** Saved-card / merchant-initiated 3DS2 payments could fail with "Could not connect to the server". The 3DS2 requester-ip URL was built with an empty host and an unstripped `urn:payment:` id when the order response omitted `payPageLink`, causing the 3DS web flow to report an SDK error and the payment to end as failed. The payment reference is now stripped of its `urn:payment:` prefix and the paypage host is derived from the authentication URL when `payPageLink` is absent.
+
 ## Requirements
 
 The Network International iOS payment SDK requires Xcode 13.0 and later and works with iOS versions 13 and above
