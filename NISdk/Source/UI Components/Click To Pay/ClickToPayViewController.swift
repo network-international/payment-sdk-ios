@@ -344,6 +344,18 @@ class ClickToPayViewController: UIViewController {
                     if let publicKey = json["publicKey"] as? String {
                         self.vctpPublicKey = publicKey
                     }
+                    // The paypage /vctp/config response also carries the DPA credentials.
+                    // Use it as a fallback when the gateway /config/merchants/{id}/configs/vctp
+                    // call didn't resolve them (e.g. it returned 406), otherwise the Visa SDK
+                    // is launched with dpaId=undefined and fails with "Failed to load INO SRC SDKs".
+                    if self.clickToPayConfig.dpaId == nil,
+                       let dpaId = json["dpaId"] as? String, !dpaId.isEmpty {
+                        self.clickToPayConfig.dpaId = dpaId
+                    }
+                    if self.clickToPayConfig.dpaClientId == nil,
+                       let dpaClientId = json["dpaClientId"] as? String, !dpaClientId.isEmpty {
+                        self.clickToPayConfig.dpaClientId = dpaClientId
+                    }
                     // Save merchant config fields for dpaTransactionOptions
                     var merchantConfig: [String: Any] = [:]
                     if let v = json["acquirerMerchantId"] as? String { merchantConfig["acquirerMerchantId"] = v }
