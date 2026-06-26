@@ -63,7 +63,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     // Slice state
     private var selectedSliceOffer: SliceOffer?
     /// Whether the most recent slice eligibility check returned the Islamic indicator (`"I"`).
-    /// Drives the "Murabaha" vs "Interest rate" label on the slice offer card.
+    /// Drives the "Profit rate" vs "Interest rate" label on the slice offer card.
     private var paidSliceIsIslamic: Bool = false
     private var sliceSelectionMade: Bool = false
     private var lastSliceCheckKey: String?
@@ -115,7 +115,6 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var applePayRadioButton: RadioButtonView?
     private var clickToPayRadioButton: RadioButtonView?
     private var aaniRadioButton: RadioButtonView?
-    private var qpayRadioButton: RadioButtonView?
     private let bottomBarView = UIView()
     private var bottomBarBottomConstraint: NSLayoutConstraint?
     private let bottomPayButton = UIButton()
@@ -419,8 +418,18 @@ class UnifiedPaymentPageViewController: UIViewController {
         let header = createMerchantLogoHeader()
         contentStackView.addArrangedSubview(header)
 
-        // 2. Apple Pay section — radio style (if available)
-        if availablePaymentOptions.contains(.applePay) {
+        // When QPay is enabled it takes the express slot at the very top, and the
+        // native wallet (Apple Pay) drops below the card into the other-options group.
+        let qpayExpress = availablePaymentOptions.contains(.qpay)
+
+        // 2. QPay express button — top of the page when available
+        if qpayExpress {
+            contentStackView.addArrangedSubview(createQPayExpressButton())
+        }
+
+        // 2b. Apple Pay section — radio style at the top only when QPay is not the
+        //     express option; otherwise it moves into the other-options group below.
+        if availablePaymentOptions.contains(.applePay) && !qpayExpress {
             let applePaySection = createApplePaySection()
             contentStackView.addArrangedSubview(applePaySection)
         }
@@ -465,13 +474,24 @@ class UnifiedPaymentPageViewController: UIViewController {
             }
         }
 
-        // 4. Other payment options (Click to Pay, Aani, QPay)
-        let hasOtherOptions = availablePaymentOptions.contains(.clickToPay)
+        // 4. Other payment options below the card. With QPay express, Apple Pay joins
+        //    this group; QPay itself is the top button so it is not repeated here.
+        let otherHasApplePay = availablePaymentOptions.contains(.applePay) && qpayExpress
+        let hasOtherOptions = otherHasApplePay
+            || availablePaymentOptions.contains(.clickToPay)
             || availablePaymentOptions.contains(.aani)
-            || availablePaymentOptions.contains(.qpay)
+            || (availablePaymentOptions.contains(.qpay) && !qpayExpress)
         if hasOtherOptions {
-            let otherHeader = createSectionHeader("Or select your payment options".localized)
+            let headerTitle = qpayExpress
+                ? "Select Other Payment Options".localized
+                : "Or select your payment options".localized
+            let otherHeader = createSectionHeader(headerTitle)
             contentStackView.addArrangedSubview(otherHeader)
+
+            if otherHasApplePay {
+                let applePaySection = createApplePaySection(includeHeader: false)
+                contentStackView.addArrangedSubview(applePaySection)
+            }
 
             if availablePaymentOptions.contains(.clickToPay) {
                 let ctpSection = createClickToPaySection()
@@ -481,11 +501,6 @@ class UnifiedPaymentPageViewController: UIViewController {
             if availablePaymentOptions.contains(.aani) {
                 let aaniSection = createAaniSection()
                 contentStackView.addArrangedSubview(aaniSection)
-            }
-
-            if availablePaymentOptions.contains(.qpay) {
-                let qpaySection = createQPaySection()
-                contentStackView.addArrangedSubview(qpaySection)
             }
         }
 
@@ -642,7 +657,7 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     // MARK: - Apple Pay Section (radio style)
 
-    private func createApplePaySection() -> UIView {
+    private func createApplePaySection(includeHeader: Bool = true) -> UIView {
         // Section header
         let headerLabel = UILabel()
         headerLabel.text = "Pay with Apple Pay".localized
@@ -713,21 +728,32 @@ class UnifiedPaymentPageViewController: UIViewController {
         rowContainer.addGestureRecognizer(tap)
         rowContainer.isUserInteractionEnabled = true
 
-        // Outer container with header + row
+        // Outer container with optional header + row. When grouped under the shared
+        // "Select Other Payment Options" heading (QPay express layout), the per-row
+        // header is omitted so it renders as a plain radio row like the other options.
         let inner = UIView()
         inner.translatesAutoresizingMaskIntoConstraints = false
-        inner.addSubview(headerWrapper)
         inner.addSubview(rowContainer)
-        NSLayoutConstraint.activate([
-            headerWrapper.topAnchor.constraint(equalTo: inner.topAnchor),
-            headerWrapper.leadingAnchor.constraint(equalTo: inner.leadingAnchor),
-            headerWrapper.trailingAnchor.constraint(equalTo: inner.trailingAnchor),
+        if includeHeader {
+            inner.addSubview(headerWrapper)
+            NSLayoutConstraint.activate([
+                headerWrapper.topAnchor.constraint(equalTo: inner.topAnchor),
+                headerWrapper.leadingAnchor.constraint(equalTo: inner.leadingAnchor),
+                headerWrapper.trailingAnchor.constraint(equalTo: inner.trailingAnchor),
 
-            rowContainer.topAnchor.constraint(equalTo: headerWrapper.bottomAnchor, constant: 4),
-            rowContainer.leadingAnchor.constraint(equalTo: inner.leadingAnchor),
-            rowContainer.trailingAnchor.constraint(equalTo: inner.trailingAnchor),
-            rowContainer.bottomAnchor.constraint(equalTo: inner.bottomAnchor, constant: -4),
-        ])
+                rowContainer.topAnchor.constraint(equalTo: headerWrapper.bottomAnchor, constant: 4),
+                rowContainer.leadingAnchor.constraint(equalTo: inner.leadingAnchor),
+                rowContainer.trailingAnchor.constraint(equalTo: inner.trailingAnchor),
+                rowContainer.bottomAnchor.constraint(equalTo: inner.bottomAnchor, constant: -4),
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                rowContainer.topAnchor.constraint(equalTo: inner.topAnchor, constant: 4),
+                rowContainer.leadingAnchor.constraint(equalTo: inner.leadingAnchor),
+                rowContainer.trailingAnchor.constraint(equalTo: inner.trailingAnchor),
+                rowContainer.bottomAnchor.constraint(equalTo: inner.bottomAnchor, constant: -4),
+            ])
+        }
 
         // Padded wrapper
         let paddedContainer = UIView()
@@ -878,59 +904,100 @@ class UnifiedPaymentPageViewController: UIViewController {
         return paddedContainer
     }
 
-    // MARK: - QPay Section
+    // MARK: - QPay Express Button
 
-    private func createQPaySection() -> UIView {
+    /// Prominent full-width black CTA pinned above all other payment options when QPay
+    /// is enabled. Tapping it launches QPay directly (mirrors the web express button).
+    private func createQPayExpressButton() -> UIView {
         let sdkBundle = NISdk.sharedInstance.getBundle()
 
-        let radioButton = RadioButtonView()
-        radioButton.isOn = false
-        radioButton.translatesAutoresizingMaskIntoConstraints = false
-        radioButton.accessibilityIdentifier = "sdk_paymentpage_radio_qpay"
-        qpayRadioButton = radioButton
+        let payWithLabel = UILabel()
+        payWithLabel.text = "Pay With".localized
+        payWithLabel.font = PgType.bodyRowTitle
+        payWithLabel.textColor = .white
 
-        let titleLabel = UILabel()
-        titleLabel.text = "Pay with QPay".localized
-        titleLabel.font = PgType.bodyRowTitle
-        titleLabel.textColor = PgColors.textPrimary
-
-        let logoView = UIImageView(image: UIImage(named: "qpayLogo", in: sdkBundle, compatibleWith: nil))
+        // NAPS wordmark is wide (~4.63:1); size by height and derive width from the asset's aspect.
+        let logoView = UIImageView(image: UIImage(named: "napsLogo", in: sdkBundle, compatibleWith: nil))
         logoView.contentMode = .scaleAspectFit
         logoView.translatesAutoresizingMaskIntoConstraints = false
-        logoView.widthAnchor.constraint(equalToConstant: PgSize.providerLogoHeight).isActive = true
-        logoView.heightAnchor.constraint(equalToConstant: PgSize.providerLogoHeight).isActive = true
-        logoView.setContentHuggingPriority(.required, for: .horizontal)
+        let logoHeight: CGFloat = 28
+        let logoAspect: CGFloat = {
+            guard let size = logoView.image?.size, size.height > 0 else { return 2224.0 / 480.0 }
+            return size.width / size.height
+        }()
+        NSLayoutConstraint.activate([
+            logoView.heightAnchor.constraint(equalToConstant: logoHeight),
+            logoView.widthAnchor.constraint(equalToConstant: logoHeight * logoAspect),
+        ])
 
-        let row = UIStackView(arrangedSubviews: [radioButton, titleLabel, UIView(), logoView])
-        row.axis = .horizontal
-        row.spacing = 12
-        row.alignment = .center
-        row.translatesAutoresizingMaskIntoConstraints = false
+        let contentStack = UIStackView(arrangedSubviews: [payWithLabel, logoView])
+        contentStack.axis = .horizontal
+        contentStack.spacing = 8
+        contentStack.alignment = .center
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        contentStack.isUserInteractionEnabled = false
 
-        let tap = UITapGestureRecognizer(target: self, action: #selector(qpayRadioTapped))
-        row.addGestureRecognizer(tap)
-        row.isUserInteractionEnabled = true
+        let button = UIView()
+        button.backgroundColor = .black
+        button.layer.cornerRadius = PgRadius.row
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityIdentifier = "sdk_paymentpage_qpay_express"
+        button.addSubview(contentStack)
+        NSLayoutConstraint.activate([
+            button.heightAnchor.constraint(equalToConstant: 56),
+            contentStack.centerXAnchor.constraint(equalTo: button.centerXAnchor),
+            contentStack.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+        ])
 
-        let rowContainer = UIView()
-        rowContainer.layer.cornerRadius = PgRadius.row
-        rowContainer.layer.borderColor = PgColors.borderRow.cgColor
-        rowContainer.layer.borderWidth = 1
-        rowContainer.backgroundColor = PgColors.surfaceRow
-        rowContainer.translatesAutoresizingMaskIntoConstraints = false
-        rowContainer.addSubview(row)
-        row.anchor(top: rowContainer.topAnchor, leading: rowContainer.leadingAnchor,
-                   bottom: rowContainer.bottomAnchor, trailing: rowContainer.trailingAnchor,
-                   padding: UIEdgeInsets(top: 20, left: PgSpacing.rowPaddingH,
-                                        bottom: 20, right: PgSpacing.rowPaddingH))
+        let tap = UITapGestureRecognizer(target: self, action: #selector(qpayExpressTapped))
+        button.addGestureRecognizer(tap)
+        button.isUserInteractionEnabled = true
+
+        // Terms & conditions disclaimer below the button, with "terms and conditions" underlined
+        // and tappable — mirrors the bottom pay bar's agreement text.
+        let termsLabel = UILabel()
+        termsLabel.numberOfLines = 0
+        termsLabel.attributedText = qpayTermsAttributedText()
+        termsLabel.accessibilityIdentifier = "sdk_paymentpage_qpay_terms"
+        termsLabel.isUserInteractionEnabled = true
+        termsLabel.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(qpayTermsTapped)))
+
+        let vStack = UIStackView(arrangedSubviews: [button, termsLabel])
+        vStack.axis = .vertical
+        vStack.spacing = 8
+        vStack.alignment = .fill
+        vStack.translatesAutoresizingMaskIntoConstraints = false
 
         let paddedContainer = UIView()
         paddedContainer.translatesAutoresizingMaskIntoConstraints = false
-        paddedContainer.addSubview(rowContainer)
-        rowContainer.anchor(top: paddedContainer.topAnchor, leading: paddedContainer.leadingAnchor,
-                            bottom: paddedContainer.bottomAnchor, trailing: paddedContainer.trailingAnchor,
-                            padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
-                                                  bottom: 0, right: PgSpacing.pageH))
+        paddedContainer.addSubview(vStack)
+        vStack.anchor(top: paddedContainer.topAnchor, leading: paddedContainer.leadingAnchor,
+                      bottom: paddedContainer.bottomAnchor, trailing: paddedContainer.trailingAnchor,
+                      padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
+                                            bottom: 0, right: PgSpacing.pageH))
         return paddedContainer
+    }
+
+    /// Disclaimer shown under the QPay express button: muted caption with the
+    /// "terms and conditions" phrase underlined to read as a link.
+    private func qpayTermsAttributedText() -> NSAttributedString {
+        let full = "By clicking Pay terms".localized
+        let attr = NSMutableAttributedString(
+            string: full,
+            attributes: [
+                .font: PgType.captionDisclaimer,
+                .foregroundColor: PgColors.textMuted,
+            ])
+        let nsFull = full as NSString
+        var linkRange = nsFull.range(of: "Terms and Conditions".localized, options: .caseInsensitive)
+        if linkRange.location == NSNotFound {
+            linkRange = nsFull.range(of: "terms and conditions", options: .caseInsensitive)
+        }
+        if linkRange.location != NSNotFound {
+            attr.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: linkRange)
+        }
+        return attr
     }
 
     private func createSavedCardRow(for card: SavedCard) -> UIView {
@@ -1677,7 +1744,6 @@ class UnifiedPaymentPageViewController: UIViewController {
             cardSection?.setExpanded(false, animated: true)
             clickToPayRadioButton?.isOn = false
             aaniRadioButton?.isOn = false
-            qpayRadioButton?.isOn = false
             savedCardRadioButtons.values.forEach { $0.isOn = false }
             savedCardCvvContainers.values.forEach { $0.isHidden = true }
             savedCardRowContainers.values.forEach {
@@ -1704,7 +1770,6 @@ class UnifiedPaymentPageViewController: UIViewController {
         cardSection?.setExpanded(false, animated: true)
         clickToPayRadioButton?.isOn = false
         aaniRadioButton?.isOn = false
-        qpayRadioButton?.isOn = false
         savedCardRadioButtons.values.forEach { $0.isOn = false }
         savedCardCvvContainers.values.forEach { $0.isHidden = true }
         savedCardRowContainers.values.forEach {
@@ -1770,7 +1835,8 @@ class UnifiedPaymentPageViewController: UIViewController {
             lastSliceCheckKey = nil
             applyBottomButtonStyle(forApplePay: false)
         case .qpay:
-            qpayRadioButton?.isOn = true
+            // QPay is driven by the express button (createQPayExpressButton), not a radio row, so
+            // it's never selected through here; the case remains only for switch exhaustiveness.
             hideVisaInstallments()
             hideSliceOffers()
             lastVisCheckKey = nil
@@ -1853,8 +1919,15 @@ class UnifiedPaymentPageViewController: UIViewController {
         selectPaymentOption(.aani)
     }
 
-    @objc private func qpayRadioTapped() {
-        selectPaymentOption(.qpay)
+    @objc private func qpayExpressTapped() {
+        // Express button launches QPay directly, without going through the bottom pay bar.
+        onQPayTapped?()
+    }
+
+    @objc private func qpayTermsTapped() {
+        if let url = URL(string: "https://www.network.ae/en/terms-and-conditions") {
+            UIApplication.shared.open(url)
+        }
     }
 
     // MARK: - Navigation
