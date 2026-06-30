@@ -36,6 +36,9 @@ class CardPreviewController: UIViewController {
             return "discoverlogo"
         case .mada?:
             return "madalogo"
+        // Jaywan — UAE domestic card scheme (asset: CardLogos.xcassets/jaywanlogo)
+        case .jaywan?:
+            return "jaywanlogo"
         default:
             return "defaultlogo"
         }

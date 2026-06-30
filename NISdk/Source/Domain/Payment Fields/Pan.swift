@@ -56,6 +56,9 @@ extension Pan {
         case .dinersClubInternational: return "^3(?:0[0-5]|[68][0-9])[0-9]{11}$"
         case .discover: return "^6(?:011|5[0-9]{2})[0-9]{12}$"
         case .jcb: return "^(?:2131|1800|35\\d{3})\\d{11}$"
+        // Jaywan — UAE domestic card scheme. Recognised by IINs 6690 and 9784,
+        // 16-digit PAN (matches the Android SDK's Jaywan BIN ranges).
+        case .jaywan: return "^(6690|9784)[0-9]{12}$"
         default: return ""
         }
     }
