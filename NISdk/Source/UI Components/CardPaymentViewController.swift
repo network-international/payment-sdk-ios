@@ -6,6 +6,7 @@
 //  Copyright © 2019 Network International. All rights reserved.
 //
 
+import os.log
 import UIKit
 
 typealias onChangeTextClosure = (UITextField) -> Void
@@ -20,7 +21,7 @@ class CardPaymentViewController: UIViewController {
     let onCancel: () -> Void?
     var isSaudiPaymentEnabled = false
     var order: OrderResponse?
-    
+
     // ui properties
     let scrollView = UIScrollView()
     let contentView = UIView()
@@ -42,7 +43,7 @@ class CardPaymentViewController: UIViewController {
         errorLabel.text = ""
         return errorLabel
     }()
-    
+
     var paymentInProgress: Bool = false {
         didSet {
             if(self.paymentInProgress) {
@@ -56,7 +57,7 @@ class CardPaymentViewController: UIViewController {
             }
         }
     }
-    
+
     let cardPreviewContainer = UIView()
     let loadingSpinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .medium)
@@ -65,40 +66,40 @@ class CardPaymentViewController: UIViewController {
         spinner.hidesWhenStopped = true
         return spinner
     }()
-    
+
     fileprivate func updatePayButtonContent(_ order: OrderResponse, _ orderAmount: Amount, _ payButtonTitle: String) {
         if (order.isSaudiPaymentEnabled! && order.amount?.currencyCode == "SAR") {
             let stack = UIStackView()
             stack.axis = .horizontal
             stack.spacing = 6
             stack.alignment = .center
-            
+
             let icon = UIImageView(image: UIImage(named: "riyal", in: Bundle(for: NISdk.self), compatibleWith: nil))
             icon.contentMode = .scaleAspectFit
             icon.widthAnchor.constraint(equalToConstant: 20).isActive = true
             icon.heightAnchor.constraint(equalToConstant: 16).isActive = true
-            
+
             let payLabel = UILabel()
             payLabel.text = "Pay".localized
             payLabel.textColor = .white
             payLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-            
+
             let amountLabel = UILabel()
             amountLabel.text = orderAmount.getFormattedAmountValue()
             amountLabel.textColor = .white
             amountLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-            
+
             stack.addArrangedSubview(payLabel)
             stack.addArrangedSubview(icon)
             stack.addArrangedSubview(amountLabel)
-            
+
             stack.isUserInteractionEnabled = false
             for view in stack.arrangedSubviews {
                 view.isUserInteractionEnabled = false
             }
-            
+
             self.payButton.addSubview(stack)
-            
+
             stack.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
                 stack.centerXAnchor.constraint(equalTo: self.payButton.centerXAnchor),
@@ -108,7 +109,7 @@ class CardPaymentViewController: UIViewController {
             self.payButton.setTitle(payButtonTitle, for: .normal)
         }
     }
-    
+
     init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse, onCancel: @escaping () -> Void) {
         self.onCancel = onCancel
         self.order = order
@@ -125,11 +126,11 @@ class CardPaymentViewController: UIViewController {
             updatePayButtonContent(order, orderAmount, payButtonTitle)
         }
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = NISdk.sharedInstance.niSdkColors.payPageBackgroundColor
@@ -140,12 +141,12 @@ class CardPaymentViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         tearDownCancelButton()
     }
-    
+
     private func setupCancelButton() {
         self.parent?.navigationController?.setNavigationBarHidden(false, animated: false)
         self.parent?.navigationItem.title = "Make Payment".localized
@@ -153,34 +154,34 @@ class CardPaymentViewController: UIViewController {
         navigationController?.navigationBar.titleTextAttributes = textAttributes
         self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
     }
-    
+
     private func updateCancelButtonWith(status: Bool) {
         self.parent?.navigationItem.rightBarButtonItem?.isEnabled = status
     }
-    
+
     private func tearDownCancelButton() {
         self.parent?.navigationController?.setNavigationBarHidden(true, animated: true)
         self.parent?.navigationItem.title = nil
         self.parent?.navigationItem.rightBarButtonItem = nil
     }
-    
+
     @objc func cancelAction() {
         self.onCancel();
     }
-    
+
     @objc func keyboardWillShow(notification: NSNotification) {
         guard let userInfo = notification.userInfo else {return}
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
         let keyboardFrame = keyboardSize.cgRectValue
         self.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
     }
-    
+
     @objc func keyboardWillHide(notification: NSNotification) {
         if(self.scrollView.contentInset.bottom != 0) {
             self.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         }
     }
-    
+
     func setupScrollView() {
         view.addSubview(scrollView)
         scrollView.keyboardDismissMode = .interactive
@@ -189,7 +190,7 @@ class CardPaymentViewController: UIViewController {
                           bottom: view.safeAreaLayoutGuide.bottomAnchor,
                           trailing: view.safeAreaLayoutGuide.trailingAnchor)
         scrollView.anchor(width: view.safeAreaLayoutGuide.widthAnchor)
-        
+
         scrollView.addSubview(contentView)
         contentView.anchor(top: scrollView.topAnchor,
                            leading: scrollView.leadingAnchor,
@@ -197,7 +198,7 @@ class CardPaymentViewController: UIViewController {
                            trailing: scrollView.trailingAnchor)
         contentView.anchor(width: view.widthAnchor)
     }
-    
+
     func setupCardPreviewComponent() {
         let cardPreviewController = CardPreviewController()
         cardPreviewController.isSaudiPaymentEnabled = self.isSaudiPaymentEnabled
@@ -207,7 +208,7 @@ class CardPaymentViewController: UIViewController {
                                     bottom: nil, trailing: contentView.trailingAnchor,
                                     padding: UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30),
                                     size: CGSize(width: 0, height: 200))
-        
+
         add(cardPreviewController, inside: cardPreviewContainer)
         cardPreviewController.didMove(toParent: self)
     }
@@ -216,7 +217,7 @@ class CardPaymentViewController: UIViewController {
         let vStack = UIStackView()
         vStack.axis = .vertical
         vStack.spacing = 0
-        
+
         contentView.addSubview(vStack)
         vStack.anchor(top: cardPreviewContainer.bottomAnchor,
                       leading: contentView.leadingAnchor,
@@ -226,13 +227,13 @@ class CardPaymentViewController: UIViewController {
                       size: CGSize(width: 0, height: 0))
         vStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
         vStack.isLayoutMarginsRelativeArrangement = true
-        
+
         let stackBackgroundView = UIView()
         stackBackgroundView.backgroundColor = .clear
         stackBackgroundView.addBorder(.top, color: NISdk.sharedInstance.niSdkColors.payPageDividerColor , thickness: 1)
         stackBackgroundView.addBorder(.bottom, color: NISdk.sharedInstance.niSdkColors.payPageDividerColor , thickness: 1)
         stackBackgroundView.pinAsBackground(to: vStack)
-        
+
         // Setup Pan field
         let panInputVC = PanInputVC(onChangeText: onChangePan)
         let panContainer = UIView()
@@ -265,7 +266,7 @@ class CardPaymentViewController: UIViewController {
         nameContainer.anchor(heightConstant: 60)
         add(nameInputVC, inside: nameContainer)
         nameInputVC.didMove(toParent: self)
-        
+
         let errorContainer = UIView()
         contentView.addSubview(errorContainer)
         errorContainer.anchor(top: vStack.bottomAnchor,
@@ -287,7 +288,7 @@ class CardPaymentViewController: UIViewController {
                          trailing: contentView.trailingAnchor,
                          padding: UIEdgeInsets(top: 20, left: 30, bottom: 0, right: 30),
                          size: CGSize(width: 0, height: 50))
-        
+
         payButton.addSubview(loadingSpinner)
         let payButtonLabel = payButton.titleLabel
         loadingSpinner.anchor(top: payButtonLabel?.topAnchor,
@@ -295,35 +296,35 @@ class CardPaymentViewController: UIViewController {
                               bottom: nil, trailing: nil,
                               padding: UIEdgeInsets(top: 3, left: 10, bottom: 0, right: 0))
     }
-    
+
     @objc lazy private var onChangePan: onChangeTextClosure = { [weak self] textField in
         self?.pan.value = textField.text ?? ""
     }
-    
+
     @objc lazy private var onChangeMonth: onChangeTextClosure = { [weak self] textField in
         self?.expiryDate.month = textField.text ?? ""
     }
-    
+
     @objc lazy private var onChangeYear: onChangeTextClosure = { [weak self] textField in
         self?.expiryDate.year = textField.text ?? ""
     }
-    
+
     @objc lazy private var onChangeCVV: onChangeTextClosure = { [weak self] textField in
         self?.cvv.value = textField.text ?? ""
     }
-    
+
     @objc lazy private var onChangeName: onChangeTextClosure = { [weak self] textField in
         self?.cardHolderName.value = textField.text ?? ""
     }
-    
+
     func validateAllFields() -> (Bool, [String:String]) {
         var errors: [String:String] = [:]
-        
+
         let isPanValid = pan.validate()
         if(!isPanValid) {
             errors["pan"] = "Invalid pan number".localized
         }
-        
+
         if let allowedCardProviders = allowedCardProviders {
             let panProvider = pan.getCardProvider()
             let allowedCardProvidersSet: Set<CardProvider> = Set(allowedCardProviders)
@@ -331,26 +332,27 @@ class CardPaymentViewController: UIViewController {
                 errors["card-provider"] = "Invalid card provider".localized
             }
         }
-        
+
         let isExpiryValid = expiryDate.validate()
         if(!isExpiryValid) {
             errors["expiryDate"] = "Invalid expiry date".localized
         }
-        
+
         let isCvvValid = cvv.validate()
         if(!isCvvValid) {
             errors["cvv"] = "Invalid CVV Field".localized
         }
-        
+
         let isNameValid = cardHolderName.validate()
         if(!isNameValid) {
             errors["cardHolderName"] = "Invalid card holder name".localized
         }
-        
+
         return (errors.isEmpty, errors)
     }
-    
+
     @objc func payButtonAction() {
+        os_log("[NISdk] payButtonAction — validating card fields", log: NISdkLogger.payment, type: .debug)
         let (isAllValid, errors) = validateAllFields()
         if let pan = pan.value,
             let expiryMonth = expiryDate.month,
@@ -358,6 +360,7 @@ class CardPaymentViewController: UIViewController {
             let cvv = cvv.value,
             let cardHolderName = cardHolderName.value {
             if (isAllValid) {
+                os_log("[NISdk] payButtonAction — validation passed, submitting payment", log: NISdkLogger.payment, type: .info)
                 errorLabel.text = ""
                 let paymentRequest = PaymentRequest(pan: pan,
                                                     expiryMonth: expiryMonth,
@@ -374,12 +377,14 @@ class CardPaymentViewController: UIViewController {
                 makePaymentCallback?(paymentRequest)
                 return
             } else {
+                os_log("[NISdk] payButtonAction — validation failed: %{public}@", log: NISdkLogger.payment, type: .error, errors.keys.joined(separator: ", "))
                 if(errors.count == 1) {
                     errorLabel.text = errors.values.first
                     return
                 }
             }
         }
+        os_log("[NISdk] payButtonAction — missing required fields", log: NISdkLogger.payment, type: .error)
         errorLabel.text = "All fields are mandatory".localized
     }
 }

@@ -19,6 +19,11 @@ public enum CardProvider: String, CaseIterable, Codable {
     case mada = "MADA"
     case visa = "VISA"
     case unknown
+
+    public init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        self = CardProvider(rawValue: raw) ?? .unknown
+    }
     
     public var pkNetworkType: PKPaymentNetwork {
         switch self {

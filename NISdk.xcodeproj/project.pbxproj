@@ -7,11 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		017056C9E9D6D392E5A574BD /* AaniViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A41443DDA90601ADA5AE2D16 /* AaniViewModel.swift */; };
+		020F09EDA24C9DD2C8C4E8F0 /* VisaInstallmentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9385FA6F2DB3E713391852E /* VisaInstallmentViewController.swift */; };
+		0DCF27633AA46AACF1BDF493 /* MatchedPlan.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43344A8A6C2D965AFF0730B6 /* MatchedPlan.swift */; };
+		12C1E732D77FBF217E126DF5 /* LastInstallment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B3ACF61AC112E57102111B /* LastInstallment.swift */; };
+		1314E9D30D1BCEFAB83CEF29 /* MatchedCandidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3579718C168E999855F9222E /* MatchedCandidate.swift */; };
+		1D746C9242885B6DBC5D64AF /* PaymentMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24EB3D7273D41C9C13299269 /* PaymentMethod.swift */; };
+		287D4B947E86334ACC8ACACD /* VisaPlans.swift in Sources */ = {isa = PBXBuildFile; fileRef = 784353A9DFA7AD343FDFD319 /* VisaPlans.swift */; };
+		3D6FFBB2E0995DC5B7FE28E4 /* AuthResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A20C2350CBB36A49E97EB41 /* AuthResponse.swift */; };
+		3E1DDF3E5B3E33362147136B /* AaniPoolingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37A2946C7828F4BF48E79FF /* AaniPoolingResponse.swift */; };
+		4D5A62DE97842567321BF78D /* AaniPayArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = C236B6525FFB0522D8463C8B /* AaniPayArgs.swift */; };
+		59214BE02AFCE509006EE4E6 /* NISdkColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59214BDF2AFCE509006EE4E6 /* NISdkColors.swift */; };
 		597641682AD8FB2B004AA08F /* SavedCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597641672AD8FB2B004AA08F /* SavedCardViewController.swift */; };
 		59ED19AA2AD11B3D0000E024 /* SavedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19A92AD11B3D0000E024 /* SavedCard.swift */; };
 		59ED19AC2AD11B860000E024 /* SavedCardRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */; };
-		59214BE02AFCE509006EE4E6 /* SDKColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59214BDF2AFCE509006EE4E6 /* SDKColors.swift */; };
+		5D399F2C3236F4821687D6CF /* AaniIDType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E75A4520D0DB3EA1EAF33F56 /* AaniIDType.swift */; };
+		613C61396EE1E5E5C316130C /* AaniTimerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39DFD1CAD181BE1EB50DDED6 /* AaniTimerScreen.swift */; };
+		797FFCC5A86C1A81EE2F6D9E /* VisSavedCardMatchedCandidates.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF01C36E9A35F1BBA1731875 /* VisSavedCardMatchedCandidates.swift */; };
 		7F2B32DE23F55B960001EFEE /* ColorCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */; };
+		84667EDFD6A8DDAC33389E29 /* VisaInstallmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B662E7944937502FEA671D0F /* VisaInstallmentView.swift */; };
 		860A6043241B81C50067A75B /* UIScreen+Bounds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860A6042241B81C40067A75B /* UIScreen+Bounds.swift */; };
 		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
 		860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */; };
@@ -80,6 +94,21 @@
 		86ECAFD723223056008FDDDC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 86ECAFD923223056008FDDDC /* Localizable.strings */; };
 		86ECAFDF23223E92008FDDDC /* String+Localized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86ECAFDE23223E92008FDDDC /* String+Localized.swift */; };
 		86ECAFE323225949008FDDDC /* UIView+InterfaceLayoutDirection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86ECAFE223225949008FDDDC /* UIView+InterfaceLayoutDirection.swift */; };
+		8B171B463E959A0E7039647F /* NISdkLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 552F24AA18837FEFFEAB8468 /* NISdkLogger.swift */; };
+		8EED5B997D424642B853B877 /* TermsAndConditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA43F8320D605AD0A52C09 /* TermsAndConditions.swift */; };
+		9FBDD46577E89F0F1EF0059D /* AaniPayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEAA640EB2685A5E341EB9B0 /* AaniPayView.swift */; };
+		A0276A82995C4F97ED51DF4B /* AaniPayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1ABADB8D6BD5A88458263C /* AaniPayViewController.swift */; };
+		A49041EAD3B4169CC34DFCE7 /* AaniPayResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D40B7459514DEED39E3778B /* AaniPayResponse.swift */; };
+		B7E90DEFF9E89C3E6BF9BD0F /* CostInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A54A2532A4B781CBB46FA23 /* CostInfo.swift */; };
+		BEDFD6253B56D7A3CF379FB4 /* VisaEligibilityRequets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E919A834DFB32F769FC7B61 /* VisaEligibilityRequets.swift */; };
+		CFB99A9DE688A43F4AA824B9 /* AaniPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2ED1C92FDB2678928B7E354 /* AaniPaymentDelegate.swift */; };
+		D114B314072163ED6DC10474 /* VisaRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E27A826609E7CF62786289D /* VisaRequest.swift */; };
+		D32EDCDE4A56AC5957CA58AB /* PartialAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C241DC571A0DE7C1D3F943B /* PartialAuthView.swift */; };
+		D6F861061061755ADEFB208B /* Local+iso639.2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03393CEAF13388C0DD42C71 /* Local+iso639.2.swift */; };
+		DFC7289253CD261E8F34D32E /* AaniPayRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202B4553C1DEF9F967370A10 /* AaniPayRequest.swift */; };
+		E6BF7C1FD6A898DD2839AEE0 /* PartialAuthArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDDDEBA8A7398C6E772CB0A3 /* PartialAuthArgs.swift */; };
+		F27C538D171E6C1EF79F13E6 /* PartialAuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619E31DBA1DBBDB8AD432B6B /* PartialAuthViewController.swift */; };
+		FD231A7FC590F398FA0991DA /* AaniInputScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A8E802461F69D021358C0DE /* AaniInputScreen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,10 +134,25 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0E27A826609E7CF62786289D /* VisaRequest.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VisaRequest.swift; sourceTree = "<group>"; };
+		1C241DC571A0DE7C1D3F943B /* PartialAuthView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PartialAuthView.swift; sourceTree = "<group>"; };
+		1D40B7459514DEED39E3778B /* AaniPayResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniPayResponse.swift; sourceTree = "<group>"; };
+		202B4553C1DEF9F967370A10 /* AaniPayRequest.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniPayRequest.swift; sourceTree = "<group>"; };
+		24EB3D7273D41C9C13299269 /* PaymentMethod.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PaymentMethod.swift; sourceTree = "<group>"; };
+		2A54A2532A4B781CBB46FA23 /* CostInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CostInfo.swift; sourceTree = "<group>"; };
+		3579718C168E999855F9222E /* MatchedCandidate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MatchedCandidate.swift; sourceTree = "<group>"; };
+		39DFD1CAD181BE1EB50DDED6 /* AaniTimerScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniTimerScreen.swift; sourceTree = "<group>"; };
+		43344A8A6C2D965AFF0730B6 /* MatchedPlan.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MatchedPlan.swift; sourceTree = "<group>"; };
+		4E919A834DFB32F769FC7B61 /* VisaEligibilityRequets.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VisaEligibilityRequets.swift; sourceTree = "<group>"; };
+		552F24AA18837FEFFEAB8468 /* NISdkLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NISdkLogger.swift; sourceTree = "<group>"; };
+		59214BDF2AFCE509006EE4E6 /* NISdkColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdkColors.swift; sourceTree = "<group>"; };
 		597641672AD8FB2B004AA08F /* SavedCardViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCardViewController.swift; sourceTree = "<group>"; };
 		59ED19A92AD11B3D0000E024 /* SavedCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCard.swift; sourceTree = "<group>"; };
 		59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCardRequest.swift; sourceTree = "<group>"; };
-		59214BDF2AFCE509006EE4E6 /* SDKColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKColors.swift; sourceTree = "<group>"; };
+		5A20C2350CBB36A49E97EB41 /* AuthResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AuthResponse.swift; sourceTree = "<group>"; };
+		619E31DBA1DBBDB8AD432B6B /* PartialAuthViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PartialAuthViewController.swift; sourceTree = "<group>"; };
+		62B3ACF61AC112E57102111B /* LastInstallment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LastInstallment.swift; sourceTree = "<group>"; };
+		784353A9DFA7AD343FDFD319 /* VisaPlans.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VisaPlans.swift; sourceTree = "<group>"; };
 		7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCompatibility.swift; sourceTree = "<group>"; };
 		860A6042241B81C40067A75B /* UIScreen+Bounds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIScreen+Bounds.swift"; sourceTree = "<group>"; };
 		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
@@ -182,6 +226,20 @@
 		86ECAFDB232238CA008FDDDC /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
 		86ECAFDE23223E92008FDDDC /* String+Localized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Localized.swift"; sourceTree = "<group>"; };
 		86ECAFE223225949008FDDDC /* UIView+InterfaceLayoutDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+InterfaceLayoutDirection.swift"; sourceTree = "<group>"; };
+		9A8E802461F69D021358C0DE /* AaniInputScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniInputScreen.swift; sourceTree = "<group>"; };
+		A37A2946C7828F4BF48E79FF /* AaniPoolingResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniPoolingResponse.swift; sourceTree = "<group>"; };
+		A41443DDA90601ADA5AE2D16 /* AaniViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniViewModel.swift; sourceTree = "<group>"; };
+		A9385FA6F2DB3E713391852E /* VisaInstallmentViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VisaInstallmentViewController.swift; sourceTree = "<group>"; };
+		B03393CEAF13388C0DD42C71 /* Local+iso639.2.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Local+iso639.2.swift"; sourceTree = "<group>"; };
+		B662E7944937502FEA671D0F /* VisaInstallmentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VisaInstallmentView.swift; sourceTree = "<group>"; };
+		BDDDEBA8A7398C6E772CB0A3 /* PartialAuthArgs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PartialAuthArgs.swift; sourceTree = "<group>"; };
+		BEAA640EB2685A5E341EB9B0 /* AaniPayView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniPayView.swift; sourceTree = "<group>"; };
+		C236B6525FFB0522D8463C8B /* AaniPayArgs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniPayArgs.swift; sourceTree = "<group>"; };
+		C2ED1C92FDB2678928B7E354 /* AaniPaymentDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniPaymentDelegate.swift; sourceTree = "<group>"; };
+		E75A4520D0DB3EA1EAF33F56 /* AaniIDType.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniIDType.swift; sourceTree = "<group>"; };
+		EC1ABADB8D6BD5A88458263C /* AaniPayViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniPayViewController.swift; sourceTree = "<group>"; };
+		ECEA43F8320D605AD0A52C09 /* TermsAndConditions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TermsAndConditions.swift; sourceTree = "<group>"; };
+		EF01C36E9A35F1BBA1731875 /* VisSavedCardMatchedCandidates.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VisSavedCardMatchedCandidates.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,6 +261,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		806BEF5644F474678C2A8808 /* Aani Pay */ = {
+			isa = PBXGroup;
+			children = (
+				E75A4520D0DB3EA1EAF33F56 /* AaniIDType.swift */,
+				9A8E802461F69D021358C0DE /* AaniInputScreen.swift */,
+				BEAA640EB2685A5E341EB9B0 /* AaniPayView.swift */,
+				EC1ABADB8D6BD5A88458263C /* AaniPayViewController.swift */,
+				39DFD1CAD181BE1EB50DDED6 /* AaniTimerScreen.swift */,
+				A41443DDA90601ADA5AE2D16 /* AaniViewModel.swift */,
+			);
+			name = "Aani Pay";
+			path = "Aani Pay";
+			sourceTree = "<group>";
+		};
 		860CCD8922FC1F3F00B85096 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -227,6 +299,7 @@
 				860CCE0222FC928500B85096 /* Domain */,
 				860CCD8C22FC202600B85096 /* UI Components */,
 				862CBE47230743BD00767774 /* Extensions */,
+				C2ED1C92FDB2678928B7E354 /* AaniPaymentDelegate.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -251,6 +324,9 @@
 				863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */,
 				862CBE3E2306898900767774 /* Card Input Components */,
 				862CBE3B23067BE800767774 /* Card Preview Components */,
+				806BEF5644F474678C2A8808 /* Aani Pay */,
+				D1971EA627BC22E79C921718 /* Partial Auth */,
+				BCAC4E9656D040DCB521EA87 /* Visa Installment */,
 			);
 			path = "UI Components";
 			sourceTree = "<group>";
@@ -272,6 +348,9 @@
 				860CCE0822FC945F00B85096 /* TransactionService.swift */,
 				860CCE0422FC933200B85096 /* PaymentRequest.swift */,
 				59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */,
+				D9B6786163A0169640FBAA74 /* Aani */,
+				BDDDEBA8A7398C6E772CB0A3 /* PartialAuthArgs.swift */,
+				F17B296607C7A1B12714EDC1 /* Visa */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -327,6 +406,7 @@
 				86710F542311C59900259AE9 /* Collection+Pairs.swift */,
 				86ECAFE223225949008FDDDC /* UIView+InterfaceLayoutDirection.swift */,
 				860A6042241B81C40067A75B /* UIScreen+Bounds.swift */,
+				B03393CEAF13388C0DD42C71 /* Local+iso639.2.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -349,6 +429,10 @@
 				869DDD6A23157E9F0020CB20 /* WalletProvider.swift */,
 				863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */,
 				59ED19A92AD11B3D0000E024 /* SavedCard.swift */,
+				5A20C2350CBB36A49E97EB41 /* AuthResponse.swift */,
+				3579718C168E999855F9222E /* MatchedCandidate.swift */,
+				24EB3D7273D41C9C13299269 /* PaymentMethod.swift */,
+				EF01C36E9A35F1BBA1731875 /* VisSavedCardMatchedCandidates.swift */,
 			);
 			path = "Transaction Service Responses";
 			sourceTree = "<group>";
@@ -410,7 +494,8 @@
 			children = (
 				869DDD6D231680AB0020CB20 /* TokenUtils.swift */,
 				7F2B32DD23F55B960001EFEE /* ColorCompatibility.swift */,
-				59214BDF2AFCE509006EE4E6 /* SDKColors.swift */,
+				59214BDF2AFCE509006EE4E6 /* NISdkColors.swift */,
+				552F24AA18837FEFFEAB8468 /* NISdkLogger.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -451,6 +536,53 @@
 				86D2FB5F22FC1AE700CF1FA1 /* Info.plist */,
 			);
 			path = NISdkTests;
+			sourceTree = "<group>";
+		};
+		BCAC4E9656D040DCB521EA87 /* Visa Installment */ = {
+			isa = PBXGroup;
+			children = (
+				B662E7944937502FEA671D0F /* VisaInstallmentView.swift */,
+				A9385FA6F2DB3E713391852E /* VisaInstallmentViewController.swift */,
+			);
+			name = "Visa Installment";
+			path = "Visa Installment";
+			sourceTree = "<group>";
+		};
+		D1971EA627BC22E79C921718 /* Partial Auth */ = {
+			isa = PBXGroup;
+			children = (
+				1C241DC571A0DE7C1D3F943B /* PartialAuthView.swift */,
+				619E31DBA1DBBDB8AD432B6B /* PartialAuthViewController.swift */,
+			);
+			name = "Partial Auth";
+			path = "Partial Auth";
+			sourceTree = "<group>";
+		};
+		D9B6786163A0169640FBAA74 /* Aani */ = {
+			isa = PBXGroup;
+			children = (
+				C236B6525FFB0522D8463C8B /* AaniPayArgs.swift */,
+				202B4553C1DEF9F967370A10 /* AaniPayRequest.swift */,
+				1D40B7459514DEED39E3778B /* AaniPayResponse.swift */,
+				A37A2946C7828F4BF48E79FF /* AaniPoolingResponse.swift */,
+			);
+			name = Aani;
+			path = Aani;
+			sourceTree = "<group>";
+		};
+		F17B296607C7A1B12714EDC1 /* Visa */ = {
+			isa = PBXGroup;
+			children = (
+				2A54A2532A4B781CBB46FA23 /* CostInfo.swift */,
+				62B3ACF61AC112E57102111B /* LastInstallment.swift */,
+				43344A8A6C2D965AFF0730B6 /* MatchedPlan.swift */,
+				ECEA43F8320D605AD0A52C09 /* TermsAndConditions.swift */,
+				4E919A834DFB32F769FC7B61 /* VisaEligibilityRequets.swift */,
+				784353A9DFA7AD343FDFD319 /* VisaPlans.swift */,
+				0E27A826609E7CF62786289D /* VisaRequest.swift */,
+			);
+			name = Visa;
+			path = Visa;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -633,8 +765,37 @@
 				862CBE64230C800900767774 /* PaymentLinks.swift in Sources */,
 				862CBE4423068C1E00767774 /* CvvInputVC.swift in Sources */,
 				86ECAFD023210FCD008FDDDC /* String+URLEncode.swift in Sources */,
-				59214BE02AFCE509006EE4E6 /* SDKColors.swift in Sources */,
+				59214BE02AFCE509006EE4E6 /* NISdkColors.swift in Sources */,
 				86710F4C230FE47600259AE9 /* Encodable+PrettyPrint.swift in Sources */,
+				8B171B463E959A0E7039647F /* NISdkLogger.swift in Sources */,
+				CFB99A9DE688A43F4AA824B9 /* AaniPaymentDelegate.swift in Sources */,
+				4D5A62DE97842567321BF78D /* AaniPayArgs.swift in Sources */,
+				DFC7289253CD261E8F34D32E /* AaniPayRequest.swift in Sources */,
+				A49041EAD3B4169CC34DFCE7 /* AaniPayResponse.swift in Sources */,
+				3E1DDF3E5B3E33362147136B /* AaniPoolingResponse.swift in Sources */,
+				E6BF7C1FD6A898DD2839AEE0 /* PartialAuthArgs.swift in Sources */,
+				3D6FFBB2E0995DC5B7FE28E4 /* AuthResponse.swift in Sources */,
+				1314E9D30D1BCEFAB83CEF29 /* MatchedCandidate.swift in Sources */,
+				1D746C9242885B6DBC5D64AF /* PaymentMethod.swift in Sources */,
+				797FFCC5A86C1A81EE2F6D9E /* VisSavedCardMatchedCandidates.swift in Sources */,
+				B7E90DEFF9E89C3E6BF9BD0F /* CostInfo.swift in Sources */,
+				12C1E732D77FBF217E126DF5 /* LastInstallment.swift in Sources */,
+				0DCF27633AA46AACF1BDF493 /* MatchedPlan.swift in Sources */,
+				8EED5B997D424642B853B877 /* TermsAndConditions.swift in Sources */,
+				BEDFD6253B56D7A3CF379FB4 /* VisaEligibilityRequets.swift in Sources */,
+				287D4B947E86334ACC8ACACD /* VisaPlans.swift in Sources */,
+				D114B314072163ED6DC10474 /* VisaRequest.swift in Sources */,
+				D6F861061061755ADEFB208B /* Local+iso639.2.swift in Sources */,
+				5D399F2C3236F4821687D6CF /* AaniIDType.swift in Sources */,
+				FD231A7FC590F398FA0991DA /* AaniInputScreen.swift in Sources */,
+				9FBDD46577E89F0F1EF0059D /* AaniPayView.swift in Sources */,
+				A0276A82995C4F97ED51DF4B /* AaniPayViewController.swift in Sources */,
+				613C61396EE1E5E5C316130C /* AaniTimerScreen.swift in Sources */,
+				017056C9E9D6D392E5A574BD /* AaniViewModel.swift in Sources */,
+				D32EDCDE4A56AC5957CA58AB /* PartialAuthView.swift in Sources */,
+				F27C538D171E6C1EF79F13E6 /* PartialAuthViewController.swift in Sources */,
+				84667EDFD6A8DDAC33389E29 /* VisaInstallmentView.swift in Sources */,
+				020F09EDA24C9DD2C8C4E8F0 /* VisaInstallmentViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -723,7 +884,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -782,7 +943,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -808,7 +969,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/NISdk/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -841,7 +1002,7 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/NISdk/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
