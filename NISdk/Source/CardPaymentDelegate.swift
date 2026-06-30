@@ -22,7 +22,27 @@ import Foundation
     // 3ds challenge cycles
     @objc optional func threeDSChallengeDidBegin()
     @objc optional func threeDSChallengeDidComplete(with status: ThreeDSStatus)
+    // Called when the 3DS challenge is terminated by the SDK before completion
+    // (e.g. the ACS/Cardinal challenge page failed to load or render in time).
+    // `errorCode` is a stable, machine-readable reason such as
+    // `THREE_DS_ACS_LOAD_TIMEOUT` — see `ThreeDSErrorCode`. The customer-facing
+    // payment result still arrives via `paymentDidComplete(with:)`.
+    @objc optional func threeDSChallengeDidFail(withErrorCode errorCode: String)
     @objc optional func partialAuthBegin()
+}
+
+// Stable SDK error codes surfaced via `threeDSChallengeDidFail(withErrorCode:)`.
+// These are diagnostic reasons for the merchant; they never contain customer
+// data or full ACS URLs.
+@objc public class ThreeDSErrorCode: NSObject {
+    // The ACS / Cardinal challenge page did not load or render within the
+    // SDK's initial-load timeout window.
+    @objc public static let acsLoadTimeout = "THREE_DS_ACS_LOAD_TIMEOUT"
+    // The ACS / Cardinal challenge navigation failed (TLS, DNS, reset, blocked).
+    @objc public static let acsLoadFailed = "THREE_DS_ACS_LOAD_FAILED"
+    // The overall 3DS session exceeded its wall-clock cap without completing
+    // (a stall in any phase: fingerprint, auth calls, challenge, or response).
+    @objc public static let threeDSTimeout = "THREE_DS_TIMEOUT"
 }
 
 public typealias RawValue = String

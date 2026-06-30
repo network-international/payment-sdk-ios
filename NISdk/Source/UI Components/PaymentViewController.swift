@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import os.log
 import PassKit
 
 typealias MakePaymentCallback = (PaymentRequest) -> Void
@@ -16,7 +17,7 @@ typealias MakeSaveCardPaymentCallback = (SavedCardRequest) -> Void
 class PaymentViewController: UIViewController {
     private var state: State?
     private weak var shownViewController: UIViewController?
-    
+
     private let transactionService = TransactionServiceAdapter()
     private weak var cardPaymentDelegate: CardPaymentDelegate?
     private let order: OrderResponse
@@ -29,7 +30,7 @@ class PaymentViewController: UIViewController {
     var applePayRequest: PKPaymentRequest?
     private let cvv: String?
     private var host: String?
-    
+
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
         self.order = order
@@ -41,7 +42,7 @@ class PaymentViewController: UIViewController {
         self.cvv = nil
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     init(paymentResponse: PaymentResponse, cardPaymentDelegate: CardPaymentDelegate) {
         self.order = OrderResponse()
         self.paymentMedium = .ThreeDSTwo
@@ -50,7 +51,7 @@ class PaymentViewController: UIViewController {
         self.cvv = nil
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     init(order: OrderResponse,
          cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?,
@@ -66,17 +67,18 @@ class PaymentViewController: UIViewController {
         self.cvv = cvv
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("orderRef \(self.order.reference ?? "")")
+        os_log("[NISdk] PaymentViewController loaded — medium: %{public}@, orderRef: %{public}@",
+               log: NISdkLogger.payment, type: .info, paymentMedium.rawVal, order.reference ?? "")
         self.performPreAuthChecksAndBeginAuth()
     }
-    
+
     // Perform any checks that need to be done before auth
     private func performPreAuthChecksAndBeginAuth() {
         if(self.paymentMedium == .ThreeDSTwo ) {
@@ -84,14 +86,14 @@ class PaymentViewController: UIViewController {
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
                 return
             }
-            
+
             guard let threeDSTwoAuthenticationURL = self.paymentResponse?.paymentLinks?.paymentLink else {
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
                 return
             }
-            
+
             let authUrl = URL(string: threeDSTwoAuthenticationURL)
-            
+
             guard let authUrlHost = authUrl?.host,
                     let outletId = paymentResponse?.outletId,
                     let orderReference = paymentResponse?.orderReference else {
@@ -105,7 +107,7 @@ class PaymentViewController: UIViewController {
             self.execThreeDSTwo(using: authenticationCode, domain: authUrlHost)
             return
         }
-        
+
         // Apple pay is not enabled by merchant, hence abort payment flow
         if(self.paymentMedium == .ApplePay && (self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink) == nil) {
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
@@ -114,7 +116,7 @@ class PaymentViewController: UIViewController {
         // 1. Perform authorization by aquiring a payment token
         self.authorizePayment()
     }
-    
+
     private func execThreeDSTwo(using code: String, domain: String) {
         let authUrl = "https://\(domain)/transactions/paymentAuthorization"
         transactionService.authorizePayment(for: code, using: authUrl, on: {
@@ -129,10 +131,17 @@ class PaymentViewController: UIViewController {
                 self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
             }
         })
-        
+
     }
-    
+
     private func authorizePayment() {
+        os_log("[NISdk] authorizePayment — starting", log: NISdkLogger.auth, type: .info)
+        os_log("[NISdk] authorizePayment — authCode: %{public}@, paymentAuthLink: %{public}@, orderLink: %{public}@, payPageLink: %{public}@",
+               log: NISdkLogger.auth, type: .debug,
+               order.getAuthCode() ?? "nil",
+               order.orderLinks?.paymentAuthorizationLink ?? "nil",
+               order.orderLinks?.orderLink ?? "nil",
+               order.orderLinks?.payPageLink ?? "nil")
         cardPaymentDelegate?.authorizationDidBegin?()
         self.transition(to: .authorizing)
         if let authCode = order.getAuthCode(),
@@ -143,6 +152,7 @@ class PaymentViewController: UIViewController {
                     // Callback hell...
                     self?.paymentToken = paymentToken
                     self?.accessToken = accessToken
+                    os_log("[NISdk] authorizePayment — success, initiating payment form", log: NISdkLogger.auth, type: .info)
                     // 2. Show card payment screen after authorization (payment token is received)
                     DispatchQueue.main.async { // Use the main thread to update any UI
                         self?.cardPaymentDelegate?.authorizationDidComplete?(with: .AuthSuccess)
@@ -150,16 +160,19 @@ class PaymentViewController: UIViewController {
                         self?.initiatePaymentForm()
                     }
                 } else {
+                    os_log("[NISdk] authorizePayment — failed: no tokens in response", log: NISdkLogger.auth, type: .error)
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
                 }
             })
         } else {
+            os_log("[NISdk] authorizePayment — failed: missing authCode or payment link", log: NISdkLogger.auth, type: .error)
             // Close payment view controller if authCode or payment link is broken
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
         }
     }
-    
+
     private func initiatePaymentForm() {
+        os_log("[NISdk] initiatePaymentForm — medium: %{public}@", log: NISdkLogger.payment, type: .info, paymentMedium.rawVal)
         switch paymentMedium {
         case .Card:
             let cardPaymentViewController = CardPaymentViewController(makePaymentCallback: self.makePayment, order: order, onCancel: {
@@ -226,7 +239,7 @@ class PaymentViewController: UIViewController {
             break
         }
     }
-    
+
     lazy private var handleApplePayAuthorization: OnAuthorizeApplePayCallback  = {
         [unowned self] payment, completion in
         self.getPayerIp() { (payerIp) -> () in
@@ -245,6 +258,7 @@ class PaymentViewController: UIViewController {
                                 completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
                             }
                         } catch let error {
+                            os_log("[NISdk] makeApplePayment — failed to decode payment response: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
                             completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                         }
                     }
@@ -254,12 +268,12 @@ class PaymentViewController: UIViewController {
             }
         }
     }
-    
+
     lazy private var makePayment = { (paymentRequest: PaymentRequest) in
         // 3. Make Payment
         self.getPayerIp() { (payerIp) -> () in
             paymentRequest.payerIp = payerIp
-            
+
             self.getVisaPlans(visaEligibilityRequets: VisaEligibilityRequets(cardToken: nil, pan: paymentRequest.pan), onResponse: { visaPlan in
                 if let plans = visaPlan, let fullAmount = self.order.amount, let cardNumber = paymentRequest.pan {
                     if (plans.matchedPlans.isEmpty) {
@@ -285,7 +299,7 @@ class PaymentViewController: UIViewController {
             })
         }
     }
-    
+
     private func makeCardPayment(paymentRequest: PaymentRequest) {
         self.transactionService.makePayment(for: self.order, with: paymentRequest, using: self.paymentToken!, on: {
             data, response, err in
@@ -296,18 +310,19 @@ class PaymentViewController: UIViewController {
                     let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
                     // 4. Intermediatory checks for payment failure attempts and anything else
                     self.handlePaymentResponse(paymentResponse)
-                } catch _ {
+                } catch {
+                    os_log("[NISdk] makeCardPayment — failed to decode payment response: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
                     self.handlePaymentResponse(nil)
                 }
             }
         })
     }
-    
+
     lazy private var makeSavedCardPayment = { (savedCardRequest: SavedCardRequest) in
         // 3. Make Payment
         self.getPayerIp() { (payerIp) -> () in
             savedCardRequest.payerIp = payerIp
-            
+
             if let savedCardUrl = self.order.embeddedData?.getSavedCardLink(), let accessToken = self.accessToken, let cardToken = self.order.savedCard?.cardToken, let cardNumber = self.order.savedCard?.maskedPan {
                 if let matchedCandidates: [MatchedCandidate] = self.order.visSavedCardMatchedCandidates?.matchedCandidates, let candidate = matchedCandidates.first(where: { $0.cardToken == cardToken }) {
                     if candidate.eligibilityStatus == "MATCHED" {
@@ -343,7 +358,7 @@ class PaymentViewController: UIViewController {
             }
         }
     }
-    
+
     private func doSavedCardPayment(savedCardUrl: String, savedCardRequest: SavedCardRequest, accessToken: String) {
         self.transactionService.doSavedCardPayment(
             for: savedCardUrl,
@@ -357,13 +372,14 @@ class PaymentViewController: UIViewController {
                     do {
                         let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
                         self.handlePaymentResponse(paymentResponse)
-                    } catch _ {
+                    } catch {
+                        os_log("[NISdk] doSavedCardPayment — failed to decode payment response: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
                         self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
                     }
                 }
             })
     }
-    
+
     func getPayerIp(onCompletion: @escaping (String?) -> ()) {
         guard let url = order.orderLinks?.payPageLink, let urlHost = URL(string: url)?.host else {
             onCompletion(nil)
@@ -383,14 +399,16 @@ class PaymentViewController: UIViewController {
             }
         })
     }
-    
+
     lazy private var handlePaymentResponse: (PaymentResponse?) -> Void = {
         paymentResponse in
         DispatchQueue.main.async {
             guard let paymentResponse = paymentResponse else {
+                os_log("[NISdk] handlePaymentResponse — nil response, treating as failure", log: NISdkLogger.payment, type: .error)
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
                 return
             }
+            os_log("[NISdk] handlePaymentResponse — state: %{public}@", log: NISdkLogger.payment, type: .info, paymentResponse.state ?? "unknown")
             if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED") {
                 // 5. Close Screen if payment is done
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
@@ -401,24 +419,32 @@ class PaymentViewController: UIViewController {
                 return
             }
             if(paymentResponse.state == "AWAIT_3DS") {
+                os_log("[NISdk] handlePaymentResponse — initiating 3DS challenge", log: NISdkLogger.payment, type: .info)
                 self.cardPaymentDelegate?.threeDSChallengeDidBegin?()
                 self.initiateThreeDS(with: paymentResponse)
                 return
             }
             if (paymentResponse.state == "AWAITING_PARTIAL_AUTH_APPROVAL") {
+                os_log("[NISdk] handlePaymentResponse — initiating partial auth", log: NISdkLogger.payment, type: .info)
                 self.cardPaymentDelegate?.partialAuthBegin?()
                 do {
                     let partialAuthArgs = try paymentResponse.toPartialAuthArgs(accessToken: self.accessToken)
                     self.initiatePartialAuth(partialAuthArgs: partialAuthArgs)
                 } catch {
+                    os_log("[NISdk] handlePaymentResponse — partial auth args invalid: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
                     self.cardPaymentDelegate?.paymentDidComplete(with: .InValidRequest)
                 }
                 return
             }
+            if (paymentResponse.state == "FAILED") {
+                self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                return
+            }
+            os_log("[NISdk] handlePaymentResponse — unhandled state '%{public}@', failing payment", log: NISdkLogger.payment, type: .error, paymentResponse.state)
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
         }
     }
-    
+
     private func initiatePartialAuth(partialAuthArgs: PartialAuthArgs) {
         self.transition(to: .renderCardPaymentForm(
             PartialAuthViewController(
@@ -438,7 +464,7 @@ class PaymentViewController: UIViewController {
             )
         ))
     }
-    
+
     private func initiateThreeDS(with paymentRepsonse: PaymentResponse) {
         if let acsUrl = paymentRepsonse.threeDSConfig?.acsUrl,
            let acsPaReq = paymentRepsonse.threeDSConfig?.acsPaReq,
@@ -457,12 +483,18 @@ class PaymentViewController: UIViewController {
                                                                     transactionService: self.transactionService,
                                                                     completion: onThreeDSCompletion)
             threeDSTwoViewController.paypageLink = order.orderLinks?.payPageLink ?? ""
+            // Surface a clear, machine-readable reason (e.g. THREE_DS_ACS_LOAD_TIMEOUT)
+            // to the merchant when the SDK terminates the challenge early. The
+            // customer-facing result still arrives via paymentDidComplete(with:).
+            threeDSTwoViewController.onSDKFailure = { [weak self] errorCode in
+                self?.cardPaymentDelegate?.threeDSChallengeDidFail?(withErrorCode: errorCode)
+            }
             self.transition(to: .renderThreeDSChallengeForm(threeDSTwoViewController))
         } else {
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: nil)
         }
     }
-    
+
     lazy private var onThreeDSCompletion: (Bool) -> Void = { [weak self] hasSDKError in
         if(hasSDKError) {
             self?.handlePaymentResponse(nil)
@@ -491,12 +523,12 @@ class PaymentViewController: UIViewController {
                         successfulPayments = paymentResponses.filter({ (paymentAttempt: PaymentResponse) -> Bool in
                             return paymentAttempt.state == "CAPTURED" || paymentAttempt.state == "AUTHORISED" || paymentAttempt.state == "PURCHASED" || paymentAttempt.state == "VERIFIED" || paymentAttempt.state == "POST_AUTH_REVIEW"
                         })
-                        
+
                         awaitThreedsPayments = paymentResponses.filter({ (paymentAttempt: PaymentResponse) -> Bool in
                             return paymentAttempt.state == "AWAIT_3DS"
                         })
                     }
-                    
+
                     if(successfulPayments.count > 0) {
                         self?.handlePaymentResponse(successfulPayments[0])
                     } else if(awaitThreedsPayments.count > 0) {
@@ -506,32 +538,38 @@ class PaymentViewController: UIViewController {
                         self?.handlePaymentResponse(nil)
                     }
                 } catch let error {
+                    os_log("[NISdk] onThreeDSCompletion — failed to decode order response: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
                     self?.handlePaymentResponse(nil)
                 }
             }
         })
     }
-    
+
     // This is called when payment is done(fail or success) with 3ds(fail or success) or without 3ds
     private func finishPaymentAndClosePaymentViewController(with paymentStatus: PaymentStatus,
                                                             and threeDSStatus: ThreeDSStatus?,
                                                             and authStatus: AuthorizationStatus?) {
+        os_log("[NISdk] finishPayment — status: %{public}@, 3ds: %{public}@, auth: %{public}@",
+               log: NISdkLogger.payment, type: .info,
+               paymentStatus.rawVal,
+               threeDSStatus.map { $0.rawVal } ?? "none",
+               authStatus.map { $0.rawVal } ?? "none")
         DispatchQueue.main.async { // Use the main thread to update any UI
             if let threeDSStatus = threeDSStatus {
                 self.cardPaymentDelegate?.threeDSChallengeDidComplete?(with: threeDSStatus)
             }
-            
+
             if let authStatus = authStatus  {
                 self.cardPaymentDelegate?.authorizationDidComplete?(with: authStatus)
             }
-            
+
             self.closePaymentViewController(completion: {
                 [weak self] in
                 self?.cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
             })
         }
     }
-    
+
     private func closePaymentViewController(completion: (() -> Void)?) {
         dismiss(animated: true, completion: completion)
     }
@@ -543,7 +581,7 @@ private extension PaymentViewController {
         case renderCardPaymentForm(UIViewController)
         case renderThreeDSChallengeForm(UIViewController)
     }
-    
+
     private func transition(to newState: State) {
         shownViewController?.remove()
         let vc = viewController(for: newState)
@@ -551,12 +589,12 @@ private extension PaymentViewController {
         shownViewController = vc
         state = newState
     }
-    
+
     func viewController(for state: State) -> UIViewController {
         switch state {
         case .authorizing:
             return AuthorizationViewController()
-            
+
         case .renderCardPaymentForm(let viewController),
                 .renderThreeDSChallengeForm(let viewController):
             return viewController
@@ -573,13 +611,13 @@ private extension PaymentViewController {
             message: "Cancel Payment Message".localized,
             preferredStyle: .alert
         )
-        
+
         alertController.addAction(UIAlertAction(title: "Cancel Alert".localized, style: .cancel))
         alertController.addAction(UIAlertAction(title: "Cancel Confirm".localized, style: .destructive) { _ in
             self.finishPaymentAndClosePaymentViewController(with: paymentStatus, and: threeDSStatus, and: authStatus)
             self.dismiss(animated: true, completion: nil)
         })
-        
+
         present(alertController, animated: true, completion: nil)
     }
 }
