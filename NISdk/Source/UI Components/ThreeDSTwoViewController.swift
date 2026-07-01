@@ -9,20 +9,33 @@
 import Foundation
 import WebKit
 
-class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
+class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
     private var webView: WKWebView = {
-        let wk = WKWebView()
+        // Some ACS challenge pages open the OTP form in a popup (window.open /
+        // target="_blank"). Allow script-driven windows so they aren't dropped;
+        // the WKUIDelegate below renders them inline.
+        let configuration = WKWebViewConfiguration()
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
+        let wk = WKWebView(frame: .zero, configuration: configuration)
         return wk
     }()
     private var hasInitialisedRequest: Bool = false
     private var fingerPrintCompleted: Bool = false
-    
+
     private var completionHandler: (Bool) -> Void
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
     private var transactionService: TransactionService
     private var accessToken: String
     private var paymentResponse: PaymentResponse
     private var frictionlessTimer: Timer?
+    // True once the ACS challenge page begins loading. Navigation failures before
+    // this (fingerprint/method phase) are handled elsewhere and must be ignored here.
+    private var challengeStarted: Bool = false
+    // Set once the challenge has finished and the result is being resolved via the
+    // challenge-response API call. After this point the ACS web view is torn down /
+    // redirected, so any further navigation failure is irrelevant and must never
+    // override the real result.
+    private var completionInitiated: Bool = false
     var paypageLink: String
     
     private var authorizationLabel: UILabel {
@@ -75,6 +88,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
         
         view.backgroundColor = .white
         webView.navigationDelegate = self
+        webView.uiDelegate = self
         view.addSubview(webView)
         webView.anchor(top: view.safeAreaLayoutGuide.topAnchor,
                        leading: view.safeAreaLayoutGuide.leadingAnchor,
@@ -151,7 +165,89 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
             }
         }
     }
-    
+
+    // MARK: WKUIDelegate — ACS challenge pages frequently open the OTP form in a
+    // new window (window.open / target="_blank") or drive the flow via JS
+    // dialogs. With no WKUIDelegate, WKWebView silently drops both and the
+    // challenge appears blank/stuck.
+
+    // Render new-window / popup navigations inline in the same web view.
+    func webView(_ webView: WKWebView,
+                 createWebViewWith configuration: WKWebViewConfiguration,
+                 for navigationAction: WKNavigationAction,
+                 windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if navigationAction.targetFrame == nil, let url = navigationAction.request.url {
+            webView.load(URLRequest(url: url))
+        }
+        return nil
+    }
+
+    func webView(_ webView: WKWebView,
+                 runJavaScriptAlertPanelWithMessage message: String,
+                 initiatedByFrame frame: WKFrameInfo,
+                 completionHandler: @escaping () -> Void) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK".localized, style: .default) { _ in completionHandler() })
+        present(alert, animated: true)
+    }
+
+    func webView(_ webView: WKWebView,
+                 runJavaScriptConfirmPanelWithMessage message: String,
+                 initiatedByFrame frame: WKFrameInfo,
+                 completionHandler: @escaping (Bool) -> Void) {
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel".localized, style: .cancel) { _ in completionHandler(false) })
+        alert.addAction(UIAlertAction(title: "OK".localized, style: .default) { _ in completionHandler(true) })
+        present(alert, animated: true)
+    }
+
+    func webView(_ webView: WKWebView,
+                 runJavaScriptTextInputPanelWithPrompt prompt: String,
+                 defaultText: String?,
+                 initiatedByFrame frame: WKFrameInfo,
+                 completionHandler: @escaping (String?) -> Void) {
+        let alert = UIAlertController(title: nil, message: prompt, preferredStyle: .alert)
+        alert.addTextField { $0.text = defaultText }
+        alert.addAction(UIAlertAction(title: "Cancel".localized, style: .cancel) { _ in completionHandler(nil) })
+        alert.addAction(UIAlertAction(title: "OK".localized, style: .default) { _ in
+            completionHandler(alert.textFields?.first?.text)
+        })
+        present(alert, animated: true)
+    }
+
+    // MARK: ACS / challenge navigation failure handling
+
+    // Page failed before any content was committed (TLS, DNS, reset, blocked nav).
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        handleChallengeNavigationFailure(error)
+    }
+
+    // Page failed after it started rendering.
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        handleChallengeNavigationFailure(error)
+    }
+
+    private func handleChallengeNavigationFailure(_ error: Error) {
+        let nsError = error as NSError
+        // Ignore cancellations we trigger ourselves via decisionHandler(.cancel).
+        if nsError.domain == NSURLErrorDomain, nsError.code == NSURLErrorCancelled { return }
+        // WebKit surfaces a navigation that we cancel or supersede from a policy
+        // decision (the ACS posting back to the challenge-notification /
+        // urn:payment: URL, which we intercept and reload) as "frame load
+        // interrupted" (WebKitErrorFrameLoadInterruptedByPolicyChange = 102). That
+        // is the normal end-of-challenge signal, not an ACS load failure — treating
+        // it as fatal raced ahead of the real challenge-response result and failed
+        // otherwise-successful payments.
+        if nsError.domain == "WebKitErrorDomain", nsError.code == 102 { return }
+        // Once the challenge has finished and the result is being resolved via the
+        // challenge-response call, any further navigation failure is irrelevant.
+        if completionInitiated { return }
+        // Failures during the fingerprint/method phase are handled elsewhere; only
+        // surface failures once the challenge starts.
+        guard challengeStarted else { return }
+        completionHandler(true)
+    }
+
     // Gets called after 3ds is performed and a 302 redirect is received from txn service
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
         if let url = webView.url?.absoluteString {
@@ -237,6 +333,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
             onCompleteFingerPrint(threeDSCompInd: "Y")
         } else {
             // Challenge is completed
+            completionInitiated = true
             showActivityIndicator()
             guard let threeDSTwoChallengeResponseURL = paymentResponse.paymentLinks?.threeDSTwoChallengeResponseURL else {
                 self.completionHandler(true)
@@ -381,6 +478,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate {
                         request.httpMethod = "POST"
                         request.httpBody   = "creq=\(base64EncodedCReq.encodeAsURL())".data(using: .utf8)
                         DispatchQueue.main.async {
+                            self.challengeStarted = true
                             self.webView.load(request)
                         }
                     } else {
