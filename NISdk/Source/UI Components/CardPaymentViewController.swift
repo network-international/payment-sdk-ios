@@ -117,6 +117,8 @@ class CardPaymentViewController: UIViewController {
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
             self.makePaymentCallback = makePaymentCallback
             self.allowedCardProviders = order.paymentMethods?.card
+            // Scope live card-scheme detection (logo) to the outlet's supported cards.
+            self.pan.allowedCardProviders = order.paymentMethods?.card.map { Set($0) }
             let payButtonTitle: String = if NISdk.sharedInstance.shouldShowOrderAmount {
                  String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.getFormattedAmount())
             } else {
