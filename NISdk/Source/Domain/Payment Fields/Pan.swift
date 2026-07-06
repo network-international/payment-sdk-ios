@@ -12,7 +12,13 @@ class Pan {
     var value: String? {
         didSet { notifyPanChange() }
     }
-    
+
+    // The schemes the outlet actually accepts (order.paymentMethods.card). When set,
+    // card detection is scoped to these — so a card whose BIN belongs to a scheme the
+    // outlet does not support is not shown (matches the Android CardDetector, which is
+    // constructed with the supported cards). nil means "detect across all schemes".
+    var allowedCardProviders: Set<CardProvider>? = nil
+
     var cardProvider: CardProvider {
         get { return getCardProvider() }
     }
@@ -142,6 +148,12 @@ extension Pan {
         var bestConfirmed: (provider: CardProvider, len: Int)?
         var possible = Set<CardProvider>()
         for (provider, ranges) in Pan.iinRanges {
+            // Scope detection to the schemes the outlet supports (when known), so an
+            // unsupported scheme's card is never surfaced.
+            if let allowed = allowedCardProviders, !allowed.contains(provider) { continue }
+            // Jaywan shares its short 6690/9784 prefix with a wider space; only
+            // commit to it once 8 digits are entered so it isn't shown prematurely.
+            if provider == .jaywan && digits.count < Pan.jaywanMinDigits { continue }
             for range in ranges {
                 switch match(digits, against: range) {
                 case .confirmed(let len):
@@ -158,4 +170,7 @@ extension Pan {
         if let best = bestConfirmed { return best.provider }
         return possible.count == 1 ? possible.first! : .unknown
     }
+
+    // Jaywan is only detected once this many digits have been entered.
+    private static let jaywanMinDigits = 8
 }
