@@ -34,13 +34,14 @@ class CardPaymentViewController: UIViewController {
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColorHighlighted, for: .highlighted)
         payButton.layer.cornerRadius = 5
-        payButton.setTitle("Processing Payment".localized, for: .disabled)
         return payButton
     }()
     var errorLabel: UILabel = {
         let errorLabel = UILabel()
         errorLabel.textColor = .red
         errorLabel.text = ""
+        errorLabel.numberOfLines = 0
+        errorLabel.textAlignment = .center
         return errorLabel
     }()
 
@@ -48,15 +49,25 @@ class CardPaymentViewController: UIViewController {
         didSet {
             if(self.paymentInProgress) {
                 self.loadingSpinner.startAnimating()
+                self.payButton.setTitle("Processing Payment".localized, for: .disabled)
                 self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
                 self.payButton.isEnabled = false
             } else {
                 self.loadingSpinner.stopAnimating()
                 self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
-                self.payButton.isEnabled = true
+                // Drop the "Processing Payment" disabled title so a form-incomplete
+                // disable falls back to the normal Pay title again.
+                self.payButton.setTitle(nil, for: .disabled)
+                self.updatePayButtonEnabledState()
             }
         }
     }
+
+    // Text fields in visual/tab order, wired to the keyboard accessory toolbar so the
+    // user can jump between fields and dismiss the keyboard (revealing the Pay button)
+    // without it covering the button. The numeric keypads have no return key, so a
+    // toolbar is the only way to offer Next/Done for these fields.
+    private var orderedTextFields: [UITextField] = []
 
     let cardPreviewContainer = UIView()
     let loadingSpinner: UIActivityIndicatorView = {
@@ -118,6 +129,8 @@ class CardPaymentViewController: UIViewController {
         if let makePaymentCallback = makePaymentCallback, let orderAmount = order.amount {
             self.makePaymentCallback = makePaymentCallback
             self.allowedCardProviders = order.paymentMethods?.card
+            // Scope live card-scheme detection (logo) to the outlet's supported cards.
+            self.pan.allowedCardProviders = order.paymentMethods?.card.map { Set($0) }
             let payButtonTitle: String = if NISdk.sharedInstance.shouldShowOrderAmount {
                  String.localizedStringWithFormat("Pay Button Title".localized, orderAmount.getFormattedAmount())
             } else {
@@ -138,6 +151,8 @@ class CardPaymentViewController: UIViewController {
         setupCardPreviewComponent()
         setupCardInputForm()
         setupCancelButton()
+        // Start disabled — the Pay button only enables once every field is valid.
+        updatePayButtonEnabledState()
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -267,6 +282,14 @@ class CardPaymentViewController: UIViewController {
         add(nameInputVC, inside: nameContainer)
         nameInputVC.didMove(toParent: self)
 
+        // Field order used by the keyboard's Previous/Next/Done toolbar.
+        orderedTextFields = [panInputVC.panTextField,
+                             expiryInputVC.monthTextField,
+                             expiryInputVC.yearTextField,
+                             cvvInputVC.cvvTextField,
+                             nameInputVC.nameTextField]
+        setupKeyboardToolbars()
+
         let errorContainer = UIView()
         contentView.addSubview(errorContainer)
         errorContainer.anchor(top: vStack.bottomAnchor,
@@ -299,22 +322,118 @@ class CardPaymentViewController: UIViewController {
 
     @objc lazy private var onChangePan: onChangeTextClosure = { [weak self] textField in
         self?.pan.value = textField.text ?? ""
+        self?.updatePayButtonEnabledState()
     }
 
     @objc lazy private var onChangeMonth: onChangeTextClosure = { [weak self] textField in
         self?.expiryDate.month = textField.text ?? ""
+        self?.updatePayButtonEnabledState()
     }
 
     @objc lazy private var onChangeYear: onChangeTextClosure = { [weak self] textField in
         self?.expiryDate.year = textField.text ?? ""
+        self?.updatePayButtonEnabledState()
     }
 
     @objc lazy private var onChangeCVV: onChangeTextClosure = { [weak self] textField in
         self?.cvv.value = textField.text ?? ""
+        self?.updatePayButtonEnabledState()
     }
 
     @objc lazy private var onChangeName: onChangeTextClosure = { [weak self] textField in
         self?.cardHolderName.value = textField.text ?? ""
+        self?.updatePayButtonEnabledState()
+    }
+
+    // Enables the Pay button only when every card field is valid, and surfaces the
+    // relevant validation error(s) inline. Skipped while a payment is in flight so it
+    // doesn't fight the paymentInProgress disabled state.
+    private func updatePayButtonEnabledState() {
+        if paymentInProgress { return }
+        let isFormValid = validateAllFields().0
+        payButton.isEnabled = isFormValid
+        payButton.alpha = isFormValid ? 1.0 : 0.5
+        updateValidationErrorLabel()
+    }
+
+    // Builds a Previous / Next / Done toolbar above the keyboard for every input field.
+    // Previous is disabled on the first field, Next on the last, and Done always
+    // dismisses the keyboard so the Pay button underneath becomes tappable.
+    private func setupKeyboardToolbars() {
+        for (index, textField) in orderedTextFields.enumerated() {
+            let toolbar = UIToolbar()
+            toolbar.sizeToFit()
+
+            let previous = UIBarButtonItem(title: "Previous".localized, style: .plain,
+                                           target: self, action: #selector(focusPreviousField))
+            previous.isEnabled = index > 0
+
+            let next = UIBarButtonItem(title: "Next".localized, style: .plain,
+                                       target: self, action: #selector(focusNextField))
+            next.isEnabled = index < orderedTextFields.count - 1
+
+            let flexibleSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
+                                                target: nil, action: nil)
+            let done = UIBarButtonItem(barButtonSystemItem: .done,
+                                       target: self, action: #selector(dismissKeyboard))
+
+            toolbar.items = [previous, next, flexibleSpace, done]
+            textField.inputAccessoryView = toolbar
+        }
+    }
+
+    private func currentFieldIndex() -> Int? {
+        return orderedTextFields.firstIndex(where: { $0.isFirstResponder })
+    }
+
+    @objc private func focusNextField() {
+        guard let index = currentFieldIndex(), index + 1 < orderedTextFields.count else {
+            dismissKeyboard()
+            return
+        }
+        orderedTextFields[index + 1].becomeFirstResponder()
+    }
+
+    @objc private func focusPreviousField() {
+        guard let index = currentFieldIndex(), index > 0 else { return }
+        orderedTextFields[index - 1].becomeFirstResponder()
+    }
+
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+
+    // Shows a validation message for any field the user has started filling but left
+    // invalid (e.g. "Invalid expiry date"). Untouched/empty fields are left silent so
+    // a pristine form shows no errors.
+    private func updateValidationErrorLabel() {
+        var messages: [String] = []
+
+        if let panValue = pan.value, !panValue.isEmpty {
+            if !pan.validate() {
+                messages.append("Invalid pan number".localized)
+            } else if let allowedCardProviders = allowedCardProviders {
+                let panProvider = pan.getCardProvider()
+                if panProvider != .unknown && !Set(allowedCardProviders).contains(panProvider) {
+                    messages.append("Invalid card provider".localized)
+                }
+            }
+        }
+
+        let expiryTouched = !(expiryDate.month ?? "").isEmpty || !(expiryDate.year ?? "").isEmpty
+        if expiryTouched && !expiryDate.validate() {
+            messages.append("Invalid expiry date".localized)
+        }
+
+        if let cvvValue = cvv.value, !cvvValue.isEmpty, !cvv.validate() {
+            messages.append("Invalid CVV Field".localized)
+        }
+
+        if let nameValue = cardHolderName.value, !nameValue.isEmpty, !cardHolderName.validate() {
+            messages.append("Invalid card holder name".localized)
+        }
+
+        errorLabel.text = messages.joined(separator: "\n")
     }
 
     func validateAllFields() -> (Bool, [String:String]) {
