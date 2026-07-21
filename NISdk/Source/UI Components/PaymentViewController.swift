@@ -31,6 +31,23 @@ class PaymentViewController: UIViewController {
     private let cvv: String?
     private var host: String?
 
+    // Apple Pay concurrent-authorization coordination. For Apple Pay we present the
+    // native sheet immediately and run the authorization network call in parallel (no
+    // intermediate "Authenticating Payment" screen). The access token is only needed
+    // once the user authorizes, so this tracks whether that call has resolved and holds
+    // a waiter until it does.
+    private enum ApplePayAuthState { case pending, success, failed }
+    private var applePayAuthState: ApplePayAuthState = .pending
+    private var onApplePayAuthResolved: ((Bool) -> Void)?
+    // The Apple Pay sheet must be presented only once this controller is actually in the
+    // window (viewDidAppear) — presenting from viewDidLoad is dropped by UIKit. Set in
+    // viewDidLoad, consumed on first appearance.
+    private var pendingApplePaySheetPresentation = false
+    // Max time to wait for the background authorization token AFTER the user authorizes
+    // the Apple Pay sheet, before failing the sheet rather than hanging on the much
+    // longer default URLSession timeout.
+    private let applePayAuthTimeout: TimeInterval = 15
+
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
         self.order = order
@@ -79,6 +96,16 @@ class PaymentViewController: UIViewController {
         self.performPreAuthChecksAndBeginAuth()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // Present the Apple Pay sheet now that we're in the window. Guarded so it only
+        // fires on the first appearance, not when the sheet later dismisses back to us.
+        if pendingApplePaySheetPresentation {
+            pendingApplePaySheetPresentation = false
+            initiatePaymentForm()
+        }
+    }
+
     // Perform any checks that need to be done before auth
     private func performPreAuthChecksAndBeginAuth() {
         if(self.paymentMedium == .ThreeDSTwo ) {
@@ -108,9 +135,20 @@ class PaymentViewController: UIViewController {
             return
         }
 
-        // Apple pay is not enabled by merchant, hence abort payment flow
-        if(self.paymentMedium == .ApplePay && (self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink) == nil) {
-            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
+        if(self.paymentMedium == .ApplePay) {
+            // Apple pay is not enabled by merchant, hence abort payment flow
+            if (self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink) == nil {
+                self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
+                return
+            }
+            // Smoother journey: authorize in the background now, and present the Apple Pay
+            // sheet as soon as this controller appears (viewDidAppear) — no blocking
+            // "Authenticating Payment" screen. The token is only consumed after the user
+            // authorizes (Face/Touch ID), by which time the auth call has almost always
+            // completed. The sheet is presented on appear (not here) because presenting
+            // from viewDidLoad — before the view is in the window — is silently dropped.
+            self.beginConcurrentApplePayAuthorization()
+            self.pendingApplePaySheetPresentation = true
             return
         }
         // 1. Perform authorization by aquiring a payment token
@@ -168,6 +206,74 @@ class PaymentViewController: UIViewController {
             os_log("[NISdk] authorizePayment — failed: missing authCode or payment link", log: NISdkLogger.auth, type: .error)
             // Close payment view controller if authCode or payment link is broken
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
+        }
+    }
+
+    // Runs the authorization network call for Apple Pay WITHOUT showing the
+    // "Authenticating Payment" screen. Tokens are stored on success and any waiter
+    // registered via whenApplePayAuthResolved(_:) is notified.
+    private func beginConcurrentApplePayAuthorization() {
+        os_log("[NISdk] applePay — starting concurrent authorization (no loading screen)", log: NISdkLogger.auth, type: .info)
+        cardPaymentDelegate?.authorizationDidBegin?()
+        guard let authCode = order.getAuthCode(),
+              let paymentLink = order.orderLinks?.paymentAuthorizationLink else {
+            os_log("[NISdk] applePay — authorization failed: missing authCode or payment link", log: NISdkLogger.auth, type: .error)
+            self.resolveApplePayAuth(success: false)
+            return
+        }
+        transactionService.authorizePayment(for: authCode, using: paymentLink, on: {
+            [weak self] tokens in
+            guard let self = self else { return }
+            if let paymentToken = tokens["payment-token"], let accessToken = tokens["access-token"] {
+                self.paymentToken = paymentToken
+                self.accessToken = accessToken
+                os_log("[NISdk] applePay — concurrent authorization succeeded", log: NISdkLogger.auth, type: .info)
+                DispatchQueue.main.async {
+                    self.cardPaymentDelegate?.authorizationDidComplete?(with: .AuthSuccess)
+                    self.cardPaymentDelegate?.paymentDidBegin?()
+                    self.resolveApplePayAuth(success: true)
+                }
+            } else {
+                os_log("[NISdk] applePay — concurrent authorization failed: no tokens", log: NISdkLogger.auth, type: .error)
+                DispatchQueue.main.async {
+                    self.resolveApplePayAuth(success: false)
+                }
+            }
+        })
+    }
+
+    private func resolveApplePayAuth(success: Bool) {
+        applePayAuthState = success ? .success : .failed
+        let waiter = onApplePayAuthResolved
+        onApplePayAuthResolved = nil
+        waiter?(success)
+    }
+
+    // Invokes `completion` once authorization has resolved: immediately if it already
+    // has, otherwise when it does — or `false` if it hasn't within `applePayAuthTimeout`.
+    // `true` means the access token is available. The completion is guaranteed to run
+    // exactly once (resolution or timeout, whichever comes first).
+    private func whenApplePayAuthResolved(_ completion: @escaping (Bool) -> Void) {
+        var hasFired = false
+        let fireOnce: (Bool) -> Void = { success in
+            if hasFired { return }
+            hasFired = true
+            completion(success)
+        }
+        switch applePayAuthState {
+        case .success:
+            fireOnce(true)
+        case .failed:
+            fireOnce(false)
+        case .pending:
+            onApplePayAuthResolved = fireOnce
+            let timeout = applePayAuthTimeout
+            DispatchQueue.main.asyncAfter(deadline: .now() + timeout) { [weak self] in
+                guard !hasFired else { return }
+                os_log("[NISdk] applePay — token not received within %.0fs of authorization, failing sheet", log: NISdkLogger.auth, type: .error, timeout)
+                self?.onApplePayAuthResolved = nil
+                fireOnce(false)
+            }
         }
     }
 
@@ -242,29 +348,45 @@ class PaymentViewController: UIViewController {
 
     lazy private var handleApplePayAuthorization: OnAuthorizeApplePayCallback  = {
         [unowned self] payment, completion in
-        self.getPayerIp() { (payerIp) -> () in
-            if let payment = payment, let completion = completion {
-                self.transactionService.postApplePayResponse(for: self.order,
-                                                             with: payment,
-                                                             using: self.accessToken!,
-                                                             payerIp: payerIp, on: {
-                    [unowned self] data, response, error in
-                    if let data = data {
-                        do {
-                            let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
-                            if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED" || paymentResponse.state == "POST_AUTH_REVIEW") {
-                                completion(PKPaymentAuthorizationResult(status: .success, errors: nil), paymentResponse)
-                            } else {
-                                completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
+        // The Apple Pay sheet was presented without waiting for authorization. Now that
+        // the user has authorized, ensure the access token has arrived (it almost always
+        // has, during the Face/Touch ID step) before posting the Apple Pay response.
+        self.whenApplePayAuthResolved { authSucceeded in
+            guard authSucceeded, let accessToken = self.accessToken else {
+                // Authorization failed or its token never arrived — fail the Apple Pay
+                // sheet gracefully rather than crashing on a missing token.
+                os_log("[NISdk] applePay — authorization unavailable at authorize time, failing sheet", log: NISdkLogger.payment, type: .error)
+                if let completion = completion {
+                    completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
+                } else {
+                    self.handlePaymentResponse(nil)
+                }
+                return
+            }
+            self.getPayerIp() { (payerIp) -> () in
+                if let payment = payment, let completion = completion {
+                    self.transactionService.postApplePayResponse(for: self.order,
+                                                                 with: payment,
+                                                                 using: accessToken,
+                                                                 payerIp: payerIp, on: {
+                        [unowned self] data, response, error in
+                        if let data = data {
+                            do {
+                                let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                                if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED" || paymentResponse.state == "POST_AUTH_REVIEW") {
+                                    completion(PKPaymentAuthorizationResult(status: .success, errors: nil), paymentResponse)
+                                } else {
+                                    completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
+                                }
+                            } catch let error {
+                                os_log("[NISdk] makeApplePayment — failed to decode payment response: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
+                                completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                             }
-                        } catch let error {
-                            os_log("[NISdk] makeApplePayment — failed to decode payment response: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
-                            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                         }
-                    }
-                })
-            } else {
-                self.handlePaymentResponse(nil)
+                    })
+                } else {
+                    self.handlePaymentResponse(nil)
+                }
             }
         }
     }

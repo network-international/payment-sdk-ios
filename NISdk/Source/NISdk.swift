@@ -89,6 +89,9 @@ private class NISdkBundleLocator {}
         paymentViewController.modalPresentationStyle = .overCurrentContext
         if #available(iOS 13.0, *) {
             paymentViewController.isModalInPresentation = true
+            // The SDK palette is designed for a light background (label/title colors are
+            // fixed dark), so pin the SDK UI to light regardless of the host app / device.
+            navController.overrideUserInterfaceStyle = .light
         }
         DispatchQueue.main.async {
             parentViewController.present(navController, animated: true)
@@ -111,6 +114,7 @@ private class NISdkBundleLocator {}
         paymentViewController.modalPresentationStyle = .overCurrentContext
         if #available(iOS 13.0, *) {
             paymentViewController.isModalInPresentation = true
+            navController.overrideUserInterfaceStyle = .light
         }
         DispatchQueue.main.async {
             parentViewController.present(navController, animated: true)
@@ -132,6 +136,7 @@ private class NISdkBundleLocator {}
         paymentViewController.modalPresentationStyle = .overCurrentContext
         if #available(iOS 13.0, *) {
             paymentViewController.isModalInPresentation = true
+            navController.overrideUserInterfaceStyle = .light
         }
         DispatchQueue.main.async {
             parentViewController.present(navController, animated: true)
@@ -154,6 +159,7 @@ private class NISdkBundleLocator {}
             paymentViewController.modalPresentationStyle = .overCurrentContext
             if #available(iOS 13.0, *) {
                 paymentViewController.isModalInPresentation = true
+                navController.overrideUserInterfaceStyle = .light
             }
             DispatchQueue.main.async {
                 parentViewController.present(navController, animated: true)
@@ -177,6 +183,7 @@ private class NISdkBundleLocator {}
         paymentViewController.modalPresentationStyle = .overCurrentContext
         if #available(iOS 13.0, *) {
             paymentViewController.isModalInPresentation = true
+            paymentViewController.overrideUserInterfaceStyle = .light
         }
         parentViewController.present(paymentViewController, animated: true)
     }
@@ -192,6 +199,7 @@ private class NISdkBundleLocator {}
         paymentViewController.modalPresentationStyle = .overCurrentContext
         if #available(iOS 13.0, *) {
             paymentViewController.isModalInPresentation = true
+            navController.overrideUserInterfaceStyle = .light
         }
         DispatchQueue.main.async {
             parentViewController.present(navController, animated: true)

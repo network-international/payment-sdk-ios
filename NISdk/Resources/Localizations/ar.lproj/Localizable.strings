@@ -26,6 +26,8 @@
 "Invalid card holder name" = "اسم حامل البطاقة غير صحيح";
 "All fields are mandatory" = "كل الحقول مطلوبة";
 "Cancel" = "إلغاء";
+"Next" = "التالي";
+"Previous" = "السابق";
 "Authenticating Payment" = "التحقق من الدفع";
 "Authenticating using 3DS" = "التحقق من الدفع";
 "Cancel Payment Title" = "إلغاء الدفع";
