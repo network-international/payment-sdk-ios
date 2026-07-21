@@ -10,6 +10,11 @@ struct PaymentResultView: View {
     let args: PaymentResultArgs
     let onDone: () -> Void
 
+    /// The result screen is shown briefly then dismisses itself back to the merchant app —
+    /// the merchant confirms/cancels the order off our result, so we must not block on a tap.
+    private let autoDismissDelay: TimeInterval = 1.0
+    @State private var didAutoDismiss = false
+
     private let successGreen = Color(red: 0.184, green: 0.749, blue: 0.443)
     private let failureRed = Color(red: 0.90, green: 0.22, blue: 0.21)
     private let successGreenUI = UIColor(red: 0.184, green: 0.749, blue: 0.443, alpha: 1)
@@ -116,24 +121,17 @@ struct PaymentResultView: View {
                     // Footer
                     PaymentResultFooterView(cardProviders: args.cardProviders)
 
-                    Spacer().frame(height: 16)
-
-                    // Done button
-                    Button(action: { onDone() }) {
-                        Text("Done".localized)
-                            .font(.body)
-                            .fontWeight(.medium)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 48)
-                            .background(args.isSuccess ? successGreen : failureRed)
-                            .cornerRadius(8)
-                    }
-                    .accessibilityIdentifier("sdk_result_button_done")
-
-                    Spacer().frame(height: 16)
+                    Spacer().frame(height: 24)
                 }
                 .padding(.horizontal, 12)
+            }
+        }
+        .onAppear {
+            // Show the result for a moment, then hand control back to the merchant app.
+            guard !didAutoDismiss else { return }
+            didAutoDismiss = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + autoDismissDelay) {
+                onDone()
             }
         }
     }
@@ -240,6 +238,7 @@ private struct MerchantResultHeaderView: View {
     private let surfaceRow = Color(UIColor(hexString: "#F5F9FC"))
     private let mutedGrey = Color(UIColor(hexString: "#8F8F8F"))
     private let primaryText = Color(UIColor(hexString: "#1A1A1A"))
+    private let primaryTextUI = UIColor(hexString: "#1A1A1A")
 
     /// Top safe-area inset of the key window, read at body-eval time. The merchant header's
     /// background extends behind the status bar (the SwiftUI host is pinned full-screen);
@@ -276,7 +275,7 @@ private struct MerchantResultHeaderView: View {
                         .font(.system(size: 13))
                         .foregroundColor(mutedGrey)
                     Spacer()
-                    Text(amount)
+                    AedSymbol.swiftUIText(amount, fontSize: 18, tint: primaryTextUI)
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(primaryText)
                 }
@@ -303,7 +302,7 @@ private struct MerchantResultHeaderView: View {
                                 .font(.system(size: 13))
                                 .foregroundColor(primaryText)
                             Spacer()
-                            Text(item.amount)
+                            AedSymbol.swiftUIText(item.amount, fontSize: 13, tint: primaryTextUI)
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(primaryText)
                         }
