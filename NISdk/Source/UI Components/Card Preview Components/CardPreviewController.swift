@@ -80,7 +80,15 @@ class CardPreviewController: UIViewController {
     }
     
     func updateCardLogo() {
-        let cardLogoImage = UIImage(named: self.cardProviderLogo, in: Bundle(for: NISdk.self), compatibleWith: nil)
+        // Card logos live in the NISdk resource bundle, not in the bundle that holds the
+        // NISdk class. When the SDK is linked as a static library (e.g. the React Native
+        // app) `Bundle(for: NISdk.self)` is the *app* bundle, and as a framework it is
+        // NISdk.framework — in both cases Assets.car sits one level down in NISdk.bundle,
+        // so the lookup returned nil and no scheme logo was ever shown. getBundle()
+        // resolves the resource bundle the same way font/localization loading does.
+        let cardLogoImage = UIImage(named: self.cardProviderLogo,
+                                    in: NISdk.sharedInstance.getBundle(),
+                                    compatibleWith: nil)
         cardLogo.image = cardLogoImage
     }
     

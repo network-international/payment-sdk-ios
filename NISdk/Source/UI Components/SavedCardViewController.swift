@@ -111,7 +111,8 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
             stack.spacing = 6
             stack.alignment = .center
 
-            let icon = UIImageView(image: UIImage(named: "riyal", in: Bundle(for: NISdk.self), compatibleWith: nil))
+            // Resource-bundle lookup — see CardPreviewController.updateCardLogo().
+            let icon = UIImageView(image: UIImage(named: "riyal", in: NISdk.sharedInstance.getBundle(), compatibleWith: nil))
             icon.contentMode = .scaleAspectFit
             icon.widthAnchor.constraint(equalToConstant: 20).isActive = true
             icon.heightAnchor.constraint(equalToConstant: 16).isActive = true
