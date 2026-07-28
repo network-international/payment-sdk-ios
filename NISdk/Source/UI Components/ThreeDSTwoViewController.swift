@@ -62,7 +62,11 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
     // failure reason; the normal pass/fail result still flows via completionHandler.
     var onSDKFailure: ((String) -> Void)?
     var paypageLink: String
-    
+    // Stand-in browser IP used when the payer-IP lookup fails. The field is required by
+    // the 3DS2 authentication request but is not used to authorise the payment, so a
+    // placeholder is preferable to failing the payment (same value the Android SDK uses).
+    private static let fallbackPayerIp = "192.168.1.1"
+
     private var authorizationLabel: UILabel {
         let authLabel = UILabel()
         authLabel.text = "Authenticating using 3DS".localized
@@ -516,26 +520,21 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
                                                                       "/payments/\(self.paymentResponse.reference)/3ds2/method/notification"
                         notificationUrl = self.getNotificationUrl(stringVal: authenticationsUrl, slug: notificationUrlPath, paymentLink: (self.paymentResponse.paymentLinks?.paymentLink)!)
                     }
-                    guard let payerIPData = payerIPData else {
-                        // Unable to get IP address of payer
-                        self.completeOnce(withSDKError: true)
-                        return
-                    }
+                    // The payer IP is one field of the 3DS2 browser info, and the ACS does
+                    // not require it to be the caller's real address. Failing to fetch it
+                    // used to abort the whole payment; now it degrades to a placeholder and
+                    // the authentication continues, matching the Android SDK.
                     var payerIp: String? = nil
-                    do {
-                        let payerIpDict: [String: String] = try JSONDecoder().decode([String: String].self, from: payerIPData)
+                    if let payerIPData = payerIPData,
+                       let payerIpDict = try? JSONDecoder().decode([String: String].self, from: payerIPData) {
                         payerIp = payerIpDict["requesterIp"]
-                    } catch {
-                        // Unable to get payer Ip address from decoded response
-                        self.completeOnce(withSDKError: true)
-                        return
                     }
-                    guard let payerIp = payerIp else {
-                        self.completeOnce(withSDKError: true)
-                        return
+                    if payerIp == nil {
+                        os_log("[NISdk] 3DS2 — payer IP unavailable, continuing with placeholder",
+                               log: NISdkLogger.payment, type: .error)
                     }
-                    
-                    let _ = browserInfo.with(browserIP: payerIp)
+
+                    let _ = browserInfo.with(browserIP: payerIp ?? ThreeDSTwoViewController.fallbackPayerIp)
                     let threeDSAuthenticationsRequest = ThreeDSAuthenticationsRequest()
                         .with(threeDSCompInd: threeDSCompInd)
                         .with(browserInfo: browserInfo)
@@ -618,18 +617,34 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
 
 extension ThreeDSTwoViewController {
     private func getIpUrl(stringVal: String, outletRef: String, orderRef: String, paymentRef: String, paypageLink: String) -> String {
-        let urlHost = URL(string: paypageLink)?.host ?? ""
         let slug =
         "/api/outlets/\(outletRef)/orders/\(orderRef)/payments/\(paymentRef)/3ds2/requester-ip"
-        if (stringVal.localizedCaseInsensitiveContains("-uat") ||
-            stringVal.localizedCaseInsensitiveContains("sandbox")
-        ) {
+
+        // Preferred: the pay-page host of the order the SDK was handed.
+        if let urlHost = URL(string: paypageLink)?.host, !urlHost.isEmpty {
             return "https://\(urlHost)\(slug)"
         }
-        if (stringVal.localizedCaseInsensitiveContains("-dev")) {
-            return "https://\(urlHost)\(slug)"
+
+        // The executeThreeDSTwo() entry point (used by React Native saved-card payments)
+        // has no order, so there is no pay-page link — this used to yield "https:///…",
+        // which URLSession resolves to localhost and the payment died with -1004. Fall
+        // back to the pay-page host for the environment the 3DS2 authentication URL points
+        // at, as the Android SDK does. The endpoint is served by the pay-page service
+        // only; the gateway host returns 404.
+        let isKsa = stringVal.localizedCaseInsensitiveContains("ksa")
+        let baseUrl: String
+        if stringVal.localizedCaseInsensitiveContains("-uat") ||
+            stringVal.localizedCaseInsensitiveContains("sandbox") {
+            baseUrl = isKsa ? "https://paypage.sandbox.ksa.ngenius-payments.com"
+                            : "https://paypage.sandbox.ngenius-payments.com"
+        } else if stringVal.localizedCaseInsensitiveContains("-dev") {
+            baseUrl = isKsa ? "https://paypage-dev.ksa.ngenius-payments.com"
+                            : "https://paypage-dev.ngenius-payments.com"
+        } else {
+            baseUrl = isKsa ? "https://paypage.ksa.ngenius-payments.com"
+                            : "https://paypage.ngenius-payments.com"
         }
-        return "https://\(urlHost)\(slug)"
+        return "\(baseUrl)\(slug)"
     }
 
     private func getNotificationUrl(stringVal: String, slug: String, paymentLink: String) -> String {
