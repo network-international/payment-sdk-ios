@@ -7,12 +7,13 @@
 //
 
 import Foundation
+import os.log
 import WebKit
 
 class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private var webView = WKWebView()
     private let activityIndicator = UIActivityIndicatorView(style: .medium)
-    
+
     private var acsUrl: String
     private var acsPaReq: String
     private var acsMd: String
@@ -20,8 +21,8 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private var completionHandler: (Bool) -> Void
     private var hasClosedWebView: Bool = false
     private var hasInitialisedRequest: Bool = false
-    
-    
+
+
     init(with acsUrl: String, acsPaReq: String, acsMd: String, threeDSTermURL: String, completion: @escaping (Bool) -> Void) {
         self.acsUrl = acsUrl
         self.acsPaReq = acsPaReq
@@ -32,19 +33,19 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
         activityIndicator.color = .white
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSubviews()
     }
-    
+
     private func setupSubviews() {
         view.backgroundColor = .white
-        
+
         webView.alpha = 0
         webView.navigationDelegate = self
         view.addSubview(webView)
@@ -52,59 +53,66 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
                        leading: view.safeAreaLayoutGuide.leadingAnchor,
                        bottom: view.safeAreaLayoutGuide.bottomAnchor,
                        trailing: view.safeAreaLayoutGuide.trailingAnchor)
-        
+
         view.addSubview(activityIndicator)
         activityIndicator.alignCenterToCenterOf(parent: view)
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         // Adding this check to prevent multiple requests
         if(!hasInitialisedRequest) {
             hasInitialisedRequest = true
+            os_log("[NISdk] 3DS v1 — loading ACS URL: %{public}@", log: NISdkLogger.payment, type: .info, acsUrl)
             var request = URLRequest(url: URL(string: acsUrl)!)
             request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
             request.httpMethod = "POST"
             request.httpBody   = "PaReq=\(acsPaReq.encodeAsURL())&TermUrl=\(threeDSTermURL.encodeAsURL())&MD=\(acsMd.encodeAsURL())".data(using: .utf8)
-            
+
             webView.load(request)
             showActivityIndicator()
         }
     }
-    
+
     private func showActivityIndicator() {
         self.activityIndicator.alpha = 1
         self.activityIndicator.startAnimating()
     }
-    
+
     private func hideActivityIndicator() {
         UIView.animate(withDuration: 0.4,
                        animations: { self.webView.alpha = 1; self.activityIndicator.alpha = 0 },
                        completion: { _ in self.activityIndicator.stopAnimating()})
     }
-    
+
     // MARK: WKNavigationDelegate delegation methods
     // Gets called once the 3ds page is loaded
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        os_log("[NISdk] 3DS v1 — ACS page loaded", log: NISdkLogger.payment, type: .debug)
         hideActivityIndicator()
     }
-    
+
     // Gets called after 3ds is performed and a 302 redirect is received from txn service
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
-        if (webView.url?.queryParameters?["3ds_status"]) != nil {
+        if let status = webView.url?.queryParameters?["3ds_status"] as? String {
+            os_log("[NISdk] 3DS v1 — challenge redirect received, 3ds_status: %{public}@", log: NISdkLogger.payment, type: .info, status)
+            hasClosedWebView = true
+            webView.stopLoading()
+            self.completionHandler(false)
+        } else if (webView.url?.queryParameters?["3ds_status"]) != nil {
             hasClosedWebView = true
             webView.stopLoading()
             self.completionHandler(false)
         }
     }
-    
+
     // Gets called when the 3ds page fails to load
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        // 3ds Failed due to some error
+        os_log("[NISdk] 3DS v1 — page load failed: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
         webView.stopLoading()
         if(!hasClosedWebView) {
-            hasClosedWebView = true;
+            hasClosedWebView = true
             self.completionHandler(false)
         }
     }
