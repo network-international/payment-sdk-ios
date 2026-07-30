@@ -37,6 +37,33 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
     // redirected, so any further navigation failure is irrelevant and must never
     // override the real result.
     private var completionInitiated: Bool = false
+    // True once any terminal result has been delivered, so the watchdogs below can
+    // never override or duplicate a result that already reached the merchant.
+    private var hasCompleted: Bool = false
+    // True once the ACS challenge page has rendered its first content, which cancels
+    // the load watchdog.
+    private var challengeRendered: Bool = false
+    private var challengeLoadTimer: Timer?
+    // ACS challenge URL of the in-flight challenge, retained only for masked
+    // diagnostic logging. Never surfaced to the customer-facing failure message.
+    private var challengeAcsUrl: String?
+    // Max time to wait for the ACS challenge page to render its first content before
+    // failing fast. Without this the customer waits for the server-side 3DS timeout
+    // (~11 min) when the ACS page never loads.
+    private let challengeLoadTimeout: TimeInterval = 30.0
+    // Overall wall-clock backstop for the whole 3DS session. Unlike the load watchdog
+    // (which only guards the ACS page's first render), this runs for the entire flow
+    // and guarantees a merchant callback even if a network/JS closure never fires.
+    private var sessionTimer: Timer?
+    private let sessionTimeout: TimeInterval = NISdk.sharedInstance.threeDSSessionTimeout
+    // Reports a stable SDK error code (see `ThreeDSErrorCode`) when the challenge is
+    // terminated by the SDK. Set by the presenter so the merchant gets a clear failure
+    // reason; the normal pass/fail result still flows via completionHandler.
+    var onSDKFailure: ((String) -> Void)?
+    // Stand-in browser IP used when the payer-IP lookup fails. The field is required by
+    // the 3DS2 authentication request but authorises nothing, so a placeholder is
+    // preferable to failing the payment (same value the Android SDK uses).
+    private static let fallbackPayerIp = "192.168.1.1"
     var paypageLink: String
 
     private var authorizationLabel: UILabel {
@@ -67,6 +94,77 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
         super.viewDidLoad()
         setupVCSubviews()
         initWebView()
+        startSessionBackstop()
+    }
+
+    // Guarantees the merchant always receives a callback: if the whole 3DS flow stalls
+    // (hung network/JS closure, or the customer never finishes the challenge), this
+    // fires and terminates with THREE_DS_TIMEOUT instead of leaving the integration
+    // without a result until the server-side timeout.
+    private func startSessionBackstop() {
+        guard sessionTimeout > 0 else { return }
+        DispatchQueue.main.async {
+            self.sessionTimer?.invalidate()
+            self.sessionTimer = Timer.scheduledTimer(withTimeInterval: self.sessionTimeout, repeats: false) { [weak self] timer in
+                timer.invalidate()
+                guard let self = self else { return }
+                os_log("[NISdk] 3DS session — exceeded %{public}.0fs wall-clock cap, terminating (%{public}@)",
+                       log: NISdkLogger.payment, type: .error, self.sessionTimeout, ThreeDSErrorCode.threeDSTimeout)
+                self.completeOnce(withSDKError: true, errorCode: ThreeDSErrorCode.threeDSTimeout)
+            }
+            RunLoop.current.add(self.sessionTimer!, forMode: .common)
+        }
+    }
+
+    // Redacts the ACS URL for logging: keeps scheme + host (useful for diagnostics) but
+    // strips the path and query, which carry the CReq token and other sensitive
+    // challenge parameters. The full URL is never logged or shown.
+    private func maskedAcsUrl(_ urlString: String?) -> String {
+        guard let urlString = urlString else { return "<none>" }
+        guard let components = URLComponents(string: urlString),
+              let host = components.host else { return "<redacted>" }
+        let scheme = components.scheme ?? "https"
+        return "\(scheme)://\(host)/<redacted>"
+    }
+
+    private func startChallengeLoadWatchdog() {
+        DispatchQueue.main.async {
+            self.challengeLoadTimer?.invalidate()
+            self.challengeLoadTimer = Timer.scheduledTimer(withTimeInterval: self.challengeLoadTimeout, repeats: false) { [weak self] timer in
+                timer.invalidate()
+                guard let self = self else { return }
+                if !self.challengeRendered {
+                    // ACS challenge page never rendered within challengeLoadTimeout —
+                    // fail fast instead of letting the customer wait for the
+                    // server-side 3DS timeout.
+                    os_log("[NISdk] 3DS challenge — ACS page did not render within %{public}.0fs, terminating (%{public}@). ACS: %{public}@",
+                           log: NISdkLogger.payment, type: .error,
+                           self.challengeLoadTimeout, ThreeDSErrorCode.acsLoadTimeout,
+                           self.maskedAcsUrl(self.challengeAcsUrl))
+                    self.completeOnce(withSDKError: true, errorCode: ThreeDSErrorCode.acsLoadTimeout)
+                }
+            }
+            RunLoop.current.add(self.challengeLoadTimer!, forMode: .common)
+        }
+    }
+
+    // Single guarded exit so failure paths never double-complete and always tear down
+    // timers and stop the web view. When an `errorCode` is supplied it is reported to
+    // the presenter (and on to the merchant) as a clear failure reason before the
+    // normal pass/fail result is delivered.
+    private func completeOnce(withSDKError hasSDKError: Bool, errorCode: String? = nil) {
+        DispatchQueue.main.async {
+            if self.hasCompleted { return }
+            self.hasCompleted = true
+            self.frictionlessTimer?.invalidate()
+            self.challengeLoadTimer?.invalidate()
+            self.sessionTimer?.invalidate()
+            self.webView.stopLoading()
+            if let errorCode = errorCode {
+                self.onSDKFailure?(errorCode)
+            }
+            self.completionHandler(hasSDKError)
+        }
     }
 
     private func setupVCSubviews() {
@@ -161,6 +259,11 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
         if(fingerPrintCompleted) {
             hideActivityIndicator()
         }
+        // The ACS page produced content, so the load watchdog has nothing left to guard.
+        if challengeStarted && !challengeRendered {
+            challengeRendered = true
+            challengeLoadTimer?.invalidate()
+        }
         if let url = webView.url?.absoluteString {
             if(url.contains("/3ds2/method/notification")) {
                 handleThreeDSTwoStageCompletion()
@@ -247,7 +350,11 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
         // Failures during the fingerprint/method phase are handled elsewhere; only
         // surface failures once the challenge starts.
         guard challengeStarted else { return }
-        completionHandler(true)
+        os_log("[NISdk] 3DS challenge — ACS navigation failed (%{public}@ %ld), terminating (%{public}@). ACS: %{public}@",
+               log: NISdkLogger.payment, type: .error,
+               nsError.domain, nsError.code, ThreeDSErrorCode.acsLoadFailed,
+               maskedAcsUrl(challengeAcsUrl))
+        completeOnce(withSDKError: true, errorCode: ThreeDSErrorCode.acsLoadFailed)
     }
 
     // Gets called after 3ds is performed and a 302 redirect is received from txn service
@@ -341,13 +448,13 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
             showActivityIndicator()
             guard let threeDSTwoChallengeResponseURL = paymentResponse.paymentLinks?.threeDSTwoChallengeResponseURL else {
                 os_log("[NISdk] 3DS v2 — missing challenge response URL, aborting", log: NISdkLogger.payment, type: .error)
-                self.completionHandler(true)
+                self.completeOnce(withSDKError: true)
                 return
             }
             transactionService.postThreeDSTwoChallengeResponse(for: paymentResponse, using: threeDSTwoChallengeResponseURL) {
                 data, response, error in
                 os_log("[NISdk] 3DS v2 — challenge response posted", log: NISdkLogger.payment, type: .info)
-                self.completionHandler(false)
+                self.completeOnce(withSDKError: false)
             }
         }
     }
@@ -357,7 +464,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
         self.frictionlessTimer?.invalidate()
         guard let authenticationsUrl = paymentResponse.paymentLinks?.threeDSTwoAuthenticationURL else {
             os_log("[NISdk] 3DS v2 — missing authentication URL, aborting", log: NISdkLogger.payment, type: .error)
-            self.completionHandler(true)
+            self.completeOnce(withSDKError: true)
             return
         }
         let browserDataJS = "browserLanguage: window.navigator.language," +
@@ -370,7 +477,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
         self.webView.evaluateJavaScript("(function(){ return ({ \(browserDataJS) }); })()") { (result, error) in
             guard let result = result else {
                 os_log("[NISdk] 3DS v2 — JS evaluation returned nil result, aborting", log: NISdkLogger.payment, type: .error)
-                self.completionHandler(true)
+                self.completeOnce(withSDKError: true)
                 return
             }
             if(error == nil) {
@@ -380,7 +487,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
                     browserInfo = try JSONDecoder().decode(BrowserInfo.self, from: data)
                 } catch {
                     os_log("[NISdk] 3DS v2 — failed to decode browser info: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
-                    self.completionHandler(true)
+                    self.completeOnce(withSDKError: true)
                     return
                 }
                 _ = browserInfo?.with(browserAcceptHeader:  "application/json, text/plain, */*")
@@ -388,7 +495,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
                 _ = browserInfo?.with(challengeWindowSize: "05")
                 guard let browserInfo = browserInfo else {
                     os_log("[NISdk] 3DS v2 — browser info is nil after decode, aborting", log: NISdkLogger.payment, type: .error)
-                    self.completionHandler(true)
+                    self.completeOnce(withSDKError: true)
                     return
                 }
                 var notificationUrl = self.paymentResponse.threeDSMethodNotificationURL
@@ -408,28 +515,26 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
                                                                       "/payments/\(self.paymentResponse.reference)/3ds2/method/notification"
                         notificationUrl = self.getNotificationUrl(stringVal: authenticationsUrl, slug: notificationUrlPath, paymentLink: (self.paymentResponse.paymentLinks?.paymentLink)!)
                     }
-                    guard let payerIPData = payerIPData else {
-                        os_log("[NISdk] 3DS v2 — failed to get payer IP address, aborting", log: NISdkLogger.payment, type: .error)
-                        self.completionHandler(true)
-                        return
-                    }
+                    // The payer IP is one field of the 3DS2 browser info and does not
+                    // authorise anything, so a failed lookup must not fail the payment
+                    // — it degrades to a placeholder, as the Android SDK does.
                     var payerIp: String? = nil
-                    do {
-                        let payerIpDict: [String: String] = try JSONDecoder().decode([String: String].self, from: payerIPData)
-                        payerIp = payerIpDict["requesterIp"]
-                    } catch {
-                        os_log("[NISdk] 3DS v2 — failed to decode payer IP response: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
-                        self.completionHandler(true)
-                        return
+                    if let payerIPData = payerIPData {
+                        do {
+                            let payerIpDict: [String: String] = try JSONDecoder().decode([String: String].self, from: payerIPData)
+                            payerIp = payerIpDict["requesterIp"]
+                        } catch {
+                            os_log("[NISdk] 3DS v2 — failed to decode payer IP response: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
+                        }
+                    } else {
+                        os_log("[NISdk] 3DS v2 — failed to get payer IP address", log: NISdkLogger.payment, type: .error)
                     }
-                    guard let payerIp = payerIp else {
-                        os_log("[NISdk] 3DS v2 — requesterIp missing from payer IP response, aborting", log: NISdkLogger.payment, type: .error)
-                        self.completionHandler(true)
-                        return
+                    if payerIp == nil {
+                        os_log("[NISdk] 3DS v2 — payer IP unavailable, continuing with placeholder", log: NISdkLogger.payment, type: .error)
                     }
 
                     os_log("[NISdk] 3DS v2 — browser info collected, posting authentications (compInd=%{public}@)", log: NISdkLogger.payment, type: .info, threeDSCompInd)
-                    let _ = browserInfo.with(browserIP: payerIp)
+                    let _ = browserInfo.with(browserIP: payerIp ?? ThreeDSTwoViewController.fallbackPayerIp)
                     let threeDSAuthenticationsRequest = ThreeDSAuthenticationsRequest()
                         .with(threeDSCompInd: threeDSCompInd)
                         .with(browserInfo: browserInfo)
@@ -440,7 +545,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
                 })
             } else {
                 os_log("[NISdk] 3DS v2 — JS evaluation error: %{public}@", log: NISdkLogger.payment, type: .error, error?.localizedDescription ?? "unknown")
-                self.completionHandler(true)
+                self.completeOnce(withSDKError: true)
             }
         }
     }
@@ -454,13 +559,13 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
             on: { authenticationsData, _, er in
                 guard let authenticationsData = authenticationsData else {
                     os_log("[NISdk] 3DS v2 — authentications response data is nil, aborting", log: NISdkLogger.payment, type: .error)
-                    self.completionHandler(true)
+                    self.completeOnce(withSDKError: true)
                     return
                 }
 
                 guard let threeDSTwoAuthenticationsResponse = try? JSONDecoder().decode(ThreeDSTwoAuthenticationsResponse.self, from: authenticationsData) else {
                     os_log("[NISdk] 3DS v2 — failed to decode authentications response, aborting", log: NISdkLogger.payment, type: .error)
-                    self.completionHandler(true)
+                    self.completeOnce(withSDKError: true)
                     return
                 }
 
@@ -468,13 +573,13 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
 
                 if(threeDSTwoAuthenticationsResponse.state == "FAILED") {
                     os_log("[NISdk] 3DS v2 — authentication state FAILED, aborting", log: NISdkLogger.payment, type: .error)
-                    self.completionHandler(true)
+                    self.completeOnce(withSDKError: true)
                     return
                 }
 
                 guard let transStatus = threeDSTwoAuthenticationsResponse.threeDSTwo?.transStatus else {
                     os_log("[NISdk] 3DS v2 — no transStatus in response, aborting", log: NISdkLogger.payment, type: .error)
-                    self.completionHandler(true)
+                    self.completeOnce(withSDKError: true)
                     return
                 }
 
@@ -486,23 +591,32 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
                     if let base64EncodedCReq = threeDSTwoAuthenticationsResponse.threeDSTwo?.base64EncodedCReq,
                        let acsUrlString = threeDSTwoAuthenticationsResponse.threeDSTwo?.acsURL,
                        let acsURL = URL(string: acsUrlString){
-                        os_log("[NISdk] 3DS v2 — posting creq to ACS URL: %{public}@", log: NISdkLogger.payment, type: .info, acsUrlString)
+                        // The path and query carry the CReq token, so only scheme + host
+                        // are logged.
+                        os_log("[NISdk] 3DS v2 — posting creq to ACS URL: %{public}@ (load timeout %{public}.0fs)",
+                               log: NISdkLogger.payment, type: .info,
+                               self.maskedAcsUrl(acsUrlString), self.challengeLoadTimeout)
                         var request = URLRequest(url: acsURL)
                         request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
                         request.httpMethod = "POST"
                         request.httpBody   = "creq=\(base64EncodedCReq.encodeAsURL())".data(using: .utf8)
                         DispatchQueue.main.async {
                             self.challengeStarted = true
+                            self.challengeAcsUrl = acsUrlString
+                            // Fail fast if the ACS page never renders, rather than
+                            // leaving the customer on a blank screen until the
+                            // server-side 3DS timeout.
+                            self.startChallengeLoadWatchdog()
                             self.webView.load(request)
                         }
                     } else {
                         os_log("[NISdk] 3DS v2 — missing base64EncodedCReq or acsURL for challenge, aborting", log: NISdkLogger.payment, type: .error)
-                        self.completionHandler(true)
+                        self.completeOnce(withSDKError: true)
                     }
                     break
                 default:
                     os_log("[NISdk] 3DS v2 — frictionless flow (transStatus=%{public}@), completing", log: NISdkLogger.payment, type: .info, transStatus)
-                    self.completionHandler(false)
+                    self.completeOnce(withSDKError: false)
                     break
                 }
             })

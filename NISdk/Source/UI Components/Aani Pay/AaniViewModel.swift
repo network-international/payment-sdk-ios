@@ -1,4 +1,5 @@
 import Combine
+import os.log
 import SwiftUI
 
 enum AaniViewType {
@@ -36,17 +37,20 @@ class AaniViewModel: ObservableObject {
     }
 
     func onSubmit(idType: AaniIDType, inputText: String) {
+        os_log("[NISdk] AaniPay — onSubmit idType: %{public}@", log: NISdkLogger.aani, type: .info, String(describing: idType))
         onPaymentProcessing(false)
         serviceAdapter.authorizePayment(
             for: aaniPayArgs.authCode,
             using: aaniPayArgs.authUrl
         ) { [weak self] tokens in
             guard let self = self, let accessToken = tokens["access-token"] else {
+                os_log("[NISdk] AaniPay — authorization failed: no access-token", log: NISdkLogger.aani, type: .error)
                 self?.handlePaymentFailure()
                 return
             }
             self.getPayerIp(payPageLink: self.aaniPayArgs.payPageUrl) { payerIp in
                 guard let ip = payerIp else {
+                    os_log("[NISdk] AaniPay — could not resolve payer IP", log: NISdkLogger.aani, type: .error)
                     self.handlePaymentFailure()
                     return
                 }
@@ -58,7 +62,7 @@ class AaniViewModel: ObservableObject {
 
     private func createPaymentRequest(idType: AaniIDType, inputText: String, payerIp: String, backLink: String) -> AaniPayRequest {
         let request = AaniPayRequest(aliasType: idType.key, payerIp: payerIp, backLink: backLink)
-        
+
         switch idType {
         case .mobileNumber:
             request.mobileNumber = MobileNumber(countryCode: "+971", number: inputText)
@@ -69,32 +73,37 @@ class AaniViewModel: ObservableObject {
         case .emailID:
             request.emailId = inputText
         }
-        
+
         return request
     }
 
     private func processPayment(request: AaniPayRequest, accessToken: String) {
+        os_log("[NISdk] AaniPay — processing payment", log: NISdkLogger.aani, type: .info)
         serviceAdapter.aaniPayment(
             for: aaniPayArgs.anniPaymentLink,
             with: request,
             using: accessToken
         ) { [weak self] data, response, error in
             guard let self = self else { return }
-            if let _ = error {
+            if let error = error {
+                os_log("[NISdk] AaniPay — payment request error: %{public}@", log: NISdkLogger.aani, type: .error, error.localizedDescription)
                 self.handlePaymentFailure()
                 return
             }
-            
+
             guard let data = data else {
+                os_log("[NISdk] AaniPay — empty payment response", log: NISdkLogger.aani, type: .error)
                 self.handlePaymentFailure()
                 return
             }
-            
+
             do {
                 let response = try JSONDecoder().decode(AaniPayResponse.self, from: data)
+                os_log("[NISdk] AaniPay — payment accepted, starting polling and opening deep link", log: NISdkLogger.aani, type: .info)
                 self.startPolling(accessToken: accessToken, url: response.links.aaniStatus ?? "")
                 self.openDeepLink(urlString: response.aani.deepLinkUrl)
             } catch {
+                os_log("[NISdk] AaniPay — failed to decode payment response: %{public}@", log: NISdkLogger.aani, type: .error, error.localizedDescription)
                 self.handlePaymentFailure()
             }
         }
@@ -116,6 +125,7 @@ class AaniViewModel: ObservableObject {
     }
 
     func startPolling(accessToken: String, url: String) {
+        os_log("[NISdk] AaniPay — startPolling url: %{public}@", log: NISdkLogger.aani, type: .info, url)
         DispatchQueue.main.async {
             self.viewType = .timer
         }
@@ -129,6 +139,7 @@ class AaniViewModel: ObservableObject {
     }
 
     func stopPolling(_ status: AaniPaymentStatus) {
+        os_log("[NISdk] AaniPay — stopPolling status: %{public}@", log: NISdkLogger.aani, type: .info, String(describing: status))
         cancellable?.cancel()
         stopTimer()
         onCompletion(status)
@@ -142,14 +153,15 @@ class AaniViewModel: ObservableObject {
                     self.stopPolling(.failed)
                     return
                 }
-                
+
                 guard let data = data else {
                     self.stopPolling(.failed)
                     return
                 }
-                
+
                 do {
                     let state = try JSONDecoder().decode(AaniPoolingResponse.self, from: data).state
+                    os_log("[NISdk] AaniPay — poll response state: %{public}@", log: NISdkLogger.aani, type: .debug, state)
                     switch state {
                     case "CAPTURED", "PURCHASED":
                         self.stopPolling(.success)
@@ -159,6 +171,7 @@ class AaniViewModel: ObservableObject {
                         break
                     }
                 } catch {
+                    os_log("[NISdk] AaniPay — failed to decode poll response: %{public}@", log: NISdkLogger.aani, type: .error, error.localizedDescription)
                     self.stopPolling(.failed)
                 }
             }

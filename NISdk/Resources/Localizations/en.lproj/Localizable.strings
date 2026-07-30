@@ -26,6 +26,8 @@
 "Invalid card holder name" = "Invalid card holder name";
 "All fields are mandatory" = "All fields are mandatory";
 "Cancel" = "Cancel";
+"Next" = "Next";
+"Previous" = "Previous";
 "Authenticating Payment" = "Authenticating Payment";
 "Authenticating using 3DS" = "Authenticating using 3DS";
 "Cancel Payment Title" = "Cancel Payment";
