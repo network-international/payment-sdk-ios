@@ -492,13 +492,25 @@ class PaymentViewController: UIViewController {
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
                 case .failed:
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
-                case .cancelled:
-                    // Payer backed out before Benefit took the payment — stay on the payment page.
+                case .dismissed:
+                    // Backed out before Benefit recorded anything — the order is untouched, so the
+                    // payer stays on the payment page with their other options intact.
                     break
+                case .cancelledOnProvider:
+                    // Cancelling on Benefit's own page is not recoverable: the gateway records the
+                    // payment as FAILED, which is a final state, so the order closes and no other
+                    // method can be used on it either. Returning to the payment page would only
+                    // offer options that are all guaranteed to fail, so the payment ends here and
+                    // the merchant is told, leaving them to start a fresh order.
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
                 }
             }
             let navController = UINavigationController(rootViewController: benefitVC)
             navController.modalPresentationStyle = .pageSheet
+            // A swipe-down would tear the sheet away without ever running the completion handler,
+            // so a payment the payer had already authorised would be silently dropped. Cancel is
+            // the only way out, and it resolves the payment when the gateway callback was reached.
+            navController.isModalInPresentation = true
             self.present(navController, animated: true)
         } catch {
             print("Benefit: Failed to build args - \(error)")

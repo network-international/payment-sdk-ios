@@ -11,7 +11,12 @@ enum BenefitPaymentStatus {
     case success
     case postAuthReview
     case failed
-    case cancelled
+    /// Dismissed before Benefit recorded anything against the payment. The order is untouched and
+    /// still payable, so the payer can go back and choose another method.
+    case dismissed
+    /// Cancelled on Benefit's own hosted page. By then the gateway has already marked the payment
+    /// FAILED, which is a final state, so the order is closed and nothing can be paid on it.
+    case cancelledOnProvider
 }
 
 /// Hosts the Benefit (Bahrain debit) hosted payment page.
@@ -34,6 +39,14 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     private var sawReturnCallback = false
     private var didStartPolling = false
     private var pollAttempt = 0
+    /// Set when the payer is seen hitting Benefit's cancel page. Distinguishes "the payer backed
+    /// out" from "the payment was declined" — the order reports `FAILED` for both.
+    private var payerCancelled = false
+    /// Set once the WebView has actually reached Benefit's own site, so leaving it can be read as
+    /// the payer returning rather than as the flow still starting up.
+    private var didReachBenefitHost = false
+    /// Host of the hosted page the gateway handed us, e.g. `test.benefit-gateway.bh`.
+    private var benefitHost: String?
 
     private static let maxPollAttempts = 15
     private static let pollInterval: TimeInterval = 2
@@ -136,27 +149,34 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
 
     private func startCheckout() {
         activityIndicator.startAnimating()
-        transactionService.initBenefit(with: args.benefitLink, using: accessToken) { [weak self] data, _, error in
+        transactionService.initBenefit(with: args.benefitLink, using: accessToken) { [weak self] data, response, error in
             guard let self = self else { return }
-            self.handleInitResponse(data: data, error: error)
+            self.handleInitResponse(data: data, response: response, error: error)
         }
     }
 
-    private func handleInitResponse(data: Data?, error: Error?) {
+    private func handleInitResponse(data: Data?, response urlResponse: URLResponse?, error: Error?) {
+        // The gateway rejects Benefit for several reasons that all surface here (order not flagged
+        // GCC, action not PURCHASE, currency not BHD, payment already processed). Log the status and
+        // body verbatim — without them a rejection is indistinguishable from a network failure.
+        let statusCode = (urlResponse as? HTTPURLResponse)?.statusCode ?? -1
         guard error == nil,
               let data = data,
               let response = try? JSONDecoder().decode(BenefitInitResponse.self, from: data) else {
+            let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "<no body>"
+            print("Benefit: initiation failed httpStatus=\(statusCode) error=\(error?.localizedDescription ?? "none") body=\(body)")
             DispatchQueue.main.async { self.dispatch(.failed) }
             return
         }
         guard response.isInitiated,
               let paymentUrl = response.paymentUrl,
               let url = URL(string: paymentUrl) else {
-            print("Benefit: initiation rejected status=\(response.status ?? "<nil>")")
+            print("Benefit: initiation rejected httpStatus=\(statusCode) status=\(response.status ?? "<nil>") error=\(response.errorMessage ?? "<none>")")
             DispatchQueue.main.async { self.dispatch(.failed) }
             return
         }
         DispatchQueue.main.async {
+            self.benefitHost = url.host?.lowercased()
             self.webView.load(URLRequest(url: url))
         }
     }
@@ -174,13 +194,18 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
                 return
             }
             let state = order.embeddedData?.payment?.first?.state.uppercased() ?? ""
+            print("Benefit: poll attempt=\(self.pollAttempt) state=\(state)")
             switch state {
             case "AUTHORISED", "PURCHASED", "CAPTURED", "VERIFIED":
                 DispatchQueue.main.async { self.dispatch(.success) }
             case "POST_AUTH_REVIEW":
                 DispatchQueue.main.async { self.dispatch(.postAuthReview) }
             case "FAILED", "DECLINED", "CANCELLED", "REVERSED":
-                DispatchQueue.main.async { self.dispatch(.failed) }
+                // A failure that followed the error callback is the payer backing out, not a
+                // decline, so it hands them back to the payment page rather than ending the payment.
+                DispatchQueue.main.async {
+                    self.dispatch(self.payerCancelled ? .cancelledOnProvider : .failed)
+                }
             default:
                 // Still STARTED or an in-flight state — give the backend more time.
                 self.retryOrFail()
@@ -205,10 +230,40 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
         pollOrderState()
     }
 
+    /// Decides what to do once the payer has left Benefit's site. The gateway has already recorded
+    /// the result by this point — it is what redirected us onwards — so an error callback needs no
+    /// confirmation from the order: it can only mean the payer cancelled or the attempt errored, and
+    /// either way they belong back on the payment page with their other options intact. Anything
+    /// else is a real result and is read from the order.
+    private func resolveAfterLeavingBenefit() {
+        guard !didDispatchResult, !didStartPolling else { return }
+        if payerCancelled {
+            print("Benefit: payer cancelled on Benefit's page — the order is spent, ending the payment")
+            dispatch(.cancelledOnProvider)
+            return
+        }
+        print("Benefit: suppressing post-payment redirect, polling order instead")
+        startPollingIfNeeded()
+    }
+
     private func dispatch(_ status: BenefitPaymentStatus) {
         guard !didDispatchResult else { return }
         didDispatchResult = true
         activityIndicator.stopAnimating()
+
+        // A result can land before the sheet has finished animating in — an init that fails fast
+        // beats the presentation. UIKit drops a dismissal issued mid-transition, which would strand
+        // the payer on a blank sheet with no way back, so wait for the transition to settle first.
+        if let coordinator = transitionCoordinator {
+            coordinator.animate(alongsideTransition: nil) { [weak self] _ in
+                self?.finish(with: status)
+            }
+        } else {
+            finish(with: status)
+        }
+    }
+
+    private func finish(with status: BenefitPaymentStatus) {
         dismiss(animated: true) { [onCompletion] in
             onCompletion(status)
         }
@@ -221,7 +276,9 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
             startPollingIfNeeded()
             return
         }
-        dispatch(.cancelled)
+        // Backing out from our own toolbar before Benefit recorded anything leaves the order
+        // untouched, so the payer keeps their other options.
+        dispatch(payerCancelled ? .cancelledOnProvider : .dismissed)
     }
 
     // MARK: - Cover (hide intermediate redirect pages)
@@ -254,15 +311,102 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
         return path.contains("/benefit/") && path.hasSuffix("/accept")
     }
 
+    /// The api-gateway host the order itself lives on. Every server-side callback — the accept
+    /// endpoint included — is on this host, so navigations to it are never suppressed.
+    private lazy var gatewayHost: String? = URL(string: args.orderLink)?.host?.lowercased()
+
+    private func isGatewayHost(_ url: URL?) -> Bool {
+        guard let gateway = gatewayHost, let host = url?.host?.lowercased() else { return false }
+        return host == gateway
+    }
+
+    private func isBenefitHost(_ url: URL?) -> Bool {
+        guard let benefit = benefitHost, let host = url?.host?.lowercased() else { return false }
+        return host == benefit
+    }
+
+    /// The payer is done with Benefit the moment the WebView leaves Benefit's own site, whatever it
+    /// lands on next. That destination cannot be predicted from the order: the paypage is on an
+    /// entirely different domain from the gateway (`paypage-dev.platform.network.ae` versus
+    /// `api-gateway-dev.ngenius-payments.com`), so a rule written in terms of our own domain misses
+    /// it and lets the paypage's dead "payment link is not exist" page render. Leaving Benefit is
+    /// the signal; where it goes afterwards is not our business, because the order decides the
+    /// outcome regardless.
+    private func hasLeftBenefit(_ url: URL?) -> Bool {
+        guard didReachBenefitHost else { return false }
+        return !isBenefitHost(url)
+    }
+
+    /// Benefit's own cancel page, e.g. `test.benefit-gateway.bh/payment/paymentcancel.htm`. Tapping
+    /// Cancel on the hosted page lands here before Benefit hands control back to us.
+    ///
+    /// This — not the gateway's `Error/accept` — is the only cancel signal the WebView ever sees.
+    /// Benefit reports the outcome to our backend server to server, so the accept callback never
+    /// appears as a navigation at all; by the time the WebView moves again it is already on the
+    /// paypage, which looks identical for a cancel and for a decline.
+    private func isBenefitCancelPage(_ url: URL?) -> Bool {
+        guard isBenefitHost(url), let path = url?.path.lowercased() else { return false }
+        return path.contains("cancel")
+    }
+
+    /// `.../benefit/Error/accept`. Kept as a secondary signal for the case where the callback does
+    /// travel through the WebView, since the backend records it as a failed payment unconditionally
+    /// and so it can never mean the payer actually paid.
+    private func isErrorCallback(_ url: URL?) -> Bool {
+        guard let path = url?.path.lowercased() else { return false }
+        return path.contains("/benefit/error/") && path.hasSuffix("/accept")
+    }
+
+    /// Records anything worth knowing about a URL the WebView passes through. Server redirects and
+    /// policy decisions surface different hops of the same chain, so both feed into this.
+    private func noteNavigation(_ url: URL?, source: String) {
+        print("Benefit: \(source) \(url?.absoluteString ?? "<nil>")")
+        if isBenefitCancelPage(url) || isErrorCallback(url) {
+            print("Benefit: payer cancelled on the hosted page")
+            payerCancelled = true
+        }
+        if isReturnCallback(url) {
+            sawReturnCallback = true
+        }
+    }
+
     // MARK: - WKNavigationDelegate
 
     func webView(_ webView: WKWebView,
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        if isReturnCallback(navigationAction.request.url) {
+        let url = navigationAction.request.url
+        noteNavigation(url, source: "navigating to")
+
+        if isReturnCallback(url) {
             // Allowed through so the backend can process the Benefit result; the order is polled
             // once this hop settles.
-            sawReturnCallback = true
+            decisionHandler(.allow)
+            return
+        }
+
+        // Never suppress anything on the gateway itself. The accept callback is what tells the
+        // backend how the payment went, and its exact path is the gateway's to choose — cancelling
+        // it because it did not match the expected shape would strand the payment in PENDING.
+        if isGatewayHost(url) {
+            decisionHandler(.allow)
+            return
+        }
+
+        // Anything else on our own domain once the payer has been to Benefit is the browser-facing
+        // paypage hop, which the gateway 303s to after it has already recorded the result. That
+        // page's session was consumed when the payment started from the SDK rather than the paypage,
+        // so it renders "the payment link is not exist" — a dead end the payer must never see. Stop
+        // it loading and resolve the payment from the order, which is authoritative regardless.
+        if sawReturnCallback || hasLeftBenefit(url) {
+            decisionHandler(.cancel)
+            showCover()
+            resolveAfterLeavingBenefit()
+            return
+        }
+
+        if isBenefitHost(url) {
+            didReachBenefitHost = true
         }
         decisionHandler(.allow)
     }
@@ -272,14 +416,23 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     }
 
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
-        if isReturnCallback(webView.url) {
+        // A 303 taken mid-navigation lands here instead of in `decidePolicyFor`, so this is the
+        // other place the return has to be caught — otherwise the paypage loads behind the cover.
+        // It is also where the accept callback tends to show up, since Benefit reaches it through a
+        // server-side redirect chain rather than a navigation the policy delegate ever sees.
+        noteNavigation(webView.url, source: "server redirect to")
+        if isReturnCallback(webView.url) || hasLeftBenefit(webView.url) {
             sawReturnCallback = true
+            webView.stopLoading()
+            showCover()
+            resolveAfterLeavingBenefit()
+            return
         }
         showCover()
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        if sawReturnCallback {
+        if sawReturnCallback || hasLeftBenefit(webView.url) {
             startPollingIfNeeded()
             return
         }
@@ -298,6 +451,17 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     /// the redirect target must not be reported as a failed payment.
     private func handleNavigationFailure(_ error: Error) {
         print("Benefit: navigation failed - \(error.localizedDescription)")
+
+        // Suppressing the paypage hop above cancels a navigation, and WebKit reports that as a
+        // failure. It is our own doing and the payment is already being resolved, so it must never
+        // be mistaken for the page failing to load.
+        let nsError = error as NSError
+        let isSelfInflicted = nsError.code == NSURLErrorCancelled
+            || (nsError.domain == "WebKitErrorDomain" && nsError.code == 102)
+        if isSelfInflicted || didStartPolling {
+            return
+        }
+
         if sawReturnCallback {
             startPollingIfNeeded()
             return
