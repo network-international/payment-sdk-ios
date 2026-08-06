@@ -280,4 +280,15 @@ import PassKit
             .withBodyData(data: Data("{}".utf8))
             .makeRequest(with: completion)
     }
+
+    func initBenefit(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
+        let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
+                       "Accept": "application/vnd.ni-payment.v2+json",
+                       "Authorization": "Bearer \(accessToken)"]
+        HTTPClient(url: url)?
+            .withMethod(method: "POST")
+            .withHeaders(headers: headers)
+            .withBodyData(data: Data("{}".utf8))
+            .makeRequest(with: completion)
+    }
 }

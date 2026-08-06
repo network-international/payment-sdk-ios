@@ -232,6 +232,9 @@ class PaymentViewController: UIViewController {
             unifiedPaymentPage.onQPayTapped = { [weak self] in
                 self?.initiateQPayFromUnifiedPage()
             }
+            unifiedPaymentPage.onBenefitTapped = { [weak self] in
+                self?.initiateBenefitFromUnifiedPage()
+            }
             // Signal to UnifiedPaymentPage whether the Slice link is present on the order — drives
             // whether the brand banner is shown when the entered card returns no eligible offers.
             unifiedPaymentPage.sliceEligibilityLinkPresent = order.embeddedData?.getSliceEligibilityCheckLink() != nil
@@ -314,7 +317,9 @@ class PaymentViewController: UIViewController {
                                                         order: order,
                                                         onDismissCallback: handlePaymentResponse,
                                                         onAuthorizeApplePayCallback: handleApplePayAuthorization)
-                if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
+                if let allowedPKPaymentNetworks = order.paymentMethods?.card?
+                    .filter({ $0.isApplePayNetwork })
+                    .map({ $0.pkNetworkType }) {
                     applePayRequest.supportedNetworks = Array(Set(allowedPKPaymentNetworks))
                 }
                 // Dont use container view controllers for apple pay
@@ -387,7 +392,9 @@ class PaymentViewController: UIViewController {
                                                     self?.handlePaymentResponse(paymentResponse)
                                                 },
                                                 onAuthorizeApplePayCallback: handleApplePayAuthorization)
-        if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
+        if let allowedPKPaymentNetworks = order.paymentMethods?.card?
+            .filter({ $0.isApplePayNetwork })
+            .map({ $0.pkNetworkType }) {
             let networks = Array(Set(allowedPKPaymentNetworks))
             applePayRequest.supportedNetworks = networks
             print("ApplePay: supportedNetworks: \(networks.map { $0.rawValue })")
@@ -462,6 +469,40 @@ class PaymentViewController: UIViewController {
             self.present(navController, animated: true)
         } catch {
             print("QPay: Failed to build args - \(error)")
+        }
+    }
+
+    private func initiateBenefitFromUnifiedPage() {
+        guard let token = self.accessToken, !token.isEmpty else {
+            print("Benefit: missing access token; cannot start checkout")
+            finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+            return
+        }
+        do {
+            let args = try order.toBenefitInitArgs()
+            let benefitVC = BenefitViewController(
+                args: args,
+                transactionService: transactionService,
+                accessToken: token
+            ) { [weak self] status in
+                switch status {
+                case .success:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                case .postAuthReview:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
+                case .failed:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                case .cancelled:
+                    // Payer backed out before Benefit took the payment — stay on the payment page.
+                    break
+                }
+            }
+            let navController = UINavigationController(rootViewController: benefitVC)
+            navController.modalPresentationStyle = .pageSheet
+            self.present(navController, animated: true)
+        } catch {
+            print("Benefit: Failed to build args - \(error)")
+            finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
         }
     }
 

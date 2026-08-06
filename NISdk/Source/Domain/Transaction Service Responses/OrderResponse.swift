@@ -8,6 +8,20 @@
 
 import Foundation
 
+class BenefitInitArgs {
+    /// Gateway endpoint that starts a Benefit payment and returns the hosted redirect URL.
+    let benefitLink: String
+    /// Order self-link, polled for the final payment state once the payer returns from Benefit.
+    let orderLink: String
+
+    init(benefitLink: String, orderLink: String) {
+        self.benefitLink = benefitLink
+        self.orderLink = orderLink
+    }
+
+    static let supportedCurrency = "BHD"
+}
+
 @objc public class OrderResponse: NSObject, Codable {
     public var _id: String?
     public var type: String?
@@ -163,5 +177,34 @@ extension OrderResponse {
             issuingOrg: payment.paymentMethod?.issuingOrg,
             accessToken: token
         )
+    }
+
+    /// Benefit is only offered for a BHD purchase on an outlet that lists BENEFIT among its card
+    /// schemes. The gateway rejects anything else, so the button must stay hidden in those cases.
+    var isBenefitSupported: Bool {
+        guard paymentMethods?.card?.contains(.benefit) == true else { return false }
+        guard action?.uppercased() == "PURCHASE" else { return false }
+        return amount?.currencyCode?.uppercased() == BenefitInitArgs.supportedCurrency
+    }
+
+    func toBenefitInitArgs() throws -> BenefitInitArgs {
+        guard let benefitLink = benefitPaymentLink else {
+            throw NSError(domain: "argument benefitLink missing", code: 99)
+        }
+        guard let orderLink = orderLinks?.orderLink else {
+            throw NSError(domain: "argument orderLink missing", code: 99)
+        }
+        return BenefitInitArgs(benefitLink: benefitLink, orderLink: orderLink)
+    }
+
+    /// The order carries no `payment:benefit` rel, so the endpoint is derived from the payment's own
+    /// `self` href. Deriving it keeps the gateway host authoritative instead of hard-coding one.
+    private var benefitPaymentLink: String? {
+        guard let paymentSelfLink = embeddedData?.payment?.first?.paymentLinks?.paymentLink,
+              !paymentSelfLink.isEmpty else {
+            return nil
+        }
+        let base = paymentSelfLink.hasSuffix("/") ? String(paymentSelfLink.dropLast()) : paymentSelfLink
+        return "\(base)/benefit"
     }
 }

@@ -58,4 +58,6 @@ import PassKit
     @objc func aaniQrCancel(with url: String, qrCodeId: String, qrTransactionId: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
 
     @objc func initQPay(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
+
+    @objc func initBenefit(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
 }

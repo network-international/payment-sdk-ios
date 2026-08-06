@@ -71,6 +71,8 @@
 "aani_generate_qr" = "Générer un code QR";
 "aani_scan_qr_to_pay" = "Scanner le QR → Approuver le paiement → Terminé";
 "Pay with Aani" = "Payer avec AANI";
+"Pay by Benefit" = "Payer avec Benefit";
+"Benefit" = "Benefit";
 "aani_request_to_pay" = "Demande de paiement";
 "aani_generating_qr" = "Génération du code QR";
 "aani_keep_modal_open" = "Veuillez garder la fenêtre ouverte";

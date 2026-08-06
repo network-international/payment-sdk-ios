@@ -15,4 +15,5 @@ enum PaymentOption: Equatable {
     case clickToPay
     case aani
     case qpay
+    case benefit
 }

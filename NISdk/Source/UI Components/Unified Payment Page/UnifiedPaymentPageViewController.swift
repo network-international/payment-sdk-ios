@@ -18,6 +18,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     var onClickToPayTapped: (() -> Void)?
     var onAaniTapped: (() -> Void)?
     var onQPayTapped: (() -> Void)?
+    var onBenefitTapped: (() -> Void)?
     var onMakeSavedCardPayment: ((SavedCard, String?, VisaRequest?) -> Void)?
     /// Slice eligibility check. The first param is either a raw PAN (manual entry) or a saved-card
     /// token, distinguished by `isSavedToken`. The receiver routes to the right API field
@@ -115,6 +116,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var applePayRadioButton: RadioButtonView?
     private var clickToPayRadioButton: RadioButtonView?
     private var aaniRadioButton: RadioButtonView?
+    private var benefitRadioButton: RadioButtonView?
     private let bottomBarView = UIView()
     private var bottomBarBottomConstraint: NSLayoutConstraint?
     private let bottomPayButton = UIButton()
@@ -207,6 +209,11 @@ class UnifiedPaymentPageViewController: UIViewController {
         if order.embeddedData?.getQPayLink() != nil,
            order.amount?.currencyCode?.uppercased() == "QAR" {
             availablePaymentOptions.append(.qpay)
+        }
+
+        // Benefit - show only for a BHD purchase on an outlet that lists BENEFIT
+        if order.isBenefitSupported {
+            availablePaymentOptions.append(.benefit)
         }
 
         // viewDidLoad applies the default selection (Pay by Card if available) after the UI
@@ -374,7 +381,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             let token = card.cardToken ?? ""
             let cvvText = savedCardCvvFields[token]?.text ?? ""
             enabled = !card.recaptureCsc || !cvvText.isEmpty
-        case .applePay, .aani, .clickToPay, .qpay:
+        case .applePay, .aani, .clickToPay, .qpay, .benefit:
             enabled = true
         case .none:
             enabled = false
@@ -481,6 +488,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         let hasOtherOptions = otherHasApplePay
             || availablePaymentOptions.contains(.clickToPay)
             || availablePaymentOptions.contains(.aani)
+            || availablePaymentOptions.contains(.benefit)
             || (availablePaymentOptions.contains(.qpay) && !qpayExpress)
         if hasOtherOptions {
             let headerTitle = qpayExpress
@@ -502,6 +510,11 @@ class UnifiedPaymentPageViewController: UIViewController {
             if availablePaymentOptions.contains(.aani) {
                 let aaniSection = createAaniSection()
                 contentStackView.addArrangedSubview(aaniSection)
+            }
+
+            if availablePaymentOptions.contains(.benefit) {
+                let benefitSection = createBenefitSection()
+                contentStackView.addArrangedSubview(benefitSection)
             }
         }
 
@@ -905,6 +918,69 @@ class UnifiedPaymentPageViewController: UIViewController {
         return paddedContainer
     }
 
+    // MARK: - Benefit Section
+
+    private func createBenefitSection() -> UIView {
+        let radioButton = RadioButtonView()
+        radioButton.isOn = false
+        radioButton.translatesAutoresizingMaskIntoConstraints = false
+        radioButton.accessibilityIdentifier = "sdk_paymentpage_radio_benefit"
+        benefitRadioButton = radioButton
+
+        let titleLabel = UILabel()
+        titleLabel.text = "Pay by Benefit".localized
+        titleLabel.font = PgType.bodyRowTitle
+        titleLabel.textColor = PgColors.textPrimary
+
+        let row = UIStackView(arrangedSubviews: [radioButton, titleLabel, UIView()])
+        row.axis = .horizontal
+        row.spacing = 12
+        row.alignment = .center
+        row.translatesAutoresizingMaskIntoConstraints = false
+
+        // The brand mark is optional: hosts that ship a `benefitLogo` asset get it on the trailing
+        // edge, otherwise the row stays text-only rather than falling back to a placeholder.
+        if let logo = UIImage(named: "benefitLogo", in: NISdk.sharedInstance.getBundle(), compatibleWith: nil) {
+            let logoView = UIImageView(image: logo)
+            logoView.contentMode = .scaleAspectFit
+            logoView.translatesAutoresizingMaskIntoConstraints = false
+            let logoHeight: CGFloat = 40
+            let logoAspect: CGFloat = {
+                guard let size = logoView.image?.size, size.height > 0 else { return 1 }
+                return size.width / size.height
+            }()
+            logoView.heightAnchor.constraint(equalToConstant: logoHeight).isActive = true
+            logoView.widthAnchor.constraint(equalToConstant: logoHeight * logoAspect).isActive = true
+            logoView.setContentHuggingPriority(.required, for: .horizontal)
+            row.addArrangedSubview(logoView)
+        }
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(benefitRadioTapped))
+        row.addGestureRecognizer(tap)
+        row.isUserInteractionEnabled = true
+
+        let rowContainer = UIView()
+        rowContainer.layer.cornerRadius = PgRadius.row
+        rowContainer.layer.borderColor = PgColors.borderRow.cgColor
+        rowContainer.layer.borderWidth = 1
+        rowContainer.backgroundColor = PgColors.surfaceRow
+        rowContainer.translatesAutoresizingMaskIntoConstraints = false
+        rowContainer.addSubview(row)
+        row.anchor(top: rowContainer.topAnchor, leading: rowContainer.leadingAnchor,
+                   bottom: rowContainer.bottomAnchor, trailing: rowContainer.trailingAnchor,
+                   padding: UIEdgeInsets(top: 20, left: PgSpacing.rowPaddingH,
+                                        bottom: 20, right: PgSpacing.rowPaddingH))
+
+        let paddedContainer = UIView()
+        paddedContainer.translatesAutoresizingMaskIntoConstraints = false
+        paddedContainer.addSubview(rowContainer)
+        rowContainer.anchor(top: paddedContainer.topAnchor, leading: paddedContainer.leadingAnchor,
+                            bottom: paddedContainer.bottomAnchor, trailing: paddedContainer.trailingAnchor,
+                            padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
+                                                  bottom: 0, right: PgSpacing.pageH))
+        return paddedContainer
+    }
+
     // MARK: - QPay Express Button
 
     /// Prominent full-width black CTA pinned above all other payment options when QPay
@@ -921,7 +997,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         let logoView = UIImageView(image: UIImage(named: "napsLogo", in: sdkBundle, compatibleWith: nil))
         logoView.contentMode = .scaleAspectFit
         logoView.translatesAutoresizingMaskIntoConstraints = false
-        let logoHeight: CGFloat = 28
+        let logoHeight: CGFloat = 16
         let logoAspect: CGFloat = {
             guard let size = logoView.image?.size, size.height > 0 else { return 2224.0 / 480.0 }
             return size.width / size.height
@@ -959,6 +1035,11 @@ class UnifiedPaymentPageViewController: UIViewController {
         let termsLabel = UILabel()
         termsLabel.numberOfLines = 0
         termsLabel.attributedText = qpayTermsAttributedText()
+        // Align to the reading edge: right for RTL (Arabic), left otherwise. The attributed string
+        // carries no paragraph style, so without this the label defaults to left even in Arabic.
+        termsLabel.textAlignment =
+            Locale.characterDirection(forLanguage: NISdk.sharedInstance.sdkLanguage) == .rightToLeft
+            ? .right : .left
         termsLabel.accessibilityIdentifier = "sdk_paymentpage_qpay_terms"
         termsLabel.isUserInteractionEnabled = true
         termsLabel.addGestureRecognizer(
@@ -1745,6 +1826,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             cardSection?.setExpanded(false, animated: true)
             clickToPayRadioButton?.isOn = false
             aaniRadioButton?.isOn = false
+            benefitRadioButton?.isOn = false
             savedCardRadioButtons.values.forEach { $0.isOn = false }
             savedCardCvvContainers.values.forEach { $0.isHidden = true }
             savedCardRowContainers.values.forEach {
@@ -1771,6 +1853,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         cardSection?.setExpanded(false, animated: true)
         clickToPayRadioButton?.isOn = false
         aaniRadioButton?.isOn = false
+        benefitRadioButton?.isOn = false
         savedCardRadioButtons.values.forEach { $0.isOn = false }
         savedCardCvvContainers.values.forEach { $0.isHidden = true }
         savedCardRowContainers.values.forEach {
@@ -1843,6 +1926,13 @@ class UnifiedPaymentPageViewController: UIViewController {
             lastVisCheckKey = nil
             lastSliceCheckKey = nil
             applyBottomButtonStyle(forApplePay: false)
+        case .benefit:
+            benefitRadioButton?.isOn = true
+            hideVisaInstallments()
+            hideSliceOffers()
+            lastVisCheckKey = nil
+            lastSliceCheckKey = nil
+            applyBottomButtonStyle(forApplePay: false)
         }
 
         updateBottomPayButton()
@@ -1907,6 +1997,8 @@ class UnifiedPaymentPageViewController: UIViewController {
             onClickToPayTapped?()
         case .qpay:
             onQPayTapped?()
+        case .benefit:
+            onBenefitTapped?()
         case .none:
             break
         }
@@ -1918,6 +2010,10 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     @objc private func aaniRadioTapped() {
         selectPaymentOption(.aani)
+    }
+
+    @objc private func benefitRadioTapped() {
+        selectPaymentOption(.benefit)
     }
 
     @objc private func qpayExpressTapped() {

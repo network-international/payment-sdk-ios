@@ -63,11 +63,9 @@
 		862CBE79230E6D6D00767774 /* UITextField+CharLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE78230E6D6D00767774 /* UITextField+CharLimit.swift */; };
 		862CBE7B230E85D500767774 /* String+Insert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE7A230E85D500767774 /* String+Insert.swift */; };
 		862CBE7D230E8C3B00767774 /* String+Luhn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE7C230E8C3B00767774 /* String+Luhn.swift */; };
-		8631DA042835F83600441801 /* ChallengeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8631DA032835F83600441801 /* ChallengeConstants.swift */; };
 		863FC9B227F436D700692767 /* ThreeDSTwoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */; };
 		863FC9B427F4413700692767 /* ThreeDSTwoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */; };
 		863FC9B627F4486E00692767 /* ThreeDSAuthenticationsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B527F4486E00692767 /* ThreeDSAuthenticationsRequest.swift */; };
-		863FC9CC27FEB13600692767 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9CB27FEB13600692767 /* Constants.swift */; };
 		863FC9CE27FECFC800692767 /* ThreeDSTwoAuthenticationsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9CD27FECFC700692767 /* ThreeDSTwoAuthenticationsResponse.swift */; };
 		867102DB290FC520006265BC /* BrowserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 867102DA290FC520006265BC /* BrowserInfo.swift */; };
 		86710F4C230FE47600259AE9 /* Encodable+PrettyPrint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86710F4B230FE47600259AE9 /* Encodable+PrettyPrint.swift */; };
@@ -126,6 +124,8 @@
 		C2P0110000000000000011 /* ClickToPayDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0040000000000000004 /* ClickToPayDelegate.swift */; };
 		C2P0120000000000000012 /* ClickToPayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0050000000000000005 /* ClickToPayViewController.swift */; };
 		C2P0130000000000000013 /* ClickToPayApiInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0060000000000000006 /* ClickToPayApiInteractor.swift */; };
+		BNF0090000000000000009 /* BenefitInitResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BNF0020000000000000002 /* BenefitInitResponse.swift */; };
+		BNF00A000000000000000A /* BenefitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BNF0030000000000000003 /* BenefitViewController.swift */; };
 		C2P0140000000000000014 /* click_to_pay.html in Resources */ = {isa = PBXBuildFile; fileRef = C2P0070000000000000007 /* click_to_pay.html */; };
 		CFE038A50C8A4131D3C2461E /* PaymentResultArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90D9FBE01D2ADFF8469239DA /* PaymentResultArgs.swift */; };
 		D93D6B252E2FD2E23D685FE5 /* UnifiedPaymentPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16326CA2C306DAF6850B4BEB /* UnifiedPaymentPageViewController.swift */; };
@@ -211,11 +211,9 @@
 		862CBE78230E6D6D00767774 /* UITextField+CharLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+CharLimit.swift"; sourceTree = "<group>"; };
 		862CBE7A230E85D500767774 /* String+Insert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Insert.swift"; sourceTree = "<group>"; };
 		862CBE7C230E8C3B00767774 /* String+Luhn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Luhn.swift"; sourceTree = "<group>"; };
-		8631DA032835F83600441801 /* ChallengeConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChallengeConstants.swift; sourceTree = "<group>"; };
 		863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSTwoConfig.swift; sourceTree = "<group>"; };
 		863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSTwoViewController.swift; sourceTree = "<group>"; };
 		863FC9B527F4486E00692767 /* ThreeDSAuthenticationsRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSAuthenticationsRequest.swift; sourceTree = "<group>"; };
-		863FC9CB27FEB13600692767 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		863FC9CD27FECFC700692767 /* ThreeDSTwoAuthenticationsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSTwoAuthenticationsResponse.swift; sourceTree = "<group>"; };
 		867102DA290FC520006265BC /* BrowserInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserInfo.swift; sourceTree = "<group>"; };
 		86710F4B230FE47600259AE9 /* Encodable+PrettyPrint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Encodable+PrettyPrint.swift"; sourceTree = "<group>"; };
@@ -280,6 +278,8 @@
 		C2P0040000000000000004 /* ClickToPayDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayDelegate.swift; sourceTree = "<group>"; };
 		C2P0050000000000000005 /* ClickToPayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayViewController.swift; sourceTree = "<group>"; };
 		C2P0060000000000000006 /* ClickToPayApiInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayApiInteractor.swift; sourceTree = "<group>"; };
+		BNF0020000000000000002 /* BenefitInitResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenefitInitResponse.swift; sourceTree = "<group>"; };
+		BNF0030000000000000003 /* BenefitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenefitViewController.swift; sourceTree = "<group>"; };
 		C2P0070000000000000007 /* click_to_pay.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = click_to_pay.html; sourceTree = "<group>"; };
 		D2BE936E0C220A2DC5492E92 /* FooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FooterView.swift; sourceTree = "<group>"; };
 		F5E97C34A7E4B6122B2C8AEF /* OrderHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderHeaderView.swift; sourceTree = "<group>"; };
@@ -365,6 +365,7 @@
 				86710F5223104F3200259AE9 /* ThreeDSViewController.swift */,
 				863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */,
 				C2P0160000000000000016 /* Click To Pay */,
+				BNF0160000000000000016 /* Benefit */,
 				FD977BABDE1364E896B1BC06 /* Unified Payment Page */,
 				AA00000300000000000003 /* Aani Pay */,
 				AA00000300000000000004 /* Visa Installment */,
@@ -390,6 +391,7 @@
 				AA00000300000000000001 /* Aani */,
 				AA00000300000000000002 /* Visa */,
 				C2P0150000000000000015 /* ClickToPay */,
+				BNF0150000000000000015 /* Benefit */,
 				863FC9B727F4506000692767 /* ThreeDSTwo */,
 				862CBE65230C8C0500767774 /* Payment Fields */,
 				862CBE61230C7F9100767774 /* Transaction Service Responses */,
@@ -531,8 +533,6 @@
 			isa = PBXGroup;
 			children = (
 				869DDD60231473720020CB20 /* PaymentMediums.swift */,
-				863FC9CB27FEB13600692767 /* Constants.swift */,
-				8631DA032835F83600441801 /* ChallengeConstants.swift */,
 			);
 			path = Constants;
 			sourceTree = "<group>";
@@ -662,6 +662,22 @@
 				AA0000020000000000001C /* ClickToPayEmailViewController.swift */,
 			);
 			path = "Click To Pay";
+			sourceTree = "<group>";
+		};
+		BNF0150000000000000015 /* Benefit */ = {
+			isa = PBXGroup;
+			children = (
+				BNF0020000000000000002 /* BenefitInitResponse.swift */,
+			);
+			path = Benefit;
+			sourceTree = "<group>";
+		};
+		BNF0160000000000000016 /* Benefit */ = {
+			isa = PBXGroup;
+			children = (
+				BNF0030000000000000003 /* BenefitViewController.swift */,
+			);
+			path = Benefit;
 			sourceTree = "<group>";
 		};
 		FD977BABDE1364E896B1BC06 /* Unified Payment Page */ = {
@@ -804,7 +820,6 @@
 				86ECAFE323225949008FDDDC /* UIView+InterfaceLayoutDirection.swift in Sources */,
 				860A6043241B81C50067A75B /* UIScreen+Bounds.swift in Sources */,
 				862CBDEC23054C9800767774 /* OrderSummary.swift in Sources */,
-				863FC9CC27FEB13600692767 /* Constants.swift in Sources */,
 				86710F572311C5FD00259AE9 /* String+RemoveWhitespace.swift in Sources */,
 				869DDD6923157E3A0020CB20 /* CardProvider.swift in Sources */,
 				862CBE73230DCF6300767774 /* CardDataNotificationTypes.swift in Sources */,
@@ -850,7 +865,6 @@
 				862CBE75230DD19F00767774 /* ExpiryDate.swift in Sources */,
 				86710F552311C59900259AE9 /* Collection+Pairs.swift in Sources */,
 				862CBE67230C8C1800767774 /* Pan.swift in Sources */,
-				8631DA042835F83600441801 /* ChallengeConstants.swift in Sources */,
 				7F2B32DE23F55B960001EFEE /* ColorCompatibility.swift in Sources */,
 				86710F4E230FEB5100259AE9 /* URLResponse+Any.swift in Sources */,
 				863FC9B627F4486E00692767 /* ThreeDSAuthenticationsRequest.swift in Sources */,
@@ -871,6 +885,8 @@
 				C2P0110000000000000011 /* ClickToPayDelegate.swift in Sources */,
 				C2P0120000000000000012 /* ClickToPayViewController.swift in Sources */,
 				C2P0130000000000000013 /* ClickToPayApiInteractor.swift in Sources */,
+				BNF0090000000000000009 /* BenefitInitResponse.swift in Sources */,
+				BNF00A000000000000000A /* BenefitViewController.swift in Sources */,
 				D93D6B252E2FD2E23D685FE5 /* UnifiedPaymentPageViewController.swift in Sources */,
 				2374DE223655CE612EBA3EFE /* CardPaymentSectionView.swift in Sources */,
 				2748FAE7BA9103FFB76277BA /* OrderHeaderView.swift in Sources */,

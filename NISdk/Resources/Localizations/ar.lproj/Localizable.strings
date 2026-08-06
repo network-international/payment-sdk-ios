@@ -70,6 +70,8 @@
 "aani_generate_qr" = "إنشاء رمز الاستجابة";
 "aani_scan_qr_to_pay" = "امسح رمز الاستجابة - قم بالدفع - تم";
 "Pay with Aani" = "الدفع عبر آني";
+"Pay by Benefit" = "الدفع عبر بنفت";
+"Benefit" = "بنفت";
 "aani_request_to_pay" = "طلب دفع";
 "aani_generating_qr" = "جارٍ إنشاء رمز الاستجابة";
 "aani_keep_modal_open" = "يرجى إبقاء النافذة مفتوحة";
