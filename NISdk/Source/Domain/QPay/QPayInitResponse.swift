@@ -66,7 +66,7 @@ struct QPayInitResponse: Decodable {
     /// QCB gateway returns numeric or string values for the same fields (e.g. `"Amount": 500` vs `"500"`).
     /// `try?` swallows type-mismatch throws so we fall through to the next type cleanly.
     private static func decodeStringy(_ c: KeyedDecodingContainer<CodingKeys>, _ key: CodingKeys) -> String? {
-        if let s = try? c.decodeIfPresent(String.self, forKey: key), let s = s { return s }
+        if let s = try? c.decode(String.self, forKey: key) { return s }
         if let i = try? c.decode(Int.self, forKey: key) { return String(i) }
         if let d = try? c.decode(Double.self, forKey: key) { return String(d) }
         return nil

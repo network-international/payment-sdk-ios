@@ -235,9 +235,9 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     // MARK: - Init
 
-    init(allowedCardProviders: [CardProvider]?, orderAmount: Amount?, order: OrderResponse?) {
+    init(allowedCardProviders: [CardProvider]?, orderAmount: Amount?, order: OrderResponse?, showNapsLogo: Bool = false) {
         super.init(frame: .zero)
-        setupView(allowedCardProviders: allowedCardProviders, orderAmount: orderAmount, order: order)
+        setupView(allowedCardProviders: allowedCardProviders, orderAmount: orderAmount, order: order, showNapsLogo: showNapsLogo)
         setupTextFieldDelegates()
     }
 
@@ -295,7 +295,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         return wrapper
     }
 
-    private func setupView(allowedCardProviders: [CardProvider]?, orderAmount: Amount?, order: OrderResponse?) {
+    private func setupView(allowedCardProviders: [CardProvider]?, orderAmount: Amount?, order: OrderResponse?, showNapsLogo: Bool) {
         translatesAutoresizingMaskIntoConstraints = false
 
         let mainStack = UIStackView()
@@ -308,7 +308,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         mainStack.addArrangedSubview(padded(titleRow))
 
         // Card logos row
-        let logosRow = createCardLogosRow(providers: allowedCardProviders)
+        let logosRow = createCardLogosRow(providers: allowedCardProviders, showNapsLogo: showNapsLogo)
         mainStack.addArrangedSubview(padded(logosRow))
 
         // Saved cards slot — no horizontal padding so selection background goes edge-to-edge
@@ -476,7 +476,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
 
     // MARK: - Card Logos Row
 
-    private func createCardLogosRow(providers: [CardProvider]?) -> UIView {
+    private func createCardLogosRow(providers: [CardProvider]?, showNapsLogo: Bool = false) -> UIView {
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
 
@@ -485,6 +485,20 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         stack.spacing = 10
         stack.alignment = .center
         stack.translatesAutoresizingMaskIntoConstraints = false
+
+        let sdkBundle = NISdk.sharedInstance.getBundle()
+
+        // NAPS leads the accepted-brand strip when QPay is enabled.
+        if showNapsLogo {
+            let napsView = UIImageView(image: UIImage(named: "napsCardLogo", in: sdkBundle, compatibleWith: nil))
+            napsView.contentMode = .scaleAspectFit
+            napsView.translatesAutoresizingMaskIntoConstraints = false
+            // NAPS is a wide 2:1 wordmark; scale it up so it reads at a similar weight to the
+            // 32pt square brand marks (Visa/Mastercard) beside it.
+            napsView.heightAnchor.constraint(equalToConstant: 28).isActive = true
+            napsView.widthAnchor.constraint(equalToConstant: 56).isActive = true
+            stack.addArrangedSubview(napsView)
+        }
 
         let logos: [(CardProvider, String)] = [
             (.masterCard, "mastercardlogo"),
@@ -496,7 +510,6 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
             (.mada, "madalogo"),
         ]
 
-        let sdkBundle = NISdk.sharedInstance.getBundle()
         for (provider, imageName) in logos {
             if let allowedProviders = providers, !allowedProviders.contains(provider) {
                 continue

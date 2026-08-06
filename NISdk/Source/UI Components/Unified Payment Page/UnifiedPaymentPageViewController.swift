@@ -442,7 +442,8 @@ class UnifiedPaymentPageViewController: UIViewController {
             let section = CardPaymentSectionView(
                 allowedCardProviders: allowedCardProviders,
                 orderAmount: order.amount,
-                order: order)
+                order: order,
+                showNapsLogo: qpayExpress)
             section.setSelected(false)
             section.setExpanded(false, animated: false)
 
