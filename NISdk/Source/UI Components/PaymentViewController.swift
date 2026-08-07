@@ -316,14 +316,29 @@ class PaymentViewController: UIViewController {
                 // Dont use container view controllers for apple pay
                 let pkPaymentAuthorizationVC = PKPaymentAuthorizationViewController(paymentRequest: applePayRequest)
                 if let pkPaymentAuthorizationVC = pkPaymentAuthorizationVC {
+                    // canMakePayments(usingNetworks:) is the one that matters: the sheet can
+                    // be constructed and presented even when the Wallet holds no card the
+                    // order accepts, and it then closes without ever authorizing.
+                    let hasUsableCard = PKPaymentAuthorizationViewController.canMakePayments(usingNetworks: applePayRequest.supportedNetworks)
                     NISdkLogger.event("""
                                       applePay — presenting the Apple Pay sheet. \
                                       merchantIdentifier: \(applePayRequest.merchantIdentifier), \
                                       countryCode: \(applePayRequest.countryCode), \
                                       currencyCode: \(applePayRequest.currencyCode), \
-                                      supportedNetworks: \(applePayRequest.supportedNetworks.map({ $0.rawValue }).joined(separator: ","))
+                                      supportedNetworks: \(applePayRequest.supportedNetworks.map({ $0.rawValue }).joined(separator: ",")), \
+                                      canMakePayments: \(PKPaymentAuthorizationViewController.canMakePayments()), \
+                                      hasCardForTheseNetworks: \(hasUsableCard)
                                       """,
-                                      log: NISdkLogger.payment, type: .info)
+                                      log: NISdkLogger.payment, type: hasUsableCard ? .info : .error)
+                    if !hasUsableCard {
+                        NISdkLogger.event("""
+                                          applePay — WARNING: this device has no Wallet card matching the order's \
+                                          supported networks, so the sheet cannot be completed. The order allows \
+                                          \(order.paymentMethods?.card?.map({ $0.rawValue }).joined(separator: ",") ?? "nothing").
+                                          """,
+                                          log: NISdkLogger.payment, type: .error)
+                    }
+                    applePayController?.sheetPresentedAt = CFAbsoluteTimeGetCurrent()
                     pkPaymentAuthorizationVC.delegate = applePayController
                     self.shownViewController?.remove()
                     self.present(pkPaymentAuthorizationVC, animated: false, completion: nil)

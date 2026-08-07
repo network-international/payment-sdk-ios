@@ -17,6 +17,12 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
     let order: OrderResponse
     let onDismissCallback: (PaymentResponse?) -> Void
     let applePayDelegate: ApplePayDelegate
+    /// Set by PaymentViewController immediately before presenting, so a dismissal can be
+    /// timed. A sheet that closes in well under a second was not closed by a human.
+    var sheetPresentedAt: CFAbsoluteTime?
+    /// Whether didAuthorizePayment ever fired. If the sheet finishes without it, the user
+    /// never approved and nothing was ever sent to the gateway.
+    private var didAuthorize = false
     
     init(applePayDelegate: ApplePayDelegate,
          order: OrderResponse,
@@ -64,6 +70,7 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
     func paymentAuthorizationViewController(_ controller: PKPaymentAuthorizationViewController,
                                             didAuthorizePayment payment: PKPayment,
                                             handler completion: @escaping (PKPaymentAuthorizationResult) -> Void) {
+        didAuthorize = true
         // The user has approved the sheet (Face/Touch ID). Everything after this point is
         // the SDK's own work, so this line is the boundary between "Apple Pay failed" and
         // "we failed after Apple Pay succeeded".
@@ -93,9 +100,24 @@ class ApplePayController: NSObject, PKPaymentAuthorizationViewControllerDelegate
 
     func paymentAuthorizationViewControllerDidFinish(_ controller: PKPaymentAuthorizationViewController) {
         // PassKit calls this both when the user dismisses the sheet without authorizing
-        // and after an authorized payment finishes.
-        NISdkLogger.event("applePay — sheet dismissed (paymentAuthorizationViewControllerDidFinish)",
-                          log: NISdkLogger.payment, type: .info)
+        // and after an authorized payment finishes. Distinguishing the two is the whole
+        // question when a payment fails with no gateway call, so say which happened —
+        // and how long the sheet was up, since a sheet that closes almost immediately
+        // was closed by PassKit, not by a person.
+        let visibleFor = sheetPresentedAt.map { CFAbsoluteTimeGetCurrent() - $0 }
+        let duration = visibleFor.map { String(format: "%.2fs", $0) } ?? "unknown"
+        if didAuthorize {
+            NISdkLogger.event("applePay — sheet dismissed after authorization (visible for \(duration))",
+                              log: NISdkLogger.payment, type: .info)
+        } else {
+            NISdkLogger.event("""
+                              applePay — sheet dismissed WITHOUT authorization after \(duration). \
+                              The user never approved the payment, so nothing was sent to the gateway. \
+                              Either the sheet was cancelled, or PassKit closed it because no card in \
+                              the Wallet matches the order's supported networks.
+                              """,
+                              log: NISdkLogger.payment, type: .error)
+        }
         controller.dismiss(animated: false, completion: {
             [weak self] in
             self?.onDismissCallback(nil)
