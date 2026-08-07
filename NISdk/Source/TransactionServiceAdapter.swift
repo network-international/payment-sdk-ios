@@ -89,6 +89,20 @@ import PassKit
                                      on completion: @escaping (HttpResponseCallback)) {
         os_log("[NISdk] postApplePayResponse — orderRef: %{public}@, payerIp: %{public}@",
                log: NISdkLogger.payment, type: .debug, order.reference ?? "unknown", payerIp ?? "nil")
+
+        // Describe what PassKit handed back before anything can go wrong with it: if the
+        // PUT never happens, this is the record of whether the token was even usable.
+        let token = applePayPaymentResponse.token
+        NISdkLogger.event("""
+                          postApplePayResponse — orderRef: \(order.reference ?? "unknown"), \
+                          payerIp: \(payerIp ?? "nil"), \
+                          paymentData: \(token.paymentData.count) bytes, \
+                          network: \(token.paymentMethod.network?.rawValue ?? "nil"), \
+                          methodType: \(token.paymentMethod.type.rawValue), \
+                          transactionId: \(token.transactionIdentifier)
+                          """,
+                          log: NISdkLogger.payment, type: .debug)
+
         let paymentRequestHeaders = ["Authorization": "Bearer \(accessToken)",
             "Content-Type": "application/vnd.ni-payment.v2+json"]
         var queryParams: [String: String] = [:]
@@ -96,16 +110,39 @@ import PassKit
             queryParams = ["payer_ip": payerIp]
         }
 
-        if let applePayLink = order.embeddedData?.payment?[0].paymentLinks?.applePayLink {
-            HTTPClient(url: applePayLink)?
-                .withMethod(method: "PUT")
-                .withHeaders(headers: paymentRequestHeaders)
-                .withQueryParams(queries: queryParams)
-                .withBodyData(data: applePayPaymentResponse.token.paymentData)
-                .makeRequest(with: completion)
-        } else {
+        // `payment` can legitimately be an empty array, so index safely rather than [0].
+        guard let applePayLink = order.embeddedData?.payment?.first?.paymentLinks?.applePayLink else {
+            NISdkLogger.event("""
+                              postApplePayResponse — ABORTING before the network call: the order has no \
+                              payment:apple_pay link. Apple Pay is not enabled on this outlet, or the order \
+                              was created without it.
+                              """,
+                              log: NISdkLogger.payment, type: .error)
             completion(nil, nil, nil)
+            return
         }
+
+        NISdkLogger.event("postApplePayResponse — PUT \(applePayLink)",
+                          log: NISdkLogger.payment, type: .debug)
+
+        // HTTPClient's initialiser is failable. Previously a malformed link silently
+        // produced nil and `completion` was never called, hanging the Apple Pay sheet
+        // with no way out; always resolve the callback instead.
+        guard let client = HTTPClient(url: applePayLink) else {
+            NISdkLogger.event("""
+                              postApplePayResponse — ABORTING before the network call: the apple_pay link \
+                              is not a valid URL: \(applePayLink)
+                              """,
+                              log: NISdkLogger.payment, type: .error)
+            completion(nil, nil, nil)
+            return
+        }
+
+        client.withMethod(method: "PUT")
+            .withHeaders(headers: paymentRequestHeaders)
+            .withQueryParams(queries: queryParams)
+            .withBodyData(data: token.paymentData)
+            .makeRequest(with: completion)
     }
 
     func postThreeDSAuthentications(for paymentResponse: PaymentResponse,

@@ -136,8 +136,18 @@ class PaymentViewController: UIViewController {
         }
 
         if(self.paymentMedium == .ApplePay) {
+            NISdkLogger.beginSession("Apple Pay")
+            NISdkLogger.event("""
+                              applePay — starting. orderRef: \(self.order.reference ?? "nil"), \
+                              amount: \(self.order.amount?.getFormattedAmount() ?? "nil"), \
+                              applePayLink: \(self.order.embeddedData?.payment?.first?.paymentLinks?.applePayLink ?? "MISSING")
+                              """,
+                              log: NISdkLogger.payment, type: .info)
             // Apple pay is not enabled by merchant, hence abort payment flow
-            if (self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink) == nil {
+            if (self.order.embeddedData?.payment?.first?.paymentLinks?.applePayLink) == nil {
+                os_log("[NISdk] applePay — aborting: order has no applePayLink. Apple Pay is not enabled on this outlet, or the order was created without it.",
+                       log: NISdkLogger.payment, type: .error)
+                NISdkLogger.trace("applePay — ABORTING: order has no applePayLink; the sheet will never appear")
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
                 return
             }
@@ -147,6 +157,7 @@ class PaymentViewController: UIViewController {
             // authorizes (Face/Touch ID), by which time the auth call has almost always
             // completed. The sheet is presented on appear (not here) because presenting
             // from viewDidLoad — before the view is in the window — is silently dropped.
+            NISdkLogger.trace("applePay — order OK, starting auth + presenting sheet")
             self.beginConcurrentApplePayAuthorization()
             self.pendingApplePaySheetPresentation = true
             return
@@ -228,6 +239,7 @@ class PaymentViewController: UIViewController {
                 self.paymentToken = paymentToken
                 self.accessToken = accessToken
                 os_log("[NISdk] applePay — concurrent authorization succeeded", log: NISdkLogger.auth, type: .info)
+                NISdkLogger.trace("applePay — authorization succeeded (access token received)")
                 DispatchQueue.main.async {
                     self.cardPaymentDelegate?.authorizationDidComplete?(with: .AuthSuccess)
                     self.cardPaymentDelegate?.paymentDidBegin?()
@@ -235,6 +247,7 @@ class PaymentViewController: UIViewController {
                 }
             } else {
                 os_log("[NISdk] applePay — concurrent authorization failed: no tokens", log: NISdkLogger.auth, type: .error)
+                NISdkLogger.trace("applePay — authorization FAILED: no tokens in response")
                 DispatchQueue.main.async {
                     self.resolveApplePayAuth(success: false)
                 }
@@ -303,11 +316,51 @@ class PaymentViewController: UIViewController {
                 // Dont use container view controllers for apple pay
                 let pkPaymentAuthorizationVC = PKPaymentAuthorizationViewController(paymentRequest: applePayRequest)
                 if let pkPaymentAuthorizationVC = pkPaymentAuthorizationVC {
+                    NISdkLogger.event("""
+                                      applePay — presenting the Apple Pay sheet. \
+                                      merchantIdentifier: \(applePayRequest.merchantIdentifier), \
+                                      countryCode: \(applePayRequest.countryCode), \
+                                      currencyCode: \(applePayRequest.currencyCode), \
+                                      supportedNetworks: \(applePayRequest.supportedNetworks.map({ $0.rawValue }).joined(separator: ","))
+                                      """,
+                                      log: NISdkLogger.payment, type: .info)
                     pkPaymentAuthorizationVC.delegate = applePayController
                     self.shownViewController?.remove()
                     self.present(pkPaymentAuthorizationVC, animated: false, completion: nil)
                     return
                 }
+                // PKPaymentAuthorizationViewController returns nil rather than throwing when
+                // the request is unusable, and the sheet then never appears. The usual causes
+                // are a merchant identifier the app isn't entitled to, a missing Apple Pay
+                // (In-App Payments) entitlement, an empty supportedNetworks list, or an
+                // invalid country/currency code. Log everything needed to tell them apart.
+                os_log("""
+                       [NISdk] applePay — PKPaymentAuthorizationViewController(paymentRequest:) returned nil, \
+                       so the Apple Pay sheet cannot be shown. merchantIdentifier: %{public}@, countryCode: %{public}@, \
+                       currencyCode: %{public}@, supportedNetworks: %{public}@, summaryItems: %{public}d, \
+                       canMakePayments: %{public}@, canMakePaymentsUsingNetworks: %{public}@
+                       """,
+                       log: NISdkLogger.payment, type: .error,
+                       applePayRequest.merchantIdentifier,
+                       applePayRequest.countryCode,
+                       applePayRequest.currencyCode,
+                       applePayRequest.supportedNetworks.map({ $0.rawValue }).joined(separator: ","),
+                       applePayRequest.paymentSummaryItems.count,
+                       PKPaymentAuthorizationViewController.canMakePayments() ? "true" : "false",
+                       PKPaymentAuthorizationViewController.canMakePayments(usingNetworks: applePayRequest.supportedNetworks) ? "true" : "false")
+                NISdkLogger.trace("""
+                                  applePay — PKPaymentAuthorizationViewController returned nil; the sheet cannot \
+                                  be shown. merchantIdentifier: \(applePayRequest.merchantIdentifier), \
+                                  countryCode: \(applePayRequest.countryCode), \
+                                  currencyCode: \(applePayRequest.currencyCode), \
+                                  supportedNetworks: \(applePayRequest.supportedNetworks.map({ $0.rawValue }).joined(separator: ",")), \
+                                  summaryItems: \(applePayRequest.paymentSummaryItems.count), \
+                                  canMakePayments: \(PKPaymentAuthorizationViewController.canMakePayments()), \
+                                  canMakePaymentsUsingNetworks: \(PKPaymentAuthorizationViewController.canMakePayments(usingNetworks: applePayRequest.supportedNetworks))
+                                  """)
+            } else {
+                os_log("[NISdk] applePay — no PKPaymentRequest was supplied to the SDK", log: NISdkLogger.payment, type: .error)
+                NISdkLogger.trace("applePay — no PKPaymentRequest was supplied to the SDK")
             }
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
             break
@@ -356,6 +409,7 @@ class PaymentViewController: UIViewController {
                 // Authorization failed or its token never arrived — fail the Apple Pay
                 // sheet gracefully rather than crashing on a missing token.
                 os_log("[NISdk] applePay — authorization unavailable at authorize time, failing sheet", log: NISdkLogger.payment, type: .error)
+                NISdkLogger.trace("applePay — user authorized but access token unavailable; failing sheet")
                 if let completion = completion {
                     completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                 } else {
@@ -370,18 +424,34 @@ class PaymentViewController: UIViewController {
                                                                  using: accessToken,
                                                                  payerIp: payerIp, on: {
                         [unowned self] data, response, error in
+                        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
                         if let data = data {
                             do {
                                 let paymentResponse: PaymentResponse = try JSONDecoder().decode(PaymentResponse.self, from: data)
+                                os_log("[NISdk] makeApplePayment — HTTP %d, state: %{public}@",
+                                       log: NISdkLogger.payment, type: .info, statusCode, paymentResponse.state)
+                                NISdkLogger.trace("makeApplePayment — HTTP \(statusCode), state: \(paymentResponse.state)")
                                 if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED" || paymentResponse.state == "POST_AUTH_REVIEW") {
                                     completion(PKPaymentAuthorizationResult(status: .success, errors: nil), paymentResponse)
                                 } else {
                                     completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), paymentResponse)
                                 }
                             } catch let error {
-                                os_log("[NISdk] makeApplePayment — failed to decode payment response: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
+                                os_log("[NISdk] makeApplePayment — HTTP %d, failed to decode payment response: %{public}@, body: %{public}@",
+                                       log: NISdkLogger.payment, type: .error, statusCode, error.localizedDescription,
+                                       String(data: data.prefix(512), encoding: .utf8) ?? "<non-utf8>")
+                                NISdkLogger.trace("makeApplePayment — HTTP \(statusCode) decode FAILED: \(String(data: data.prefix(512), encoding: .utf8) ?? "<non-utf8>")")
                                 completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                             }
+                        } else {
+                            // No body at all — a transport error, or postApplePayResponse bailing
+                            // because the order had no applePayLink. Previously this branch did
+                            // nothing, so PassKit's completion handler was never invoked and the
+                            // Apple Pay sheet span forever with no way out. Always complete.
+                            os_log("[NISdk] makeApplePayment — no response data (HTTP %d), error: %{public}@ — failing the sheet",
+                                   log: NISdkLogger.payment, type: .error, statusCode, error?.localizedDescription ?? "none")
+                            NISdkLogger.trace("makeApplePayment — NO RESPONSE DATA (HTTP \(statusCode)), error: \(error?.localizedDescription ?? "none")")
+                            completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                         }
                     })
                 } else {
@@ -527,10 +597,12 @@ class PaymentViewController: UIViewController {
         DispatchQueue.main.async {
             guard let paymentResponse = paymentResponse else {
                 os_log("[NISdk] handlePaymentResponse — nil response, treating as failure", log: NISdkLogger.payment, type: .error)
+                NISdkLogger.trace("handlePaymentResponse — nil response (sheet dismissed without a payment result), treating as failure")
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
                 return
             }
             os_log("[NISdk] handlePaymentResponse — state: %{public}@", log: NISdkLogger.payment, type: .info, paymentResponse.state ?? "unknown")
+            NISdkLogger.trace("handlePaymentResponse — state: \(paymentResponse.state)")
             if(paymentResponse.state == "AUTHORISED" || paymentResponse.state == "CAPTURED" || paymentResponse.state == "PURCHASED" || paymentResponse.state == "VERIFIED") {
                 // 5. Close Screen if payment is done
                 self.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
@@ -676,6 +748,13 @@ class PaymentViewController: UIViewController {
                paymentStatus.rawVal,
                threeDSStatus.map { $0.rawVal } ?? "none",
                authStatus.map { $0.rawVal } ?? "none")
+        // This is the status the host app receives from paymentDidComplete(with:), so it
+        // is the line to line up against whatever the merchant's JS reports.
+        NISdkLogger.trace("""
+                          finishPayment — status: \(paymentStatus.rawVal), \
+                          3ds: \(threeDSStatus.map { $0.rawVal } ?? "none"), \
+                          auth: \(authStatus.map { $0.rawVal } ?? "none")
+                          """)
         DispatchQueue.main.async { // Use the main thread to update any UI
             if let threeDSStatus = threeDSStatus {
                 self.cardPaymentDelegate?.threeDSChallengeDidComplete?(with: threeDSStatus)

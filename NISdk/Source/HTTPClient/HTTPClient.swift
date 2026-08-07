@@ -73,12 +73,40 @@ public class HTTPClient {
         let method = request.httpMethod ?? "GET"
         let urlString = request.url?.absoluteString ?? "unknown"
         os_log("[NISdk] --> %{public}@ %{public}@", log: NISdkLogger.network, type: .debug, method, urlString)
+
+        // In verbose mode record the full exchange — headers and bodies — so a failing
+        // call can be diagnosed from the log alone, without a proxy on the device.
+        if NISdkLogger.verboseDiagnosticsEnabled {
+            NISdkLogger.trace("--> \(method) \(urlString)")
+            NISdkLogger.trace("    headers: \(NISdkLogger.redactedHeaders(request.allHTTPHeaderFields))")
+            NISdkLogger.trace("    body: \(NISdkLogger.bodyPreview(request.httpBody))")
+        }
+
+        let startedAt = CFAbsoluteTimeGetCurrent()
         let task = session.dataTask(with: self.request as URLRequest) { data, response, error in
+            let elapsedMs = Int((CFAbsoluteTimeGetCurrent() - startedAt) * 1000)
             if let error = error {
                 os_log("[NISdk] <-- %{public}@ %{public}@ ERROR: %{public}@", log: NISdkLogger.network, type: .error, method, urlString, error.localizedDescription)
+                if NISdkLogger.verboseDiagnosticsEnabled {
+                    let ns = error as NSError
+                    NISdkLogger.trace("<-- \(method) \(urlString) TRANSPORT ERROR after \(elapsedMs)ms")
+                    NISdkLogger.trace("    \(ns.domain) code \(ns.code): \(ns.localizedDescription)")
+                }
             } else if let http = response as? HTTPURLResponse {
                 let corrId = http.allHeaderFields.first(where: { ($0.key as? String)?.lowercased() == "x-correlation-id" })?.value as? String ?? ""
                 os_log("[NISdk] <-- %{public}@ %{public}@ %d X-Correlation-Id: %{public}@", log: NISdkLogger.network, type: .debug, method, urlString, http.statusCode, corrId)
+                if NISdkLogger.verboseDiagnosticsEnabled {
+                    let headers = Dictionary(uniqueKeysWithValues: http.allHeaderFields.compactMap {
+                        key, value -> (String, String)? in
+                        guard let key = key as? String else { return nil }
+                        return (key, String(describing: value))
+                    })
+                    NISdkLogger.trace("<-- \(method) \(urlString) HTTP \(http.statusCode) in \(elapsedMs)ms")
+                    NISdkLogger.trace("    headers: \(NISdkLogger.redactedHeaders(headers))")
+                    NISdkLogger.trace("    body: \(NISdkLogger.bodyPreview(data))")
+                }
+            } else if NISdkLogger.verboseDiagnosticsEnabled {
+                NISdkLogger.trace("<-- \(method) \(urlString) completed after \(elapsedMs)ms with no HTTP response and no error")
             }
             completionHandler(data, response, error)
         }
