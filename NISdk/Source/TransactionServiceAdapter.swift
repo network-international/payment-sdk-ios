@@ -13,6 +13,36 @@ import PassKit
 
     private lazy var deviceFingerprint: String = UUID().uuidString
 
+    /// Builds a client, reporting failure through `completion` instead of silently doing nothing.
+    ///
+    /// `HTTPClient(url:)` is failable, so `HTTPClient(url: x)?.…` quietly skips the whole request
+    /// when the URL will not parse — the caller's completion never fires and the payment screen
+    /// waits forever with no timeout. Routing every construction through here means a bad link
+    /// surfaces as an error the caller can act on.
+    private func client(for url: String,
+                        reportingFailureTo completion: @escaping HttpResponseCallback) -> HTTPClient? {
+        guard let client = HTTPClient(url: url) else {
+            completion(nil, nil, HTTPClientErrors.missingUrl)
+            return nil
+        }
+        return client
+    }
+
+    /// Encodes a request body, reporting an encoding failure through `completion`.
+    ///
+    /// These call sites used `try!`, which crashes the merchant's app on an unencodable request
+    /// rather than letting the SDK report the failure.
+    private func encode<T: Encodable>(_ value: T,
+                                      using encoder: JSONEncoder = JSONEncoder(),
+                                      reportingFailureTo completion: @escaping HttpResponseCallback) -> Data? {
+        do {
+            return try encoder.encode(value)
+        } catch {
+            completion(nil, nil, error)
+            return nil
+        }
+    }
+
     // Use this to fetch token
     func authorizePayment(for authCode: String,
                                  using authorizationLink: String,
@@ -21,7 +51,12 @@ import PassKit
         let authorizationRequestHeaders = ["Accept": "application/vnd.ni-payment.v2+json",
                                            "Content-Type": "application/x-www-form-urlencoded",
                                            "X-Payer-Fingerprint": deviceFingerprint]
-        HTTPClient(url: authorizationLink)?
+        guard let client = HTTPClient(url: authorizationLink) else {
+            // No tokens is how this method already reports failure.
+            completion([:])
+            return
+        }
+        client
             .withMethod(method: "POST")
             .withHeaders(headers: authorizationRequestHeaders)
             .withBodyData(data: "code=\(authCode)")
@@ -42,7 +77,7 @@ import PassKit
                          with completion: @escaping (HttpResponseCallback)) {
         let orderRequestHeaders = ["Authorization": "Bearer \(accessToken)", "Content-Type": "application/vnd.ni-payment.v2+json"]
         
-        HTTPClient(url: orderLink)?
+        client(for: orderLink, reportingFailureTo: completion)?
             .withMethod(method: "GET")
             .withHeaders(headers: orderRequestHeaders)
             .makeRequest(with: completion)
@@ -57,14 +92,18 @@ import PassKit
         let paymentRequestHeaders = ["Authorization": "Bearer \(paymentToken)",
                                      "Content-Type": "application/vnd.ni-payment.v2+json"]
         
-        let paymentData = try! JSONEncoder().encode(paymentInfo)
-        if let paymentLink = order.embeddedData?.payment?[0].paymentLinks?.cardPaymentLink {
-            HTTPClient(url: paymentLink)?
-                .withMethod(method: "PUT")
-                .withHeaders(headers: paymentRequestHeaders)
-                .withBodyData(data: paymentData)
-                .makeRequest(with: completion)
+        guard let paymentData = encode(paymentInfo, reportingFailureTo: completion) else { return }
+        // `payment?.first`, not `payment?[0]` — an order carrying an empty payment array would trap.
+        guard let paymentLink = order.embeddedData?.payment?.first?.paymentLinks?.cardPaymentLink else {
+            // Previously fell through without calling completion, hanging the payment screen.
+            completion(nil, nil, HTTPClientErrors.missingUrl)
+            return
         }
+        client(for: paymentLink, reportingFailureTo: completion)?
+            .withMethod(method: "PUT")
+            .withHeaders(headers: paymentRequestHeaders)
+            .withBodyData(data: paymentData)
+            .makeRequest(with: completion)
     }
     
     // Use this to post apple pay response to transaction service
@@ -81,22 +120,22 @@ import PassKit
             queryParams = ["payer_ip": payerIp]
         }
 
-        if let applePayLink = order.embeddedData?.payment?[0].paymentLinks?.applePayLink {
-            print("ApplePay: postApplePayResponse - URL: \(applePayLink)")
-            print("ApplePay: postApplePayResponse - paymentData size: \(applePayPaymentResponse.token.paymentData.count) bytes")
-            if let paymentDataStr = String(data: applePayPaymentResponse.token.paymentData, encoding: .utf8) {
-                print("ApplePay: postApplePayResponse - paymentData: \(paymentDataStr.prefix(200))...")
-            }
-            HTTPClient(url: applePayLink)?
-                .withMethod(method: "PUT")
-                .withHeaders(headers: paymentRequestHeaders)
-                .withQueryParams(queries: queryParams)
-                .withBodyData(data: applePayPaymentResponse.token.paymentData)
-                .makeRequest(with: completion)
-        } else {
+        guard let applePayLink = order.embeddedData?.payment?.first?.paymentLinks?.applePayLink else {
             print("ApplePay: postApplePayResponse - FAILED: applePayLink is nil")
-            completion(nil, nil, nil)
+            completion(nil, nil, HTTPClientErrors.missingUrl)
+            return
         }
+        print("ApplePay: postApplePayResponse - URL: \(applePayLink)")
+        print("ApplePay: postApplePayResponse - paymentData size: \(applePayPaymentResponse.token.paymentData.count) bytes")
+        if let paymentDataStr = String(data: applePayPaymentResponse.token.paymentData, encoding: .utf8) {
+            print("ApplePay: postApplePayResponse - paymentData: \(paymentDataStr.prefix(200))...")
+        }
+        client(for: applePayLink, reportingFailureTo: completion)?
+            .withMethod(method: "PUT")
+            .withHeaders(headers: paymentRequestHeaders)
+            .withQueryParams(queries: queryParams)
+            .withBodyData(data: applePayPaymentResponse.token.paymentData)
+            .makeRequest(with: completion)
     }
     
     func postThreeDSAuthentications(for paymentResponse: PaymentResponse,
@@ -107,18 +146,18 @@ import PassKit
         let authRequestHeaders = ["Authorization": "Bearer \(paymentToken)",
             "Content-Type": "application/vnd.ni-payment.v2+json"]
         
-        let threeDSAuthData = try! JSONEncoder().encode(threeDSAuthenticationsRequest)
-        
-        if let authenticationsLink = paymentResponse.paymentLinks?.threeDSTwoAuthenticationURL {
-            HTTPClient(url: authenticationsLink)?
-                .withMethod(method: "POST")
-                .withHeaders(headers: authRequestHeaders)
-                .withBodyData(data: threeDSAuthData)
-                .makeRequest(with: completion)
-        } else {
-            completion(nil, nil, nil)
+        guard let threeDSAuthData = encode(threeDSAuthenticationsRequest, reportingFailureTo: completion) else { return }
+
+        guard let authenticationsLink = paymentResponse.paymentLinks?.threeDSTwoAuthenticationURL else {
             print("No threeDs authentication link found")
+            completion(nil, nil, HTTPClientErrors.missingUrl)
+            return
         }
+        client(for: authenticationsLink, reportingFailureTo: completion)?
+            .withMethod(method: "POST")
+            .withHeaders(headers: authRequestHeaders)
+            .withBodyData(data: threeDSAuthData)
+            .makeRequest(with: completion)
     }
     
     func postThreeDSTwoChallengeResponse(for paymentResponse: PaymentResponse,
@@ -127,29 +166,29 @@ import PassKit
         let authRequestHeaders = ["Authorization": "Bearer \(paymentToken)",
             "Content-Type": "application/vnd.ni-payment.v2+json"]
                 
-        if let authenticationsLink = paymentResponse.paymentLinks?.threeDSTwoChallengeResponseURL {
-            HTTPClient(url: authenticationsLink)?
-                .withMethod(method: "POST")
-                .withHeaders(headers: authRequestHeaders)
-                .makeRequest(with: completion)
-        } else {
-            completion(nil, nil, nil)
+        guard let authenticationsLink = paymentResponse.paymentLinks?.threeDSTwoChallengeResponseURL else {
             print("No threeDs authentication link found")
+            completion(nil, nil, HTTPClientErrors.missingUrl)
+            return
         }
+        client(for: authenticationsLink, reportingFailureTo: completion)?
+            .withMethod(method: "POST")
+            .withHeaders(headers: authRequestHeaders)
+            .makeRequest(with: completion)
     }
     
     func getPayerIp(with url: String, using paymentToken: String, on completion: @escaping(HttpResponseCallback)) {
         let headers = ["Authorization": "Bearer \(paymentToken)",
             "Content-Type": "application/vnd.ni-payment.v2+json"]
         
-        HTTPClient(url: url)?
+        client(for: url, reportingFailureTo: completion)?
             .withMethod(method: "GET")
             .withHeaders(headers: headers)
             .makeRequest(with: completion)
     }
     
     func getPayerIp(with url: String, on completion: @escaping (HttpResponseCallback)) {
-        HTTPClient(url: url)?
+        client(for: url, reportingFailureTo: completion)?
             .withMethod(method: "GET")
             .makeRequest(with: completion)
     }
@@ -161,8 +200,8 @@ import PassKit
                                            "Content-Type": "application/vnd.ni-payment.v2+json",
                                            "Authorization": "payment \(accessToken)"]
         
-        let data = try! JSONEncoder().encode(savedCardInfo)
-        HTTPClient(url: url)?
+        guard let data = encode(savedCardInfo, reportingFailureTo: completion) else { return }
+        client(for: url, reportingFailureTo: completion)?
             .withMethod(method: "PUT")
             .withHeaders(headers: authorizationRequestHeaders)
             .withBodyData(data: data)
@@ -189,8 +228,8 @@ import PassKit
         let encoder = JSONEncoder()
         encoder.outputFormatting = []
         // Drop nil pan / cardToken so we send only the field that matters.
-        let body = try! encoder.encode(request)
-        HTTPClient(url: url)?
+        guard let body = encode(request, using: encoder, reportingFailureTo: completion) else { return }
+        client(for: url, reportingFailureTo: completion)?
             .withMethod(method: "POST")
             .withHeaders(headers: headers)
             .withBodyData(data: body)
@@ -201,8 +240,9 @@ import PassKit
         let authorizationRequestHeaders = ["Accept": "application/vnd.ni-payment.v2+json",
                                            "Content-Type": "application/vnd.ni-payment.v2+json",
                                            "Authorization": "Bearer \(accessToken)"]
-        let data = try! JSONEncoder().encode(VisaEligibilityRequets(cardToken: cardToken, pan: cardNumber))
-        HTTPClient(url: "\(url)/vis/eligibility-check")?
+        guard let data = encode(VisaEligibilityRequets(cardToken: cardToken, pan: cardNumber),
+                               reportingFailureTo: completion) else { return }
+        client(for: "\(url)/vis/eligibility-check", reportingFailureTo: completion)?
             .withMethod(method: "POST")
             .withHeaders(headers: authorizationRequestHeaders)
             .withBodyData(data: data)
@@ -215,7 +255,7 @@ import PassKit
         let authorizationRequestHeaders = ["Accept": "application/vnd.ni-payment.v2+json",
                                            "Content-Type": "application/vnd.ni-payment.v2+json",
                                            "Authorization": "Bearer \(accessToken)"]
-        HTTPClient(url: url)?
+        client(for: url, reportingFailureTo: completion)?
             .withMethod(method: "PUT")
             .withHeaders(headers: authorizationRequestHeaders)
             .makeRequest(with: completion)
@@ -224,8 +264,8 @@ import PassKit
     func aaniPayment(for url: String, with aaniRequest: AaniPayRequest, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
         let authorizationRequestHeaders = ["Content-Type": "application/vnd.ni-payment.v2+json",
                                            "Authorization": "Bearer \(accessToken)"]
-        let data = try! JSONEncoder().encode(aaniRequest)
-        HTTPClient(url: url)?
+        guard let data = encode(aaniRequest, reportingFailureTo: completion) else { return }
+        client(for: url, reportingFailureTo: completion)?
             .withMethod(method: "POST")
             .withBodyData(data: data)
             .withHeaders(headers: authorizationRequestHeaders)
@@ -235,7 +275,7 @@ import PassKit
     func aaniPaymentPooling(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
         let authorizationRequestHeaders = ["Content-Type": "application/vnd.ni-payment.v2+json",
                                            "Authorization": "Bearer \(accessToken)"]
-        HTTPClient(url: url)?
+        client(for: url, reportingFailureTo: completion)?
             .withMethod(method: "GET")
             .withHeaders(headers: authorizationRequestHeaders)
             .makeRequest(with: completion)
@@ -244,7 +284,7 @@ import PassKit
     func aaniQrCreate(for url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
         let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
                        "Authorization": "Bearer \(accessToken)"]
-        HTTPClient(url: url)?
+        client(for: url, reportingFailureTo: completion)?
             .withMethod(method: "POST")
             .withHeaders(headers: headers)
             .withBodyData(data: "{}")
@@ -255,7 +295,7 @@ import PassKit
         let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
                        "Authorization": "Bearer \(accessToken)"]
         let pollUrl = "\(url)/status?qrCodeId=\(qrCodeId)&qrTransactionId=\(qrTransactionId)"
-        HTTPClient(url: pollUrl)?
+        client(for: pollUrl, reportingFailureTo: completion)?
             .withMethod(method: "GET")
             .withHeaders(headers: headers)
             .makeRequest(with: completion)
@@ -265,7 +305,7 @@ import PassKit
         let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
                        "Authorization": "Bearer \(accessToken)"]
         let cancelUrl = "\(url)?qrCodeId=\(qrCodeId)&qrTransactionId=\(qrTransactionId)"
-        HTTPClient(url: cancelUrl)?
+        client(for: cancelUrl, reportingFailureTo: completion)?
             .withMethod(method: "DELETE")
             .withHeaders(headers: headers)
             .makeRequest(with: completion)
@@ -274,7 +314,7 @@ import PassKit
     func initQPay(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
         let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
                        "Authorization": "Bearer \(accessToken)"]
-        HTTPClient(url: url)?
+        client(for: url, reportingFailureTo: completion)?
             .withMethod(method: "POST")
             .withHeaders(headers: headers)
             .withBodyData(data: Data("{}".utf8))
@@ -285,7 +325,7 @@ import PassKit
         let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
                        "Accept": "application/vnd.ni-payment.v2+json",
                        "Authorization": "Bearer \(accessToken)"]
-        HTTPClient(url: url)?
+        client(for: url, reportingFailureTo: completion)?
             .withMethod(method: "POST")
             .withHeaders(headers: headers)
             .withBodyData(data: Data("{}".utf8))

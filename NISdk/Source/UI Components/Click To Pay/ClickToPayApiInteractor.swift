@@ -43,7 +43,14 @@ class ClickToPayApiInteractor {
             headers["Payment-Token"] = cookieParts.dropFirst().joined(separator: "=")
         }
 
-        HTTPClient(url: unifiedClickToPayUrl)?
+        // Optional-chaining the failable init here would drop the request silently and leave the
+        // caller waiting forever on a URL that never parsed.
+        guard let client = HTTPClient(url: unifiedClickToPayUrl) else {
+            completion(.failed("Invalid Click to Pay payment URL"))
+            return
+        }
+
+        client
             .withMethod(method: "POST")
             .withHeaders(headers: headers)
             .withBodyData(data: bodyData)
