@@ -327,7 +327,7 @@ final class SliceInstallmentUIView: UIView {
         amountStack.spacing = 2
         amountStack.alignment = .leading
 
-        zeroInterestBadge.configure(text: "Zero interest", color: PgColors.badgeDarkBg)
+        zeroInterestBadge.configure(text: (isIslamic ? "Zero profit" : "Zero interest"), color: PgColors.badgeDarkBg)
         zeroFeesBadge.configure(text: "Zero fees", color: PgColors.badgeDarkBg)
         zeroInterestBadge.isHidden = true
         zeroFeesBadge.isHidden = true
@@ -364,7 +364,7 @@ final class SliceInstallmentUIView: UIView {
         totalRow.spacing = 8
 
         let detailRows = UIStackView(arrangedSubviews: [
-            makeDetailRow(labelText: (isIslamic ? "Murabaha:" : "Interest rate:"), valueLabel: rateValueLabel),
+            makeDetailRow(labelText: (isIslamic ? "Profit rate:" : "Interest rate:"), valueLabel: rateValueLabel),
             makeDetailRow(labelText: "Processing fees:", valueLabel: feeValueLabel),
             totalRow,
         ])
