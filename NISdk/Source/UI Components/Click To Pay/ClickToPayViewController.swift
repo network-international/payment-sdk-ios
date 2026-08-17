@@ -224,13 +224,17 @@ class ClickToPayViewController: UIViewController {
     // MARK: - Authorization
 
     private func authorizeAndLoadHtml() {
-        // If tokens were already provided (e.g. from PaymentViewController which already authorized
-        // AND already resolved the merchant config), skip both steps.
+        // If tokens were already provided (e.g. from PaymentViewController which already authorized),
+        // skip re-authorizing. We still resolve the merchant config here: PaymentViewController no
+        // longer pre-warms it, so the VCTP lookup happens lazily — only once Click to Pay is actually
+        // launched. `resolveClickToPayMerchantConfigIfNeeded` is a no-op if dpaId is already set.
         if let existingToken = self.accessToken, !existingToken.isEmpty {
             if self.paymentCookie == nil || self.paymentCookie!.isEmpty {
                 self.paymentCookie = ""
             }
-            fetchVctpConfigAndLoadHtml()
+            self.resolveClickToPayMerchantConfigIfNeeded {
+                self.fetchVctpConfigAndLoadHtml()
+            }
             return
         }
 

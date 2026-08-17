@@ -149,7 +149,10 @@ class PaymentViewController: UIViewController {
                     // Callback hell...
                     self?.paymentToken = paymentToken
                     self?.accessToken = accessToken
-                    self?.resolveClickToPayConfigIfNeeded(accessToken: accessToken)
+                    // Click to Pay's merchant-config (VCTP) lookup is resolved lazily inside
+                    // ClickToPayViewController when the Click to Pay row is actually tapped — see
+                    // initiateClickToPayFromUnifiedPage(). We no longer pre-warm it here, so non-CtP
+                    // flows (QPay, card, Apple Pay, Aani) don't fire the /config/.../vctp call.
                     // 2. Show card payment screen after authorization (payment token is received)
                     DispatchQueue.main.async { // Use the main thread to update any UI
                         self?.cardPaymentDelegate?.authorizationDidComplete?(with: .AuthSuccess)
@@ -166,48 +169,6 @@ class PaymentViewController: UIViewController {
         }
     }
 
-    /// Fires the gateway VCTP merchant-config lookup the moment the order is authorized.
-    /// We have the access token from `authorizePayment` and the api-gateway host from the
-    /// order's `self` link, so the merchant only ever has to declare `merchantId` —
-    /// `dpaId` / `dpaClientId` / `dpaName` get populated on `clickToPayConfig` before the
-    /// user can possibly tap the Click-to-Pay row. Non-blocking — the form renders in
-    /// parallel; if the user beats the network, `launchClickToPay` will fail-fast.
-    private func resolveClickToPayConfigIfNeeded(accessToken: String) {
-        guard let config = clickToPayConfig else {
-            print("ClickToPay: skip VCTP resolve — no clickToPayConfig on PaymentViewController")
-            return
-        }
-        guard config.dpaId == nil else { return }
-        // The gateway-side merchant id lives in the order's `merchantDetails.reference`.
-        // Falls back to an explicit `config.merchantId` for callers that set it manually.
-        let resolvedMerchantId: String? = {
-            if let m = config.merchantId, !m.isEmpty { return m }
-            return order.merchantDetails?.reference
-        }()
-        guard let merchantId = resolvedMerchantId, !merchantId.isEmpty else {
-            print("ClickToPay: skip VCTP resolve — order.merchantDetails.reference is missing")
-            return
-        }
-        guard let selfHref = order.orderLinks?.orderLink,
-              let url = URL(string: selfHref),
-              let scheme = url.scheme, let host = url.host
-        else {
-            print("ClickToPay: skip VCTP resolve — could not derive api-gateway URL from order self link")
-            return
-        }
-        let apiGatewayBaseUrl = "\(scheme)://\(host)"
-        print("ClickToPay: resolving VCTP merchant config for merchantId=\(merchantId) via \(apiGatewayBaseUrl)")
-        // Inject the merchantId for `resolve(...)` to pick up.
-        config.merchantId = merchantId
-        config.resolve(accessToken: accessToken, apiGatewayBaseUrl: apiGatewayBaseUrl) { error in
-            if let error = error {
-                print("ClickToPay: VCTP merchant-config resolve failed - \(error.localizedDescription)")
-            } else {
-                print("ClickToPay: VCTP merchant-config resolved dpaId=\(config.dpaId ?? "nil"), dpaName=\(config.dpaName ?? "nil")")
-            }
-        }
-    }
-    
     private func initiatePaymentForm() {
         switch paymentMedium {
         case .Card:
