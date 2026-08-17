@@ -10,6 +10,9 @@ import Foundation
 
 class PaymentRequest: NSObject, Codable {
     var pan: String?
+    /// Indicates the transaction originates from a native app; sent at the same
+    /// level as `pan` in the `/card` payment request body.
+    var deviceChannel: String = "BRW"
     var expiryMonth: String?
     var expiryYear: String?
     var cvv: String?
@@ -73,6 +76,7 @@ class PaymentRequest: NSObject, Codable {
     
     enum CodingKeys: String, CodingKey {
         case pan
+        case deviceChannel
         case expiry
         case cvv
         case payerIp
@@ -93,6 +97,7 @@ class PaymentRequest: NSObject, Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(pan, forKey: .pan)
+        try container.encode(deviceChannel, forKey: .deviceChannel)
         try container.encode(cvv, forKey: .cvv)
         try container.encode(cardHolderName, forKey: .cardHolderName)
         try container.encode(expiry, forKey: .expiry)
