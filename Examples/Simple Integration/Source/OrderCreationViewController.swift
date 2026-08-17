@@ -50,14 +50,15 @@ class OrderCreationViewController: UIViewController {
     }
     
     func displayErrorAndClose(error: Error?) {
-        var errorTitle = "Unknown Error"
-        var errorMessage = ""
+        var errorTitle = "Error"
+        var errorMessage = "Something went wrong. Please try again."
         if let error = error {
             let nsError = error as NSError
             let userInfo = nsError.userInfo
-            errorTitle = userInfo["NSLocalizedDescription"] as? String
+            // Show the actual error message from the API (the "message" field,
+            // surfaced via NSLocalizedDescription) in the popup body.
+            errorMessage = userInfo["NSLocalizedDescription"] as? String
                 ?? nsError.localizedDescription
-            errorMessage = "Domain: \(nsError.domain), Code: \(nsError.code)"
         }
 
         DispatchQueue.main.async {
