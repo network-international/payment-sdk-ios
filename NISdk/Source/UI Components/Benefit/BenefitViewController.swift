@@ -10,12 +10,16 @@ import WebKit
 enum BenefitPaymentStatus {
     case success
     case postAuthReview
-    case failed
+    /// Carries why, so the merchant can tell a decline from a dropped connection or a
+    /// misconfigured order instead of receiving an undifferentiated failure.
+    case failed(NIPaymentError)
     /// Dismissed before Benefit recorded anything against the payment. The order is untouched and
     /// still payable, so the payer can go back and choose another method.
     case dismissed
-    /// Cancelled on Benefit's own hosted page. By then the gateway has already marked the payment
-    /// FAILED, which is a final state, so the order is closed and nothing can be paid on it.
+    /// Cancelled on Benefit's own hosted page, after the gateway had already marked this attempt
+    /// FAILED. Reported separately from `dismissed` because that attempt is spent, but it is still
+    /// the payer backing out rather than a payment outcome, so the SDK returns them to the payment
+    /// page instead of ending the payment.
     case cancelledOnProvider
 }
 
@@ -47,6 +51,9 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     private var didReachBenefitHost = false
     /// Host of the hosted page the gateway handed us, e.g. `test.benefit-gateway.bh`.
     private var benefitHost: String?
+
+    /// Names the method on any error handed to the merchant.
+    static let methodName = "BENEFIT"
 
     private static let maxPollAttempts = 15
     private static let pollInterval: TimeInterval = 2
@@ -165,14 +172,32 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
               let response = try? JSONDecoder().decode(BenefitInitResponse.self, from: data) else {
             let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "<no body>"
             print("Benefit: initiation failed httpStatus=\(statusCode) error=\(error?.localizedDescription ?? "none") body=\(body)")
-            DispatchQueue.main.async { self.dispatch(.failed) }
+            // A transport error means the request never got an answer; a 4xx means the gateway
+            // refused this order (not GCC, wrong action or currency, payment already processed),
+            // which is the integration's problem and will not come right on a retry.
+            let category: NIPaymentErrorCategory = {
+                if error != nil { return .network }
+                return (400...499).contains(statusCode) ? .configuration : .provider
+            }()
+            let detail = error?.localizedDescription ?? body
+            DispatchQueue.main.async {
+                self.dispatch(.failed(NIPaymentError(category: category,
+                                                     message: detail,
+                                                     paymentMethod: Self.methodName)))
+            }
             return
         }
         guard response.isInitiated,
               let paymentUrl = response.paymentUrl,
               let url = URL(string: paymentUrl) else {
             print("Benefit: initiation rejected httpStatus=\(statusCode) status=\(response.status ?? "<nil>") error=\(response.errorMessage ?? "<none>")")
-            DispatchQueue.main.async { self.dispatch(.failed) }
+            // Answered, but Benefit would not start the payment — their problem, not the payer's.
+            DispatchQueue.main.async {
+                self.dispatch(.failed(NIPaymentError(
+                    category: .provider,
+                    message: response.errorMessage ?? "Benefit did not accept the payment (status \(response.status ?? "unknown"))",
+                    paymentMethod: Self.methodName)))
+            }
             return
         }
         DispatchQueue.main.async {
@@ -204,7 +229,11 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
                 // A failure that followed the error callback is the payer backing out, not a
                 // decline, so it hands them back to the payment page rather than ending the payment.
                 DispatchQueue.main.async {
-                    self.dispatch(self.payerCancelled ? .cancelledOnProvider : .failed)
+                    self.dispatch(self.payerCancelled
+                                  ? .cancelledOnProvider
+                                  : .failed(NIPaymentError(category: .declined,
+                                                           message: "Payment \(state.lowercased())",
+                                                           paymentMethod: Self.methodName)))
                 }
             default:
                 // Still STARTED or an in-flight state — give the backend more time.
@@ -215,7 +244,16 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
 
     private func retryOrFail() {
         guard pollAttempt < BenefitViewController.maxPollAttempts else {
-            DispatchQueue.main.async { self.dispatch(.failed) }
+            // The payment never reached a final state in the time allowed, so its real outcome is
+            // unknown rather than known-bad. Reported as a timeout so the merchant reconciles from
+            // the order instead of telling the payer it failed.
+            let waited = Int(Double(BenefitViewController.maxPollAttempts) * BenefitViewController.pollInterval)
+            DispatchQueue.main.async {
+                self.dispatch(.failed(NIPaymentError(
+                    category: .timeout,
+                    message: "The payment did not reach a final state within \(waited)s; confirm it from the order",
+                    paymentMethod: Self.methodName)))
+            }
             return
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + BenefitViewController.pollInterval) { [weak self] in
@@ -238,7 +276,7 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     private func resolveAfterLeavingBenefit() {
         guard !didDispatchResult, !didStartPolling else { return }
         if payerCancelled {
-            print("Benefit: payer cancelled on Benefit's page — the order is spent, ending the payment")
+            print("Benefit: payer cancelled on Benefit's page — returning to the payment page")
             dispatch(.cancelledOnProvider)
             return
         }
@@ -466,7 +504,16 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
             startPollingIfNeeded()
             return
         }
-        dispatch(.failed)
+        // Benefit's hosted page never loaded. Connectivity errors are worth a retry; anything else
+        // is Benefit's page failing on its own terms.
+        let isOffline = [NSURLErrorNotConnectedToInternet,
+                         NSURLErrorNetworkConnectionLost,
+                         NSURLErrorTimedOut,
+                         NSURLErrorCannotFindHost,
+                         NSURLErrorCannotConnectToHost].contains(nsError.code)
+        dispatch(.failed(NIPaymentError(category: isOffline ? .network : .provider,
+                                        message: error.localizedDescription,
+                                        paymentMethod: Self.methodName)))
     }
 
     // MARK: - WKUIDelegate

@@ -35,6 +35,8 @@ class PaymentViewController: UIViewController {
     var orderItems: [OrderItem] = []
     var savedCards: [SavedCard] = []
     private var lastPaymentResponse: PaymentResponse?
+    /// Cause of the pending non-successful result, reported alongside it to the merchant.
+    private var paymentError: NIPaymentError?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -451,19 +453,24 @@ class PaymentViewController: UIViewController {
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
                 case .postAuthReview:
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
-                case .failed:
-                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+                case .failed(let error):
+                    // A configuration problem is the integration's to fix, not a payment the payer
+                    // could have completed, so it is reported as an invalid request rather than as
+                    // a declined payment.
+                    let status: PaymentStatus = error.category == .configuration
+                        ? .InValidRequest
+                        : .PaymentFailed
+                    self?.finishPaymentAndClosePaymentViewController(with: status, and: nil, and: nil,
+                                                                     error: error)
                 case .dismissed:
                     // Backed out before Benefit recorded anything — the order is untouched, so the
                     // payer stays on the payment page with their other options intact.
                     break
                 case .cancelledOnProvider:
-                    // Cancelling on Benefit's own page is not recoverable: the gateway records the
-                    // payment as FAILED, which is a final state, so the order closes and no other
-                    // method can be used on it either. Returning to the payment page would only
-                    // offer options that are all guaranteed to fail, so the payment ends here and
-                    // the merchant is told, leaving them to start a fresh order.
-                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentCancelled, and: nil, and: nil)
+                    // Cancelling on Benefit's own page is the payer changing their mind, not a
+                    // payment outcome, so it hands them back to the payment page with their other
+                    // options intact rather than ending the payment on their behalf.
+                    break
                 }
             }
             let navController = UINavigationController(rootViewController: benefitVC)
@@ -474,8 +481,13 @@ class PaymentViewController: UIViewController {
             navController.isModalInPresentation = true
             self.present(navController, animated: true)
         } catch {
+            // The order is missing the links Benefit needs, so the request was never valid.
             print("Benefit: Failed to build args - \(error)")
-            finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+            finishPaymentAndClosePaymentViewController(
+                with: .InValidRequest, and: nil, and: nil,
+                error: NIPaymentError(category: .configuration,
+                                      message: "Benefit cannot start for this order: \(error)",
+                                      paymentMethod: BenefitViewController.methodName))
         }
     }
 
@@ -774,7 +786,11 @@ class PaymentViewController: UIViewController {
                     let partialAuthArgs = try paymentResponse.toPartialAuthArgs(accessToken: self.accessToken)
                     self.initiatePartialAuth(partialAuthArgs: partialAuthArgs)
                 } catch {
-                    self.cardPaymentDelegate?.paymentDidComplete(with: .InValidRequest)
+                    self.paymentError = NIPaymentError(
+                        category: .configuration,
+                        message: "Partial authorisation arguments could not be built: \(error)"
+                    )
+                    self.reportPaymentDidComplete(.InValidRequest)
                 }
                 return
             }
@@ -889,10 +905,23 @@ class PaymentViewController: UIViewController {
     }
     
     // This is called when payment is done(fail or success) with 3ds(fail or success) or without 3ds
+    /// Single exit point to the merchant. The required callback is always delivered unchanged; the
+    /// optional one carries the cause when there is one, so integrations that never adopt it keep
+    /// working exactly as before.
+    private func reportPaymentDidComplete(_ paymentStatus: PaymentStatus) {
+        let error = paymentStatus == .PaymentSuccess ? nil : paymentError
+        cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
+        cardPaymentDelegate?.paymentDidComplete?(with: paymentStatus, error: error)
+    }
+
     private func finishPaymentAndClosePaymentViewController(with paymentStatus: PaymentStatus,
                                                             and threeDSStatus: ThreeDSStatus?,
-                                                            and authStatus: AuthorizationStatus?) {
-        print("ApplePay/Payment: finishPaymentAndClosePaymentViewController - paymentStatus: \(paymentStatus), threeDSStatus: \(String(describing: threeDSStatus)), authStatus: \(String(describing: authStatus))")
+                                                            and authStatus: AuthorizationStatus?,
+                                                            error: NIPaymentError? = nil) {
+        // Held on the controller because the result screen defers the delegate callback, so the
+        // cause has to survive until whichever exit path actually reports the payment.
+        self.paymentError = error
+        print("ApplePay/Payment: finishPaymentAndClosePaymentViewController - paymentStatus: \(paymentStatus), threeDSStatus: \(String(describing: threeDSStatus)), authStatus: \(String(describing: authStatus)), error: \(error?.description ?? "none")")
         DispatchQueue.main.async { // Use the main thread to update any UI
             if let threeDSStatus = threeDSStatus {
                 self.cardPaymentDelegate?.threeDSChallengeDidComplete?(with: threeDSStatus)
@@ -914,7 +943,7 @@ class PaymentViewController: UIViewController {
 
             self.closePaymentViewController(completion: {
                 [weak self] in
-                self?.cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
+                self?.reportPaymentDidComplete(paymentStatus)
             })
         }
     }
@@ -942,7 +971,7 @@ class PaymentViewController: UIViewController {
 
         let resultVC = PaymentResultViewController(args: args, onDone: { [weak self] in
             self?.closePaymentViewController(completion: {
-                self?.cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
+                self?.reportPaymentDidComplete(paymentStatus)
             })
         })
 

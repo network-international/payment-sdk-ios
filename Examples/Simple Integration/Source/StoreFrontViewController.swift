@@ -334,6 +334,29 @@ class StoreFrontViewController:
         }
     }
 
+    /// The optional companion callback, showing what a merchant can do with the cause: retry a
+    /// network drop, reconcile a timeout from the order rather than declaring failure, and treat a
+    /// configuration problem as an integration bug instead of a payment the customer can retry.
+    @objc func paymentDidComplete(with status: PaymentStatus, error: NIPaymentError?) {
+        guard let error = error else { return }
+        print("Payment finished as \(status.rawVal) — \(error)")
+
+        switch error.category {
+        case .timeout:
+            // Deliberately not reported as a failure: the outcome is genuinely unknown here.
+            showAlertWith(title: "Payment Status Unknown",
+                          message: "We could not confirm this payment in time. Check the order before retrying.")
+        case .network:
+            showAlertWith(title: "Connection Problem",
+                          message: "Check your connection and try again.")
+        case .configuration:
+            showAlertWith(title: "Configuration Error",
+                          message: error.message ?? "This order cannot be paid with the selected method.")
+        case .declined, .provider, .unknown:
+            break // already covered by the required callback's alert
+        }
+    }
+
     @objc func authorizationDidComplete(with status: AuthorizationStatus) {
         if(status == .AuthFailed) {
             return

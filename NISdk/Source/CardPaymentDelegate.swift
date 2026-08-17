@@ -18,6 +18,11 @@ import Foundation
     // payment event cycles
     @objc optional func paymentDidBegin()
     @objc func paymentDidComplete(with status: PaymentStatus)
+
+    /// Called alongside `paymentDidComplete(with:)` whenever the SDK can say why a payment did not
+    /// succeed. Optional, so existing integrations are unaffected; `error` is nil when the payment
+    /// succeeded or when no cause could be determined.
+    @objc optional func paymentDidComplete(with status: PaymentStatus, error: NIPaymentError?)
     
     // 3ds challenge cycles
     @objc optional func threeDSChallengeDidBegin()
