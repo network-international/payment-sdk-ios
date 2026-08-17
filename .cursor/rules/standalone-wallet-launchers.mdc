@@ -1,0 +1,18 @@
+---
+description: Standalone Apple Pay — enable/disable model and continuation notes
+globs: **/NISdk.swift,**/PaymentViewController.swift,**/StoreFrontViewController.swift,README.md
+alwaysApply: false
+---
+
+# Standalone Apple Pay (iOS)
+
+Read `docs/AGENT_HANDOFF_STANDALONE_WALLETS.md` before changing Apple Pay entry points.
+
+Enable/disable is what the merchant passes. Do not add an `NISdk` Apple Pay flag.
+
+- UPP on: `applePayRequest` + `applePayDelegate` in `showCardPaymentViewWith`
+- UPP off: `with: nil` and `applePayDelegate: nil`
+- Standalone: `initiateApplePayWith` (do not rename)
+- Missing `applePayLink` on the standalone path: `.InValidRequest`, not `.PaymentFailed`
+
+Sister Android branch: `feature/standalone-wallet-launchers` on `payment-sdk-android`.

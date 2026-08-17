@@ -116,7 +116,7 @@ class PaymentViewController: UIViewController {
         
         // Apple pay is not enabled by merchant, hence abort payment flow
         if(self.paymentMedium == .ApplePay && (self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink) == nil) {
-            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
+            self.finishPaymentAndClosePaymentViewController(with: .InValidRequest, and: nil, and: nil);
             return
         }
         // 1. Perform authorization by aquiring a payment token

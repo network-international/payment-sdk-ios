@@ -510,6 +510,9 @@ class StoreFrontViewController:
     func didSelectCardPayment(orderResponse: OrderResponse) {
         applySDKColors()
 
+        // Pass a PKPaymentRequest to show Apple Pay on the unified page.
+        // Pass `with: nil` (and applePayDelegate: nil) to hide Apple Pay on the page
+        // when the merchant launches it standalone via initiateApplePayWith.
         NISdk.sharedInstance.showCardPaymentViewWith(
             cardPaymentDelegate: self,
             applePayDelegate: self,
