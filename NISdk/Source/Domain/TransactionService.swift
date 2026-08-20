@@ -60,4 +60,11 @@ import PassKit
     @objc func initQPay(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
 
     @objc func initBenefit(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
+
+    /// Starts a buy-now-pay-later checkout (Tamara or Tabby — one endpoint shape, one body).
+    @objc func initBnpl(with url: String, successUrl: String, cancelUrl: String, failureUrl: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
+
+    /// Hands the provider's own reference back so the gateway can finalise the payment. The field
+    /// name differs per provider (`tamaraOrderId`, `tabbyPaymentId`), so it travels with the value.
+    @objc func acceptBnpl(with url: String, idField: String, idValue: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
 }

@@ -73,6 +73,12 @@
 "Pay with Aani" = "Pay with AANI";
 "Pay by Benefit" = "Pay by Benefit";
 "Benefit" = "Benefit";
+"Pay with Tamara" = "Pay with Tamara";
+"Tamara" = "Tamara";
+"Pay with Tabby" = "Pay with Tabby";
+"Tabby" = "Tabby";
+"Bnpl below minimum" = "%1$@ needs a minimum order of %2$@.";
+"Bnpl unavailable" = "%@ is unavailable right now. Please choose another payment method.";
 "aani_request_to_pay" = "Request to Pay";
 "aani_generating_qr" = "Generating QR Code";
 "aani_keep_modal_open" = "Please keep the modal open";

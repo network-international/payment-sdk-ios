@@ -134,6 +134,10 @@
 		BB07C5912408F36B93D4986B /* UtilityExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F66702969FDDDA37410800 /* UtilityExtensionTests.swift */; };
 		BNF0090000000000000009 /* BenefitInitResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BNF0020000000000000002 /* BenefitInitResponse.swift */; };
 		BNF00A000000000000000A /* BenefitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BNF0030000000000000003 /* BenefitViewController.swift */; };
+		TMR0030000000000000003 /* BnplInitResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR0010000000000000001 /* BnplInitResponse.swift */; };
+		TMR0040000000000000004 /* BnplViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR0020000000000000002 /* BnplViewController.swift */; };
+		TMR0070000000000000007 /* BnplProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR0080000000000000008 /* BnplProvider.swift */; };
+		TMR0090000000000000009 /* BnplInitArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR00A000000000000000A /* BnplInitArgs.swift */; };
 		C08AE63D291C17A14F3E6261 /* PgTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0966E6A5D0454F1F0FDF6692 /* PgTokens.swift */; };
 		C2P0080000000000000008 /* ClickToPayConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0010000000000000001 /* ClickToPayConfig.swift */; };
 		C2P0090000000000000009 /* ClickToPayResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0020000000000000002 /* ClickToPayResponse.swift */; };
@@ -310,6 +314,10 @@
 		BE878C1D4B00255BE2CD6662 /* DomainModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DomainModelTests.swift; sourceTree = "<group>"; };
 		BNF0020000000000000002 /* BenefitInitResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenefitInitResponse.swift; sourceTree = "<group>"; };
 		BNF0030000000000000003 /* BenefitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenefitViewController.swift; sourceTree = "<group>"; };
+		TMR0010000000000000001 /* BnplInitResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplInitResponse.swift; sourceTree = "<group>"; };
+		TMR0020000000000000002 /* BnplViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplViewController.swift; sourceTree = "<group>"; };
+		TMR0080000000000000008 /* BnplProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplProvider.swift; sourceTree = "<group>"; };
+		TMR00A000000000000000A /* BnplInitArgs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplInitArgs.swift; sourceTree = "<group>"; };
 		C2P0010000000000000001 /* ClickToPayConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayConfig.swift; sourceTree = "<group>"; };
 		C2P0020000000000000002 /* ClickToPayResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayResponse.swift; sourceTree = "<group>"; };
 		C2P0030000000000000003 /* ClickToPayArgs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayArgs.swift; sourceTree = "<group>"; };
@@ -433,6 +441,7 @@
 				863FC9B327F4413700692767 /* ThreeDSTwoViewController.swift */,
 				C2P0160000000000000016 /* Click To Pay */,
 				BNF0160000000000000016 /* Benefit */,
+				TMR0060000000000000006 /* BNPL */,
 				FD977BABDE1364E896B1BC06 /* Unified Payment Page */,
 				AA00000300000000000003 /* Aani Pay */,
 				AA00000300000000000004 /* Visa Installment */,
@@ -462,6 +471,7 @@
 				AA00000300000000000002 /* Visa */,
 				C2P0150000000000000015 /* ClickToPay */,
 				BNF0150000000000000015 /* Benefit */,
+				TMR0050000000000000005 /* BNPL */,
 				863FC9B727F4506000692767 /* ThreeDSTwo */,
 				862CBE65230C8C0500767774 /* Payment Fields */,
 				862CBE61230C7F9100767774 /* Transaction Service Responses */,
@@ -764,6 +774,24 @@
 			path = Benefit;
 			sourceTree = "<group>";
 		};
+		TMR0050000000000000005 /* BNPL */ = {
+			isa = PBXGroup;
+			children = (
+				TMR0080000000000000008 /* BnplProvider.swift */,
+				TMR00A000000000000000A /* BnplInitArgs.swift */,
+				TMR0010000000000000001 /* BnplInitResponse.swift */,
+			);
+			path = BNPL;
+			sourceTree = "<group>";
+		};
+		TMR0060000000000000006 /* BNPL */ = {
+			isa = PBXGroup;
+			children = (
+				TMR0020000000000000002 /* BnplViewController.swift */,
+			);
+			path = BNPL;
+			sourceTree = "<group>";
+		};
 		C2P0150000000000000015 /* ClickToPay */ = {
 			isa = PBXGroup;
 			children = (
@@ -1004,6 +1032,10 @@
 				C2P0130000000000000013 /* ClickToPayApiInteractor.swift in Sources */,
 				BNF0090000000000000009 /* BenefitInitResponse.swift in Sources */,
 				BNF00A000000000000000A /* BenefitViewController.swift in Sources */,
+				TMR0030000000000000003 /* BnplInitResponse.swift in Sources */,
+				TMR0040000000000000004 /* BnplViewController.swift in Sources */,
+				TMR0070000000000000007 /* BnplProvider.swift in Sources */,
+				TMR0090000000000000009 /* BnplInitArgs.swift in Sources */,
 				D93D6B252E2FD2E23D685FE5 /* UnifiedPaymentPageViewController.swift in Sources */,
 				2374DE223655CE612EBA3EFE /* CardPaymentSectionView.swift in Sources */,
 				2748FAE7BA9103FFB76277BA /* OrderHeaderView.swift in Sources */,

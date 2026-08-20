@@ -25,6 +25,9 @@ class PaymentViewController: UIViewController {
     private var accessToken: String?
     private let paymentMedium: PaymentMedium
     private var applePayController: ApplePayController?
+    /// The unified payment page while it is on screen, so a BNPL option that fails to start can
+    /// report back onto its own row instead of ending the payment.
+    private weak var unifiedPage: UnifiedPaymentPageViewController?
     private var applePayDelegate: ApplePayDelegate?
     var applePayRequest: PKPaymentRequest?
     private let cvv: String?
@@ -198,6 +201,9 @@ class PaymentViewController: UIViewController {
             unifiedPaymentPage.onBenefitTapped = { [weak self] in
                 self?.initiateBenefitFromUnifiedPage()
             }
+            unifiedPaymentPage.onBnplTapped = { [weak self] provider in
+                self?.initiateBnplFromUnifiedPage(provider)
+            }
             // Signal to UnifiedPaymentPage whether the Slice link is present on the order — drives
             // whether the brand banner is shown when the entered card returns no eligible offers.
             unifiedPaymentPage.sliceEligibilityLinkPresent = order.embeddedData?.getSliceEligibilityCheckLink() != nil
@@ -272,6 +278,7 @@ class PaymentViewController: UIViewController {
                 savedCardRequest.visaRequest = visaRequest
                 self.makeSavedCardPayment(savedCardRequest)
             }
+            self.unifiedPage = unifiedPaymentPage
             self.transition(to: .renderCardPaymentForm(unifiedPaymentPage))
             break
         case .ApplePay:
@@ -488,6 +495,65 @@ class PaymentViewController: UIViewController {
                 error: NIPaymentError(category: .configuration,
                                       message: "Benefit cannot start for this order: \(error)",
                                       paymentMethod: BenefitViewController.methodName))
+        }
+    }
+
+    private func initiateBnplFromUnifiedPage(_ provider: BnplProvider) {
+        guard let token = self.accessToken, !token.isEmpty else {
+            print("\(provider.methodName): missing access token; cannot start checkout")
+            finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+            return
+        }
+        do {
+            let args = try order.toBnplInitArgs(for: provider)
+            let bnplVC = BnplViewController(
+                args: args,
+                transactionService: transactionService,
+                accessToken: token
+            ) { [weak self] status in
+                switch status {
+                case .success:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                case .postAuthReview:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
+                case .failed(let error):
+                    // A configuration problem is the integration's to fix, not a payment the payer
+                    // could have completed, so it is reported as an invalid request rather than as
+                    // a declined payment.
+                    let status: PaymentStatus = error.category == .configuration
+                        ? .InValidRequest
+                        : .PaymentFailed
+                    self?.finishPaymentAndClosePaymentViewController(with: status, and: nil, and: nil,
+                                                                     error: error)
+                case .unavailable(let error):
+                    // The checkout never opened, so nothing is owed and every other method is still
+                    // available. Ending the payment here would cost the merchant a sale over a
+                    // provider outage, so the payer is returned to the page with the row marked
+                    // unavailable instead.
+                    print("\(provider.methodName): unavailable - \(error)")
+                    self?.unifiedPage?.markBnplUnavailable(provider)
+                case .dismissed, .cancelledOnProvider:
+                    // Backing out — from our toolbar or from the provider's own page — is the payer
+                    // changing their mind rather than a payment outcome, so they return to the
+                    // payment page with their other options intact.
+                    break
+                }
+            }
+            let navController = UINavigationController(rootViewController: bnplVC)
+            navController.modalPresentationStyle = .pageSheet
+            // A swipe-down would tear the sheet away without ever running the completion handler,
+            // so a checkout the payer had already approved would be silently dropped. Cancel is the
+            // only way out, and it resolves the payment when a return leg was reached.
+            navController.isModalInPresentation = true
+            self.present(navController, animated: true)
+        } catch {
+            // The order is missing the links the provider needs, so the request was never valid.
+            print("\(provider.methodName): Failed to build args - \(error)")
+            finishPaymentAndClosePaymentViewController(
+                with: .InValidRequest, and: nil, and: nil,
+                error: NIPaymentError(category: .configuration,
+                                      message: "\(provider.methodName) cannot start for this order: \(error)",
+                                      paymentMethod: provider.methodName))
         }
     }
 

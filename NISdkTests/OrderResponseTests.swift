@@ -272,3 +272,204 @@ final class OrderResponseBuilderTests: XCTestCase {
         XCTAssertNil(order.orderLinks)
     }
 }
+
+final class OrderResponseBnplTests: XCTestCase {
+
+    /// Mirrors what the gateway actually returns for a BNPL-enabled outlet: the providers under
+    /// `paymentMethods.apm`, each with its own `payment:{provider}` rel.
+    private func bnplOrder(apm: [String],
+                           rels: [BnplProvider] = BnplProvider.allCases,
+                           currencyCode: String = "AED",
+                           value: Double = 50000) throws -> OrderResponse {
+        var links = TestFixtures.defaultPaymentLinks()
+        for provider in rels {
+            links[provider.linkRel] = ["href": "https://api.sandbox.ngenius-payments.com/payments/pay123/\(provider.pathSegment)"]
+        }
+        return try TestFixtures.order(
+            currencyCode: currencyCode,
+            value: value,
+            paymentLinks: links,
+            overrides: ["paymentMethods": ["card": ["VISA"], "wallet": [], "apm": apm]])
+    }
+
+    func testEachProviderIsOfferedWhenTheOrderListsIt() throws {
+        XCTAssertEqual(try bnplOrder(apm: ["TAMARA"]).supportedBnplProviders, [.tamara])
+        XCTAssertEqual(try bnplOrder(apm: ["TABBY"]).supportedBnplProviders, [.tabby])
+    }
+
+    /// The live DEV order carries all three APMs together; both BNPL providers must survive that.
+    func testBothProvidersAreOfferedAlongsideOtherApms() throws {
+        let order = try bnplOrder(apm: ["TABBY", "AANI", "TAMARA"])
+        XCTAssertEqual(order.supportedBnplProviders, [.tamara, .tabby])
+    }
+
+    func testApmComparisonIsCaseInsensitive() throws {
+        XCTAssertEqual(try bnplOrder(apm: ["tamara", "tabby"]).supportedBnplProviders, [.tamara, .tabby])
+    }
+
+    func testNothingIsOfferedWhenTheOrderListsNoBnplApms() throws {
+        XCTAssertTrue(try bnplOrder(apm: ["AANI"]).supportedBnplProviders.isEmpty)
+        XCTAssertTrue(try TestFixtures.order().supportedBnplProviders.isEmpty)
+    }
+
+    /// An unknown APM must not stop the known ones decoding — the gateway adds them without an SDK
+    /// release.
+    func testUnknownApmsAreKeptRatherThanFailingTheOrder() throws {
+        let order = try bnplOrder(apm: ["SOMETHING_NEW", "TAMARA"])
+        XCTAssertEqual(order.paymentMethods?.apm, ["SOMETHING_NEW", "TAMARA"])
+        XCTAssertEqual(order.supportedBnplProviders, [.tamara])
+    }
+
+    /// A basket under the provider's minimum must not remove the row: an option the outlet enables
+    /// and the payer cannot find reads as the SDK being broken. It stays, and says why.
+    func testABasketBelowTheMinimumStillOffersTheRow() throws {
+        let order = try bnplOrder(apm: ["TAMARA", "TABBY"], currencyCode: "AED", value: 500)
+        XCTAssertEqual(order.supportedBnplProviders, [.tamara, .tabby])
+        XCTAssertTrue(order.isBelowBnplMinimum(for: .tabby))
+    }
+
+    func testTheMinimumIsClearedExactlyAtTheThreshold() throws {
+        let order = try bnplOrder(apm: ["TABBY"], currencyCode: "AED", value: 1000)
+        XCTAssertFalse(order.isBelowBnplMinimum(for: .tabby))
+    }
+
+    /// The minimum is quoted in AED only, so another currency is left to the gateway to judge.
+    func testTheAedMinimumDoesNotLeakIntoOtherCurrencies() throws {
+        let order = try bnplOrder(apm: ["TABBY"], currencyCode: "SAR", value: 500)
+        XCTAssertFalse(order.isBelowBnplMinimum(for: .tabby))
+        XCTAssertNil(order.formattedBnplMinimum(for: .tabby))
+    }
+
+    /// Tamara publishes no minimum, so nothing is invented for it.
+    func testTamaraHasNoMinimumOfItsOwn() throws {
+        let order = try bnplOrder(apm: ["TAMARA"], currencyCode: "AED", value: 1)
+        XCTAssertFalse(order.isBelowBnplMinimum(for: .tamara))
+        XCTAssertNil(order.formattedBnplMinimum(for: .tamara))
+    }
+
+    func testTheMinimumIsFormattedForDisplayInTheOrdersCurrency() throws {
+        let order = try bnplOrder(apm: ["TABBY"], currencyCode: "AED", value: 500)
+        XCTAssertEqual(order.formattedBnplMinimum(for: .tabby), "AED 10")
+    }
+
+    /// BHD carries three minor digits, so a naive divide-by-100 would read 500 as 5.000 and clear a
+    /// threshold it does not actually meet.
+    func testMinorUnitsAreRespectedWhenComparing() throws {
+        let order = try bnplOrder(apm: ["TABBY"], currencyCode: "AED", value: 999)
+        XCTAssertTrue(order.isBelowBnplMinimum(for: .tabby))
+    }
+
+    func testInitArgsUseTheAdvertisedLink() throws {
+        let args = try bnplOrder(apm: ["TAMARA"]).toBnplInitArgs(for: .tamara)
+
+        XCTAssertEqual(args.provider, .tamara)
+        XCTAssertEqual(args.checkoutLink, "https://api.sandbox.ngenius-payments.com/payments/pay123/tamara")
+        XCTAssertEqual(args.acceptLink, "https://api.sandbox.ngenius-payments.com/payments/pay123/tamara/accept")
+        XCTAssertEqual(args.orderLink, "https://api.sandbox.ngenius-payments.com/orders/abc123")
+    }
+
+    /// An outlet that lists the APM without the rel still gets the option, with the endpoint
+    /// derived from the payment's own self link.
+    func testEndpointIsDerivedWhenTheRelIsAbsent() throws {
+        let order = try bnplOrder(apm: ["TABBY"], rels: [])
+        XCTAssertEqual(order.supportedBnplProviders, [.tabby])
+        XCTAssertEqual(try order.toBnplInitArgs(for: .tabby).checkoutLink,
+                       "https://api.sandbox.ngenius-payments.com/payments/pay123/tabby")
+    }
+
+    /// The return URLs are the paypage address the web checkout uses, with a marker the WebView
+    /// matches on. The providers append their own parameters, so the marker has to survive that.
+    func testReturnUrlsCarryTheAuthCodeAndTheResultMarker() throws {
+        let args = try bnplOrder(apm: ["TABBY"]).toBnplInitArgs(for: .tabby)
+
+        XCTAssertEqual(args.successUrl,
+                       "https://paypage.sandbox.ngenius-payments.com/v2?code=AUTHCODE123&payment_method=tabby&ni_sdk_result=success")
+        XCTAssertEqual(args.cancelUrl,
+                       "https://paypage.sandbox.ngenius-payments.com/v2?code=AUTHCODE123&ni_sdk_result=cancel")
+        XCTAssertEqual(args.failureUrl,
+                       "https://paypage.sandbox.ngenius-payments.com/v2?code=AUTHCODE123&payment_method=tabby&ni_sdk_result=failure")
+    }
+
+    func testInitArgsThrowWhenTheAuthCodeIsMissing() throws {
+        var links = TestFixtures.defaultPaymentLinks()
+        links["payment:tamara"] = ["href": "https://api.example.com/payments/pay123/tamara"]
+        let order = try TestFixtures.order(
+            payPageHref: "https://paypage.sandbox.ngenius-payments.com/",
+            paymentLinks: links,
+            overrides: ["paymentMethods": ["apm": ["TAMARA"]]])
+
+        XCTAssertThrowsError(try order.toBnplInitArgs(for: .tamara))
+    }
+
+    func testCheckoutTypeIsTheOnlyValueTheApmEndpointAccepts() {
+        XCTAssertEqual(BnplInitArgs.checkoutType, "INSTALLMENTS")
+    }
+
+    /// The gateway named these itself and they do not follow one convention, so a swap between them
+    /// would fail every accept call.
+    func testEachProviderKeepsItsOwnAcceptFieldName() {
+        XCTAssertEqual(BnplProvider.tamara.acceptIdField, "tamaraOrderId")
+        XCTAssertEqual(BnplProvider.tabby.acceptIdField, "tabbyPaymentId")
+    }
+
+    /// Row tags survive the round trip, and a default-tagged view is not mistaken for a provider.
+    func testRowTagsRoundTripAndRejectUntaggedViews() {
+        for provider in BnplProvider.allCases {
+            XCTAssertEqual(BnplProvider(rowTag: provider.rowTag), provider)
+        }
+        XCTAssertNil(BnplProvider(rowTag: 0))
+    }
+}
+
+final class BnplInitResponseTests: XCTestCase {
+
+    /// Verbatim from the gateway on the DEV outlet with Tamara live.
+    func testDecodesTheLiveTamaraResponse() throws {
+        let response = try TestFixtures.decode(BnplInitResponse.self, from: [
+            "webUrl": "https://checkout-sandbox.tamara.co/checkout/ee26f7e6?orderId=761d053b",
+            "tamaraOrderId": "761d053b-8bf4-4767-8bfb-0bcd2af004d8"
+        ])
+
+        XCTAssertEqual(response.checkoutUrl, "https://checkout-sandbox.tamara.co/checkout/ee26f7e6?orderId=761d053b")
+        XCTAssertEqual(response.providerReference, "761d053b-8bf4-4767-8bfb-0bcd2af004d8")
+    }
+
+    func testReadsTabbysPaymentId() throws {
+        let response = try TestFixtures.decode(BnplInitResponse.self,
+                                               from: ["webUrl": "https://checkout.tabby.ai/abc",
+                                                      "tabbyPaymentId": "tabby-1"])
+        XCTAssertEqual(response.providerReference, "tabby-1")
+    }
+
+    /// The sibling APMs each spell the URL field differently, so every spelling is accepted rather
+    /// than leaving the payer on a blank sheet if this one follows Benefit or QPay instead.
+    func testAcceptsTheOtherSpellingsTheApmResponsesUse() throws {
+        for field in ["redirectUrl", "paymentUrl", "checkoutUrl"] {
+            let response = try TestFixtures.decode(BnplInitResponse.self,
+                                                   from: [field: "https://checkout.tamara.co/abc"])
+            XCTAssertEqual(response.checkoutUrl, "https://checkout.tamara.co/abc", "\(field) must be read")
+        }
+    }
+
+    func testEmptyUrlsAreIgnoredInFavourOfAPopulatedOne() throws {
+        let response = try TestFixtures.decode(BnplInitResponse.self,
+                                               from: ["webUrl": "", "paymentUrl": "https://checkout.tamara.co/abc"])
+        XCTAssertEqual(response.checkoutUrl, "https://checkout.tamara.co/abc")
+    }
+
+    func testCancelledAndErrorMessageAreRead() throws {
+        let response = try TestFixtures.decode(BnplInitResponse.self,
+                                               from: ["cancelled": true, "errorMessage": "order amount too low"])
+        XCTAssertEqual(response.cancelled, true)
+        XCTAssertEqual(response.errorMessage, "order amount too low")
+        XCTAssertNil(response.checkoutUrl)
+    }
+
+    /// An order id and a payment id are different things, so the provider-specific name wins over
+    /// the generic one rather than whichever the decoder happened to read first.
+    func testProviderSpecificReferenceWinsOverTheGenericOne() throws {
+        let response = try TestFixtures.decode(BnplInitResponse.self,
+                                               from: ["tamaraOrderId": "tam-1", "orderId": "generic-1"])
+        XCTAssertEqual(response.providerReference, "tam-1")
+    }
+}

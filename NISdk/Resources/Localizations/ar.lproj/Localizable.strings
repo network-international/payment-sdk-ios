@@ -72,6 +72,12 @@
 "Pay with Aani" = "الدفع عبر آني";
 "Pay by Benefit" = "الدفع عبر بنفت";
 "Benefit" = "بنفت";
+"Pay with Tamara" = "الدفع عبر تمارا";
+"Tamara" = "تمارا";
+"Pay with Tabby" = "الدفع عبر تابي";
+"Tabby" = "تابي";
+"Bnpl below minimum" = "‏%1$@ يتطلب حد أدنى للطلب %2$@.";
+"Bnpl unavailable" = "‏%@ غير متاح حالياً. يرجى اختيار طريقة دفع أخرى.";
 "aani_request_to_pay" = "طلب دفع";
 "aani_generating_qr" = "جارٍ إنشاء رمز الاستجابة";
 "aani_keep_modal_open" = "يرجى إبقاء النافذة مفتوحة";

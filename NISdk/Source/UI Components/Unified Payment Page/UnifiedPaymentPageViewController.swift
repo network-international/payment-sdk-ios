@@ -19,6 +19,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     var onAaniTapped: (() -> Void)?
     var onQPayTapped: (() -> Void)?
     var onBenefitTapped: (() -> Void)?
+    var onBnplTapped: ((BnplProvider) -> Void)?
     var onMakeSavedCardPayment: ((SavedCard, String?, VisaRequest?) -> Void)?
     /// Slice eligibility check. The first param is either a raw PAN (manual entry) or a saved-card
     /// token, distinguished by `isSavedToken`. The receiver routes to the right API field
@@ -117,6 +118,10 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var clickToPayRadioButton: RadioButtonView?
     private var aaniRadioButton: RadioButtonView?
     private var benefitRadioButton: RadioButtonView?
+    private var bnplRadioButtons: [BnplProvider: RadioButtonView] = [:]
+    /// The notice slot under each BNPL row — the "minimum order" hint, or why the provider could
+    /// not be reached. Hidden until there is something to say.
+    private var bnplNoticeLabels: [BnplProvider: UILabel] = [:]
     private let bottomBarView = UIView()
     private var bottomBarBottomConstraint: NSLayoutConstraint?
     private let bottomPayButton = UIButton()
@@ -214,6 +219,11 @@ class UnifiedPaymentPageViewController: UIViewController {
         // Benefit - show only for a BHD purchase on an outlet that lists BENEFIT
         if order.isBenefitSupported {
             availablePaymentOptions.append(.benefit)
+        }
+
+        // Buy now, pay later — one row per provider the order actually supports
+        for provider in order.supportedBnplProviders {
+            availablePaymentOptions.append(.bnpl(provider))
         }
 
         // viewDidLoad applies the default selection (Pay by Card if available) after the UI
@@ -381,7 +391,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             let token = card.cardToken ?? ""
             let cvvText = savedCardCvvFields[token]?.text ?? ""
             enabled = !card.recaptureCsc || !cvvText.isEmpty
-        case .applePay, .aani, .clickToPay, .qpay, .benefit:
+        case .applePay, .aani, .clickToPay, .qpay, .benefit, .bnpl:
             enabled = true
         case .none:
             enabled = false
@@ -489,6 +499,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             || availablePaymentOptions.contains(.clickToPay)
             || availablePaymentOptions.contains(.aani)
             || availablePaymentOptions.contains(.benefit)
+            || !availableBnplProviders.isEmpty
             || (availablePaymentOptions.contains(.qpay) && !qpayExpress)
         if hasOtherOptions {
             let headerTitle = qpayExpress
@@ -515,6 +526,10 @@ class UnifiedPaymentPageViewController: UIViewController {
             if availablePaymentOptions.contains(.benefit) {
                 let benefitSection = createBenefitSection()
                 contentStackView.addArrangedSubview(benefitSection)
+            }
+
+            for provider in availableBnplProviders {
+                contentStackView.addArrangedSubview(createBnplSection(for: provider))
             }
         }
 
@@ -956,6 +971,134 @@ class UnifiedPaymentPageViewController: UIViewController {
         }
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(benefitRadioTapped))
+        row.addGestureRecognizer(tap)
+        row.isUserInteractionEnabled = true
+
+        let rowContainer = UIView()
+        rowContainer.layer.cornerRadius = PgRadius.row
+        rowContainer.layer.borderColor = PgColors.borderRow.cgColor
+        rowContainer.layer.borderWidth = 1
+        rowContainer.backgroundColor = PgColors.surfaceRow
+        rowContainer.translatesAutoresizingMaskIntoConstraints = false
+        rowContainer.addSubview(row)
+        row.anchor(top: rowContainer.topAnchor, leading: rowContainer.leadingAnchor,
+                   bottom: rowContainer.bottomAnchor, trailing: rowContainer.trailingAnchor,
+                   padding: UIEdgeInsets(top: 20, left: PgSpacing.rowPaddingH,
+                                        bottom: 20, right: PgSpacing.rowPaddingH))
+
+        let paddedContainer = UIView()
+        paddedContainer.translatesAutoresizingMaskIntoConstraints = false
+        paddedContainer.addSubview(rowContainer)
+        rowContainer.anchor(top: paddedContainer.topAnchor, leading: paddedContainer.leadingAnchor,
+                            bottom: paddedContainer.bottomAnchor, trailing: paddedContainer.trailingAnchor,
+                            padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
+                                                  bottom: 0, right: PgSpacing.pageH))
+        return paddedContainer
+    }
+
+    // MARK: - Buy Now, Pay Later Sections
+
+    /// The BNPL providers on offer, in the order they were discovered.
+    private var availableBnplProviders: [BnplProvider] {
+        availablePaymentOptions.compactMap {
+            if case .bnpl(let provider) = $0 { return provider }
+            return nil
+        }
+    }
+
+    /// Providers whose checkout could not be opened this session. Their rows stay visible but say
+    /// so and stop responding, rather than sending the payer back into a checkout that just failed.
+    private var bnplUnavailableProviders: Set<BnplProvider> = []
+
+    /// Puts a line under a BNPL row, or clears it when `text` is nil.
+    private func showBnplNotice(_ provider: BnplProvider, _ text: String?) {
+        guard let label = bnplNoticeLabels[provider] else { return }
+        label.text = text
+        label.isHidden = text == nil
+    }
+
+    /// Clears the notices that belong to the current selection, leaving in place the ones that
+    /// outlive it — a provider that could not be reached is still unreachable after a deselect.
+    private func hideTransientBnplNotices() {
+        for (provider, label) in bnplNoticeLabels where !bnplUnavailableProviders.contains(provider) {
+            label.isHidden = true
+        }
+    }
+
+    /// Marks a provider as unreachable after its checkout failed to open: the row greys out, says
+    /// why, and the selection moves off it so the payer's next tap goes somewhere that works.
+    func markBnplUnavailable(_ provider: BnplProvider) {
+        bnplUnavailableProviders.insert(provider)
+        bnplRadioButtons[provider]?.isOn = false
+        bnplRadioButtons[provider]?.alpha = 0.5
+        showBnplNotice(provider, String.localizedStringWithFormat(
+            "Bnpl unavailable".localized, provider.displayNameKey.localized))
+        if selectedPaymentOption == .bnpl(provider) {
+            selectedPaymentOption = nil
+            updateBottomPayButton()
+        }
+    }
+
+    /// A BNPL row: title, brand mark, and nothing else. The second line stays reserved for a notice
+    /// — too small a basket for this provider, or a provider that could not be reached.
+    private func createBnplSection(for provider: BnplProvider) -> UIView {
+        let radioButton = RadioButtonView()
+        radioButton.isOn = false
+        radioButton.translatesAutoresizingMaskIntoConstraints = false
+        radioButton.accessibilityIdentifier = provider.accessibilityIdentifier
+        bnplRadioButtons[provider] = radioButton
+
+        let titleLabel = UILabel()
+        titleLabel.text = provider.titleKey.localized
+        titleLabel.font = PgType.bodyRowTitle
+        titleLabel.textColor = PgColors.textPrimary
+        titleLabel.numberOfLines = 0
+
+        // Why the provider will refuse this basket, shown once the row is selected. Built for every
+        // row that has a published minimum so the copy is ready before the payer taps.
+        let noticeLabel = UILabel()
+        noticeLabel.font = PgType.captionDisclaimer
+        noticeLabel.textColor = .systemRed
+        noticeLabel.numberOfLines = 0
+        noticeLabel.isHidden = true
+        noticeLabel.accessibilityIdentifier = "sdk_paymentpage_label_\(provider.rawValue)_notice"
+        bnplNoticeLabels[provider] = noticeLabel
+
+        let textStack = UIStackView(arrangedSubviews: [titleLabel, noticeLabel])
+        textStack.axis = .vertical
+        textStack.spacing = 2
+
+        let row = UIStackView(arrangedSubviews: [radioButton, textStack, UIView()])
+        row.axis = .horizontal
+        row.spacing = 12
+        row.alignment = .center
+        row.translatesAutoresizingMaskIntoConstraints = false
+
+        // The brand mark is optional: hosts that ship the provider's logo asset get it on the
+        // trailing edge, otherwise the row stays text-only rather than falling back to a placeholder.
+        if let logo = UIImage(named: provider.logoAssetName, in: NISdk.sharedInstance.getBundle(), compatibleWith: nil) {
+            let logoView = UIImageView(image: logo)
+            logoView.contentMode = .scaleAspectFit
+            logoView.translatesAutoresizingMaskIntoConstraints = false
+            let logoHeight = provider.logoHeight
+            let logoAspect: CGFloat = {
+                guard let size = logoView.image?.size, size.height > 0 else { return 1 }
+                return size.width / size.height
+            }()
+            logoView.heightAnchor.constraint(equalToConstant: logoHeight).isActive = true
+            logoView.widthAnchor.constraint(equalToConstant: logoHeight * logoAspect).isActive = true
+            logoView.setContentHuggingPriority(.required, for: .horizontal)
+            // The wordmark keeps its full width; the text beside it wraps instead of the mark
+            // being squeezed into illegibility.
+            logoView.setContentCompressionResistancePriority(.required, for: .horizontal)
+            row.addArrangedSubview(logoView)
+        }
+
+        // A selector cannot carry the provider, so the row remembers which one it is and the
+        // handler reads it back — the alternative is one selector per provider, which is exactly
+        // the duplication this section exists to avoid.
+        row.tag = provider.rowTag
+        let tap = UITapGestureRecognizer(target: self, action: #selector(bnplRowTapped(_:)))
         row.addGestureRecognizer(tap)
         row.isUserInteractionEnabled = true
 
@@ -1827,6 +1970,8 @@ class UnifiedPaymentPageViewController: UIViewController {
             clickToPayRadioButton?.isOn = false
             aaniRadioButton?.isOn = false
             benefitRadioButton?.isOn = false
+            bnplRadioButtons.values.forEach { $0.isOn = false }
+            hideTransientBnplNotices()
             savedCardRadioButtons.values.forEach { $0.isOn = false }
             savedCardCvvContainers.values.forEach { $0.isHidden = true }
             savedCardRowContainers.values.forEach {
@@ -1854,6 +1999,8 @@ class UnifiedPaymentPageViewController: UIViewController {
         clickToPayRadioButton?.isOn = false
         aaniRadioButton?.isOn = false
         benefitRadioButton?.isOn = false
+        bnplRadioButtons.values.forEach { $0.isOn = false }
+        hideTransientBnplNotices()
         savedCardRadioButtons.values.forEach { $0.isOn = false }
         savedCardCvvContainers.values.forEach { $0.isHidden = true }
         savedCardRowContainers.values.forEach {
@@ -1933,6 +2080,28 @@ class UnifiedPaymentPageViewController: UIViewController {
             lastVisCheckKey = nil
             lastSliceCheckKey = nil
             applyBottomButtonStyle(forApplePay: false)
+        case .bnpl(let provider):
+            bnplRadioButtons[provider]?.isOn = true
+            // Say it on selection rather than on tapping Pay — the payer can change the basket or
+            // pick another method without being sent to a checkout that would refuse them.
+            for (each, label) in bnplNoticeLabels where each != provider {
+                // Another row's notice is not this row's problem; an unavailable one keeps its own.
+                if !bnplUnavailableProviders.contains(each) { label.isHidden = true }
+            }
+            if !bnplUnavailableProviders.contains(provider) {
+                showBnplNotice(provider,
+                               order.isBelowBnplMinimum(for: provider)
+                                   ? order.formattedBnplMinimum(for: provider).map {
+                                       String.localizedStringWithFormat("Bnpl below minimum".localized,
+                                                                        provider.displayNameKey.localized, $0)
+                                     }
+                                   : nil)
+            }
+            hideVisaInstallments()
+            hideSliceOffers()
+            lastVisCheckKey = nil
+            lastSliceCheckKey = nil
+            applyBottomButtonStyle(forApplePay: false)
         }
 
         updateBottomPayButton()
@@ -1999,6 +2168,15 @@ class UnifiedPaymentPageViewController: UIViewController {
             onQPayTapped?()
         case .benefit:
             onBenefitTapped?()
+        case .bnpl(let provider):
+            // The provider would refuse this basket, so the payer is kept on the page with the
+            // reason in front of them rather than sent to a checkout that dead-ends.
+            guard !bnplUnavailableProviders.contains(provider) else { return }
+            guard !order.isBelowBnplMinimum(for: provider) else {
+                bnplNoticeLabels[provider]?.isHidden = false
+                return
+            }
+            onBnplTapped?(provider)
         case .none:
             break
         }
@@ -2014,6 +2192,12 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     @objc private func benefitRadioTapped() {
         selectPaymentOption(.benefit)
+    }
+
+    @objc private func bnplRowTapped(_ sender: UITapGestureRecognizer) {
+        guard let tag = sender.view?.tag,
+              let provider = BnplProvider(rowTag: tag) else { return }
+        selectPaymentOption(.bnpl(provider))
     }
 
     @objc private func qpayExpressTapped() {

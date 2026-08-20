@@ -11,10 +11,15 @@ import Foundation
 @objc public class PaymentMethods: NSObject, Codable {
     public var card: [CardProvider]?
     public var wallet: [WalletProvider]?
-    
+    /// Alternative payment methods the outlet has enabled, e.g. `TAMARA`, `TABBY`, `AANI`. Kept as
+    /// raw strings rather than an enum: the gateway adds APMs without an SDK release, and an
+    /// unknown name here must not stop the known ones from decoding.
+    public var apm: [String]?
+
     public enum PaymentMethodsCodingKeys: String, CodingKey {
         case card
         case wallet
+        case apm
     }
     
     required public init(from decoder: Decoder) throws {
@@ -47,5 +52,7 @@ import Foundation
         } else {
             wallet = []
         }
+
+        apm = (try? paymentTypesContainer.decodeIfPresent([String].self, forKey: .apm)) ?? []
     }
 }

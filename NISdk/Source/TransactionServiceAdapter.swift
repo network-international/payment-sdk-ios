@@ -331,4 +331,47 @@ import PassKit
             .withBodyData(data: Data("{}".utf8))
             .makeRequest(with: completion)
     }
+
+    func initBnpl(with url: String,
+                  successUrl: String,
+                  cancelUrl: String,
+                  failureUrl: String,
+                  using accessToken: String,
+                  on completion: @escaping (HttpResponseCallback)) {
+        let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
+                       "Accept": "application/vnd.ni-payment.v2+json",
+                       "Authorization": "Bearer \(accessToken)"]
+        let body: [String: String] = ["type": BnplInitArgs.checkoutType,
+                                      "successUrl": successUrl,
+                                      "cancelUrl": cancelUrl,
+                                      "failureUrl": failureUrl]
+        guard let bodyData = try? JSONSerialization.data(withJSONObject: body) else {
+            completion(nil, nil, NSError(domain: "Failed to encode the checkout request", code: 99))
+            return
+        }
+        client(for: url, reportingFailureTo: completion)?
+            .withMethod(method: "POST")
+            .withHeaders(headers: headers)
+            .withBodyData(data: bodyData)
+            .makeRequest(with: completion)
+    }
+
+    func acceptBnpl(with url: String,
+                    idField: String,
+                    idValue: String,
+                    using accessToken: String,
+                    on completion: @escaping (HttpResponseCallback)) {
+        let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
+                       "Accept": "application/vnd.ni-payment.v2+json",
+                       "Authorization": "Bearer \(accessToken)"]
+        guard let bodyData = try? JSONSerialization.data(withJSONObject: [idField: idValue]) else {
+            completion(nil, nil, NSError(domain: "Failed to encode the accept request", code: 99))
+            return
+        }
+        client(for: url, reportingFailureTo: completion)?
+            .withMethod(method: "POST")
+            .withHeaders(headers: headers)
+            .withBodyData(data: bodyData)
+            .makeRequest(with: completion)
+    }
 }
