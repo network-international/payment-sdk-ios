@@ -40,7 +40,8 @@ class StoreFrontViewController:
     CardPaymentDelegate,
     StoreFrontDelegate,
     ApplePayDelegate,
-    PaymentOptionsDelegate {
+    PaymentOptionsDelegate,
+    BenefitInAppPaymentDelegate {
 
     var collectionView: UICollectionView?
 
@@ -161,9 +162,13 @@ class StoreFrontViewController:
 
         view.addSubview(collectionView!)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: infoButton)
+        let benefitButton = UIBarButtonItem(title: "BenefitPay", style: .plain, target: self,
+                                            action: #selector(benefitPayTapped))
+        benefitButton.accessibilityIdentifier = "storefront_button_benefitpay"
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(customView: gearButton),
-            UIBarButtonItem(customView: addButton)
+            UIBarButtonItem(customView: addButton),
+            benefitButton
         ]
         loadSavedCardsFromDefaults()
     }
@@ -612,6 +617,33 @@ class StoreFrontViewController:
         payButton.addTarget(self, action: #selector(payButtonTapped), for: .touchUpInside)
         payButton.accessibilityIdentifier = "storefront_button_pay"
         buttonStack.addArrangedSubview(payButton)
+    }
+
+    // MARK: - BenefitPay In-App (standalone wallet launcher)
+
+    @objc private func benefitPayTapped() {
+        // BenefitPay test-wallet credentials (EAZY sandbox). amount comes from the basket when > 0.
+        let amountString = total > 0 ? String(format: "%.0f", total) : "10"
+        let config = BenefitInAppConfig.benefitPayTest(amount: amountString)
+        NISdk.sharedInstance.launchBenefitInAppPayment(
+            benefitInAppDelegate: self,
+            overParent: self,
+            config: config
+        )
+    }
+
+    func benefitInAppPaymentCompleted(with status: BenefitInAppPaymentStatus,
+                                      result: BenefitInAppResult?) {
+        let text: String
+        switch status {
+        case .success:        text = "BenefitPay: SUCCESS (amount=\(result?.amount ?? "-") ref=\(result?.referenceId ?? "-"))"
+        case .cancelled:      text = "BenefitPay: CANCELLED"
+        case .failed:         text = "BenefitPay: FAILED (\(result?.message ?? "-"))"
+        case .invalidRequest: text = "BenefitPay: INVALID REQUEST (check config / credentials)"
+        }
+        let alert = UIAlertController(title: "BenefitPay", message: text, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        DispatchQueue.main.async { self.presentedViewController?.dismiss(animated: true); self.present(alert, animated: true) }
     }
 
     func configureButtonStack() {

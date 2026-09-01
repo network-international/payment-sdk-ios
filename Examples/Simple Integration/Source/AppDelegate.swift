@@ -23,4 +23,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         return true
     }
+
+    // BenefitPay returns its result to the app over the callBackTag URL scheme; forward it to NISdk.
+    func application(_ app: UIApplication, open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        return NISdk.sharedInstance.handleBenefitInAppCallback(url: url)
+    }
 }

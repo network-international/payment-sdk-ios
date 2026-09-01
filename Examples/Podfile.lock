@@ -1,5 +1,5 @@
 PODS:
-  - NISdk (7.0.0)
+  - NISdk (7.0.1)
   - Wormholy (1.7.0)
 
 DEPENDENCIES:
@@ -15,7 +15,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  NISdk: ef491f80cbeaa2fc56a9446ad5dc36d4406e8aae
+  NISdk: a9ff67fa47b7ab338b444854ce95832b560319dc
   Wormholy: ab1c8c2f02f58587a0941deb0088555ffbf039a1
 
 PODFILE CHECKSUM: 144c6b5ad925537c234e9c4a34d50f78bf532e84
