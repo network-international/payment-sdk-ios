@@ -75,6 +75,9 @@ struct SliceInstallmentView: View {
         let feeDisplay: String = offer.feeType == "P"
             ? "\(offer.fee)%"
             : formatAmount(Int((Double(offer.fee) ?? 0) * 100), offer.installmentAmount.currencyCode)
+        let installmentFee = offer.installmentFeeAmount.map {
+            formatAmount(Int(($0 * 100).rounded()), offer.installmentAmount.currencyCode)
+        }
 
         VStack(spacing: 0) {
             HStack(alignment: .center) {
@@ -103,6 +106,9 @@ struct SliceInstallmentView: View {
             VStack(spacing: 4) {
                 detailRow(label: "Interest rate", value: "\(offer.rate)%")
                 detailRow(label: "Processing fees", value: feeDisplay)
+                if let installmentFee = installmentFee {
+                    detailRow(label: "Installment fees", value: installmentFee)
+                }
                 detailRow(label: "Total after \(offer.period) months", value: totalAmt, bold: true)
             }
             .padding(.top, 8)
@@ -170,6 +176,8 @@ final class SliceInstallmentUIView: UIView {
     private let zeroFeesBadge = SlicePaddedLabel()
     private let rateValueLabel = UILabel()
     private let feeValueLabel = UILabel()
+    private let commissionValueLabel = UILabel()
+    private var commissionRow: UIView?
     private let totalLabelLabel = UILabel()
     private let totalValueLabel = UILabel()
 
@@ -279,6 +287,9 @@ final class SliceInstallmentUIView: UIView {
 
     @objc private func tabTapped(_ sender: UIButton) {
         let wasShowingDetail = !detailCard.isHidden
+        // The Installment fees row is per-offer, so switching between two offers can change
+        // the card's height without the card itself appearing or disappearing.
+        let wasShowingCommission = !(commissionRow?.isHidden ?? true)
         selectedIndex = sender.tag
         refreshTabAppearance()
         if selectedIndex > 0 {
@@ -289,7 +300,10 @@ final class SliceInstallmentUIView: UIView {
             onOfferSelected(nil)
             detailCard.isHidden = true
         }
-        if wasShowingDetail != !detailCard.isHidden { onSizeChange?() }
+        let showsCommission = !detailCard.isHidden && !(commissionRow?.isHidden ?? true)
+        if wasShowingDetail != !detailCard.isHidden || wasShowingCommission != showsCommission {
+            onSizeChange?()
+        }
     }
 
     private func refreshTabAppearance() {
@@ -352,6 +366,9 @@ final class SliceInstallmentUIView: UIView {
         feeValueLabel.font = .systemFont(ofSize: PgType.captionSlicePeriod.pointSize, weight: .semibold)
         feeValueLabel.textColor = PgColors.textPrimary
         feeValueLabel.textAlignment = .right
+        commissionValueLabel.font = .systemFont(ofSize: PgType.captionSlicePeriod.pointSize, weight: .semibold)
+        commissionValueLabel.textColor = PgColors.textPrimary
+        commissionValueLabel.textAlignment = .right
 
         totalLabelLabel.font = PgType.captionSlicePeriod
         totalLabelLabel.textColor = PgColors.textSecondary
@@ -363,9 +380,16 @@ final class SliceInstallmentUIView: UIView {
         totalRow.axis = .horizontal
         totalRow.spacing = 8
 
+        // Installment fees sits directly under Processing fees; hidden unless the offer
+        // carries a `commission` greater than zero.
+        let commissionRowView = makeDetailRow(labelText: "Installment fees:", valueLabel: commissionValueLabel)
+        commissionRowView.isHidden = true
+        commissionRow = commissionRowView
+
         let detailRows = UIStackView(arrangedSubviews: [
             makeDetailRow(labelText: (isIslamic ? "Profit rate:" : "Interest rate:"), valueLabel: rateValueLabel),
             makeDetailRow(labelText: "Processing fees:", valueLabel: feeValueLabel),
+            commissionRowView,
             totalRow,
         ])
         detailRows.axis = .vertical
@@ -418,6 +442,15 @@ final class SliceInstallmentUIView: UIView {
             : fmtAmt(Int((Double(offer.fee) ?? 0) * 100), offer.installmentAmount.currencyCode)
         feeValueLabel.attributedText = AedSymbol.attributed(
             feeText, font: feeValueLabel.font, color: PgColors.textPrimary)
+        if let installmentFee = offer.installmentFeeAmount {
+            commissionValueLabel.attributedText = AedSymbol.attributed(
+                fmtAmt(Int((installmentFee * 100).rounded()), offer.installmentAmount.currencyCode),
+                font: commissionValueLabel.font, color: PgColors.textPrimary)
+            commissionRow?.isHidden = false
+        } else {
+            commissionValueLabel.attributedText = nil
+            commissionRow?.isHidden = true
+        }
         totalLabelLabel.text = "Total after \(offer.period) months"
         totalValueLabel.attributedText = AedSymbol.attributed(
             fmtAmt(offer.totalAmount.value, offer.totalAmount.currencyCode),

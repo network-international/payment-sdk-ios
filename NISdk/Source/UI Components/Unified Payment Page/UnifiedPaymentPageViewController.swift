@@ -63,7 +63,11 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var bottomApplePayButton: PKPaymentButton?
 
     // Slice state
-    private var selectedSliceOffer: SliceOffer?
+    // Drives the pay button label: an offer carrying a `commission` adds the Installment
+    // fees on top of the order total, so every assignment has to refresh the title.
+    private var selectedSliceOffer: SliceOffer? {
+        didSet { refreshBottomPayButtonTitle() }
+    }
     /// Whether the most recent slice eligibility check returned the Islamic indicator (`"I"`).
     /// Drives the "Profit rate" vs "Interest rate" label on the slice offer card.
     private var paidSliceIsIslamic: Bool = false
@@ -265,21 +269,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         payBtn.translatesAutoresizingMaskIntoConstraints = false
         payBtn.addTarget(self, action: #selector(bottomPayTapped), for: .touchUpInside)
 
-        if NISdk.sharedInstance.shouldShowOrderAmount, let amount = order.amount {
-            let title = String.localizedStringWithFormat("Pay Button Title".localized, amount.getFormattedAmount())
-            payBtn.setAttributedTitle(
-                AedSymbol.attributed(title,
-                                     font: payBtn.titleLabel?.font ?? PgType.buttonPrimary,
-                                     color: NISdk.sharedInstance.niSdkColors.payButtonTitleColor),
-                for: .normal)
-            payBtn.setAttributedTitle(
-                AedSymbol.attributed(title,
-                                     font: payBtn.titleLabel?.font ?? PgType.buttonPrimary,
-                                     color: NISdk.sharedInstance.niSdkColors.payButtonDisabledTitleColor),
-                for: .disabled)
-        } else {
-            payBtn.setTitle("Pay".localized, for: .normal)
-        }
+        refreshBottomPayButtonTitle()
 
         let spinner: UIActivityIndicatorView
         if #available(iOS 13.0, *) {
@@ -404,8 +394,45 @@ class UnifiedPaymentPageViewController: UIViewController {
         bottomPayButton.backgroundColor = enabled
             ? NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
             : NISdk.sharedInstance.niSdkColors.payButtonDisabledBackgroundColor
-        // Pay button label always reflects the original order total, regardless of any
-        // Slice or Visa installment plan selection — set once in populateBottomBar().
+        // Switching payment option changes whether the Slice fee applies to the label.
+        refreshBottomPayButtonTitle()
+    }
+
+    /// Pay button label. Normally the original order total, but a selected Slice offer that
+    /// carries a `commission` is charged on top of it, so the button has to show the sum the
+    /// shopper is actually debited. A Visa installment selection leaves the total untouched.
+    private func refreshBottomPayButtonTitle() {
+        guard NISdk.sharedInstance.shouldShowOrderAmount, let amount = order.amount else {
+            bottomPayButton.setAttributedTitle(nil, for: .normal)
+            bottomPayButton.setAttributedTitle(nil, for: .disabled)
+            bottomPayButton.setTitle("Pay".localized, for: .normal)
+            return
+        }
+        // Gate on the card option: the offer selection survives switching to another payment
+        // method, and only a card payment actually submits the Slice request (see `sliceRequest`).
+        let sliceFee: Double? = {
+            guard case .card = selectedPaymentOption else { return nil }
+            return selectedSliceOffer?.installmentFeeAmount
+        }()
+        let payable: Amount
+        if let installmentFee = sliceFee {
+            // `commission` is quoted in major units; the order amount is in minor units.
+            let minorUnitScale = pow(10.0, Double(amount.getMinorUnit()))
+            payable = Amount(currencyCode: amount.currencyCode,
+                             value: (amount.value ?? 0) + (installmentFee * minorUnitScale).rounded())
+        } else {
+            payable = amount
+        }
+        let title = String.localizedStringWithFormat("Pay Button Title".localized, payable.getFormattedAmount())
+        let font = bottomPayButton.titleLabel?.font ?? PgType.buttonPrimary
+        bottomPayButton.setAttributedTitle(
+            AedSymbol.attributed(title, font: font,
+                                 color: NISdk.sharedInstance.niSdkColors.payButtonTitleColor),
+            for: .normal)
+        bottomPayButton.setAttributedTitle(
+            AedSymbol.attributed(title, font: font,
+                                 color: NISdk.sharedInstance.niSdkColors.payButtonDisabledTitleColor),
+            for: .disabled)
     }
 
     private func setupScrollView() {
