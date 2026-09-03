@@ -43,6 +43,11 @@ class PaymentViewController: UIViewController {
     // window (viewDidAppear) — presenting from viewDidLoad is dropped by UIKit. Set in
     // viewDidLoad, consumed on first appearance.
     private var pendingApplePaySheetPresentation = false
+    /// Set once a terminal status has been reported to the merchant. `paymentDidComplete` is
+    /// a one-shot contract, but several independent paths can reach it, so the first terminal
+    /// result wins and any later one is dropped. Read and written only on the main queue,
+    /// inside finishPaymentAndClosePaymentViewController.
+    private var hasFinishedPayment = false
     // Max time to wait for the background authorization token AFTER the user authorizes
     // the Apple Pay sheet, before failing the sheet rather than hanging on the much
     // longer default URLSession timeout.
@@ -554,7 +559,9 @@ class PaymentViewController: UIViewController {
                     self.initiatePartialAuth(partialAuthArgs: partialAuthArgs)
                 } catch {
                     os_log("[NISdk] handlePaymentResponse — partial auth args invalid: %{public}@", log: NISdkLogger.payment, type: .error, error.localizedDescription)
-                    self.cardPaymentDelegate?.paymentDidComplete(with: .InValidRequest)
+                    // Route through the single terminal exit so this result is latched and
+                    // the SDK's own screen is dismissed, like every other outcome.
+                    self.finishPaymentAndClosePaymentViewController(with: .InValidRequest, and: nil, and: nil)
                 }
                 return
             }
@@ -677,6 +684,12 @@ class PaymentViewController: UIViewController {
                threeDSStatus.map { $0.rawVal } ?? "none",
                authStatus.map { $0.rawVal } ?? "none")
         DispatchQueue.main.async { // Use the main thread to update any UI
+            // A terminal result was already delivered for this payment attempt. Reporting a
+            // second one would contradict the first and, on the React Native bridge, invoke
+            // an already-consumed callback.
+            guard !self.hasFinishedPayment else { return }
+            self.hasFinishedPayment = true
+
             if let threeDSStatus = threeDSStatus {
                 self.cardPaymentDelegate?.threeDSChallengeDidComplete?(with: threeDSStatus)
             }
