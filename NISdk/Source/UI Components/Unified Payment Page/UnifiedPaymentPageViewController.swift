@@ -18,11 +18,13 @@ class UnifiedPaymentPageViewController: UIViewController {
     var onClickToPayTapped: (() -> Void)?
     var onAaniTapped: (() -> Void)?
     var onQPayTapped: (() -> Void)?
+    var onBenefitTapped: (() -> Void)?
+    var onBnplTapped: ((BnplProvider) -> Void)?
     var onMakeSavedCardPayment: ((SavedCard, String?, VisaRequest?) -> Void)?
     /// Slice eligibility check. The first param is either a raw PAN (manual entry) or a saved-card
     /// token, distinguished by `isSavedToken`. The receiver routes to the right API field
     /// (`pan` vs `cardToken`).
-    var onCheckSliceEligibility: ((_ value: String, _ expiry: String, _ isSavedToken: Bool, _ completion: @escaping ([SliceOffer]) -> Void) -> Void)?
+    var onCheckSliceEligibility: ((_ value: String, _ expiry: String, _ isSavedToken: Bool, _ completion: @escaping (SliceEligibilityResponse?) -> Void) -> Void)?
     /// Called to fetch Visa Installment plans. The first param is either a raw PAN (manual entry)
     /// or a saved-card token, distinguished by `isSavedToken`.
     var onCheckVisEligibility: ((_ value: String, _ isSavedToken: Bool, _ completion: @escaping (VisaPlans?) -> Void) -> Void)?
@@ -61,9 +63,25 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var bottomApplePayButton: PKPaymentButton?
 
     // Slice state
-    private var selectedSliceOffer: SliceOffer?
+    // Drives the pay button label: an offer carrying a `commission` adds the Installment
+    // fees on top of the order total, so every assignment has to refresh the title.
+    private var selectedSliceOffer: SliceOffer? {
+        didSet { refreshBottomPayButtonTitle() }
+    }
+    /// Whether the most recent slice eligibility check returned the Islamic indicator (`"I"`).
+    /// Drives the "Profit rate" vs "Interest rate" label on the slice offer card.
+    private var paidSliceIsIslamic: Bool = false
+    private var sliceSelectionMade: Bool = false
     private var lastSliceCheckKey: String?
     private var sliceInstallmentView: UIView?
+    private var sliceBannerOnlyWrapper: UIView?
+    private lazy var sliceBanner: SliceBannerUIView = {
+        SliceBannerUIView()
+    }()
+    /// True when the order response carries the Slice eligibility link. Set by the host
+    /// (PaymentViewController) so we can distinguish "link absent" from "API errored / empty",
+    /// which drives whether the brand banner is shown when the card isn't eligible.
+    var sliceEligibilityLinkPresent: Bool = false
 
     // Visa Installments state — only fired when Slice is unavailable / returns empty.
     // Keyed on the same (pan,expiry) combo so we don't refire while the user is editing.
@@ -103,7 +121,11 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var applePayRadioButton: RadioButtonView?
     private var clickToPayRadioButton: RadioButtonView?
     private var aaniRadioButton: RadioButtonView?
-    private var qpayRadioButton: RadioButtonView?
+    private var benefitRadioButton: RadioButtonView?
+    private var bnplRadioButtons: [BnplProvider: RadioButtonView] = [:]
+    /// The notice slot under each BNPL row — the "minimum order" hint, or why the provider could
+    /// not be reached. Hidden until there is something to say.
+    private var bnplNoticeLabels: [BnplProvider: UILabel] = [:]
     private let bottomBarView = UIView()
     private var bottomBarBottomConstraint: NSLayoutConstraint?
     private let bottomPayButton = UIButton()
@@ -132,17 +154,26 @@ class UnifiedPaymentPageViewController: UIViewController {
         setupBottomBar()
         setupScrollView()
         buildUI()
-        if !savedCards.isEmpty && availablePaymentOptions.contains(.card) {
+        populateBottomBar()
+        setupHeaderBackground()
+
+        if availablePaymentOptions.contains(.card) {
             selectPaymentOption(.card)
         }
-        populateBottomBar()
-        setupCancelButton()
-        setupHeaderBackground()
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow),
                                                name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide),
                                                name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Re-install the X every time the page becomes visible — sub-flows
+        // (ClickToPay, saved-card PIN, Visa installments, ...) call
+        // `tearDownCancelButton` on viewWillDisappear so without this the X
+        // never comes back when control returns to the unified page.
+        setupCancelButton()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -189,7 +220,18 @@ class UnifiedPaymentPageViewController: UIViewController {
             availablePaymentOptions.append(.qpay)
         }
 
-        // No default selection — all sections start collapsed
+        // Benefit - show only for a BHD purchase on an outlet that lists BENEFIT
+        if order.isBenefitSupported {
+            availablePaymentOptions.append(.benefit)
+        }
+
+        // Buy now, pay later — one row per provider the order actually supports
+        for provider in order.supportedBnplProviders {
+            availablePaymentOptions.append(.bnpl(provider))
+        }
+
+        // viewDidLoad applies the default selection (Pay by Card if available) after the UI
+        // is built so the radio/expanded state lands on the right row.
         selectedPaymentOption = nil
     }
 
@@ -227,11 +269,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         payBtn.translatesAutoresizingMaskIntoConstraints = false
         payBtn.addTarget(self, action: #selector(bottomPayTapped), for: .touchUpInside)
 
-        if NISdk.sharedInstance.shouldShowOrderAmount, let amount = order.amount {
-            payBtn.setTitle(String.localizedStringWithFormat("Pay Button Title".localized, amount.getFormattedAmount()), for: .normal)
-        } else {
-            payBtn.setTitle("Pay".localized, for: .normal)
-        }
+        refreshBottomPayButtonTitle()
 
         let spinner: UIActivityIndicatorView
         if #available(iOS 13.0, *) {
@@ -290,6 +328,50 @@ class UnifiedPaymentPageViewController: UIViewController {
         ])
     }
 
+    private func showPaymentOptionError() {
+        // Render the validation error under the visible installment pills.
+        // Slice and Vis are mutually exclusive (Vis only fires after Slice fails/empty),
+        // and either view is only attached when offers/plans are non-empty.
+        if let sliceView = sliceInstallmentView as? SliceInstallmentUIView {
+            sliceView.showSelectionError()
+        }
+        visaInstallmentView?.showSelectionError()
+    }
+
+    private func hidePaymentOptionError() {
+        if let sliceView = sliceInstallmentView as? SliceInstallmentUIView {
+            sliceView.hideSelectionError()
+        }
+        visaInstallmentView?.hideSelectionError()
+    }
+
+    /// Shows the "card already saved" inline hint when the typed PAN's first-6 + last-4
+    /// digits match an entry in `savedCards` (their `maskedPan` exposes the same digits
+    /// in the form "411111******1111"). Hidden while the PAN is too short to compare.
+    private func refreshCardAlreadySavedHint(forPan rawPan: String) {
+        guard let cardSection = cardSection else { return }
+        let digits = rawPan.filter { $0.isNumber }
+        guard digits.count >= 10 else {
+            cardSection.cardAlreadySavedLabel.isHidden = true
+            return
+        }
+        let first6 = String(digits.prefix(6))
+        let last4 = String(digits.suffix(4))
+        let isMatch = savedCards.contains { card in
+            guard let masked = card.maskedPan, masked.count >= 10 else { return false }
+            return String(masked.prefix(6)) == first6 && String(masked.suffix(4)) == last4
+        }
+        cardSection.cardAlreadySavedLabel.isHidden = !isMatch
+    }
+
+    private func requiresInstallmentSelection() -> Bool {
+        // Only require a pick when the installment pill view is actually attached —
+        // i.e., the eligibility check returned at least one offer/plan.
+        if sliceInstallmentView != nil && !sliceSelectionMade { return true }
+        if let visa = visaInstallmentView, !visa.hasUserSelection { return true }
+        return false
+    }
+
     private func updateBottomPayButton() {
         var enabled: Bool
         switch selectedPaymentOption {
@@ -299,7 +381,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             let token = card.cardToken ?? ""
             let cvvText = savedCardCvvFields[token]?.text ?? ""
             enabled = !card.recaptureCsc || !cvvText.isEmpty
-        case .applePay, .aani, .clickToPay, .qpay:
+        case .applePay, .aani, .clickToPay, .qpay, .benefit, .bnpl:
             enabled = true
         case .none:
             enabled = false
@@ -312,8 +394,45 @@ class UnifiedPaymentPageViewController: UIViewController {
         bottomPayButton.backgroundColor = enabled
             ? NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
             : NISdk.sharedInstance.niSdkColors.payButtonDisabledBackgroundColor
-        // Pay button label always reflects the original order total, regardless of any
-        // Slice or Visa installment plan selection — set once in populateBottomBar().
+        // Switching payment option changes whether the Slice fee applies to the label.
+        refreshBottomPayButtonTitle()
+    }
+
+    /// Pay button label. Normally the original order total, but a selected Slice offer that
+    /// carries a `commission` is charged on top of it, so the button has to show the sum the
+    /// shopper is actually debited. A Visa installment selection leaves the total untouched.
+    private func refreshBottomPayButtonTitle() {
+        guard NISdk.sharedInstance.shouldShowOrderAmount, let amount = order.amount else {
+            bottomPayButton.setAttributedTitle(nil, for: .normal)
+            bottomPayButton.setAttributedTitle(nil, for: .disabled)
+            bottomPayButton.setTitle("Pay".localized, for: .normal)
+            return
+        }
+        // Gate on the card option: the offer selection survives switching to another payment
+        // method, and only a card payment actually submits the Slice request (see `sliceRequest`).
+        let sliceFee: Double? = {
+            guard case .card = selectedPaymentOption else { return nil }
+            return selectedSliceOffer?.installmentFeeAmount
+        }()
+        let payable: Amount
+        if let installmentFee = sliceFee {
+            // `commission` is quoted in major units; the order amount is in minor units.
+            let minorUnitScale = pow(10.0, Double(amount.getMinorUnit()))
+            payable = Amount(currencyCode: amount.currencyCode,
+                             value: (amount.value ?? 0) + (installmentFee * minorUnitScale).rounded())
+        } else {
+            payable = amount
+        }
+        let title = String.localizedStringWithFormat("Pay Button Title".localized, payable.getFormattedAmount())
+        let font = bottomPayButton.titleLabel?.font ?? PgType.buttonPrimary
+        bottomPayButton.setAttributedTitle(
+            AedSymbol.attributed(title, font: font,
+                                 color: NISdk.sharedInstance.niSdkColors.payButtonTitleColor),
+            for: .normal)
+        bottomPayButton.setAttributedTitle(
+            AedSymbol.attributed(title, font: font,
+                                 color: NISdk.sharedInstance.niSdkColors.payButtonDisabledTitleColor),
+            for: .disabled)
     }
 
     private func setupScrollView() {
@@ -343,8 +462,18 @@ class UnifiedPaymentPageViewController: UIViewController {
         let header = createMerchantLogoHeader()
         contentStackView.addArrangedSubview(header)
 
-        // 2. Apple Pay section — radio style (if available)
-        if availablePaymentOptions.contains(.applePay) {
+        // When QPay is enabled it takes the express slot at the very top, and the
+        // native wallet (Apple Pay) drops below the card into the other-options group.
+        let qpayExpress = availablePaymentOptions.contains(.qpay)
+
+        // 2. QPay express button — top of the page when available
+        if qpayExpress {
+            contentStackView.addArrangedSubview(createQPayExpressButton())
+        }
+
+        // 2b. Apple Pay section — radio style at the top only when QPay is not the
+        //     express option; otherwise it moves into the other-options group below.
+        if availablePaymentOptions.contains(.applePay) && !qpayExpress {
             let applePaySection = createApplePaySection()
             contentStackView.addArrangedSubview(applePaySection)
         }
@@ -357,7 +486,8 @@ class UnifiedPaymentPageViewController: UIViewController {
             let section = CardPaymentSectionView(
                 allowedCardProviders: allowedCardProviders,
                 orderAmount: order.amount,
-                order: order)
+                order: order,
+                showNapsLogo: qpayExpress)
             section.setSelected(false)
             section.setExpanded(false, animated: false)
 
@@ -382,15 +512,33 @@ class UnifiedPaymentPageViewController: UIViewController {
             contentStackView.addArrangedSubview(cardSectionPadding)
             cardSection = section
             setupCardInputCallbacks()
+            // Slice brand banner is driven by the order, not by card entry: as soon as the
+            // create-order response advertises Slice, the banner becomes visible.
+            if sliceEligibilityLinkPresent {
+                showSliceBannerOnly()
+            }
         }
 
-        // 4. Other payment options (Click to Pay, Aani, QPay)
-        let hasOtherOptions = availablePaymentOptions.contains(.clickToPay)
+        // 4. Other payment options below the card. With QPay express, Apple Pay joins
+        //    this group; QPay itself is the top button so it is not repeated here.
+        let otherHasApplePay = availablePaymentOptions.contains(.applePay) && qpayExpress
+        let hasOtherOptions = otherHasApplePay
+            || availablePaymentOptions.contains(.clickToPay)
             || availablePaymentOptions.contains(.aani)
-            || availablePaymentOptions.contains(.qpay)
+            || availablePaymentOptions.contains(.benefit)
+            || !availableBnplProviders.isEmpty
+            || (availablePaymentOptions.contains(.qpay) && !qpayExpress)
         if hasOtherOptions {
-            let otherHeader = createSectionHeader("Or select your payment options".localized)
+            let headerTitle = qpayExpress
+                ? "Select Other Payment Options".localized
+                : "Or select your payment options".localized
+            let otherHeader = createSectionHeader(headerTitle)
             contentStackView.addArrangedSubview(otherHeader)
+
+            if otherHasApplePay {
+                let applePaySection = createApplePaySection(includeHeader: false)
+                contentStackView.addArrangedSubview(applePaySection)
+            }
 
             if availablePaymentOptions.contains(.clickToPay) {
                 let ctpSection = createClickToPaySection()
@@ -402,9 +550,13 @@ class UnifiedPaymentPageViewController: UIViewController {
                 contentStackView.addArrangedSubview(aaniSection)
             }
 
-            if availablePaymentOptions.contains(.qpay) {
-                let qpaySection = createQPaySection()
-                contentStackView.addArrangedSubview(qpaySection)
+            if availablePaymentOptions.contains(.benefit) {
+                let benefitSection = createBenefitSection()
+                contentStackView.addArrangedSubview(benefitSection)
+            }
+
+            for provider in availableBnplProviders {
+                contentStackView.addArrangedSubview(createBnplSection(for: provider))
             }
         }
 
@@ -433,12 +585,15 @@ class UnifiedPaymentPageViewController: UIViewController {
         let amountLabel = UILabel()
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
         amountLabel.accessibilityIdentifier = "sdk_paymentpage_label_amount"
-        if let amount = order.amount {
-            amountLabel.text = amount.getFormattedAmount2Decimal()
-        }
         amountLabel.font = PgType.amountSummary
         amountLabel.textColor = PgColors.textPrimary
         amountLabel.textAlignment = .right
+        if let amount = order.amount {
+            amountLabel.attributedText = AedSymbol.attributed(
+                amount.getFormattedAmount2Decimal(),
+                font: amountLabel.font,
+                color: amountLabel.textColor)
+        }
         container.addSubview(amountLabel)
 
         // Order summary row — tappable only when orderItems exist
@@ -513,9 +668,10 @@ class UnifiedPaymentPageViewController: UIViewController {
                 nameLabel.font = PgType.bodyRowTitle
                 nameLabel.textColor = PgColors.textSecondary
                 let amtLabel = UILabel()
-                amtLabel.text = item.amount
                 amtLabel.font = PgType.amountRow
                 amtLabel.textColor = PgColors.textPrimary
+                amtLabel.attributedText = AedSymbol.attributed(
+                    item.amount, font: amtLabel.font, color: amtLabel.textColor)
                 amtLabel.textAlignment = .right
                 row.addArrangedSubview(nameLabel)
                 row.addArrangedSubview(UIView()) // spacer
@@ -557,7 +713,7 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     // MARK: - Apple Pay Section (radio style)
 
-    private func createApplePaySection() -> UIView {
+    private func createApplePaySection(includeHeader: Bool = true) -> UIView {
         // Section header
         let headerLabel = UILabel()
         headerLabel.text = "Pay with Apple Pay".localized
@@ -628,21 +784,32 @@ class UnifiedPaymentPageViewController: UIViewController {
         rowContainer.addGestureRecognizer(tap)
         rowContainer.isUserInteractionEnabled = true
 
-        // Outer container with header + row
+        // Outer container with optional header + row. When grouped under the shared
+        // "Select Other Payment Options" heading (QPay express layout), the per-row
+        // header is omitted so it renders as a plain radio row like the other options.
         let inner = UIView()
         inner.translatesAutoresizingMaskIntoConstraints = false
-        inner.addSubview(headerWrapper)
         inner.addSubview(rowContainer)
-        NSLayoutConstraint.activate([
-            headerWrapper.topAnchor.constraint(equalTo: inner.topAnchor),
-            headerWrapper.leadingAnchor.constraint(equalTo: inner.leadingAnchor),
-            headerWrapper.trailingAnchor.constraint(equalTo: inner.trailingAnchor),
+        if includeHeader {
+            inner.addSubview(headerWrapper)
+            NSLayoutConstraint.activate([
+                headerWrapper.topAnchor.constraint(equalTo: inner.topAnchor),
+                headerWrapper.leadingAnchor.constraint(equalTo: inner.leadingAnchor),
+                headerWrapper.trailingAnchor.constraint(equalTo: inner.trailingAnchor),
 
-            rowContainer.topAnchor.constraint(equalTo: headerWrapper.bottomAnchor, constant: 4),
-            rowContainer.leadingAnchor.constraint(equalTo: inner.leadingAnchor),
-            rowContainer.trailingAnchor.constraint(equalTo: inner.trailingAnchor),
-            rowContainer.bottomAnchor.constraint(equalTo: inner.bottomAnchor, constant: -4),
-        ])
+                rowContainer.topAnchor.constraint(equalTo: headerWrapper.bottomAnchor, constant: 4),
+                rowContainer.leadingAnchor.constraint(equalTo: inner.leadingAnchor),
+                rowContainer.trailingAnchor.constraint(equalTo: inner.trailingAnchor),
+                rowContainer.bottomAnchor.constraint(equalTo: inner.bottomAnchor, constant: -4),
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                rowContainer.topAnchor.constraint(equalTo: inner.topAnchor, constant: 4),
+                rowContainer.leadingAnchor.constraint(equalTo: inner.leadingAnchor),
+                rowContainer.trailingAnchor.constraint(equalTo: inner.trailingAnchor),
+                rowContainer.bottomAnchor.constraint(equalTo: inner.bottomAnchor, constant: -4),
+            ])
+        }
 
         // Padded wrapper
         let paddedContainer = UIView()
@@ -752,8 +919,13 @@ class UnifiedPaymentPageViewController: UIViewController {
         let logoView = UIImageView(image: UIImage(named: "aaniLogo", in: sdkBundle, compatibleWith: nil))
         logoView.contentMode = .scaleAspectFit
         logoView.translatesAutoresizingMaskIntoConstraints = false
-        logoView.widthAnchor.constraint(equalToConstant: PgSize.providerLogoHeight).isActive = true
-        logoView.heightAnchor.constraint(equalToConstant: PgSize.providerLogoHeight).isActive = true
+        let aaniLogoHeight: CGFloat = 40
+        let aaniLogoAspect: CGFloat = {
+            guard let s = logoView.image?.size, s.height > 0 else { return 1 }
+            return s.width / s.height
+        }()
+        logoView.heightAnchor.constraint(equalToConstant: aaniLogoHeight).isActive = true
+        logoView.widthAnchor.constraint(equalToConstant: aaniLogoHeight * aaniLogoAspect).isActive = true
         logoView.setContentHuggingPriority(.required, for: .horizontal)
 
         let row = UIStackView(arrangedSubviews: [radioButton, titleLabel, UIView(), logoView])
@@ -788,17 +960,17 @@ class UnifiedPaymentPageViewController: UIViewController {
         return paddedContainer
     }
 
-    // MARK: - QPay Section
+    // MARK: - Benefit Section
 
-    private func createQPaySection() -> UIView {
+    private func createBenefitSection() -> UIView {
         let radioButton = RadioButtonView()
         radioButton.isOn = false
         radioButton.translatesAutoresizingMaskIntoConstraints = false
-        radioButton.accessibilityIdentifier = "sdk_paymentpage_radio_qpay"
-        qpayRadioButton = radioButton
+        radioButton.accessibilityIdentifier = "sdk_paymentpage_radio_benefit"
+        benefitRadioButton = radioButton
 
         let titleLabel = UILabel()
-        titleLabel.text = "QPay".localized
+        titleLabel.text = "Pay by Benefit".localized
         titleLabel.font = PgType.bodyRowTitle
         titleLabel.textColor = PgColors.textPrimary
 
@@ -808,7 +980,24 @@ class UnifiedPaymentPageViewController: UIViewController {
         row.alignment = .center
         row.translatesAutoresizingMaskIntoConstraints = false
 
-        let tap = UITapGestureRecognizer(target: self, action: #selector(qpayRadioTapped))
+        // The brand mark is optional: hosts that ship a `benefitLogo` asset get it on the trailing
+        // edge, otherwise the row stays text-only rather than falling back to a placeholder.
+        if let logo = UIImage(named: "benefitLogo", in: NISdk.sharedInstance.getBundle(), compatibleWith: nil) {
+            let logoView = UIImageView(image: logo)
+            logoView.contentMode = .scaleAspectFit
+            logoView.translatesAutoresizingMaskIntoConstraints = false
+            let logoHeight: CGFloat = 40
+            let logoAspect: CGFloat = {
+                guard let size = logoView.image?.size, size.height > 0 else { return 1 }
+                return size.width / size.height
+            }()
+            logoView.heightAnchor.constraint(equalToConstant: logoHeight).isActive = true
+            logoView.widthAnchor.constraint(equalToConstant: logoHeight * logoAspect).isActive = true
+            logoView.setContentHuggingPriority(.required, for: .horizontal)
+            row.addArrangedSubview(logoView)
+        }
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(benefitRadioTapped))
         row.addGestureRecognizer(tap)
         row.isUserInteractionEnabled = true
 
@@ -832,6 +1021,235 @@ class UnifiedPaymentPageViewController: UIViewController {
                             padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
                                                   bottom: 0, right: PgSpacing.pageH))
         return paddedContainer
+    }
+
+    // MARK: - Buy Now, Pay Later Sections
+
+    /// The BNPL providers on offer, in the order they were discovered.
+    private var availableBnplProviders: [BnplProvider] {
+        availablePaymentOptions.compactMap {
+            if case .bnpl(let provider) = $0 { return provider }
+            return nil
+        }
+    }
+
+    /// Providers whose checkout could not be opened this session. Their rows stay visible but say
+    /// so and stop responding, rather than sending the payer back into a checkout that just failed.
+    private var bnplUnavailableProviders: Set<BnplProvider> = []
+
+    /// Puts a line under a BNPL row, or clears it when `text` is nil.
+    private func showBnplNotice(_ provider: BnplProvider, _ text: String?) {
+        guard let label = bnplNoticeLabels[provider] else { return }
+        label.text = text
+        label.isHidden = text == nil
+    }
+
+    /// Clears the notices that belong to the current selection, leaving in place the ones that
+    /// outlive it — a provider that could not be reached is still unreachable after a deselect.
+    private func hideTransientBnplNotices() {
+        for (provider, label) in bnplNoticeLabels where !bnplUnavailableProviders.contains(provider) {
+            label.isHidden = true
+        }
+    }
+
+    /// Marks a provider as unreachable after its checkout failed to open: the row greys out, says
+    /// why, and the selection moves off it so the payer's next tap goes somewhere that works.
+    func markBnplUnavailable(_ provider: BnplProvider) {
+        bnplUnavailableProviders.insert(provider)
+        bnplRadioButtons[provider]?.isOn = false
+        bnplRadioButtons[provider]?.alpha = 0.5
+        showBnplNotice(provider, String.localizedStringWithFormat(
+            "Bnpl unavailable".localized, provider.displayNameKey.localized))
+        if selectedPaymentOption == .bnpl(provider) {
+            selectedPaymentOption = nil
+            updateBottomPayButton()
+        }
+    }
+
+    /// A BNPL row: title, brand mark, and nothing else. The second line stays reserved for a notice
+    /// — too small a basket for this provider, or a provider that could not be reached.
+    private func createBnplSection(for provider: BnplProvider) -> UIView {
+        let radioButton = RadioButtonView()
+        radioButton.isOn = false
+        radioButton.translatesAutoresizingMaskIntoConstraints = false
+        radioButton.accessibilityIdentifier = provider.accessibilityIdentifier
+        bnplRadioButtons[provider] = radioButton
+
+        let titleLabel = UILabel()
+        titleLabel.text = provider.titleKey.localized
+        titleLabel.font = PgType.bodyRowTitle
+        titleLabel.textColor = PgColors.textPrimary
+        titleLabel.numberOfLines = 0
+
+        // Why the provider will refuse this basket, shown once the row is selected. Built for every
+        // row that has a published minimum so the copy is ready before the payer taps.
+        let noticeLabel = UILabel()
+        noticeLabel.font = PgType.captionDisclaimer
+        noticeLabel.textColor = .systemRed
+        noticeLabel.numberOfLines = 0
+        noticeLabel.isHidden = true
+        noticeLabel.accessibilityIdentifier = "sdk_paymentpage_label_\(provider.rawValue)_notice"
+        bnplNoticeLabels[provider] = noticeLabel
+
+        let textStack = UIStackView(arrangedSubviews: [titleLabel, noticeLabel])
+        textStack.axis = .vertical
+        textStack.spacing = 2
+
+        let row = UIStackView(arrangedSubviews: [radioButton, textStack, UIView()])
+        row.axis = .horizontal
+        row.spacing = 12
+        row.alignment = .center
+        row.translatesAutoresizingMaskIntoConstraints = false
+
+        // The brand mark is optional: hosts that ship the provider's logo asset get it on the
+        // trailing edge, otherwise the row stays text-only rather than falling back to a placeholder.
+        if let logo = UIImage(named: provider.logoAssetName, in: NISdk.sharedInstance.getBundle(), compatibleWith: nil) {
+            let logoView = UIImageView(image: logo)
+            logoView.contentMode = .scaleAspectFit
+            logoView.translatesAutoresizingMaskIntoConstraints = false
+            let logoHeight = provider.logoHeight
+            let logoAspect: CGFloat = {
+                guard let size = logoView.image?.size, size.height > 0 else { return 1 }
+                return size.width / size.height
+            }()
+            logoView.heightAnchor.constraint(equalToConstant: logoHeight).isActive = true
+            logoView.widthAnchor.constraint(equalToConstant: logoHeight * logoAspect).isActive = true
+            logoView.setContentHuggingPriority(.required, for: .horizontal)
+            // The wordmark keeps its full width; the text beside it wraps instead of the mark
+            // being squeezed into illegibility.
+            logoView.setContentCompressionResistancePriority(.required, for: .horizontal)
+            row.addArrangedSubview(logoView)
+        }
+
+        // A selector cannot carry the provider, so the row remembers which one it is and the
+        // handler reads it back — the alternative is one selector per provider, which is exactly
+        // the duplication this section exists to avoid.
+        row.tag = provider.rowTag
+        let tap = UITapGestureRecognizer(target: self, action: #selector(bnplRowTapped(_:)))
+        row.addGestureRecognizer(tap)
+        row.isUserInteractionEnabled = true
+
+        let rowContainer = UIView()
+        rowContainer.layer.cornerRadius = PgRadius.row
+        rowContainer.layer.borderColor = PgColors.borderRow.cgColor
+        rowContainer.layer.borderWidth = 1
+        rowContainer.backgroundColor = PgColors.surfaceRow
+        rowContainer.translatesAutoresizingMaskIntoConstraints = false
+        rowContainer.addSubview(row)
+        row.anchor(top: rowContainer.topAnchor, leading: rowContainer.leadingAnchor,
+                   bottom: rowContainer.bottomAnchor, trailing: rowContainer.trailingAnchor,
+                   padding: UIEdgeInsets(top: 20, left: PgSpacing.rowPaddingH,
+                                        bottom: 20, right: PgSpacing.rowPaddingH))
+
+        let paddedContainer = UIView()
+        paddedContainer.translatesAutoresizingMaskIntoConstraints = false
+        paddedContainer.addSubview(rowContainer)
+        rowContainer.anchor(top: paddedContainer.topAnchor, leading: paddedContainer.leadingAnchor,
+                            bottom: paddedContainer.bottomAnchor, trailing: paddedContainer.trailingAnchor,
+                            padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
+                                                  bottom: 0, right: PgSpacing.pageH))
+        return paddedContainer
+    }
+
+    // MARK: - QPay Express Button
+
+    /// Prominent full-width black CTA pinned above all other payment options when QPay
+    /// is enabled. Tapping it launches QPay directly (mirrors the web express button).
+    private func createQPayExpressButton() -> UIView {
+        let sdkBundle = NISdk.sharedInstance.getBundle()
+
+        let payWithLabel = UILabel()
+        payWithLabel.text = "Pay With".localized
+        payWithLabel.font = PgType.bodyRowTitle
+        payWithLabel.textColor = .white
+
+        // NAPS wordmark is wide (~4.63:1); size by height and derive width from the asset's aspect.
+        let logoView = UIImageView(image: UIImage(named: "napsLogo", in: sdkBundle, compatibleWith: nil))
+        logoView.contentMode = .scaleAspectFit
+        logoView.translatesAutoresizingMaskIntoConstraints = false
+        let logoHeight: CGFloat = 16
+        let logoAspect: CGFloat = {
+            guard let size = logoView.image?.size, size.height > 0 else { return 2224.0 / 480.0 }
+            return size.width / size.height
+        }()
+        NSLayoutConstraint.activate([
+            logoView.heightAnchor.constraint(equalToConstant: logoHeight),
+            logoView.widthAnchor.constraint(equalToConstant: logoHeight * logoAspect),
+        ])
+
+        let contentStack = UIStackView(arrangedSubviews: [payWithLabel, logoView])
+        contentStack.axis = .horizontal
+        contentStack.spacing = 8
+        contentStack.alignment = .center
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        contentStack.isUserInteractionEnabled = false
+
+        let button = UIView()
+        button.backgroundColor = .black
+        button.layer.cornerRadius = PgRadius.row
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityIdentifier = "sdk_paymentpage_qpay_express"
+        button.addSubview(contentStack)
+        NSLayoutConstraint.activate([
+            button.heightAnchor.constraint(equalToConstant: 56),
+            contentStack.centerXAnchor.constraint(equalTo: button.centerXAnchor),
+            contentStack.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+        ])
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(qpayExpressTapped))
+        button.addGestureRecognizer(tap)
+        button.isUserInteractionEnabled = true
+
+        // Terms & conditions disclaimer below the button, with "terms and conditions" underlined
+        // and tappable — mirrors the bottom pay bar's agreement text.
+        let termsLabel = UILabel()
+        termsLabel.numberOfLines = 0
+        termsLabel.attributedText = qpayTermsAttributedText()
+        // Align to the reading edge: right for RTL (Arabic), left otherwise. The attributed string
+        // carries no paragraph style, so without this the label defaults to left even in Arabic.
+        termsLabel.textAlignment =
+            Locale.characterDirection(forLanguage: NISdk.sharedInstance.sdkLanguage) == .rightToLeft
+            ? .right : .left
+        termsLabel.accessibilityIdentifier = "sdk_paymentpage_qpay_terms"
+        termsLabel.isUserInteractionEnabled = true
+        termsLabel.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(qpayTermsTapped)))
+
+        let vStack = UIStackView(arrangedSubviews: [button, termsLabel])
+        vStack.axis = .vertical
+        vStack.spacing = 8
+        vStack.alignment = .fill
+        vStack.translatesAutoresizingMaskIntoConstraints = false
+
+        let paddedContainer = UIView()
+        paddedContainer.translatesAutoresizingMaskIntoConstraints = false
+        paddedContainer.addSubview(vStack)
+        vStack.anchor(top: paddedContainer.topAnchor, leading: paddedContainer.leadingAnchor,
+                      bottom: paddedContainer.bottomAnchor, trailing: paddedContainer.trailingAnchor,
+                      padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
+                                            bottom: 0, right: PgSpacing.pageH))
+        return paddedContainer
+    }
+
+    /// Disclaimer shown under the QPay express button: muted caption with the
+    /// "terms and conditions" phrase underlined to read as a link.
+    private func qpayTermsAttributedText() -> NSAttributedString {
+        let full = "By clicking Pay terms".localized
+        let attr = NSMutableAttributedString(
+            string: full,
+            attributes: [
+                .font: PgType.captionDisclaimer,
+                .foregroundColor: PgColors.textMuted,
+            ])
+        let nsFull = full as NSString
+        var linkRange = nsFull.range(of: "Terms and Conditions".localized, options: .caseInsensitive)
+        if linkRange.location == NSNotFound {
+            linkRange = nsFull.range(of: "terms and conditions", options: .caseInsensitive)
+        }
+        if linkRange.location != NSNotFound {
+            attr.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: linkRange)
+        }
+        return attr
     }
 
     private func createSavedCardRow(for card: SavedCard) -> UIView {
@@ -1111,6 +1529,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         }
         cardSection.onExpiryMonthChanged = { [weak self] text in
             self?.expiryDate.month = text
+            self?.maybeCheckSliceEligibility()
         }
         cardSection.onExpiryYearChanged = { [weak self] text in
             self?.expiryDate.year = text
@@ -1190,15 +1609,38 @@ class UnifiedPaymentPageViewController: UIViewController {
         }
     }
 
+    /// Hides Slice offers and VIS plans when the card form is mid-edit / invalid. Selection
+    /// state is wiped so a re-entry never resurrects a stale plan. The Slice brand banner
+    /// (driven by `sliceEligibilityLinkPresent`) is restored automatically by `hideSliceOffers`.
+    private func clearInstallmentOffersOnInvalidCard() {
+        lastSliceCheckKey = nil
+        lastVisCheckKey = nil
+        selectedSliceOffer = nil
+        sliceSelectionMade = false
+        selectedVisaPlan = nil
+        visaTermsAccepted = false
+        hideSliceOffers()
+        hideVisaInstallments()
+        hidePaymentOptionError()
+    }
+
     private func maybeCheckSliceEligibility() {
         guard let panValue = pan.value, pan.validate(),
               expiryDate.validate(),
               let month = expiryDate.month, month.count == 2,
-              let year = expiryDate.year, year.count == 2 else { return }
+              let year = expiryDate.year, year.count == 2 else {
+            // Either PAN or expiry is incomplete/invalid — hide any visible Slice offers and
+            // VIS plans. The brand banner (driven by the order link, not by the card) stays.
+            clearInstallmentOffersOnInvalidCard()
+            return
+        }
 
         if let allowed = allowedCardProviders {
             let provider = pan.getCardProvider()
-            guard provider != .unknown, allowed.contains(provider) else { return }
+            guard provider != .unknown, allowed.contains(provider) else {
+                clearInstallmentOffersOnInvalidCard()
+                return
+            }
         }
 
         let expiry = "20\(year)-\(month)"
@@ -1212,22 +1654,33 @@ class UnifiedPaymentPageViewController: UIViewController {
         lastVisCheckKey = nil
 
         selectedSliceOffer = nil
+        sliceSelectionMade = false
         hideSliceOffers()
         hideVisaInstallments()
         selectedVisaPlan = nil
         visaTermsAccepted = false
+        hidePaymentOptionError()
 
         // Slice path: fire if a callback is wired; on empty/error/missing-link the wrapper in
         // PaymentViewController completes with `[]`, which here trips the Visa fallback.
         if let checkSlice = onCheckSliceEligibility {
             cardSection?.showSliceLoader()
-            checkSlice(panValue, expiry, false) { [weak self] offers in
+            checkSlice(panValue, expiry, false) { [weak self] response in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
                     self.cardSection?.hideSliceLoader()
-                    if !offers.isEmpty {
-                        self.showSliceOffers(offers)
+                    let indicator = response?.indicator
+                    let eligible = response != nil && indicator != "N" && !(response?.offers.isEmpty ?? true)
+                    if let response = response, eligible {
+                        self.showSliceOffers(response.offers,
+                                             transactionAmount: response.transactionAmount,
+                                             isIslamic: indicator == "I")
                     } else {
+                        // Slice link present + no eligible offers (or API failed): show the
+                        // brand banner standalone. VIS, if eligible, will displace it.
+                        if self.sliceEligibilityLinkPresent {
+                            self.showSliceBannerOnly()
+                        }
                         self.maybeCheckVisEligibility(cardTokenOrPan: panValue, key: key)
                     }
                 }
@@ -1254,6 +1707,8 @@ class UnifiedPaymentPageViewController: UIViewController {
                 self.hideVisaInstallments()
                 return
             }
+            // Rule 5: VIS eligibility displaces the Slice banner-only view.
+            self.hideSliceBannerOnly()
             self.showVisaInstallments(plans)
         }
     }
@@ -1271,23 +1726,34 @@ class UnifiedPaymentPageViewController: UIViewController {
         lastVisCheckKey = nil
 
         selectedSliceOffer = nil
+        sliceSelectionMade = false
         hideSliceOffers()
         hideVisaInstallments()
         selectedVisaPlan = nil
         visaTermsAccepted = false
+        hidePaymentOptionError()
 
         let isVisa = (card.scheme ?? "").uppercased() == "VISA"
 
         if let checkSlice = onCheckSliceEligibility {
             cardSection?.showSliceLoader()
-            checkSlice(token, cardExpiry, true) { [weak self] offers in
+            checkSlice(token, cardExpiry, true) { [weak self] response in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
                     self.cardSection?.hideSliceLoader()
-                    if !offers.isEmpty {
-                        self.showSliceOffers(offers)
-                    } else if isVisa {
-                        self.maybeCheckVisEligibility(cardTokenOrPan: token, key: key, isSavedToken: true)
+                    let indicator = response?.indicator
+                    let eligible = response != nil && indicator != "N" && !(response?.offers.isEmpty ?? true)
+                    if let response = response, eligible {
+                        self.showSliceOffers(response.offers,
+                                             transactionAmount: response.transactionAmount,
+                                             isIslamic: indicator == "I")
+                    } else {
+                        if self.sliceEligibilityLinkPresent {
+                            self.showSliceBannerOnly()
+                        }
+                        if isVisa {
+                            self.maybeCheckVisEligibility(cardTokenOrPan: token, key: key, isSavedToken: true)
+                        }
                     }
                 }
             }
@@ -1296,9 +1762,13 @@ class UnifiedPaymentPageViewController: UIViewController {
         }
     }
 
-    private func showSliceOffers(_ offers: [SliceOffer]) {
+    private func showSliceOffers(_ offers: [SliceOffer], transactionAmount: SliceAmount, isIslamic: Bool) {
         guard let cardSection = cardSection else { return }
         sliceInstallmentView?.removeFromSuperview()
+        paidSliceIsIslamic = isIslamic
+        // Pay in Full is preselected inside the slice view, so the user has a valid
+        // default selection from the moment offers appear — clear the validation gate.
+        sliceSelectionMade = true
 
         // Bleed past ancestor padding (pageH + rowPaddingH + radio button + 12pt gap on leading;
         // pageH + rowPaddingH on trailing) so the pill scroll reaches the screen edges.
@@ -1308,23 +1778,60 @@ class UnifiedPaymentPageViewController: UIViewController {
             bottom: 0,
             right: PgSpacing.pageH + PgSpacing.rowPaddingH
         )
-        let sliceView = SliceInstallmentUIView(offers: offers, pillBleed: pillBleed) { [weak self] offer in
+        sliceBanner.removeFromSuperview()
+        let sliceView = SliceInstallmentUIView(banner: sliceBanner, offers: offers, isIslamic: isIslamic, pillBleed: pillBleed) { [weak self] offer in
             self?.selectedSliceOffer = offer
+            self?.sliceSelectionMade = true
+            self?.hidePaymentOptionError()
         }
         sliceView.onSizeChange = { [weak self] in
-            UIView.animate(withDuration: 0.2) {
+            UIView.animate(withDuration: 0.2, animations: {
                 self?.cardSection?.sliceInstallmentContainer.invalidateIntrinsicContentSize()
                 self?.view.layoutIfNeeded()
-            }
+            }, completion: { _ in
+                // After the detail card expands (e.g., switching from Pay-in-Full to an
+                // offer), make sure its bottom is visible — otherwise it lands under the
+                // pay button and the user has to scroll to see it.
+                if self?.selectedSliceOffer != nil {
+                    self?.scrollSliceBottomIntoView()
+                }
+            })
         }
+        // Showing eligible offers takes precedence; clear any banner-only view first.
+        hideSliceBannerOnly()
         sliceInstallmentView = sliceView
         cardSection.showSliceInstallmentView(sliceView)
     }
 
+    /// Removes the Slice OFFER view (if any) and restores the banner-only view when the
+    /// order has the Slice link. Idempotent — leaves an existing banner in place so the user
+    /// doesn't see it flicker on every keystroke while typing card data.
     private func hideSliceOffers() {
         sliceInstallmentView?.removeFromSuperview()
         sliceInstallmentView = nil
-        cardSection?.hideSliceInstallmentContainer()
+        if sliceEligibilityLinkPresent {
+            showSliceBannerOnly()
+        } else {
+            sliceBannerOnlyWrapper?.removeFromSuperview()
+            sliceBannerOnlyWrapper = nil
+            cardSection?.hideSliceInstallmentContainer()
+        }
+    }
+
+    /// Standalone Slice banner is no longer shown — the brand banner only appears when
+    /// eligibility check succeeds and the offer view is rendered (which embeds its own
+    /// banner). Kept as a no-op so existing callers don't need to be reshuffled.
+    private func showSliceBannerOnly() {
+        // Intentionally empty.
+    }
+
+    /// Used by Rule 5: when VIS eligibility succeeds it must hide a previously-shown banner.
+    private func hideSliceBannerOnly() {
+        sliceBannerOnlyWrapper?.removeFromSuperview()
+        sliceBannerOnlyWrapper = nil
+        if sliceInstallmentView == nil {
+            cardSection?.hideSliceInstallmentContainer()
+        }
     }
 
     private func showVisaInstallments(_ plans: VisaPlans) {
@@ -1345,6 +1852,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             guard let self = self else { return }
             self.selectedVisaPlan = plan
             self.visaTermsAccepted = termsAccepted
+            self.hidePaymentOptionError()
             self.updateBottomPayButton()
         }
         visaInstallmentView = view
@@ -1358,6 +1866,12 @@ class UnifiedPaymentPageViewController: UIViewController {
         selectedVisaPlan = nil
         visaTermsAccepted = false
         cardSection?.hideVisaInstallmentContainer()
+        // Force the section to recalculate its height now that the VIS subtree is gone —
+        // otherwise the empty container holds onto its previous height and leaves whitespace
+        // below whatever replaces it (e.g. the Slice banner).
+        UIView.animate(withDuration: 0.2) {
+            self.view.layoutIfNeeded()
+        }
     }
 
     // MARK: - Validation & Payment
@@ -1482,7 +1996,9 @@ class UnifiedPaymentPageViewController: UIViewController {
             cardSection?.setExpanded(false, animated: true)
             clickToPayRadioButton?.isOn = false
             aaniRadioButton?.isOn = false
-            qpayRadioButton?.isOn = false
+            benefitRadioButton?.isOn = false
+            bnplRadioButtons.values.forEach { $0.isOn = false }
+            hideTransientBnplNotices()
             savedCardRadioButtons.values.forEach { $0.isOn = false }
             savedCardCvvContainers.values.forEach { $0.isHidden = true }
             savedCardRowContainers.values.forEach {
@@ -1509,7 +2025,9 @@ class UnifiedPaymentPageViewController: UIViewController {
         cardSection?.setExpanded(false, animated: true)
         clickToPayRadioButton?.isOn = false
         aaniRadioButton?.isOn = false
-        qpayRadioButton?.isOn = false
+        benefitRadioButton?.isOn = false
+        bnplRadioButtons.values.forEach { $0.isOn = false }
+        hideTransientBnplNotices()
         savedCardRadioButtons.values.forEach { $0.isOn = false }
         savedCardCvvContainers.values.forEach { $0.isHidden = true }
         savedCardRowContainers.values.forEach {
@@ -1537,6 +2055,11 @@ class UnifiedPaymentPageViewController: UIViewController {
             hideVisaInstallments()
             lastVisCheckKey = nil
             applyBottomButtonStyle(forApplePay: false)
+            // Re-run eligibility on re-selection: PAN/expiry may already be filled in from a
+            // prior visit to this section, but the slice/visa state was cleared when the user
+            // navigated away. Without this, returning to Pay-by-Card with valid data
+            // populated would leave the installment options invisible until the user retyped.
+            maybeCheckSliceEligibility()
         case .savedCard(let card):
             selectedSavedCard = card
             let token = card.cardToken ?? ""
@@ -1570,7 +2093,37 @@ class UnifiedPaymentPageViewController: UIViewController {
             lastSliceCheckKey = nil
             applyBottomButtonStyle(forApplePay: false)
         case .qpay:
-            qpayRadioButton?.isOn = true
+            // QPay is driven by the express button (createQPayExpressButton), not a radio row, so
+            // it's never selected through here; the case remains only for switch exhaustiveness.
+            hideVisaInstallments()
+            hideSliceOffers()
+            lastVisCheckKey = nil
+            lastSliceCheckKey = nil
+            applyBottomButtonStyle(forApplePay: false)
+        case .benefit:
+            benefitRadioButton?.isOn = true
+            hideVisaInstallments()
+            hideSliceOffers()
+            lastVisCheckKey = nil
+            lastSliceCheckKey = nil
+            applyBottomButtonStyle(forApplePay: false)
+        case .bnpl(let provider):
+            bnplRadioButtons[provider]?.isOn = true
+            // Say it on selection rather than on tapping Pay — the payer can change the basket or
+            // pick another method without being sent to a checkout that would refuse them.
+            for (each, label) in bnplNoticeLabels where each != provider {
+                // Another row's notice is not this row's problem; an unavailable one keeps its own.
+                if !bnplUnavailableProviders.contains(each) { label.isHidden = true }
+            }
+            if !bnplUnavailableProviders.contains(provider) {
+                showBnplNotice(provider,
+                               order.isBelowBnplMinimum(for: provider)
+                                   ? order.formattedBnplMinimum(for: provider).map {
+                                       String.localizedStringWithFormat("Bnpl below minimum".localized,
+                                                                        provider.displayNameKey.localized, $0)
+                                     }
+                                   : nil)
+            }
             hideVisaInstallments()
             hideSliceOffers()
             lastVisCheckKey = nil
@@ -1593,6 +2146,15 @@ class UnifiedPaymentPageViewController: UIViewController {
     }
 
     @objc private func bottomPayTapped() {
+        switch selectedPaymentOption {
+        case .card, .savedCard:
+            if requiresInstallmentSelection() {
+                showPaymentOptionError()
+                return
+            }
+        default:
+            break
+        }
         switch selectedPaymentOption {
         case .card:
             payCardAction()
@@ -1631,6 +2193,17 @@ class UnifiedPaymentPageViewController: UIViewController {
             onClickToPayTapped?()
         case .qpay:
             onQPayTapped?()
+        case .benefit:
+            onBenefitTapped?()
+        case .bnpl(let provider):
+            // The provider would refuse this basket, so the payer is kept on the page with the
+            // reason in front of them rather than sent to a checkout that dead-ends.
+            guard !bnplUnavailableProviders.contains(provider) else { return }
+            guard !order.isBelowBnplMinimum(for: provider) else {
+                bnplNoticeLabels[provider]?.isHidden = false
+                return
+            }
+            onBnplTapped?(provider)
         case .none:
             break
         }
@@ -1644,8 +2217,25 @@ class UnifiedPaymentPageViewController: UIViewController {
         selectPaymentOption(.aani)
     }
 
-    @objc private func qpayRadioTapped() {
-        selectPaymentOption(.qpay)
+    @objc private func benefitRadioTapped() {
+        selectPaymentOption(.benefit)
+    }
+
+    @objc private func bnplRowTapped(_ sender: UITapGestureRecognizer) {
+        guard let tag = sender.view?.tag,
+              let provider = BnplProvider(rowTag: tag) else { return }
+        selectPaymentOption(.bnpl(provider))
+    }
+
+    @objc private func qpayExpressTapped() {
+        // Express button launches QPay directly, without going through the bottom pay bar.
+        onQPayTapped?()
+    }
+
+    @objc private func qpayTermsTapped() {
+        if let url = URL(string: "https://www.network.ae/en/terms-and-conditions") {
+            UIApplication.shared.open(url)
+        }
     }
 
     // MARK: - Navigation
@@ -1724,6 +2314,18 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     @objc private func cancelAction() {
         self.onCancel()
+    }
+
+    // MARK: - Scroll Helpers
+
+    private func scrollSliceBottomIntoView() {
+        guard let container = cardSection?.sliceInstallmentContainer else { return }
+        view.layoutIfNeeded()
+        let rect = container.convert(container.bounds, to: scrollView)
+        // 1pt sliver at the bottom — scrollRectToVisible aligns the *minimum* needed,
+        // so targeting the bottom edge guarantees the detail card's footer is in view.
+        let bottom = CGRect(x: rect.minX, y: rect.maxY - 1, width: rect.width, height: 1)
+        scrollView.scrollRectToVisible(bottom, animated: true)
     }
 
     // MARK: - Keyboard

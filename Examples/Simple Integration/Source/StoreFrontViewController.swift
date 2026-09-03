@@ -40,7 +40,8 @@ class StoreFrontViewController:
     CardPaymentDelegate,
     StoreFrontDelegate,
     ApplePayDelegate,
-    PaymentOptionsDelegate {
+    PaymentOptionsDelegate,
+    BenefitInAppPaymentDelegate {
 
     var collectionView: UICollectionView?
 
@@ -84,6 +85,19 @@ class StoreFrontViewController:
 
     /// Convenience accessor used when a single card is needed (e.g. order-creation pre-fill).
     var savedCard: SavedCard? { savedCards.first }
+
+    /// Single Click-to-Pay config instance reused across launches. The SDK resolves
+    /// `dpaId` / `dpaClientId` / `dpaName` via the gateway's
+    /// `/config/merchants/{id}/configs/vctp` endpoint right after order authorization,
+    /// so the merchant code only declares the `merchantId`.
+    private lazy var clickToPayConfig: ClickToPayConfig = {
+        let env = ApiService().getEnvironment()
+        return ClickToPayConfig(
+            merchantId: env?.clickToPayMerchantId ?? "",
+            isSandbox: (env?.type != .PROD),
+            cardBrands: ["visa", "mastercard"]
+        )
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -148,9 +162,13 @@ class StoreFrontViewController:
 
         view.addSubview(collectionView!)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: infoButton)
+        let benefitButton = UIBarButtonItem(title: "BenefitPay", style: .plain, target: self,
+                                            action: #selector(benefitPayTapped))
+        benefitButton.accessibilityIdentifier = "storefront_button_benefitpay"
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(customView: gearButton),
-            UIBarButtonItem(customView: addButton)
+            UIBarButtonItem(customView: addButton),
+            benefitButton
         ]
         loadSavedCardsFromDefaults()
     }
@@ -321,6 +339,29 @@ class StoreFrontViewController:
         }
     }
 
+    /// The optional companion callback, showing what a merchant can do with the cause: retry a
+    /// network drop, reconcile a timeout from the order rather than declaring failure, and treat a
+    /// configuration problem as an integration bug instead of a payment the customer can retry.
+    @objc func paymentDidComplete(with status: PaymentStatus, error: NIPaymentError?) {
+        guard let error = error else { return }
+        print("Payment finished as \(status.rawVal) — \(error)")
+
+        switch error.category {
+        case .timeout:
+            // Deliberately not reported as a failure: the outcome is genuinely unknown here.
+            showAlertWith(title: "Payment Status Unknown",
+                          message: "We could not confirm this payment in time. Check the order before retrying.")
+        case .network:
+            showAlertWith(title: "Connection Problem",
+                          message: "Check your connection and try again.")
+        case .configuration:
+            showAlertWith(title: "Configuration Error",
+                          message: error.message ?? "This order cannot be paid with the selected method.")
+        case .declined, .provider, .unknown:
+            break // already covered by the required callback's alert
+        }
+    }
+
     @objc func authorizationDidComplete(with status: AuthorizationStatus) {
         if(status == .AuthFailed) {
             return
@@ -432,13 +473,7 @@ class StoreFrontViewController:
     }
 
     private func makeClickToPayConfig() -> ClickToPayConfig {
-        return ClickToPayConfig(
-            dpaId: "6BDAU1LI2WBPBQR665ED212rYO7vsj9wje83XQxlwzACNikj8",
-            dpaClientId: "10c4cb74-3493-4515-ab72-2b303f790241",
-            cardBrands: ["visa", "mastercard"],
-            dpaName: "Demo Merchant",
-            isSandbox: true
-        )
+        return clickToPayConfig
     }
 
     // MARK: - Payment Options (Step 3: Launch payment with order response)
@@ -480,6 +515,9 @@ class StoreFrontViewController:
     func didSelectCardPayment(orderResponse: OrderResponse) {
         applySDKColors()
 
+        // Pass a PKPaymentRequest to show Apple Pay on the unified page.
+        // Pass `with: nil` (and applePayDelegate: nil) to hide Apple Pay on the page
+        // when the merchant launches it standalone via initiateApplePayWith.
         NISdk.sharedInstance.showCardPaymentViewWith(
             cardPaymentDelegate: self,
             applePayDelegate: self,
@@ -579,6 +617,33 @@ class StoreFrontViewController:
         payButton.addTarget(self, action: #selector(payButtonTapped), for: .touchUpInside)
         payButton.accessibilityIdentifier = "storefront_button_pay"
         buttonStack.addArrangedSubview(payButton)
+    }
+
+    // MARK: - BenefitPay In-App (standalone wallet launcher)
+
+    @objc private func benefitPayTapped() {
+        // BenefitPay test-wallet credentials (EAZY sandbox). amount comes from the basket when > 0.
+        let amountString = total > 0 ? String(format: "%.0f", total) : "10"
+        let config = BenefitInAppConfig.benefitPayTest(amount: amountString)
+        NISdk.sharedInstance.launchBenefitInAppPayment(
+            benefitInAppDelegate: self,
+            overParent: self,
+            config: config
+        )
+    }
+
+    func benefitInAppPaymentCompleted(with status: BenefitInAppPaymentStatus,
+                                      result: BenefitInAppResult?) {
+        let text: String
+        switch status {
+        case .success:        text = "BenefitPay: SUCCESS (amount=\(result?.amount ?? "-") ref=\(result?.referenceId ?? "-"))"
+        case .cancelled:      text = "BenefitPay: CANCELLED"
+        case .failed:         text = "BenefitPay: FAILED (\(result?.message ?? "-"))"
+        case .invalidRequest: text = "BenefitPay: INVALID REQUEST (check config / credentials)"
+        }
+        let alert = UIAlertController(title: "BenefitPay", message: text, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        DispatchQueue.main.async { self.presentedViewController?.dismiss(animated: true); self.present(alert, animated: true) }
     }
 
     func configureButtonStack() {

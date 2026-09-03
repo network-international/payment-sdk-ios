@@ -30,8 +30,8 @@ class EnvironmentViewModel: ObservableObject {
     @Published var sdkColorThreeDSViewLabel: String = ""
     @Published var sdkColorThreeDSViewIndicator: String = ""
 
-    func addEnvironment(nickname: String = "", apiKey: String, outletReference: String, realm: String, type: EnvironmentType, applePayMerchantId: String = "") {
-        let environment = Environment(type: type, nickname: nickname, apiKey: apiKey, outletReference: outletReference, realm: realm, applePayMerchantId: applePayMerchantId)
+    func addEnvironment(nickname: String = "", apiKey: String, outletReference: String, realm: String, type: EnvironmentType, applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
+        let environment = Environment(type: type, nickname: nickname, apiKey: apiKey, outletReference: outletReference, realm: realm, applePayMerchantId: applePayMerchantId, clickToPayMerchantId: clickToPayMerchantId)
         environments.append(environment)
         saveEnviroments()
         updateEnvironment()

@@ -15,7 +15,7 @@ struct AaniTimerScreen: View {
     var body: some View {
         VStack(alignment: .center, content: {
             
-            Text(String.localizedStringWithFormat("aani_paying_amount".localized, amountFormatted)).font(.title)
+            AedSymbol.swiftUIText(String.localizedStringWithFormat("aani_paying_amount".localized, amountFormatted), fontSize: 28).font(.title)
                 .multilineTextAlignment(.center)
                 .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
                 .accessibilityIdentifier("sdk_aani_label_amount")

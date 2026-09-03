@@ -66,6 +66,9 @@ struct Environment: Codable, Identifiable {
     let outletReference: String
     let realm: String
     let applePayMerchantId: String
+    /// Merchant identifier used by the Click to Pay config endpoint
+    /// (`/config/merchants/{merchantId}/configs/vctp`). Distinct from `outletReference`.
+    let clickToPayMerchantId: String
     
     private static let KEY_SAVED_ENVIRONMENT_ID = "saved_env_id"
     private static let KEY_SAVED_ENVIRONMENTS = "saved_environments"
@@ -98,9 +101,10 @@ struct Environment: Codable, Identifiable {
         case outletReference
         case realm
         case applePayMerchantId
+        case clickToPayMerchantId
     }
-    
-    init(type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, applePayMerchantId: String = "") {
+
+    init(type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
         self.type = type
         self.id = UUID().uuidString
         self.nickname = nickname
@@ -109,9 +113,10 @@ struct Environment: Codable, Identifiable {
         self.outletReference = outletReference
         self.realm = realm
         self.applePayMerchantId = applePayMerchantId
+        self.clickToPayMerchantId = clickToPayMerchantId
     }
 
-    init(id: String, type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, applePayMerchantId: String = "") {
+    init(id: String, type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
         self.type = type
         self.id = id
         self.nickname = nickname
@@ -120,8 +125,9 @@ struct Environment: Codable, Identifiable {
         self.outletReference = outletReference
         self.realm = realm
         self.applePayMerchantId = applePayMerchantId
+        self.clickToPayMerchantId = clickToPayMerchantId
     }
-    
+
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         type = try values.decode(EnvironmentType.self, forKey: .type)
@@ -132,8 +138,9 @@ struct Environment: Codable, Identifiable {
         outletReference = try values.decode(String.self, forKey: .outletReference)
         realm = try values.decode(String.self, forKey: .realm)
         applePayMerchantId = try values.decodeIfPresent(String.self, forKey: .applePayMerchantId) ?? ""
+        clickToPayMerchantId = try values.decodeIfPresent(String.self, forKey: .clickToPayMerchantId) ?? ""
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(type, forKey: .type)
@@ -144,6 +151,26 @@ struct Environment: Codable, Identifiable {
         try container.encode(outletReference, forKey: .outletReference)
         try container.encode(realm, forKey: .realm)
         try container.encode(applePayMerchantId, forKey: .applePayMerchantId)
+        try container.encode(clickToPayMerchantId, forKey: .clickToPayMerchantId)
+    }
+
+    /// Base API gateway URL (without trailing path) used by the Click to Pay merchant config
+    /// endpoint and any other host-level calls. Derived from the same region/env logic as the
+    /// transactions URL above.
+    func getApiGatewayBaseUrl() -> String {
+        let region = Environment.getRegion()
+        if region == Region.KSA.rawValue {
+            switch type {
+            case .DEV:  return "https://api-gateway.dev.ksa.ngenius-payments.com"
+            case .UAT:  return "https://api-gateway.sandbox.ksa.ngenius-payments.com"
+            case .PROD: return "https://api-gateway.ksa.ngenius-payments.com"
+            }
+        }
+        switch type {
+        case .DEV:  return "https://api-gateway-dev.ngenius-payments.com"
+        case .UAT:  return "https://api-gateway.sandbox.ngenius-payments.com"
+        case .PROD: return "https://api-gateway.ngenius-payments.com"
+        }
     }
     
     func getGateWayUrl() -> String {

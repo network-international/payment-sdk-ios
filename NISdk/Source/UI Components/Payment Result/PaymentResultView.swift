@@ -10,120 +10,130 @@ struct PaymentResultView: View {
     let args: PaymentResultArgs
     let onDone: () -> Void
 
+    /// The result screen is shown briefly then dismisses itself back to the merchant app —
+    /// the merchant confirms/cancels the order off our result, so we must not block on a tap.
+    private let autoDismissDelay: TimeInterval = 1.0
+    @State private var didAutoDismiss = false
+
     private let successGreen = Color(red: 0.184, green: 0.749, blue: 0.443)
     private let failureRed = Color(red: 0.90, green: 0.22, blue: 0.21)
+    private let successGreenUI = UIColor(red: 0.184, green: 0.749, blue: 0.443, alpha: 1)
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Merchant header — matches unified payment page style (logo + order summary)
-            MerchantResultHeaderView(
-                amount: args.amount,
-                orderItems: args.orderItems
-            )
+        // Full-page scroll — header through Done button all scroll together so nothing gets
+        // clipped when the slice receipt section makes the page taller than the viewport.
+        ScrollView(.vertical, showsIndicators: true) {
+            VStack(spacing: 0) {
+                // Merchant header — extends edge-to-edge; reads safe-area inset internally
+                // so its background sits behind the status bar while the logo stays clear.
+                MerchantResultHeaderView(
+                    amount: args.amount,
+                    orderItems: args.orderItems
+                )
 
-            Spacer()
+                VStack(spacing: 0) {
+                    Spacer().frame(height: 32)
 
-            // Icon
-            if args.isSuccess {
-                Image(systemName: "checkmark.circle")
-                    .resizable()
-                    .frame(width: 80, height: 80)
-                    .foregroundColor(successGreen)
-                    .accessibilityIdentifier("sdk_result_image_status")
-            } else {
-                Image(systemName: "xmark.circle")
-                    .resizable()
-                    .frame(width: 80, height: 80)
-                    .foregroundColor(failureRed)
-                    .accessibilityIdentifier("sdk_result_image_status")
-            }
+                    // Icon
+                    if args.isSuccess {
+                        Image(systemName: "checkmark.circle")
+                            .resizable()
+                            .frame(width: 80, height: 80)
+                            .foregroundColor(successGreen)
+                            .accessibilityIdentifier("sdk_result_image_status")
+                    } else {
+                        Image(systemName: "xmark.circle")
+                            .resizable()
+                            .frame(width: 80, height: 80)
+                            .foregroundColor(failureRed)
+                            .accessibilityIdentifier("sdk_result_image_status")
+                    }
 
-            Spacer().frame(height: 24)
+                    Spacer().frame(height: 24)
 
-            // Title
-            if args.isSuccess {
-                if let amount = args.amount {
-                    Text(String.localizedStringWithFormat("Payment Success Title".localized, amount))
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(successGreen)
+                    // Title
+                    if args.isSuccess {
+                        if let amount = args.amount {
+                            AedSymbol.swiftUIText(
+                                String.localizedStringWithFormat("Payment Success Title".localized, amount),
+                                fontSize: 22,
+                                tint: successGreenUI
+                            )
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(successGreen)
+                                .multilineTextAlignment(.center)
+                                .accessibilityIdentifier("sdk_result_label_title")
+                        } else {
+                            Text("Payment Success Title No Amount".localized)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(successGreen)
+                                .multilineTextAlignment(.center)
+                                .accessibilityIdentifier("sdk_result_label_title")
+                        }
+                    } else {
+                        Text("Payment Failure Title".localized)
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(failureRed)
+                            .multilineTextAlignment(.center)
+                            .accessibilityIdentifier("sdk_result_label_title")
+                    }
+
+                    Spacer().frame(height: 8)
+
+                    // Subtitle
+                    Text(args.isSuccess
+                         ? "Payment Success Subtitle".localized
+                         : "Payment Failure Subtitle".localized)
+                        .font(.subheadline)
+                        .foregroundColor(Color(UIColor(hexString: "#1A1A1A")))
                         .multilineTextAlignment(.center)
-                        .accessibilityIdentifier("sdk_result_label_title")
-                } else {
-                    Text("Payment Success Title No Amount".localized)
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(successGreen)
-                        .multilineTextAlignment(.center)
-                        .accessibilityIdentifier("sdk_result_label_title")
+
+                    Spacer().frame(height: 32)
+
+                    // Details - centered text lines
+                    HStack(spacing: 0) {
+                        Text(args.isSuccess ? "Transaction ID Label".localized : "Reference Number Label".localized)
+                            .font(.footnote)
+                        Text(": ")
+                            .font(.footnote)
+                        Text(args.transactionId)
+                            .font(.footnote)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                    }
+
+                    Spacer().frame(height: 8)
+
+                    HStack(spacing: 0) {
+                        Text("Date Time Label".localized)
+                            .font(.footnote)
+                        Text(": ")
+                            .font(.footnote)
+                        Text(args.dateTime)
+                            .font(.footnote)
+                    }
+
+                    Spacer().frame(height: 24)
+
+                    // Footer
+                    PaymentResultFooterView(cardProviders: args.cardProviders)
+
+                    Spacer().frame(height: 24)
                 }
-            } else {
-                Text("Payment Failure Title".localized)
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(failureRed)
-                    .multilineTextAlignment(.center)
-                    .accessibilityIdentifier("sdk_result_label_title")
+                .padding(.horizontal, 12)
             }
-
-            Spacer().frame(height: 8)
-
-            // Subtitle
-            Text(args.isSuccess
-                 ? "Payment Success Subtitle".localized
-                 : "Payment Failure Subtitle".localized)
-                .font(.subheadline)
-                .foregroundColor(Color(UIColor(hexString: "#1A1A1A")))
-                .multilineTextAlignment(.center)
-
-            Spacer().frame(height: 32)
-
-            // Details - centered text lines
-            HStack(spacing: 0) {
-                Text(args.isSuccess ? "Transaction ID Label".localized : "Reference Number Label".localized)
-                    .font(.footnote)
-                Text(": ")
-                    .font(.footnote)
-                Text(args.transactionId)
-                    .font(.footnote)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-            }
-
-            Spacer().frame(height: 8)
-
-            HStack(spacing: 0) {
-                Text("Date Time Label".localized)
-                    .font(.footnote)
-                Text(": ")
-                    .font(.footnote)
-                Text(args.dateTime)
-                    .font(.footnote)
-            }
-
-            Spacer()
-
-            // Footer
-            PaymentResultFooterView(cardProviders: args.cardProviders)
-
-            Spacer().frame(height: 16)
-
-            // Done button
-            Button(action: { onDone() }) {
-                Text("Done".localized)
-                    .font(.body)
-                    .fontWeight(.medium)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 48)
-                    .background(args.isSuccess ? successGreen : failureRed)
-                    .cornerRadius(8)
-            }
-            .accessibilityIdentifier("sdk_result_button_done")
-
-            Spacer().frame(height: 16)
         }
-        .padding(.horizontal, 12)
+        .onAppear {
+            // Show the result for a moment, then hand control back to the merchant app.
+            guard !didAutoDismiss else { return }
+            didAutoDismiss = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + autoDismissDelay) {
+                onDone()
+            }
+        }
     }
 }
 
@@ -228,6 +238,18 @@ private struct MerchantResultHeaderView: View {
     private let surfaceRow = Color(UIColor(hexString: "#F5F9FC"))
     private let mutedGrey = Color(UIColor(hexString: "#8F8F8F"))
     private let primaryText = Color(UIColor(hexString: "#1A1A1A"))
+    private let primaryTextUI = UIColor(hexString: "#1A1A1A")
+
+    /// Top safe-area inset of the key window, read at body-eval time. The merchant header's
+    /// background extends behind the status bar (the SwiftUI host is pinned full-screen);
+    /// this inset is added to the logo row's top padding so the logo itself sits below the
+    /// status bar / dynamic island.
+    private var statusBarInset: CGFloat {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let window = scenes.flatMap { $0.windows }.first(where: { $0.isKeyWindow })
+            ?? scenes.flatMap { $0.windows }.first
+        return window?.safeAreaInsets.top ?? 44
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -243,7 +265,8 @@ private struct MerchantResultHeaderView: View {
                 Spacer()
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.top, statusBarInset + 12)
+            .padding(.bottom, 12)
 
             // Order summary (label + amount)
             if let amount = amount {
@@ -252,7 +275,7 @@ private struct MerchantResultHeaderView: View {
                         .font(.system(size: 13))
                         .foregroundColor(mutedGrey)
                     Spacer()
-                    Text(amount)
+                    AedSymbol.swiftUIText(amount, fontSize: 18, tint: primaryTextUI)
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(primaryText)
                 }
@@ -279,7 +302,7 @@ private struct MerchantResultHeaderView: View {
                                 .font(.system(size: 13))
                                 .foregroundColor(primaryText)
                             Spacer()
-                            Text(item.amount)
+                            AedSymbol.swiftUIText(item.amount, fontSize: 13, tint: primaryTextUI)
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(primaryText)
                         }

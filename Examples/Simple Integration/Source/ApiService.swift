@@ -87,6 +87,16 @@ class ApiService {
                             print("Order: RAW RESPONSE:\n\(rawJSON)")
                         }
 
+                        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+
+                        // On a failed status code, surface the actual API error message.
+                        if !(200...299).contains(statusCode) {
+                            let apiMessage = self.parseApiErrorMessage(from: data) ?? "Order creation failed"
+                            print("Order error: \(statusCode) - \(apiMessage)")
+                            completion(.failure(NSError(domain: "OrderError", code: statusCode, userInfo: [NSLocalizedDescriptionKey: apiMessage])))
+                            return
+                        }
+
                         do {
                             let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
                             print("Order: applePayLink = \(orderResponse.embeddedData?.payment?[0].paymentLinks?.applePayLink ?? "nil")")
@@ -94,7 +104,8 @@ class ApiService {
                             completion(.success(orderResponse))
                         } catch {
                             print("Order error: \(error.localizedDescription)")
-                            completion(.failure(NSError(domain: "OrderDecodeError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to decode order response: \(error.localizedDescription)"])))
+                            let apiMessage = self.parseApiErrorMessage(from: data) ?? "Failed to decode order response: \(error.localizedDescription)"
+                            completion(.failure(NSError(domain: "OrderDecodeError", code: -1, userInfo: [NSLocalizedDescriptionKey: apiMessage])))
                         }
                     }.resume()
 
@@ -107,6 +118,23 @@ class ApiService {
             print("Order error: no environment selected")
             completion(.failure(NSError(domain: "NoEnvironment", code: -1, userInfo: [NSLocalizedDescriptionKey: "No environment configured. Please set up an environment first."])))
         }
+    }
+
+    /// Extracts the error message from an API error response body. The detailed text lives in
+    /// `errors[0].message`, so prefer that and fall back to the top-level `message`.
+    private func parseApiErrorMessage(from data: Data) -> String? {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return nil
+        }
+        if let errors = json["errors"] as? [[String: Any]],
+           let nestedMessage = errors.first?["message"] as? String,
+           !nestedMessage.isEmpty {
+            return nestedMessage
+        }
+        if let message = json["message"] as? String, !message.isEmpty {
+            return message
+        }
+        return nil
     }
 
     func saveCardForOrder(orderId: String, completion: @escaping (Result<SavedCard, Error>) -> Void) {

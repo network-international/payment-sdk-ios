@@ -41,7 +41,7 @@ struct PartialAuthView: View {
                 )
             }
             Divider()
-            Text(titleText)
+            AedSymbol.swiftUIText(titleText, fontSize: 17)
                 .font(.headline)
                 .multilineTextAlignment(.center)
                 .padding(.vertical)

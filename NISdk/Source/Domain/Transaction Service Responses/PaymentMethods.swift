@@ -11,18 +11,34 @@ import Foundation
 @objc public class PaymentMethods: NSObject, Codable {
     public var card: [CardProvider]?
     public var wallet: [WalletProvider]?
-    
+    /// Alternative payment methods the outlet has enabled, e.g. `TAMARA`, `TABBY`, `AANI`. Kept as
+    /// raw strings rather than an enum: the gateway adds APMs without an SDK release, and an
+    /// unknown name here must not stop the known ones from decoding.
+    public var apm: [String]?
+
     public enum PaymentMethodsCodingKeys: String, CodingKey {
         case card
         case wallet
+        case apm
     }
     
     required public init(from decoder: Decoder) throws {
         let paymentTypesContainer = try decoder.container(keyedBy: PaymentMethodsCodingKeys.self)
 
-        card = try paymentTypesContainer.decodeIfPresent([CardProvider].self, forKey: .card) ?? []
+        if var cardContainer = try? paymentTypesContainer.nestedUnkeyedContainer(forKey: .card) {
+            var providers: [CardProvider] = []
+            while !cardContainer.isAtEnd {
+                if let provider = try? cardContainer.decode(CardProvider.self) {
+                    providers.append(provider)
+                } else {
+                    _ = try? cardContainer.decode(String.self)
+                }
+            }
+            card = providers
+        } else {
+            card = []
+        }
 
-        // Decode wallet providers gracefully — skip unknown values instead of failing
         if var walletContainer = try? paymentTypesContainer.nestedUnkeyedContainer(forKey: .wallet) {
             var providers: [WalletProvider] = []
             while !walletContainer.isAtEnd {
@@ -36,5 +52,7 @@ import Foundation
         } else {
             wallet = []
         }
+
+        apm = (try? paymentTypesContainer.decodeIfPresent([String].self, forKey: .apm)) ?? []
     }
 }

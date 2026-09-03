@@ -5,7 +5,7 @@
 Pod::Spec.new do |spec|
 
   spec.name = "NISdk"
-  spec.version = "7.0.0"
+  spec.version = "7.0.1"
   spec.summary = "Network International's Payment gateway sdk for iOS"
 
   spec.homepage = "https://docs.ngenius-payments.com/reference#ios-sdk"
@@ -21,5 +21,7 @@ Pod::Spec.new do |spec|
     'NISdk' => ["NISdk/Resources/**/*"]
   }
   spec.frameworks = 'Foundation', 'Security', 'WebKit', 'PassKit'
+  # BENEFIT In-App (BenefitPay wallet app-switch) SDK, delivered by FOO as a binary xcframework.
+  spec.vendored_frameworks = 'NISdk/Frameworks/BenefitInAppSDK.xcframework'
   spec.requires_arc = true
 end

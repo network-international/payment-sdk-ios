@@ -31,6 +31,14 @@ public struct Amount: Codable {
         return minorUnit
     }
     
+    /// The amount in major units — the gateway carries it in minor units (`500` BHD is 0.500), and
+    /// a threshold quoted in the currency itself can only be compared against this.
+    func majorUnitValue() -> Double {
+        guard let value = value else { return 0 }
+        let exponent: Decimal = pow(10.00, getMinorUnit())
+        return NSDecimalNumber(decimal: Decimal(value) / exponent).doubleValue
+    }
+
     func getFormattedAmount() -> String {
         let orderAmountValue = formattedAmountValue()
         return "\(currencyCode ?? "") \(orderAmountValue)"

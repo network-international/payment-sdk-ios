@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 public enum HTTPClientErrors: Error {
     case missingUrl
@@ -15,13 +16,19 @@ public enum HTTPClientErrors: Error {
 public typealias HttpResponseCallback = (Data?, URLResponse?, Error?) -> Void
 
 public class HTTPClient {
+    /// The session every client uses unless one is passed explicitly.
+    ///
+    /// Tests swap this for a session whose configuration carries a stub `URLProtocol`. An
+    /// `.ephemeral` configuration ignores `URLProtocol.registerClass`, so without this hook there
+    /// is no way to exercise the transaction service without real network calls.
+    static var sharedSession = URLSession(configuration: .ephemeral)
+
     let session: URLSession
     let request: NSMutableURLRequest
-    
-    public init?(url: String) {
+
+    public init?(url: String, session: URLSession? = nil) {
         if let url = URL(string: url) {
-            let config = URLSessionConfiguration.ephemeral
-            self.session = URLSession(configuration: config)
+            self.session = session ?? HTTPClient.sharedSession
             self.request = NSMutableURLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 60.0)
             self.request.httpMethod = "GET" // default value
         } else {

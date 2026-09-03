@@ -50,6 +50,9 @@ class PaymentResultViewController: UIViewController {
         NSLayoutConstraint.activate([
             child.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             child.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            // Full-screen so the tinted merchant-header background extends behind the status
+            // bar / dynamic island. The SwiftUI view itself reads the real safe-area inset
+            // and pads its top so the logo content clears the status bar.
             child.view.topAnchor.constraint(equalTo: view.topAnchor),
             child.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])

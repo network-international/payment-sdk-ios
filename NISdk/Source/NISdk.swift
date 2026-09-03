@@ -8,6 +8,7 @@
 
 import Foundation
 import PassKit
+import BenefitInAppSDK
 
 private class NISdkBundleLocator {}
 
@@ -19,6 +20,10 @@ private class NISdkBundleLocator {}
     public var shouldShowOrderAmount = true
     public var shouldShowCancelAlert = false
     public var merchantLogo: UIImage?
+
+    /// Retains the delegate for an in-flight BenefitPay In-App payment so the async
+    /// deep-link result (delivered via handleBenefitInAppCallback) can be routed back to it.
+    private var activeBenefitInAppDelegate: BenefitInAppPaymentDelegate?
 
     private static let supportedLanguages: Set<String> = ["en", "ar", "fr"]
 
@@ -203,8 +208,11 @@ private class NISdkBundleLocator {}
                                  overParent parentViewController: UIViewController,
                                  for order: OrderResponse,
                                  with config: ClickToPayConfig) {
-        guard config.dpaId != nil else {
-            print("ClickToPay: dpaId is missing. If you initialized ClickToPayConfig with a merchantId, call `config.resolve(...)` before launching.")
+        // Accept either a resolved dpaId or a merchantId we can use to fetch one mid-launch.
+        // ClickToPayViewController resolves the merchant config from the gateway once it has
+        // the access token from order authorization.
+        if config.dpaId == nil && (config.merchantId?.isEmpty ?? true) {
+            print("ClickToPay: ClickToPayConfig has neither dpaId nor merchantId. Set one to launch.")
             clickToPayDelegate.clickToPayDidComplete(with: .failed)
             return
         }
@@ -291,5 +299,68 @@ private class NISdkBundleLocator {}
         DispatchQueue.main.async {
             parentViewController.present(navController, animated: true)
         }
+    }
+
+    // MARK: - BENEFIT In-App (BenefitPay wallet app-switch)
+
+    /// Launches a BenefitPay In-App payment. This is a standalone wallet launcher (not bound to an
+    /// N-Genius order): it presents the BenefitInAppSDK button and, on tap, app-switches to the
+    /// BenefitPay app. The result arrives asynchronously via the app's URL scheme — the host app
+    /// MUST forward that URL to `handleBenefitInAppCallback(url:)` for the delegate to be called.
+    ///
+    /// Requirements: `config.callBackTag` must match a CFBundleURLScheme in the host Info.plist, and
+    /// `benefitinapp` must be listed under LSApplicationQueriesSchemes.
+    public func launchBenefitInAppPayment(benefitInAppDelegate: BenefitInAppPaymentDelegate,
+                                          overParent parentViewController: UIViewController,
+                                          config: BenefitInAppConfig) {
+        guard config.isComplete else {
+            benefitInAppDelegate.benefitInAppPaymentCompleted(with: .invalidRequest, result: nil)
+            return
+        }
+        activeBenefitInAppDelegate = benefitInAppDelegate
+
+        DispatchQueue.main.async {
+            let vc = BenefitInAppViewController(config: config) { [weak self] in
+                // Local dismissal before any result came back over the URL scheme.
+                guard let self = self, self.activeBenefitInAppDelegate != nil else { return }
+                self.activeBenefitInAppDelegate?.benefitInAppPaymentCompleted(with: .cancelled, result: nil)
+                self.activeBenefitInAppDelegate = nil
+            }
+            let navController = UINavigationController(rootViewController: vc)
+            vc.modalPresentationStyle = .overCurrentContext
+            if #available(iOS 13.0, *) { vc.isModalInPresentation = true }
+            parentViewController.present(navController, animated: true)
+        }
+    }
+
+    /// Forward BenefitPay's return deep link here from the host app (AppDelegate `application(_:open:)`
+    /// or SceneDelegate `scene(_:openURLContexts:)`). Returns true if the URL was a BenefitPay result
+    /// and the delegate was notified.
+    @discardableResult
+    public func handleBenefitInAppCallback(url: URL) -> Bool {
+        guard let delegate = activeBenefitInAppDelegate,
+              let item = BPDLPaymentCallBackItem(deepLinkURL: url) else {
+            return false
+        }
+        let status: BenefitInAppPaymentStatus
+        switch item.status {
+        case PaymentCallBackStatusSuccess: status = .success
+        case PaymentCallBackStatusCancel:  status = .cancelled
+        case PaymentCallBackStatusFail:    status = .failed
+        default:                           status = .failed
+        }
+        let result = BenefitInAppResult(merchantName: item.merchantName,
+                                        cardNumber: item.cardNumber,
+                                        currency: item.currency,
+                                        currencyCode: item.currencyCode,
+                                        amount: item.amount,
+                                        message: item.message,
+                                        referenceId: item.referenceId)
+        activeBenefitInAppDelegate = nil
+        // Dismiss the hosting button screen if it is still up, then report.
+        DispatchQueue.main.async {
+            delegate.benefitInAppPaymentCompleted(with: status, result: result)
+        }
+        return true
     }
 }

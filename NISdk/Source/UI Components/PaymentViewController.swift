@@ -25,6 +25,9 @@ class PaymentViewController: UIViewController {
     private var accessToken: String?
     private let paymentMedium: PaymentMedium
     private var applePayController: ApplePayController?
+    /// The unified payment page while it is on screen, so a BNPL option that fails to start can
+    /// report back onto its own row instead of ending the payment.
+    private weak var unifiedPage: UnifiedPaymentPageViewController?
     private var applePayDelegate: ApplePayDelegate?
     var applePayRequest: PKPaymentRequest?
     private let cvv: String?
@@ -35,6 +38,8 @@ class PaymentViewController: UIViewController {
     var orderItems: [OrderItem] = []
     var savedCards: [SavedCard] = []
     private var lastPaymentResponse: PaymentResponse?
+    /// Cause of the pending non-successful result, reported alongside it to the merchant.
+    private var paymentError: NIPaymentError?
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -114,7 +119,7 @@ class PaymentViewController: UIViewController {
         
         // Apple pay is not enabled by merchant, hence abort payment flow
         if(self.paymentMedium == .ApplePay && (self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink) == nil) {
-            self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: .ThreeDSFailed, and: .AuthFailed);
+            self.finishPaymentAndClosePaymentViewController(with: .InValidRequest, and: nil, and: nil);
             return
         }
         // 1. Perform authorization by aquiring a payment token
@@ -149,6 +154,10 @@ class PaymentViewController: UIViewController {
                     // Callback hell...
                     self?.paymentToken = paymentToken
                     self?.accessToken = accessToken
+                    // Click to Pay's merchant-config (VCTP) lookup is resolved lazily inside
+                    // ClickToPayViewController when the Click to Pay row is actually tapped — see
+                    // initiateClickToPayFromUnifiedPage(). We no longer pre-warm it here, so non-CtP
+                    // flows (QPay, card, Apple Pay, Aani) don't fire the /config/.../vctp call.
                     // 2. Show card payment screen after authorization (payment token is received)
                     DispatchQueue.main.async { // Use the main thread to update any UI
                         self?.cardPaymentDelegate?.authorizationDidComplete?(with: .AuthSuccess)
@@ -164,7 +173,7 @@ class PaymentViewController: UIViewController {
             self.finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: .AuthFailed)
         }
     }
-    
+
     private func initiatePaymentForm() {
         switch paymentMedium {
         case .Card:
@@ -189,20 +198,29 @@ class PaymentViewController: UIViewController {
             unifiedPaymentPage.onQPayTapped = { [weak self] in
                 self?.initiateQPayFromUnifiedPage()
             }
+            unifiedPaymentPage.onBenefitTapped = { [weak self] in
+                self?.initiateBenefitFromUnifiedPage()
+            }
+            unifiedPaymentPage.onBnplTapped = { [weak self] provider in
+                self?.initiateBnplFromUnifiedPage(provider)
+            }
+            // Signal to UnifiedPaymentPage whether the Slice link is present on the order — drives
+            // whether the brand banner is shown when the entered card returns no eligible offers.
+            unifiedPaymentPage.sliceEligibilityLinkPresent = order.embeddedData?.getSliceEligibilityCheckLink() != nil
             unifiedPaymentPage.onCheckSliceEligibility = { [weak self] value, expiry, isSavedToken, completion in
                 guard let self = self,
                       let sliceEligibilityUrl = self.order.embeddedData?.getSliceEligibilityCheckLink(),
                       let accessToken = self.accessToken else {
-                    completion([])
+                    completion(nil)
                     return
                 }
                 let handle: (Data?, URLResponse?, Error?) -> Void = { data, _, _ in
                     guard let data = data,
                           let response = try? JSONDecoder().decode(SliceEligibilityResponse.self, from: data) else {
-                        completion([])
+                        completion(nil)
                         return
                     }
-                    completion(response.offers)
+                    completion(response)
                 }
                 if isSavedToken {
                     // Saved-card flow → API expects the token in `cardToken`, not `pan`.
@@ -246,7 +264,7 @@ class PaymentViewController: UIViewController {
             if cards.isEmpty, let savedCard = order.savedCard {
                 cards = [savedCard]
             }
-            unifiedPaymentPage.savedCards = cards
+            unifiedPaymentPage.savedCards = Array(cards.suffix(3))
             unifiedPaymentPage.orderItems = orderItems
             unifiedPaymentPage.allowedCardProviders = order.paymentMethods?.card
             unifiedPaymentPage.onMakeSavedCardPayment = { [weak self] card, cvv, visaRequest in
@@ -260,6 +278,7 @@ class PaymentViewController: UIViewController {
                 savedCardRequest.visaRequest = visaRequest
                 self.makeSavedCardPayment(savedCardRequest)
             }
+            self.unifiedPage = unifiedPaymentPage
             self.transition(to: .renderCardPaymentForm(unifiedPaymentPage))
             break
         case .ApplePay:
@@ -268,7 +287,9 @@ class PaymentViewController: UIViewController {
                                                         order: order,
                                                         onDismissCallback: handlePaymentResponse,
                                                         onAuthorizeApplePayCallback: handleApplePayAuthorization)
-                if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
+                if let allowedPKPaymentNetworks = order.paymentMethods?.card?
+                    .filter({ $0.isApplePayNetwork })
+                    .map({ $0.pkNetworkType }) {
                     applePayRequest.supportedNetworks = Array(Set(allowedPKPaymentNetworks))
                 }
                 // Dont use container view controllers for apple pay
@@ -341,7 +362,9 @@ class PaymentViewController: UIViewController {
                                                     self?.handlePaymentResponse(paymentResponse)
                                                 },
                                                 onAuthorizeApplePayCallback: handleApplePayAuthorization)
-        if let allowedPKPaymentNetworks = order.paymentMethods?.card?.map({ $0.pkNetworkType }) {
+        if let allowedPKPaymentNetworks = order.paymentMethods?.card?
+            .filter({ $0.isApplePayNetwork })
+            .map({ $0.pkNetworkType }) {
             let networks = Array(Set(allowedPKPaymentNetworks))
             applePayRequest.supportedNetworks = networks
             print("ApplePay: supportedNetworks: \(networks.map { $0.rawValue })")
@@ -416,6 +439,121 @@ class PaymentViewController: UIViewController {
             self.present(navController, animated: true)
         } catch {
             print("QPay: Failed to build args - \(error)")
+        }
+    }
+
+    private func initiateBenefitFromUnifiedPage() {
+        guard let token = self.accessToken, !token.isEmpty else {
+            print("Benefit: missing access token; cannot start checkout")
+            finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+            return
+        }
+        do {
+            let args = try order.toBenefitInitArgs()
+            let benefitVC = BenefitViewController(
+                args: args,
+                transactionService: transactionService,
+                accessToken: token
+            ) { [weak self] status in
+                switch status {
+                case .success:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                case .postAuthReview:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
+                case .failed(let error):
+                    // A configuration problem is the integration's to fix, not a payment the payer
+                    // could have completed, so it is reported as an invalid request rather than as
+                    // a declined payment.
+                    let status: PaymentStatus = error.category == .configuration
+                        ? .InValidRequest
+                        : .PaymentFailed
+                    self?.finishPaymentAndClosePaymentViewController(with: status, and: nil, and: nil,
+                                                                     error: error)
+                case .dismissed:
+                    // Backed out before Benefit recorded anything — the order is untouched, so the
+                    // payer stays on the payment page with their other options intact.
+                    break
+                case .cancelledOnProvider:
+                    // Cancelling on Benefit's own page is the payer changing their mind, not a
+                    // payment outcome, so it hands them back to the payment page with their other
+                    // options intact rather than ending the payment on their behalf.
+                    break
+                }
+            }
+            let navController = UINavigationController(rootViewController: benefitVC)
+            navController.modalPresentationStyle = .pageSheet
+            // A swipe-down would tear the sheet away without ever running the completion handler,
+            // so a payment the payer had already authorised would be silently dropped. Cancel is
+            // the only way out, and it resolves the payment when the gateway callback was reached.
+            navController.isModalInPresentation = true
+            self.present(navController, animated: true)
+        } catch {
+            // The order is missing the links Benefit needs, so the request was never valid.
+            print("Benefit: Failed to build args - \(error)")
+            finishPaymentAndClosePaymentViewController(
+                with: .InValidRequest, and: nil, and: nil,
+                error: NIPaymentError(category: .configuration,
+                                      message: "Benefit cannot start for this order: \(error)",
+                                      paymentMethod: BenefitViewController.methodName))
+        }
+    }
+
+    private func initiateBnplFromUnifiedPage(_ provider: BnplProvider) {
+        guard let token = self.accessToken, !token.isEmpty else {
+            print("\(provider.methodName): missing access token; cannot start checkout")
+            finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+            return
+        }
+        do {
+            let args = try order.toBnplInitArgs(for: provider)
+            let bnplVC = BnplViewController(
+                args: args,
+                transactionService: transactionService,
+                accessToken: token
+            ) { [weak self] status in
+                switch status {
+                case .success:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                case .postAuthReview:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
+                case .failed(let error):
+                    // A configuration problem is the integration's to fix, not a payment the payer
+                    // could have completed, so it is reported as an invalid request rather than as
+                    // a declined payment.
+                    let status: PaymentStatus = error.category == .configuration
+                        ? .InValidRequest
+                        : .PaymentFailed
+                    self?.finishPaymentAndClosePaymentViewController(with: status, and: nil, and: nil,
+                                                                     error: error)
+                case .unavailable(let error):
+                    // The checkout never opened, so nothing is owed and every other method is still
+                    // available. Ending the payment here would cost the merchant a sale over a
+                    // provider outage, so the payer is returned to the page with the row marked
+                    // unavailable instead.
+                    print("\(provider.methodName): unavailable - \(error)")
+                    self?.unifiedPage?.markBnplUnavailable(provider)
+                case .dismissed, .cancelledOnProvider:
+                    // Backing out — from our toolbar or from the provider's own page — is the payer
+                    // changing their mind rather than a payment outcome, so they return to the
+                    // payment page with their other options intact.
+                    break
+                }
+            }
+            let navController = UINavigationController(rootViewController: bnplVC)
+            navController.modalPresentationStyle = .pageSheet
+            // A swipe-down would tear the sheet away without ever running the completion handler,
+            // so a checkout the payer had already approved would be silently dropped. Cancel is the
+            // only way out, and it resolves the payment when a return leg was reached.
+            navController.isModalInPresentation = true
+            self.present(navController, animated: true)
+        } catch {
+            // The order is missing the links the provider needs, so the request was never valid.
+            print("\(provider.methodName): Failed to build args - \(error)")
+            finishPaymentAndClosePaymentViewController(
+                with: .InValidRequest, and: nil, and: nil,
+                error: NIPaymentError(category: .configuration,
+                                      message: "\(provider.methodName) cannot start for this order: \(error)",
+                                      paymentMethod: provider.methodName))
         }
     }
 
@@ -714,7 +852,11 @@ class PaymentViewController: UIViewController {
                     let partialAuthArgs = try paymentResponse.toPartialAuthArgs(accessToken: self.accessToken)
                     self.initiatePartialAuth(partialAuthArgs: partialAuthArgs)
                 } catch {
-                    self.cardPaymentDelegate?.paymentDidComplete(with: .InValidRequest)
+                    self.paymentError = NIPaymentError(
+                        category: .configuration,
+                        message: "Partial authorisation arguments could not be built: \(error)"
+                    )
+                    self.reportPaymentDidComplete(.InValidRequest)
                 }
                 return
             }
@@ -829,10 +971,23 @@ class PaymentViewController: UIViewController {
     }
     
     // This is called when payment is done(fail or success) with 3ds(fail or success) or without 3ds
+    /// Single exit point to the merchant. The required callback is always delivered unchanged; the
+    /// optional one carries the cause when there is one, so integrations that never adopt it keep
+    /// working exactly as before.
+    private func reportPaymentDidComplete(_ paymentStatus: PaymentStatus) {
+        let error = paymentStatus == .PaymentSuccess ? nil : paymentError
+        cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
+        cardPaymentDelegate?.paymentDidComplete?(with: paymentStatus, error: error)
+    }
+
     private func finishPaymentAndClosePaymentViewController(with paymentStatus: PaymentStatus,
                                                             and threeDSStatus: ThreeDSStatus?,
-                                                            and authStatus: AuthorizationStatus?) {
-        print("ApplePay/Payment: finishPaymentAndClosePaymentViewController - paymentStatus: \(paymentStatus), threeDSStatus: \(String(describing: threeDSStatus)), authStatus: \(String(describing: authStatus))")
+                                                            and authStatus: AuthorizationStatus?,
+                                                            error: NIPaymentError? = nil) {
+        // Held on the controller because the result screen defers the delegate callback, so the
+        // cause has to survive until whichever exit path actually reports the payment.
+        self.paymentError = error
+        print("ApplePay/Payment: finishPaymentAndClosePaymentViewController - paymentStatus: \(paymentStatus), threeDSStatus: \(String(describing: threeDSStatus)), authStatus: \(String(describing: authStatus)), error: \(error?.description ?? "none")")
         DispatchQueue.main.async { // Use the main thread to update any UI
             if let threeDSStatus = threeDSStatus {
                 self.cardPaymentDelegate?.threeDSChallengeDidComplete?(with: threeDSStatus)
@@ -854,7 +1009,7 @@ class PaymentViewController: UIViewController {
 
             self.closePaymentViewController(completion: {
                 [weak self] in
-                self?.cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
+                self?.reportPaymentDidComplete(paymentStatus)
             })
         }
     }
@@ -882,7 +1037,7 @@ class PaymentViewController: UIViewController {
 
         let resultVC = PaymentResultViewController(args: args, onDone: { [weak self] in
             self?.closePaymentViewController(completion: {
-                self?.cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
+                self?.reportPaymentDidComplete(paymentStatus)
             })
         })
 

@@ -17,8 +17,10 @@ final class VisaInstallmentInlineView: UIView {
 
     private let plans: [MatchedPlan]
     private let payInFullAmount: Amount?
-    private var selectedIndex = 0 // 0 == Pay in full, 1..N == plans[i-1]
+    private var selectedIndex = -1 // -1 == no selection, 0 == Pay in full, 1..N == plans[i-1]
     private var termsAccepted = false
+
+    var hasUserSelection: Bool { selectedIndex >= 0 }
 
     private let mainStack = UIStackView()
     private var pillButtons: [UIButton] = []
@@ -31,6 +33,7 @@ final class VisaInstallmentInlineView: UIView {
     private let termsRow = UIStackView()
     private let termsCheckbox = UIButton(type: .system)
     private let termsTextLabel = UILabel()
+    private let selectionErrorLabel = UILabel()
 
     init(plans: [MatchedPlan], payInFullAmount: Amount?) {
         self.plans = plans
@@ -50,6 +53,7 @@ final class VisaInstallmentInlineView: UIView {
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         mainStack.addArrangedSubview(makeHeader())
         mainStack.addArrangedSubview(makePillRow())
+        mainStack.addArrangedSubview(makeSelectionErrorLabel())
         mainStack.addArrangedSubview(makeDetailSection())
         mainStack.addArrangedSubview(makeTermsRow())
         mainStack.addArrangedSubview(makeFooter())
@@ -73,10 +77,13 @@ final class VisaInstallmentInlineView: UIView {
         label.textColor = UIColor(red: 0.18, green: 0.40, blue: 0.95, alpha: 1.0)
         label.translatesAutoresizingMaskIntoConstraints = false
 
+        // Custom megaphone glyph from the SDK bundle. Same path as the Android
+        // `ic_megaphone_fill` vector so the icon matches across both platforms (template-rendered
+        // so `tintColor` recolors the fill).
+        let sdkBundle = NISdk.sharedInstance.getBundle()
         let icon = UIImageView()
-        if #available(iOS 13.0, *) {
-            icon.image = UIImage(systemName: "megaphone.fill")
-        }
+        icon.image = UIImage(named: "megaphoneFill", in: sdkBundle, compatibleWith: nil)?
+            .withRenderingMode(.alwaysTemplate)
         icon.tintColor = UIColor(red: 0.18, green: 0.40, blue: 0.95, alpha: 1.0)
         icon.contentMode = .scaleAspectFit
         icon.translatesAutoresizingMaskIntoConstraints = false
@@ -206,7 +213,7 @@ final class VisaInstallmentInlineView: UIView {
     }
 
     private func refreshDetailVisibility() {
-        if selectedIndex == 0 {
+        if selectedIndex <= 0 {
             detailContainer.isHidden = true
             termsRow.isHidden = true
             return
@@ -221,11 +228,20 @@ final class VisaInstallmentInlineView: UIView {
         let monthsCount = plan.numberOfInstallments ?? 0
         let rate = cost?.annualPercentageRate ?? 0
 
-        monthlyAmountLabel.text = "\(monthlyAmount) / Month"
+        monthlyAmountLabel.attributedText = AedSymbol.attributed(
+            "\(monthlyAmount) / Month",
+            font: monthlyAmountLabel.font,
+            color: monthlyAmountLabel.textColor ?? .black)
         monthlyForLabel.text = "for \(monthsCount) months"
         monthlyRateLabel.text = String(format: "Monthly rate: %.2f%%", rate)
-        processingFeesLabel.text = "+ Processing fees: \(upfront)"
-        totalLabel.text = "Total: \(total)"
+        processingFeesLabel.attributedText = AedSymbol.attributed(
+            "+ Processing fees: \(upfront)",
+            font: processingFeesLabel.font,
+            color: processingFeesLabel.textColor ?? .black)
+        totalLabel.attributedText = AedSymbol.attributed(
+            "Total: \(total)",
+            font: totalLabel.font,
+            color: totalLabel.textColor ?? .black)
 
         detailContainer.isHidden = false
         termsRow.isHidden = false
@@ -281,19 +297,43 @@ final class VisaInstallmentInlineView: UIView {
 
     private func makeFooter() -> UIView {
         let label = UILabel()
+        label.text = "Instalment enabled by "
+        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.textColor = UIColor(red: 0.18, green: 0.40, blue: 0.95, alpha: 1.0)
+        label.setContentHuggingPriority(.required, for: .horizontal)
         label.translatesAutoresizingMaskIntoConstraints = false
-        let attr = NSMutableAttributedString(
-            string: "Instalment enabled by ",
-            attributes: [.font: UIFont.systemFont(ofSize: 13, weight: .medium),
-                         .foregroundColor: UIColor(red: 0.18, green: 0.40, blue: 0.95, alpha: 1.0)]
-        )
-        attr.append(NSAttributedString(
-            string: "VISA",
-            attributes: [.font: UIFont.systemFont(ofSize: 14, weight: .heavy),
-                         .foregroundColor: UIColor(red: 0.10, green: 0.20, blue: 0.55, alpha: 1.0)]
-        ))
-        label.attributedText = attr
-        return label
+
+        // Official Visa lockup that ships with the SDK (used across the app for visual
+        // consistency with the rest of the brand).
+        let sdkBundle = NISdk.sharedInstance.getBundle()
+        let visaLogo = UIImageView(image: UIImage(named: "visalogo", in: sdkBundle, compatibleWith: nil))
+        visaLogo.contentMode = .scaleAspectFit
+        visaLogo.translatesAutoresizingMaskIntoConstraints = false
+        visaLogo.setContentHuggingPriority(.required, for: .horizontal)
+        visaLogo.setContentCompressionResistancePriority(.required, for: .horizontal)
+        let logoHeight: CGFloat = 14
+        let logoAspect: CGFloat = {
+            guard let s = visaLogo.image?.size, s.height > 0 else { return 3 }
+            return s.width / s.height
+        }()
+        NSLayoutConstraint.activate([
+            visaLogo.heightAnchor.constraint(equalToConstant: logoHeight),
+            visaLogo.widthAnchor.constraint(equalToConstant: logoHeight * logoAspect),
+        ])
+
+        // Trailing flexible spacer keeps the label + logo packed to the leading edge of the
+        // (full-width) footer row instead of distributing across it.
+        let trailingSpacer = UIView()
+        trailingSpacer.translatesAutoresizingMaskIntoConstraints = false
+        trailingSpacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        trailingSpacer.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        let row = UIStackView(arrangedSubviews: [label, visaLogo, trailingSpacer])
+        row.axis = .horizontal
+        row.alignment = .center
+        row.spacing = 0
+        row.translatesAutoresizingMaskIntoConstraints = false
+        return row
     }
 
     // MARK: - Selection Emit
@@ -308,6 +348,30 @@ final class VisaInstallmentInlineView: UIView {
             return
         }
         onSelectionChanged?(plans[selectedIndex - 1], termsAccepted)
+    }
+
+    // MARK: - Selection Error
+
+    private func makeSelectionErrorLabel() -> UIView {
+        selectionErrorLabel.translatesAutoresizingMaskIntoConstraints = false
+        selectionErrorLabel.font = .systemFont(ofSize: 13, weight: .regular)
+        selectionErrorLabel.textColor = UIColor(red: 0.83, green: 0.18, blue: 0.18, alpha: 1.0)
+        selectionErrorLabel.numberOfLines = 0
+        selectionErrorLabel.text = "Select Payment Option Validation".localized
+        selectionErrorLabel.isHidden = true
+        return selectionErrorLabel
+    }
+
+    func showSelectionError() {
+        let wasHidden = selectionErrorLabel.isHidden
+        selectionErrorLabel.isHidden = false
+        if wasHidden { onSizeChange?() }
+    }
+
+    func hideSelectionError() {
+        let wasVisible = !selectionErrorLabel.isHidden
+        selectionErrorLabel.isHidden = true
+        if wasVisible { onSizeChange?() }
     }
 }
 

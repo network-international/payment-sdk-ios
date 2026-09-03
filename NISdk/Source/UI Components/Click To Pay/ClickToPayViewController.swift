@@ -225,12 +225,16 @@ class ClickToPayViewController: UIViewController {
 
     private func authorizeAndLoadHtml() {
         // If tokens were already provided (e.g. from PaymentViewController which already authorized),
-        // skip the authorization step and go straight to fetching vctp config then loading HTML
+        // skip re-authorizing. We still resolve the merchant config here: PaymentViewController no
+        // longer pre-warms it, so the VCTP lookup happens lazily — only once Click to Pay is actually
+        // launched. `resolveClickToPayMerchantConfigIfNeeded` is a no-op if dpaId is already set.
         if let existingToken = self.accessToken, !existingToken.isEmpty {
             if self.paymentCookie == nil || self.paymentCookie!.isEmpty {
                 self.paymentCookie = ""
             }
-            fetchVctpConfigAndLoadHtml()
+            self.resolveClickToPayMerchantConfigIfNeeded {
+                self.fetchVctpConfigAndLoadHtml()
+            }
             return
         }
 
@@ -249,7 +253,43 @@ class ClickToPayViewController: UIViewController {
             let paymentToken = tokens["payment-token"] ?? ""
             self.paymentCookie = "payment-token=\(paymentToken)"
 
-            self.fetchVctpConfigAndLoadHtml()
+            // Resolve merchant config (dpaId / dpaClientId / dpaName) before loading the
+            // Visa SDK HTML — the WebView config-JSON needs those values. Direct
+            // `launchClickToPay` path: PaymentViewController never ran, so this is our
+            // only chance.
+            self.resolveClickToPayMerchantConfigIfNeeded {
+                self.fetchVctpConfigAndLoadHtml()
+            }
+        }
+    }
+
+    /// Calls the gateway VCTP merchant-config endpoint to populate `dpaId` / `dpaClientId` /
+    /// `dpaName` on `clickToPayConfig`. No-op if the values are already set or no `merchantId`
+    /// was supplied. Continues regardless of outcome — if resolution fails the WebView config
+    /// will be missing `dpaId` and the Visa SDK will surface that error.
+    private func resolveClickToPayMerchantConfigIfNeeded(then proceed: @escaping () -> Void) {
+        guard clickToPayConfig.dpaId == nil else { proceed(); return }
+        let resolvedMerchantId: String? = {
+            if let m = clickToPayConfig.merchantId, !m.isEmpty { return m }
+            return clickToPayArgs.merchantReference
+        }()
+        // `orderUrl` is the order's `self` href and is hosted on the api-gateway, so we can
+        // derive the gateway base from it (the paypage host is a different domain entirely).
+        guard let merchantId = resolvedMerchantId, !merchantId.isEmpty,
+              let token = self.accessToken,
+              let url = URL(string: clickToPayArgs.orderUrl),
+              let scheme = url.scheme, let host = url.host
+        else {
+            proceed()
+            return
+        }
+        let apiGatewayBaseUrl = "\(scheme)://\(host)"
+        clickToPayConfig.merchantId = merchantId
+        clickToPayConfig.resolve(accessToken: token, apiGatewayBaseUrl: apiGatewayBaseUrl) { error in
+            if let error = error {
+                print("ClickToPay: VCTP merchant-config resolve failed - \(error.localizedDescription)")
+            }
+            proceed()
         }
     }
 
@@ -307,6 +347,18 @@ class ClickToPayViewController: UIViewController {
                     }
                     if let publicKey = json["publicKey"] as? String {
                         self.vctpPublicKey = publicKey
+                    }
+                    // The paypage /vctp/config response also carries the DPA credentials.
+                    // Use it as a fallback when the gateway /config/merchants/{id}/configs/vctp
+                    // call didn't resolve them (e.g. it returned 406), otherwise the Visa SDK
+                    // is launched with dpaId=undefined and fails with "Failed to load INO SRC SDKs".
+                    if self.clickToPayConfig.dpaId == nil,
+                       let dpaId = json["dpaId"] as? String, !dpaId.isEmpty {
+                        self.clickToPayConfig.dpaId = dpaId
+                    }
+                    if self.clickToPayConfig.dpaClientId == nil,
+                       let dpaClientId = json["dpaClientId"] as? String, !dpaClientId.isEmpty {
+                        self.clickToPayConfig.dpaClientId = dpaClientId
                     }
                     // Save merchant config fields for dpaTransactionOptions
                     var merchantConfig: [String: Any] = [:]

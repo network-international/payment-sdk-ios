@@ -165,7 +165,11 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
                 stack.centerYAnchor.constraint(equalTo: self.payButton.centerYAnchor)
             ])
         } else {
-            self.payButton.setTitle(payButtonTitle, for: .normal)
+            let font = self.payButton.titleLabel?.font ?? UIFont.systemFont(ofSize: 17, weight: .semibold)
+            let color = NISdk.sharedInstance.niSdkColors.payButtonTitleColor
+            self.payButton.setAttributedTitle(
+                AedSymbol.attributed(payButtonTitle, font: font, color: color),
+                for: .normal)
         }
     }
     

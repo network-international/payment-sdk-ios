@@ -71,6 +71,14 @@
 "aani_generate_qr" = "Générer un code QR";
 "aani_scan_qr_to_pay" = "Scanner le QR → Approuver le paiement → Terminé";
 "Pay with Aani" = "Payer avec AANI";
+"Pay by Benefit" = "Payer avec Benefit";
+"Benefit" = "Benefit";
+"Pay with Tamara" = "Payer avec Tamara";
+"Tamara" = "Tamara";
+"Pay with Tabby" = "Payer avec Tabby";
+"Tabby" = "Tabby";
+"Bnpl below minimum" = "%1$@ exige une commande minimale de %2$@.";
+"Bnpl unavailable" = "%@ est indisponible pour le moment. Veuillez choisir un autre moyen de paiement.";
 "aani_request_to_pay" = "Demande de paiement";
 "aani_generating_qr" = "Génération du code QR";
 "aani_keep_modal_open" = "Veuillez garder la fenêtre ouverte";
@@ -84,7 +92,7 @@
 "aani_payment_timeout_message" = "Le paiement n\\'a pas été effectué à temps";
 
 /* Unified Payment Page */
-"Or select your payment options" = "Ou sélectionnez vos options de paiement";
+"Or select your payment options" = "Autres options de paiement";
 "Use Credit Or Debit Card" = "Utiliser une carte de crédit ou de débit";
 "What's CVV?" = "Qu'est-ce que le CVV ?";
 "CVV Tooltip" = "Le code de sécurité se trouve au dos de la carte";
@@ -95,6 +103,7 @@
 "Select Other Payment Options" = "Sélectionner d'autres options de paiement";
 "Click to Pay" = "Click to Pay";
 "Pay with Click to Pay" = "Payer avec Click to Pay";
+"Pay with QPay" = "Payer avec QPay";
 "Pay by card" = "Payer par carte";
 "By clicking Pay terms" = "En cliquant sur \"Payer\", vous acceptez les conditions générales et autorisez cette transaction.";
 "Pay With" = "Payer avec";
@@ -102,6 +111,8 @@
 "Security code" = "Code de sécurité";
 "Card number" = "Numéro de carte";
 "Name on card" = "Nom sur la carte";
+"Enter card number" = "Entrez le numéro de carte";
+"Enter name on card" = "Entrez le nom sur la carte";
 "+7 currencies available" = "+7 devises disponibles";
 
 /* Payment Result Screen */
@@ -115,3 +126,5 @@
 "Date Time Label" = "Date de transaction";
 "Done" = "Terminé";
 "Add card manually" = "Ajouter une carte manuellement";
+"Select Payment Option Validation" = "Veuillez sélectionner une option de paiement pour continuer";
+"Card Already Saved" = "Cette carte est déjà enregistrée";

@@ -1,0 +1,6 @@
+framework module BenefitInAppSDK {
+  umbrella header "BenefitInAppSDK.h"
+  export *
+
+  module * { export * }
+}

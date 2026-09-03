@@ -139,6 +139,16 @@ NISdk.sharedInstance.showCardPaymentViewWith(
 
 ## Apple Pay
 
+Enable or disable Apple Pay by what you pass. There is no separate SDK flag.
+
+| Path | How to enable | How to disable |
+|---|---|---|
+| **Unified page** | Pass `applePayRequest` and `applePayDelegate` into `showCardPaymentViewWith` | Pass `with: nil` and `applePayDelegate: nil` |
+| **Standalone** | Call `initiateApplePayWith` from your own Apple Pay button | Do not call it; hide your button |
+| **Hybrid** | Standalone `initiateApplePayWith` for the button; omit the request on the unified page | — |
+
+The order must have `payment:apple_pay` (`applePayLink`). Device support alone is not enough.
+
 ### 1. Check Device Support
 
 ```swift
@@ -147,7 +157,35 @@ if NISdk.sharedInstance.deviceSupportsApplePay() {
 }
 ```
 
-### 2. Launch Apple Pay Directly
+### 2. Enable on the unified page
+
+```swift
+NISdk.sharedInstance.showCardPaymentViewWith(
+    cardPaymentDelegate: self,
+    applePayDelegate: self,
+    overParent: self,
+    for: orderResponse,
+    with: applePayRequest,
+    clickToPayConfig: nil
+)
+```
+
+### 3. Disable on the unified page
+
+```swift
+NISdk.sharedInstance.showCardPaymentViewWith(
+    cardPaymentDelegate: self,
+    applePayDelegate: nil,
+    overParent: self,
+    for: orderResponse,
+    with: nil,
+    clickToPayConfig: nil
+)
+```
+
+### 4. Launch standalone
+
+Presents the Apple Pay sheet only — the unified page is not opened.
 
 ```swift
 NISdk.sharedInstance.initiateApplePayWith(
@@ -159,7 +197,7 @@ NISdk.sharedInstance.initiateApplePayWith(
 )
 ```
 
-### 3. Handle Apple Pay Delegate
+### 5. Handle Apple Pay Delegate
 
 ```swift
 extension CheckoutViewController: ApplePayDelegate {

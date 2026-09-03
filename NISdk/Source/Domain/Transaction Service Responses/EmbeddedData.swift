@@ -39,6 +39,13 @@ public struct EmbeddedData {
     func getQPayLink() -> String? {
         return payment?.first?.paymentLinks?.qpayLink
     }
+
+    func getBnplLink(for provider: BnplProvider) -> String? {
+        switch provider {
+        case .tamara: return payment?.first?.paymentLinks?.tamaraLink
+        case .tabby: return payment?.first?.paymentLinks?.tabbyLink
+        }
+    }
 }
 
 extension EmbeddedData: Codable {

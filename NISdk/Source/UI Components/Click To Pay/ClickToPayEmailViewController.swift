@@ -370,9 +370,11 @@ class ClickToPayEmailViewController: UIViewController {
         amountLabel.textAlignment = .right
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        // Format amount
         if let amount = orderAmount {
-            amountLabel.text = amount.getFormattedAmount2Decimal()
+            amountLabel.attributedText = AedSymbol.attributed(
+                amount.getFormattedAmount2Decimal(),
+                font: amountLabel.font,
+                color: amountLabel.textColor)
         } else {
             amountLabel.text = ""
         }

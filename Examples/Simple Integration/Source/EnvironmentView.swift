@@ -30,6 +30,7 @@ struct EnvironmentView: View {
     @State private var outletReference: String = ""
     @State private var realm: String = ""
     @State private var applePayMerchantId: String = ""
+    @State private var clickToPayMerchantId: String = ""
     @State private var errorMessage: String?
     @State private var environmentExpanded = false
 
@@ -373,6 +374,8 @@ struct EnvironmentView: View {
                             .accessibilityIdentifier("addenv_field_outletReference")
                         TextField("Apple Pay Merchant ID (optional)", text: $applePayMerchantId)
                             .accessibilityIdentifier("addenv_field_applePayMerchantId")
+                        TextField("Click to Pay Merchant ID (optional)", text: $clickToPayMerchantId)
+                            .accessibilityIdentifier("addenv_field_clickToPayMerchantId")
 
                         if let errorMessage = errorMessage {
                             Text(errorMessage)
@@ -392,13 +395,14 @@ struct EnvironmentView: View {
                                 default:
                                     EnvironmentType.DEV
                                 }
-                                viewModel.addEnvironment(nickname: nickname, apiKey: apiKey, outletReference: outletReference, realm: realm, type: env, applePayMerchantId: applePayMerchantId)
+                                viewModel.addEnvironment(nickname: nickname, apiKey: apiKey, outletReference: outletReference, realm: realm, type: env, applePayMerchantId: applePayMerchantId, clickToPayMerchantId: clickToPayMerchantId)
 
                                 nickname = ""
                                 apiKey = ""
                                 outletReference = ""
                                 realm = ""
                                 applePayMerchantId = ""
+                                clickToPayMerchantId = ""
                                 isAddingEnvironment.toggle()
                                 errorMessage = nil
                             }

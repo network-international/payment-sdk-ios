@@ -16,10 +16,25 @@ class QPayViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, 
     private let accessToken: String
     private var didDispatchResult = false
     private var sawAcceptCallback = false
+    private var sawCancelCallback = false
     private var didStartRefetch = false
+
+    /// Pending "reveal the WebView" work. Each navigation hop cancels it and re-shows the cover,
+    /// so intermediate redirect pages (incl. the brief broken-link/error page) never get displayed.
+    private var revealWorkItem: DispatchWorkItem?
+    /// How long a page must stay put (no new navigation) before we reveal it. A redirect hop fires
+    /// the next provisional navigation well within this window, keeping the cover up.
+    private static let revealDebounce: TimeInterval = 0.45
 
     private lazy var webView: WKWebView = {
         let config = WKWebViewConfiguration()
+        // Isolate this payment's web session. The paypage stores `paypage_browser_session_id` and
+        // `paypage_used_auth_codes` in localStorage (and the gateway sets session cookies). With the
+        // default *persistent* data store that state survives across orders, so after a failed
+        // payment a brand-new order reuses the dead session → "your session has expired or marked as
+        // invalid". A non-persistent store lives only for this view controller, so every order starts
+        // with a clean session and nothing leaks to the next one.
+        config.websiteDataStore = .nonPersistent()
         // Capture console.* and uncaught errors from QCB's JS so we can see what's happening.
         let userScript = """
         (function() {
@@ -96,6 +111,15 @@ class QPayViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, 
         }
     }()
 
+    /// Opaque view sitting *above* the WebView. While it's visible the user sees only a white
+    /// screen + spinner, never whatever the WebView is rendering mid-redirect.
+    private let coverView: UIView = {
+        let v = UIView()
+        v.backgroundColor = .white
+        v.accessibilityIdentifier = "sdk_qpay_cover"
+        return v
+    }()
+
     init(args: QPayInitArgs,
          transactionService: TransactionService,
          accessToken: String,
@@ -130,12 +154,22 @@ class QPayViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, 
             webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
 
-        view.addSubview(activityIndicator)
+        // Cover sits on top of the WebView and hides intermediate redirect pages.
+        view.addSubview(coverView)
+        coverView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            coverView.topAnchor.constraint(equalTo: view.topAnchor),
+            coverView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            coverView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            coverView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        coverView.addSubview(activityIndicator)
         activityIndicator.hidesWhenStopped = true
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            activityIndicator.centerXAnchor.constraint(equalTo: coverView.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: coverView.centerYAnchor)
         ])
 
         navigationController?.setNavigationBarHidden(false, animated: false)
@@ -216,6 +250,51 @@ class QPayViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, 
         dispatch(.cancelled)
     }
 
+    // MARK: - Cover (hide intermediate redirect pages)
+
+    /// Re-cover the WebView and cancel any pending reveal. Called at the start of every navigation
+    /// hop so the user keeps seeing the spinner, not the page being loaded.
+    private func showCover() {
+        revealWorkItem?.cancel()
+        revealWorkItem = nil
+        coverView.isHidden = false
+        activityIndicator.startAnimating()
+    }
+
+    /// Reveal the WebView, but only if no further navigation starts within `revealDebounce`.
+    /// A redirect chain fires its next provisional navigation almost immediately, which calls
+    /// `showCover()` and cancels this — so only a page that actually settles gets shown.
+    private func scheduleReveal() {
+        revealWorkItem?.cancel()
+        let item = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            self.activityIndicator.stopAnimating()
+            self.coverView.isHidden = true
+            self.qpayDebug("revealed settled page url=\(self.webView.url?.absoluteString ?? "nil")")
+        }
+        revealWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + QPayViewController.revealDebounce, execute: item)
+    }
+
+    // MARK: - Debug
+
+    /// Timestamped trace so the exact sequence + origin of the brief flash page is captured.
+    private func qpayDebug(_ msg: String) {
+        let ts = String(format: "%.3f", Date().timeIntervalSince1970)
+        print("[QPay][DEBUG \(ts)] \(msg)")
+    }
+
+    /// Snapshot what a page actually rendered — used to fingerprint the broken-link/error page.
+    private func snapshotPage(_ tag: String) {
+        let urlStr = webView.url?.absoluteString ?? "nil"
+        webView.evaluateJavaScript("document.title") { [weak self] value, _ in
+            self?.qpayDebug("\(tag) title=\(value ?? "<nil>") url=\(urlStr)")
+        }
+        webView.evaluateJavaScript("document.body ? document.body.innerText.substring(0, 300) : '<no body>'") { [weak self] value, _ in
+            self?.qpayDebug("\(tag) bodyText[0:300]=\(value ?? "<nil>")")
+        }
+    }
+
     // MARK: - WKNavigationDelegate
 
     func webView(_ webView: WKWebView,
@@ -223,58 +302,83 @@ class QPayViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, 
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         let url = navigationAction.request.url
         print("[QPay] decidePolicy method=\(navigationAction.request.httpMethod ?? "?") url=\(url?.absoluteString ?? "nil")")
-        // Mark when the gateway hops through our backend's accept URL — backend processes the
-        // result there. We allow the navigation so the backend can update order state, then on
-        // the next didFinish we refetch the order and report to the host app.
-        if let path = url?.path, path.contains("/qpay/accept") {
-            print("[QPay] callback URL seen — letting it through; will refetch order on next didFinish")
-            sawAcceptCallback = true
+        if let path = url?.path {
+            // QCB's user-cancel endpoint. When the payer taps cancel on the QCB hosted page the
+            // WebView navigates here before it ever reaches our accept callback. Treat this hop as
+            // a definitive user cancellation so we report cancelled rather than failed.
+            if path.contains("/d3gw/cancel") {
+                print("[QPay] QCB cancel URL seen — user canceled at gateway")
+                sawCancelCallback = true
+            }
+            // Mark when the gateway hops through our backend's accept URL — backend processes the
+            // result there. We allow the navigation so the backend can update order state, then on
+            // the next didFinish we refetch the order and report to the host app.
+            if path.contains("/qpay/accept") {
+                print("[QPay] callback URL seen — letting it through; will refetch order on next didFinish")
+                sawAcceptCallback = true
+            }
+        }
+        decisionHandler(.allow)
+    }
+
+    /// Logs the HTTP status of every response. A 4xx/5xx here is the smoking gun for the
+    /// broken-link/error page that briefly flashes — its URL is the page origin we're hunting.
+    func webView(_ webView: WKWebView,
+                 decidePolicyFor navigationResponse: WKNavigationResponse,
+                 decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        if let http = navigationResponse.response as? HTTPURLResponse {
+            let marker = (200..<400).contains(http.statusCode) ? "" : "  <-- NON-OK (likely the flash page)"
+            qpayDebug("response status=\(http.statusCode) url=\(http.url?.absoluteString ?? "nil")\(marker)")
         }
         decisionHandler(.allow)
     }
 
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        print("[QPay] didStartProvisional url=\(webView.url?.absoluteString ?? "nil")")
+        qpayDebug("didStartProvisional url=\(webView.url?.absoluteString ?? "nil")")
+        // A new hop began — re-cover so the page being navigated to is never shown until it settles.
+        showCover()
     }
 
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
-        print("[QPay] didReceiveServerRedirect url=\(webView.url?.absoluteString ?? "nil")")
+        qpayDebug("didReceiveServerRedirect url=\(webView.url?.absoluteString ?? "nil")")
+        showCover()
     }
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-        print("[QPay] didCommit url=\(webView.url?.absoluteString ?? "nil")")
+        // didCommit = content starts rendering. This is the page that *would* flash; the cover is
+        // hiding it. Snapshot it so we can see exactly what it is.
+        qpayDebug("didCommit url=\(webView.url?.absoluteString ?? "nil")")
+        snapshotPage("didCommit")
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        print("[QPay] didFinish url=\(webView.url?.absoluteString ?? "nil")")
-        activityIndicator.stopAnimating()
+        qpayDebug("didFinish url=\(webView.url?.absoluteString ?? "nil")")
+        // User canceled at the QCB gateway — report cancelled so the host app returns to the order
+        // page instead of the payment-failed page. Checked before the accept branch: a cancel that
+        // still reached /qpay/accept must not be refetched into a failed result.
+        if sawCancelCallback && !didDispatchResult {
+            print("[QPay] post-cancel didFinish → reporting cancelled")
+            dispatch(.cancelled)
+            return
+        }
         if sawAcceptCallback && !didStartRefetch {
             didStartRefetch = true
             print("[QPay] post-callback didFinish → refetching order")
             refetchOrderAndDispatch()
             return
         }
-        // Probe the loaded page to see why it renders blank.
-        webView.evaluateJavaScript("document.title") { value, _ in
-            print("[QPay] document.title=\(value ?? "<nil>")")
-        }
-        webView.evaluateJavaScript("document.body ? document.body.innerText.substring(0, 1500) : '<no body>'") { value, _ in
-            print("[QPay] body.innerText[0:1500]=\(value ?? "<nil>")")
-        }
-        webView.evaluateJavaScript("document.body ? document.body.children.length : -1") { value, _ in
-            print("[QPay] body.children.length=\(value ?? "<nil>")")
-        }
-        webView.evaluateJavaScript("document.getElementById('root') ? document.getElementById('root').innerHTML.length : -1") { value, _ in
-            print("[QPay] #root innerHTML length=\(value ?? "<nil>")")
-        }
+        snapshotPage("didFinish")
+        // Only reveal if this page settles (no further redirect within the debounce window).
+        scheduleReveal()
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        qpayDebug("didFail url=\(webView.url?.absoluteString ?? "nil") error=\(error.localizedDescription)")
         dispatch(.failed)
     }
 
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        print("[QPay] didFailProvisional error=\(error.localizedDescription)")
+        qpayDebug("didFailProvisional url=\(webView.url?.absoluteString ?? "nil") error=\(error.localizedDescription)")
         dispatch(.failed)
     }
 
