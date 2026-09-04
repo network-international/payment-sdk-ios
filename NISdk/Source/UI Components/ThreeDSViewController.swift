@@ -95,6 +95,11 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
 
     // Gets called after 3ds is performed and a 302 redirect is received from txn service
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
+        // The challenge can redirect through the term URL more than once, and each redirect
+        // carrying 3ds_status would otherwise complete the challenge again — every extra
+        // completion re-reads the order and reports another result to the merchant. The
+        // flag was already set here but never tested; only the load-failure path honoured it.
+        guard !hasClosedWebView else { return }
         if let status = webView.url?.queryParameters?["3ds_status"] as? String {
             os_log("[NISdk] 3DS v1 — challenge redirect received, 3ds_status: %{public}@", log: NISdkLogger.payment, type: .info, status)
             hasClosedWebView = true
