@@ -10,6 +10,30 @@ import Foundation
 import PassKit
 import BenefitInAppSDK
 
+/// The integration the SDK is running inside, reported to the gateway as `X-NI-Platform`.
+/// These six cases are the complete set the backend accepts. The wire values are a contract
+/// shared with the Android SDK: they must not be renamed once merchants ship against them.
+@objc public enum NIPlatform: Int {
+    case iOSNative
+    case iOSReactNative
+    case iOSFlutter
+    case androidNative
+    case androidReactNative
+    case androidFlutter
+
+    /// The literal sent in the header.
+    public var headerValue: String {
+        switch self {
+        case .iOSNative:          return "IOS_NATIVE"
+        case .iOSReactNative:     return "IOS_REACT_NATIVE"
+        case .iOSFlutter:         return "IOS_FLUTTER"
+        case .androidNative:      return "ANDROID_NATIVE"
+        case .androidReactNative: return "ANDROID_REACT_NATIVE"
+        case .androidFlutter:     return "ANDROID_FLUTTER"
+        }
+    }
+}
+
 private class NISdkBundleLocator {}
 
 @objc public final class NISdk: NSObject {
@@ -19,6 +43,11 @@ private class NISdkBundleLocator {}
     var sdkLanguage: String
     public var shouldShowOrderAmount = true
     public var shouldShowCancelAlert = false
+    /// Send Apple Pay tokens to the gateway as web-flow payments, so they are decrypted
+    /// with NI's payment processing certificate instead of the merchant's uploaded one.
+    /// The Apple Pay sheet must also be presented with NI's merchant identifier, or the
+    /// token will be encrypted for a certificate the gateway is not going to use.
+    public var useNIApplePayCertificate = false
     public var merchantLogo: UIImage?
 
     /// Retains the delegate for an in-flight BenefitPay In-App payment so the async
@@ -33,6 +62,11 @@ private class NISdkBundleLocator {}
     }
 
     public var version: String = "7.0.0"
+
+    /// How this SDK is being consumed, sent as X-NI-Platform on every request. Native
+    /// integrations leave it alone; the React Native bridge and the Flutter plugin set it
+    /// during initialisation, since the native SDK underneath them is the same binary.
+    public var platform: NIPlatform = .iOSNative
 
     private override init() {
         let deviceLanguage = Locale.current.languageCode ?? "en"
