@@ -40,6 +40,7 @@ public class HTTPClient {
             request.addValue(value, forHTTPHeaderField: key)
         }
         request.addValue("iOS pay page \(UIDevice().name) \(UIDevice().systemName)-\(UIDevice().systemVersion) - SDK -\(NISdk.sharedInstance.version)", forHTTPHeaderField: "User-Agent")
+        request.addValue(NISdk.sharedInstance.platform.headerValue, forHTTPHeaderField: "X-NI-Platform")
         return self
     }
 
