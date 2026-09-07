@@ -39,7 +39,10 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     var paymentInProgress: Bool = false {
         didSet {
             self.cvvTextField.isEnabled = false
-            self.payButton.isEnabled = self.paymentInProgress
+            // Inverted: this enabled the button for the duration of the payment, so the
+            // "Processing Payment" label sat on a still-tappable button. A second tap ran
+            // the saved-card payment again and reported a second result to the merchant.
+            self.payButton.isEnabled = !self.paymentInProgress
             if(self.paymentInProgress) {
                 self.loadingSpinner.startAnimating()
                 self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
