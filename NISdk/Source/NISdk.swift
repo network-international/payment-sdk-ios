@@ -28,7 +28,7 @@ private class NISdkBundleLocator {}
     // but well below the server-side 3DS timeout (~10 min). Set to 0 to disable.
     public var threeDSSessionTimeout: TimeInterval = 300.0
 
-    public var version: String = "6.0.0"
+    public var version: String = "6.1.1"
 
     private override init() {
         super.init()
