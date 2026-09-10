@@ -12,6 +12,33 @@ import PassKit
 
 private class NISdkBundleLocator {}
 
+/// The integration the SDK is running inside, reported to the gateway as `X-NI-Platform`.
+/// These six cases are the complete set the backend accepts. The wire values are a contract:
+/// they must not be renamed once merchants are shipping against them.
+///
+/// Declared here rather than in its own file because NISdk.xcodeproj lists its sources
+/// explicitly, so a new file would not build for framework/Carthage consumers.
+@objc public enum NIPlatform: Int {
+    case iOSNative
+    case iOSReactNative
+    case iOSFlutter
+    case androidNative
+    case androidReactNative
+    case androidFlutter
+
+    /// The literal sent in the header.
+    public var headerValue: String {
+        switch self {
+        case .iOSNative:          return "IOS_NATIVE"
+        case .iOSReactNative:     return "IOS_REACT_NATIVE"
+        case .iOSFlutter:         return "IOS_FLUTTER"
+        case .androidNative:      return "ANDROID_NATIVE"
+        case .androidReactNative: return "ANDROID_REACT_NATIVE"
+        case .androidFlutter:     return "ANDROID_FLUTTER"
+        }
+    }
+}
+
 @objc public final class NISdk: NSObject {
     @objc public static let sharedInstance = NISdk()
 
@@ -28,7 +55,13 @@ private class NISdkBundleLocator {}
     // but well below the server-side 3DS timeout (~10 min). Set to 0 to disable.
     public var threeDSSessionTimeout: TimeInterval = 300.0
 
-    public var version: String = "6.0.0"
+    public var version: String = "6.1.1"
+
+    /// How this SDK is being consumed, sent to the gateway as X-NI-Platform on every
+    /// request. Native integrations leave it alone; the React Native bridge and the Flutter
+    /// plugin set it during initialisation, because the native SDK underneath them is the
+    /// same binary and cannot tell the difference on its own.
+    public var platform: NIPlatform = .iOSNative
 
     private override init() {
         super.init()
