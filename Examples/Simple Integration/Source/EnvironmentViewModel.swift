@@ -11,11 +11,7 @@ import Foundation
 class EnvironmentViewModel: ObservableObject {
     @Published var environments: [Environment] = []
     @Published var merchantAttributes: [MerchantAttribute] = []
-    @Published var action: String = ""
     @Published var language: String = ""
-    @Published var region: String = ""
-    @Published var currency: String = ""
-    @Published var orderType: String = ""
 
     // SDK Colors
     @Published var sdkColorPayButton: String = ""
@@ -30,8 +26,8 @@ class EnvironmentViewModel: ObservableObject {
     @Published var sdkColorThreeDSViewLabel: String = ""
     @Published var sdkColorThreeDSViewIndicator: String = ""
 
-    func addEnvironment(nickname: String = "", apiKey: String, outletReference: String, realm: String, type: EnvironmentType, applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
-        let environment = Environment(type: type, nickname: nickname, apiKey: apiKey, outletReference: outletReference, realm: realm, applePayMerchantId: applePayMerchantId, clickToPayMerchantId: clickToPayMerchantId)
+    func addEnvironment(nickname: String = "", apiKey: String, outletReference: String, realm: String, type: EnvironmentType, region: Region = .UAE, currency: String = "AED", orderAction: String = "SALE", orderType: String = "", applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
+        let environment = Environment(type: type, nickname: nickname, apiKey: apiKey, outletReference: outletReference, realm: realm, region: region, currency: currency, orderAction: orderAction, orderType: orderType, applePayMerchantId: applePayMerchantId, clickToPayMerchantId: clickToPayMerchantId)
         environments.append(environment)
         saveEnviroments()
         updateEnvironment()
@@ -42,14 +38,46 @@ class EnvironmentViewModel: ObservableObject {
         }
     }
     
+    /// Outcome of a bulk QR import, for the summary shown to the tester.
+    struct ImportResult { let added: Int; let replaced: Int }
+
+    /// Adds a batch of scanned environments. An outlet already present (same reference
+    /// and type) is replaced rather than duplicated, keeping its id so a selection
+    /// pointing at it stays valid — re-scanning a refreshed bulk code updates keys in
+    /// place. Selects the first if nothing is selected yet: a fresh install should be
+    /// ready to pay after one scan.
+    func importEnvironments(_ scanned: [ScannedEnvironment]) -> ImportResult {
+        var added = 0, replaced = 0
+        for s in scanned {
+            let existingId = environments.first {
+                $0.outletReference == s.outletReference && $0.type == s.type
+            }?.id
+            let env = Environment(id: existingId ?? UUID().uuidString, type: s.type,
+                                  nickname: s.nickname, apiKey: s.apiKey,
+                                  outletReference: s.outletReference, realm: s.realm,
+                                  region: s.region, currency: s.currency,
+                                  orderAction: s.orderAction, orderType: s.orderType,
+                                  applePayMerchantId: s.applePayMerchantId)
+            if let i = environments.firstIndex(where: { $0.id == env.id }) {
+                environments[i] = env
+                replaced += 1
+            } else {
+                environments.append(env)
+                added += 1
+            }
+        }
+        saveEnviroments()
+        updateEnvironment()
+        if getSelectedId() == nil, let first = environments.first {
+            setEnvironment(environmentId: first.id)
+        }
+        return ImportResult(added: added, replaced: replaced)
+    }
+
     init() {
         updateEnvironment()
         self.merchantAttributes = getMerchantAttributes()
-        action = getOrderAction()
         language = getLangugae()
-        region = getRegion()
-        currency = getCurrency()
-        orderType = getOrderType()
         sdkColorPayButton = Environment.sdkColorPayButton.isEmpty ? "#007AFF" : Environment.sdkColorPayButton
         sdkColorPayButtonText = Environment.sdkColorPayButtonText.isEmpty ? "#FFFFFF" : Environment.sdkColorPayButtonText
         sdkColorPayButtonDisabled = Environment.sdkColorPayButtonDisabled.isEmpty ? "#D1D1D6" : Environment.sdkColorPayButtonDisabled
@@ -118,6 +146,15 @@ class EnvironmentViewModel: ObservableObject {
         environments.removeAll(where: { $0.id == environemnt.id })
         saveEnviroments()
         updateEnvironment()
+        // A selection pointing at the deleted outlet would leave the app looking
+        // configured while every read silently fell back to the legacy globals.
+        if getSelectedId() == environemnt.id {
+            if let first = environments.first {
+                setEnvironment(environmentId: first.id)
+            } else {
+                Environment.clearSelectedEnvironment()
+            }
+        }
     }
 
     func update(environment: Environment) {
@@ -128,44 +165,12 @@ class EnvironmentViewModel: ObservableObject {
         }
     }
     
-    func setOrderAction(action: String) {
-        Environment.setOrderAction(action: action)
-    }
-    
-    func getOrderAction() -> String {
-        return Environment.getOrderAction()
-    }
-    
     func setLanguage(language: String) {
         Environment.setLanguage(language: language)
     }
     
     func getLangugae() -> String {
         return Environment.getLanguage()
-    }
-
-    func setRegion(region: String) {
-        Environment.setRegion(region: region)
-    }
-
-    func getRegion() -> String {
-        return Environment.getRegion()
-    }
-
-    func setCurrency(currency: String) {
-        Environment.setCurrency(currency: currency)
-    }
-
-    func getCurrency() -> String {
-        return Environment.getCurrency()
-    }
-
-    func setOrderType(orderType: String) {
-        Environment.setOrderType(orderType: orderType)
-    }
-
-    func getOrderType() -> String {
-        return Environment.getOrderType()
     }
 
     // MARK: - SDK Colors

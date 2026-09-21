@@ -11,16 +11,6 @@ import NISdk
 
 private let niBlue = Color(red: 0.0/255.0, green: 85.0/255.0, blue: 222.0/255.0)
 
-struct QRScannedData: Identifiable {
-    let id = UUID()
-    let nickname: String
-    let realm: String
-    let outletReference: String
-    let apiKey: String
-    let applePayMerchantId: String
-    let type: String
-}
-
 struct EnvironmentView: View {
     @ObservedObject var viewModel: EnvironmentViewModel
     @State private var isAddingEnvironment = false
@@ -30,9 +20,14 @@ struct EnvironmentView: View {
     @State private var outletReference: String = ""
     @State private var realm: String = ""
     @State private var applePayMerchantId: String = ""
+    @State private var newRegion: String = "UAE"
+    @State private var newCurrency: String = "AED"
+    @State private var newOrderAction: String = "SALE"
+    @State private var newOrderType: String = ""
     @State private var clickToPayMerchantId: String = ""
     @State private var errorMessage: String?
     @State private var environmentExpanded = false
+    @State private var useNIApplePayCertificate = Environment.useNIApplePayCertificate
 
     @State private var isAddingMerchantAttributes = false
     @State private var merchantAtrributesExpanded = false
@@ -42,15 +37,20 @@ struct EnvironmentView: View {
 
     // QR scanning
     @State private var isShowingQRScanner = false
-    @State private var qrScannedData: QRScannedData?
+    @State private var qrScannedData: ScannedEnvironment?
+    @State private var qrImportSummary: String?
     @State private var qrSelectedType: String = "DEV"
     @State private var qrErrorMessage: String?
 
     // SDK Colors
-    @State private var sdkColorsExpanded = false
+    @State private var isShowingSdkAppearance = false
 
     // Edit environment
     @State private var editingEnvironment: Environment?
+    /// Set when the trash button is tapped; the confirmation alert below is driven
+    /// off it. Deleting discards an API key that may need another portal trip to
+    /// recover, and the button sits next to Edit, so it asks first.
+    @State private var environmentPendingDeletion: Environment?
 
     private func pickerRow<SelectionValue: Hashable, Content: View>(
         title: String,
@@ -70,24 +70,8 @@ struct EnvironmentView: View {
         .padding(.vertical, 4)
     }
 
-    func actionChange(_ tag: String) {
-        viewModel.setOrderAction(action: tag)
-    }
-
     func languageChange(_ tag: String) {
         viewModel.setLanguage(language: tag)
-    }
-
-    func currencyChange(_ tag: String) {
-        viewModel.setCurrency(currency: tag)
-    }
-
-    func regionChange(_ tag: String) {
-        viewModel.setRegion(region: tag)
-    }
-
-    func orderTypeChange(_ tag: String) {
-        viewModel.setOrderType(orderType: tag)
     }
 
     private var pickersSection: some View {
@@ -100,25 +84,10 @@ struct EnvironmentView: View {
 
             Divider()
 
-            pickerRow(title: "Order Action", selection: $viewModel.action.onChange(actionChange)) {
-                Text("PURCHASE").tag("PURCHASE")
-                Text("SALE").tag("SALE")
-                Text("AUTH").tag("AUTH")
-            }
-            .accessibilityIdentifier("environment_picker_orderAction")
-
-            Divider()
-
-            pickerRow(title: "Order Type", selection: $viewModel.orderType.onChange(orderTypeChange)) {
-                Text("SINGLE").tag("")
-                Text("RECURRING").tag("RECURRING")
-                Text("UNSCHEDULED").tag("UNSCHEDULED")
-                Text("INSTALLMENT").tag("INSTALLMENT")
-            }
-            .accessibilityIdentifier("environment_picker_orderType")
-
-            Divider()
-
+            // Order action, order type, currency and region are outlet configuration, not app
+            // settings — which actions and methods an outlet accepts differ per outlet, and a
+            // key only works against its own region. They live in the add/edit environment
+            // form; only genuinely app-wide settings remain here.
             pickerRow(title: "SDK Language", selection: $viewModel.language.onChange(languageChange)) {
                 Text("English").tag("en")
                 Text("Arabic").tag("ar")
@@ -128,91 +97,62 @@ struct EnvironmentView: View {
 
             Divider()
 
-            currencyPicker
-                .accessibilityIdentifier("environment_picker_currency")
-
-            Divider()
-
-            pickerRow(title: "Region", selection: $viewModel.region.onChange(regionChange)) {
-                Text("UAE").tag("UAE")
-                Text("KSA").tag("KSA")
-            }
-            .accessibilityIdentifier("environment_picker_region")
+            applePayCertificateRow
         }
     }
 
-    private var currencyPicker: some View {
-        pickerRow(title: "Currency", selection: $viewModel.currency.onChange(currencyChange)) {
-            Group {
-                Text("AED - UAE Dirham").tag("AED")
-                Text("SAR - Saudi Riyal").tag("SAR")
-                Text("AUD - Australian Dollar").tag("AUD")
-                Text("BRL - Brazilian Real").tag("BRL")
-                Text("CAD - Canadian Dollar").tag("CAD")
-                Text("CHF - Swiss Franc").tag("CHF")
-                Text("CNY - Chinese Yuan").tag("CNY")
-                Text("EUR - Euro").tag("EUR")
-                Text("GBP - British Pound").tag("GBP")
-                Text("HKD - Hong Kong Dollar").tag("HKD")
+    /// Switches Apple Pay between the customer's uploaded certificate and NI's own. Both
+    /// halves move together: the merchant identifier the sheet is presented with decides
+    /// which key the token is encrypted to, and the gateway flag decides which key it is
+    /// decrypted with. Changing one without the other only breaks decryption.
+    private var applePayCertificateRow: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle(isOn: $useNIApplePayCertificate.onChange(applePayCertificateChange)) {
+                Text("Use NI Apple Pay certificate")
             }
-            Group {
-                Text("INR - Indian Rupee").tag("INR")
-                Text("JPY - Japanese Yen").tag("JPY")
-                Text("KRW - South Korean Won").tag("KRW")
-                Text("MXN - Mexican Peso").tag("MXN")
-                Text("NOK - Norwegian Krone").tag("NOK")
-                Text("NZD - New Zealand Dollar").tag("NZD")
-                Text("SEK - Swedish Krona").tag("SEK")
-                Text("SGD - Singapore Dollar").tag("SGD")
-                Text("TRY - Turkish Lira").tag("TRY")
-                Text("USD - US Dollar").tag("USD")
-            }
-            Group {
-                Text("ZAR - South African Rand").tag("ZAR")
-                Text("BHD - Bahraini Dinar").tag("BHD")
-                Text("DZD - Algerian Dinar").tag("DZD")
-                Text("ILS - Israeli Shekel").tag("ILS")
-                Text("JOD - Jordanian Dinar").tag("JOD")
-                Text("KWD - Kuwaiti Dinar").tag("KWD")
-                Text("LYD - Libyan Dinar").tag("LYD")
-                Text("OMR - Omani Rial").tag("OMR")
-                Text("QAR - Qatari Riyal").tag("QAR")
-                Text("TND - Tunisian Dinar").tag("TND")
-                Text("ZWG - Zimbabwean Dollar").tag("ZWG")
-            }
+            .accessibilityIdentifier("environment_toggle_applepay_certificate")
+
+            Text(useNIApplePayCertificate
+                 ? Environment.niApplePayMerchantId
+                 : "Merchant certificate — uses the environment's Apple Pay merchant ID")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .accessibilityIdentifier("environment_caption_applepay_certificate")
         }
     }
 
+    private func applePayCertificateChange(_ isOn: Bool) {
+        Environment.useNIApplePayCertificate = isOn
+    }
+
+    /// Opens the SDK Appearance page.
+    ///
+    /// These settings describe how the SDK draws, not which outlet is charged, and
+    /// eleven colour rows crowded a screen that is mostly about environments. The
+    /// Android and Flutter demos show the same list under the same name.
     private var sdkColorsSection: some View {
-        Group {
+        // Presented as a sheet, not a NavigationLink: this view is hosted in a
+        // UIKit UINavigationController, so there is no SwiftUI navigation
+        // ancestor for a link to push onto — it would render and do nothing.
+        Button {
+            isShowingSdkAppearance = true
+        } label: {
             HStack {
-                Text("SDK Colors")
+                Text("SDK Appearance")
+                    .foregroundColor(.primary)
                 Spacer()
-                Button {
-                    sdkColorsExpanded.toggle()
-                } label: {
-                    Image(systemName: sdkColorsExpanded ? "chevron.down" : "chevron.up")
-                        .foregroundColor(niBlue)
-                }
-                .accessibilityIdentifier("environment_button_toggleSdkColors")
+                Text("SDK colours")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
-
-            if sdkColorsExpanded {
-                VStack(spacing: 12) {
-                    SDKColorRow(label: "Button", hex: $viewModel.sdkColorPayButton, onSave: viewModel.saveSDKColorPayButton)
-                    SDKColorRow(label: "Button Text", hex: $viewModel.sdkColorPayButtonText, onSave: viewModel.saveSDKColorPayButtonText)
-                    SDKColorRow(label: "Button Disabled", hex: $viewModel.sdkColorPayButtonDisabled, onSave: viewModel.saveSDKColorPayButtonDisabled)
-                    SDKColorRow(label: "Button Disabled Text", hex: $viewModel.sdkColorPayButtonDisabledText, onSave: viewModel.saveSDKColorPayButtonDisabledText)
-                    SDKColorRow(label: "Input Field BG", hex: $viewModel.sdkColorInputFieldBg, onSave: viewModel.saveSDKColorInputFieldBg)
-                    SDKColorRow(label: "Auth View BG", hex: $viewModel.sdkColorAuthViewBg, onSave: viewModel.saveSDKColorAuthViewBg)
-                    SDKColorRow(label: "Auth Indicator", hex: $viewModel.sdkColorAuthViewIndicator, onSave: viewModel.saveSDKColorAuthViewIndicator)
-                    SDKColorRow(label: "Auth Label", hex: $viewModel.sdkColorAuthViewLabel, onSave: viewModel.saveSDKColorAuthViewLabel)
-                    SDKColorRow(label: "3DS View BG", hex: $viewModel.sdkColorThreeDSViewBg, onSave: viewModel.saveSDKColorThreeDSViewBg)
-                    SDKColorRow(label: "3DS Label", hex: $viewModel.sdkColorThreeDSViewLabel, onSave: viewModel.saveSDKColorThreeDSViewLabel)
-                    SDKColorRow(label: "3DS Indicator", hex: $viewModel.sdkColorThreeDSViewIndicator, onSave: viewModel.saveSDKColorThreeDSViewIndicator)
-                }
-                .padding(.vertical, 4)
-            }
+        }
+        .accessibilityIdentifier("environment_row_sdkAppearance")
+        .sheet(isPresented: $isShowingSdkAppearance) {
+            SdkAppearanceView(viewModel: viewModel,
+                              onDone: { isShowingSdkAppearance = false })
         }
     }
 
@@ -303,42 +243,24 @@ struct EnvironmentView: View {
                 }
                 .fullScreenCover(isPresented: $isShowingQRScanner) {
                     QRScannerView(
-                        onCodeScanned: { code in
-                            let parts = code.split(separator: "|", omittingEmptySubsequences: false).map(String.init)
-                            if parts.count == 5 {
-                                // Current format: nickname|realm|outletReference|apiKey|applePayMerchantId
-                                let data = QRScannedData(
-                                    nickname: parts[0],
-                                    realm: parts[1],
-                                    outletReference: parts[2],
-                                    apiKey: parts[3],
-                                    applePayMerchantId: parts[4],
-                                    type: "DEV"
-                                )
-                                isShowingQRScanner = false
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    qrSelectedType = "DEV"
+                        onCodesScanned: { codes in
+                            isShowingQRScanner = false
+                            let batch = ScannedEnvironment.parseAll(codes.joined(separator: "\n"))
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                if batch.environments.isEmpty {
+                                    qrErrorMessage = "No environment found. Expected one per line: nickname|realm|outletReference|apiKey|applePayMerchantId|region|currency|type|orderAction|orderType"
+                                } else if batch.environments.count == 1 && batch.rejected == 0 {
+                                    // One outlet: confirm before saving, as before.
+                                    let data = batch.environments[0]
+                                    qrSelectedType = data.type.rawValue
                                     qrScannedData = data
-                                }
-                            } else if parts.count == 3 {
-                                // Legacy format: realm|outletReference|apiKey
-                                let data = QRScannedData(
-                                    nickname: "",
-                                    realm: parts[0],
-                                    outletReference: parts[1],
-                                    apiKey: parts[2],
-                                    applePayMerchantId: "",
-                                    type: "DEV"
-                                )
-                                isShowingQRScanner = false
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    qrSelectedType = "DEV"
-                                    qrScannedData = data
-                                }
-                            } else {
-                                isShowingQRScanner = false
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    qrErrorMessage = "Invalid QR format. Expected: nickname|realm|outletReference|apiKey|applePayMerchantId"
+                                } else {
+                                    // A batch is imported directly — the point is not
+                                    // to confirm ten sheets.
+                                    let r = viewModel.importEnvironments(batch.environments)
+                                    environmentExpanded = true
+                                    let skipped = batch.rejected > 0 ? ", \(batch.rejected) line(s) skipped" : ""
+                                    qrImportSummary = "\(r.added) added, \(r.replaced) updated\(skipped)."
                                 }
                             }
                         },
@@ -372,6 +294,11 @@ struct EnvironmentView: View {
                             .accessibilityIdentifier("addenv_field_apiKey")
                         TextField("Outlet Reference", text: $outletReference)
                             .accessibilityIdentifier("addenv_field_outletReference")
+
+                        OutletSettingsFields(region: $newRegion, currency: $newCurrency,
+                                             orderAction: $newOrderAction, orderType: $newOrderType,
+                                             idPrefix: "addenv")
+
                         TextField("Apple Pay Merchant ID (optional)", text: $applePayMerchantId)
                             .accessibilityIdentifier("addenv_field_applePayMerchantId")
                         TextField("Click to Pay Merchant ID (optional)", text: $clickToPayMerchantId)
@@ -395,7 +322,7 @@ struct EnvironmentView: View {
                                 default:
                                     EnvironmentType.DEV
                                 }
-                                viewModel.addEnvironment(nickname: nickname, apiKey: apiKey, outletReference: outletReference, realm: realm, type: env, applePayMerchantId: applePayMerchantId, clickToPayMerchantId: clickToPayMerchantId)
+                                viewModel.addEnvironment(nickname: nickname, apiKey: apiKey, outletReference: outletReference, realm: realm, type: env, region: Region(rawValue: newRegion) ?? .UAE, currency: newCurrency, orderAction: newOrderAction, orderType: newOrderType, applePayMerchantId: applePayMerchantId, clickToPayMerchantId: clickToPayMerchantId)
 
                                 nickname = ""
                                 apiKey = ""
@@ -403,6 +330,10 @@ struct EnvironmentView: View {
                                 realm = ""
                                 applePayMerchantId = ""
                                 clickToPayMerchantId = ""
+                                newRegion = "UAE"
+                                newCurrency = "AED"
+                                newOrderAction = "SALE"
+                                newOrderType = ""
                                 isAddingEnvironment.toggle()
                                 errorMessage = nil
                             }
@@ -468,7 +399,7 @@ struct EnvironmentView: View {
                         .accessibilityIdentifier("environment_button_edit_\(environment.id)")
 
                         Button {
-                            viewModel.delete(environemnt: environment)
+                            environmentPendingDeletion = environment
                         } label: {
                             Image(systemName: "trash.fill")
                         }.foregroundColor(.white)
@@ -563,6 +494,20 @@ struct EnvironmentView: View {
                                 .truncationMode(.middle)
                         }
                     }
+                    // Region and currency belong to the outlet, so the tester should
+                    // see what the code is about to commit them to before tapping Add.
+                    HStack {
+                        Text("Region · Currency")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(data.region.rawValue) · \(data.currency)")
+                    }
+                    HStack {
+                        Text("Order")
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text("\(data.orderAction) · \(data.orderType.isEmpty ? "SINGLE" : data.orderType)")
+                    }
                 }
 
                 Button("Add Environment") {
@@ -572,7 +517,7 @@ struct EnvironmentView: View {
                     case "PROD": EnvironmentType.PROD
                     default: EnvironmentType.DEV
                     }
-                    viewModel.addEnvironment(nickname: data.nickname, apiKey: data.apiKey, outletReference: data.outletReference, realm: data.realm, type: envType, applePayMerchantId: data.applePayMerchantId)
+                    viewModel.addEnvironment(nickname: data.nickname, apiKey: data.apiKey, outletReference: data.outletReference, realm: data.realm, type: envType, region: data.region, currency: data.currency, orderAction: data.orderAction, orderType: data.orderType, applePayMerchantId: data.applePayMerchantId)
                     environmentExpanded = true
                     qrScannedData = nil
                 }
@@ -604,6 +549,29 @@ struct EnvironmentView: View {
                 }
             )
         }
+        .alert("Delete environment",
+               isPresented: Binding(
+                get: { environmentPendingDeletion != nil },
+                set: { if !$0 { environmentPendingDeletion = nil } }
+               ),
+               presenting: environmentPendingDeletion) { environment in
+            Button("Delete", role: .destructive) {
+                viewModel.delete(environemnt: environment)
+                environmentPendingDeletion = nil
+            }
+            .accessibilityIdentifier("environment_button_confirmDelete")
+            Button("Cancel", role: .cancel) { environmentPendingDeletion = nil }
+        } message: { environment in
+            Text("Remove \(environment.name)? This cannot be undone.")
+        }
+        .alert("Environments imported", isPresented: Binding(
+            get: { qrImportSummary != nil },
+            set: { if !$0 { qrImportSummary = nil } }
+        )) {
+            Button("OK") { qrImportSummary = nil }
+        } message: {
+            Text(qrImportSummary ?? "")
+        }
         .alert("QR Error", isPresented: Binding(
             get: { qrErrorMessage != nil },
             set: { if !$0 { qrErrorMessage = nil } }
@@ -614,6 +582,54 @@ struct EnvironmentView: View {
         }
         .environment(\.layoutDirection, .leftToRight)
         .environment(\.locale, Locale(identifier: "en"))
+    }
+}
+
+/// Region, currency, order action and order type for one outlet.
+///
+/// These four are outlet configuration, not app settings: a key only works against its
+/// own region's deployment, alternative payment methods follow the acquirer (so the
+/// currency decides what is offered), and which actions and order types an outlet
+/// accepts differ per outlet. They used to sit in the main configuration screen, where
+/// one global value was necessarily wrong for every outlet but the one it was set for.
+struct OutletSettingsFields: View {
+    @Binding var region: String
+    @Binding var currency: String
+    @Binding var orderAction: String
+    @Binding var orderType: String
+    let idPrefix: String
+
+    var body: some View {
+        Group {
+            Picker("Region", selection: $region) {
+                Text("UAE").tag("UAE")
+                Text("KSA").tag("KSA")
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .accessibilityIdentifier("\(idPrefix)_picker_region")
+
+            Picker("Currency", selection: $currency) {
+                ForEach(Environment.supportedCurrencies, id: \.self) { code in
+                    Text(code).tag(code)
+                }
+            }
+            .accessibilityIdentifier("\(idPrefix)_picker_currency")
+
+            Picker("Order Action", selection: $orderAction) {
+                Text("SALE").tag("SALE")
+                Text("PURCHASE").tag("PURCHASE")
+                Text("AUTH").tag("AUTH")
+            }
+            .accessibilityIdentifier("\(idPrefix)_picker_orderAction")
+
+            Picker("Order Type", selection: $orderType) {
+                Text("SINGLE").tag("")
+                Text("RECURRING").tag("RECURRING")
+                Text("UNSCHEDULED").tag("UNSCHEDULED")
+                Text("INSTALLMENT").tag("INSTALLMENT")
+            }
+            .accessibilityIdentifier("\(idPrefix)_picker_orderType")
+        }
     }
 }
 
@@ -628,6 +644,10 @@ struct EditEnvironmentSheet: View {
     @State private var outletReference: String
     @State private var realm: String
     @State private var applePayMerchantId: String
+    @State private var region: String
+    @State private var currency: String
+    @State private var orderAction: String
+    @State private var orderType: String
     @State private var errorMessage: String?
 
     init(environment: Environment, onSave: @escaping (Environment) -> Void, onCancel: @escaping () -> Void) {
@@ -640,6 +660,10 @@ struct EditEnvironmentSheet: View {
         _outletReference = State(initialValue: environment.outletReference)
         _realm = State(initialValue: environment.realm)
         _applePayMerchantId = State(initialValue: environment.applePayMerchantId)
+        _region = State(initialValue: environment.region.rawValue)
+        _currency = State(initialValue: environment.currency)
+        _orderAction = State(initialValue: environment.orderAction)
+        _orderType = State(initialValue: environment.orderType)
     }
 
     var body: some View {
@@ -661,6 +685,11 @@ struct EditEnvironmentSheet: View {
                     .accessibilityIdentifier("editenv_field_apiKey")
                 TextField("Outlet Reference", text: $outletReference)
                     .accessibilityIdentifier("editenv_field_outletReference")
+
+                OutletSettingsFields(region: $region, currency: $currency,
+                                     orderAction: $orderAction, orderType: $orderType,
+                                     idPrefix: "editenv")
+
                 TextField("Apple Pay Merchant ID (optional)", text: $applePayMerchantId)
                     .accessibilityIdentifier("editenv_field_applePayMerchantId")
 
@@ -680,6 +709,9 @@ struct EditEnvironmentSheet: View {
                     case "PROD": EnvironmentType.PROD
                     default: EnvironmentType.DEV
                     }
+                    // Every field is passed explicitly. Omitting one does not preserve it —
+                    // it takes the initialiser default, which silently reset this outlet's
+                    // region, currency and Click to Pay id on every edit.
                     let updated = Environment(
                         id: environment.id,
                         type: envType,
@@ -687,7 +719,12 @@ struct EditEnvironmentSheet: View {
                         apiKey: apiKey,
                         outletReference: outletReference,
                         realm: realm,
-                        applePayMerchantId: applePayMerchantId
+                        region: Region(rawValue: region) ?? .UAE,
+                        currency: currency,
+                        orderAction: orderAction,
+                        orderType: orderType,
+                        applePayMerchantId: applePayMerchantId,
+                        clickToPayMerchantId: environment.clickToPayMerchantId
                     )
                     onSave(updated)
                 }

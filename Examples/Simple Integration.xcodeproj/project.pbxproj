@@ -13,6 +13,8 @@
 		591CC0B12BE3ED4B00FB6086 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 591CC0B02BE3ED4B00FB6086 /* Bundle.swift */; };
 		592A15D72BD9013C00986490 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D62BD9013C00986490 /* EnvironmentView.swift */; };
 		592A15D92BD9878900986490 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D82BD9878900986490 /* Environment.swift */; };
+		A1C0DE5E20260918000002 /* ScannedEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE5E20260918000001 /* ScannedEnvironment.swift */; };
+		A1C0DE5E20260921000002 /* SdkAppearanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE5E20260921000001 /* SdkAppearanceView.swift */; };
 		592A15DB2BDA326100986490 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15DA2BDA326100986490 /* ApiService.swift */; };
 		59ED19AE2AD401960000E024 /* CreditCardInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */; };
 		59FEB0072BE49E410094C943 /* EnvironmentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */; };
@@ -41,6 +43,8 @@
 		591CC0B02BE3ED4B00FB6086 /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		592A15D62BD9013C00986490 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
 		592A15D82BD9878900986490 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
+		A1C0DE5E20260918000001 /* ScannedEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedEnvironment.swift; sourceTree = "<group>"; };
+		A1C0DE5E20260921000001 /* SdkAppearanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SdkAppearanceView.swift; sourceTree = "<group>"; };
 		592A15DA2BDA326100986490 /* ApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiService.swift; sourceTree = "<group>"; };
 		59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditCardInfoView.swift; sourceTree = "<group>"; };
 		59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentViewModel.swift; sourceTree = "<group>"; };
@@ -110,6 +114,7 @@
 				H1A006012B00000200000001 /* PaymentOptionsViewController.swift */,
 				862CBE86230EF9DB00767774 /* Extensions */,
 				592A15D62BD9013C00986490 /* EnvironmentView.swift */,
+				A1C0DE5E20260921000001 /* SdkAppearanceView.swift */,
 				592A15DA2BDA326100986490 /* ApiService.swift */,
 				59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */,
 				A1B2C3D42BD901AA00986490 /* QRScannerView.swift */,
@@ -127,6 +132,7 @@
 				86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */,
 				869DDD6523153A2D0020CB20 /* Product.swift */,
 				592A15D82BD9878900986490 /* Environment.swift */,
+				A1C0DE5E20260918000001 /* ScannedEnvironment.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -313,6 +319,8 @@
 				4B6428BA2DEDBE0A00E7A1EA /* RecurringDetails.swift in Sources */,
 				86EA2239230F2AA300B46FF9 /* OrderRequest.swift in Sources */,
 				592A15D92BD9878900986490 /* Environment.swift in Sources */,
+				A1C0DE5E20260918000002 /* ScannedEnvironment.swift in Sources */,
+				A1C0DE5E20260921000002 /* SdkAppearanceView.swift in Sources */,
 				4B6428B82DEDB90400E7A1EA /* InstallmentDetails.swift in Sources */,
 				59FEB0072BE49E410094C943 /* EnvironmentViewModel.swift in Sources */,
 				862CBE85230EF89100767774 /* UIView+AutoLayout.swift in Sources */,
@@ -476,7 +484,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.27;
+				CURRENT_PROJECT_VERSION = 3.29;
 				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -511,7 +519,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.27;
+				CURRENT_PROJECT_VERSION = 3.29;
 				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

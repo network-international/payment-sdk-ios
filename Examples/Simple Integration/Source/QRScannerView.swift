@@ -8,13 +8,20 @@
 import SwiftUI
 import AVFoundation
 
+/// Scans one or more environment QR codes.
+///
+/// Stays open after a code is read so a batch can be scanned in one go — the puller
+/// splits a large bulk export across several codes, and ten outlets on a fresh install
+/// should not mean ten trips through this screen. Each distinct payload is captured
+/// once (the camera re-reports a visible code many times a second); Done hands back
+/// everything captured, Cancel hands back nothing.
 struct QRScannerView: UIViewControllerRepresentable {
-    let onCodeScanned: (String) -> Void
+    let onCodesScanned: ([String]) -> Void
     let onCancel: () -> Void
 
     func makeUIViewController(context: Context) -> QRScannerViewController {
         let vc = QRScannerViewController()
-        vc.onCodeScanned = onCodeScanned
+        vc.onCodesScanned = onCodesScanned
         vc.onCancel = onCancel
         return vc
     }
@@ -25,9 +32,11 @@ struct QRScannerView: UIViewControllerRepresentable {
 class QRScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var captureSession: AVCaptureSession?
     var previewLayer: AVCaptureVideoPreviewLayer?
-    var onCodeScanned: ((String) -> Void)?
+    var onCodesScanned: (([String]) -> Void)?
     var onCancel: (() -> Void)?
-    private var hasScanned = false
+    private var captured: [String] = []
+    private let instructionLabel = UILabel()
+    private let doneButton = UIButton(type: .system)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,7 +84,6 @@ class QRScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsD
         ])
 
         // Add instruction label
-        let instructionLabel = UILabel()
         instructionLabel.text = "Scan environment QR code"
         instructionLabel.textColor = .white
         instructionLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
@@ -84,10 +92,28 @@ class QRScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsD
         instructionLabel.accessibilityIdentifier = "qrscanner_label_instruction"
         view.addSubview(instructionLabel)
 
+        // Done: hidden until something has been captured.
+        doneButton.setTitle("Done", for: .normal)
+        doneButton.setTitleColor(.white, for: .normal)
+        doneButton.backgroundColor = UIColor(red: 0, green: 105/255, blue: 177/255, alpha: 1)
+        doneButton.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        doneButton.layer.cornerRadius = 8
+        doneButton.contentEdgeInsets = UIEdgeInsets(top: 10, left: 28, bottom: 10, right: 28)
+        doneButton.addTarget(self, action: #selector(doneTapped), for: .touchUpInside)
+        doneButton.translatesAutoresizingMaskIntoConstraints = false
+        doneButton.accessibilityIdentifier = "qrscanner_button_done"
+        doneButton.isHidden = true
+        view.addSubview(doneButton)
+
         NSLayoutConstraint.activate([
-            instructionLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
-            instructionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            doneButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
+            doneButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            instructionLabel.bottomAnchor.constraint(equalTo: doneButton.topAnchor, constant: -16),
+            instructionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            instructionLabel.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 20),
+            instructionLabel.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -20)
         ])
+        instructionLabel.numberOfLines = 0
 
         self.captureSession = session
         DispatchQueue.global(qos: .userInitiated).async {
@@ -105,18 +131,25 @@ class QRScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsD
         onCancel?()
     }
 
-    func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
-        guard !hasScanned,
-              let metadataObject = metadataObjects.first,
-              let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject,
-              let stringValue = readableObject.stringValue else {
-            return
-        }
-
-        hasScanned = true
+    @objc func doneTapped() {
         captureSession?.stopRunning()
-        AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
-        onCodeScanned?(stringValue)
+        onCodesScanned?(captured)
+    }
+
+    func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+        for object in metadataObjects {
+            guard let readable = object as? AVMetadataMachineReadableCodeObject,
+                  let value = readable.stringValue,
+                  !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                  !captured.contains(value) else { continue }
+            captured.append(value)
+            AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
+        }
+        let n = captured.count
+        guard n > 0 else { return }
+        instructionLabel.text = "\(n) code\(n == 1 ? "" : "s") captured — scan the next, or finish"
+        doneButton.setTitle("Done (\(n))", for: .normal)
+        doneButton.isHidden = false
     }
 
     private func showPermissionError() {

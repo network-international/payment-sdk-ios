@@ -104,6 +104,9 @@ class StoreFrontViewController:
 
         pets = defaultProducts + loadCustomProducts()
         setupPaymentButtons()
+        // The certificate choice is made in Configuration; mirror it into the SDK on launch
+        // so the flag and the stored setting agree before the first payment.
+        NISdk.sharedInstance.useNIApplePayCertificate = Environment.useNIApplePayCertificate
 
         let logoImageView = UIImageView()
         if let logoImage = UIImage(named: "networklogo", in: Bundle(for: NISdk.self), compatibleWith: nil) {
@@ -115,7 +118,7 @@ class StoreFrontViewController:
         logoImageView.accessibilityIdentifier = "storefront_image_logo"
 
         let demoLabel = UILabel()
-        demoLabel.text = "Demo"
+        demoLabel.text = "Native Test Shop"
         demoLabel.font = UIFont.systemFont(ofSize: 10, weight: .medium)
         demoLabel.textColor = .secondaryLabel
         demoLabel.textAlignment = .center
@@ -162,13 +165,9 @@ class StoreFrontViewController:
 
         view.addSubview(collectionView!)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: infoButton)
-        let benefitButton = UIBarButtonItem(title: "BenefitPay", style: .plain, target: self,
-                                            action: #selector(benefitPayTapped))
-        benefitButton.accessibilityIdentifier = "storefront_button_benefitpay"
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(customView: gearButton),
-            UIBarButtonItem(customView: addButton),
-            benefitButton
+            UIBarButtonItem(customView: addButton)
         ]
         loadSavedCardsFromDefaults()
     }
@@ -451,6 +450,12 @@ class StoreFrontViewController:
     // MARK: - Payment Helpers
 
     private func applePayMerchantIdentifier() -> String {
+        // The token is encrypted for whichever merchant identifier the sheet is presented
+        // with, so the POC has to switch this too — telling the gateway to decrypt with
+        // NI's certificate is useless if the token was encrypted for the merchant's.
+        if Environment.useNIApplePayCertificate {
+            return Environment.niApplePayMerchantId
+        }
         if let selectedId = Environment.getSelectedEnvironment(),
            let env = Environment.getEnvironments().first(where: { $0.id == selectedId }),
            !env.applePayMerchantId.isEmpty {
@@ -462,8 +467,8 @@ class StoreFrontViewController:
     private func makeApplePayRequest() -> PKPaymentRequest {
         let request = PKPaymentRequest()
         request.merchantIdentifier = applePayMerchantIdentifier()
-        request.countryCode = Environment.getRegion() == "KSA" ? "SA" : "AE"
-        request.currencyCode = Environment.getCurrency()
+        request.countryCode = Environment.selectedRegion() == .KSA ? "SA" : "AE"
+        request.currencyCode = Environment.selectedCurrency()
         request.requiredShippingContactFields = [.postalAddress, .emailAddress, .phoneNumber]
         request.merchantCapabilities = [.capabilityDebit, .capabilityCredit, .capability3DS]
         request.requiredBillingContactFields = [.postalAddress, .name]
@@ -479,7 +484,7 @@ class StoreFrontViewController:
     // MARK: - Payment Options (Step 3: Launch payment with order response)
 
     private func makeOrderItems() -> [OrderItem] {
-        let currency = Environment.getCurrency()
+        let currency = Environment.selectedCurrency()
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimumFractionDigits = 2
@@ -657,7 +662,7 @@ class StoreFrontViewController:
     func showHidePayButtonStack() {
         if(total > 0) {
             buttonStack.isHidden = false
-            let currencyCode = Environment.getCurrency()
+            let currencyCode = Environment.selectedCurrency()
             payButton.setTitle("Pay \(currencyCode) \(String(format: "%.2f", total))", for: .normal)
         } else {
             buttonStack.isHidden = true

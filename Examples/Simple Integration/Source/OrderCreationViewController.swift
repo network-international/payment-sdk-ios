@@ -78,14 +78,14 @@ class OrderCreationViewController: UIViewController {
                 dict[attribute.key] = attribute.value
             }
         }
-        let currencyCode = Environment.getCurrency()
-        var orderRequest = OrderRequest(action: Environment.getOrderAction(),
+        let currencyCode = Environment.selectedCurrency()
+        var orderRequest = OrderRequest(action: Environment.selectedOrderAction(),
                                         amount: OrderAmount(currencyCode: currencyCode, value: paymentAmount * 100),
                                         language: Environment.getLanguage(),
                                         merchantAttributes: attributeDictionary)
 
         // add required parameters for order type
-        let orderType = Environment.getOrderType()
+        let orderType = Environment.selectedOrderType()
         switch orderType {
             case "INSTALLMENT":
                 orderRequest.installmentDetails = InstallmentDetails(numberOfTenure: 2)

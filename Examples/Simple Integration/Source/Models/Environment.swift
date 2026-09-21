@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import NISdk
 
 enum EnvironmentType:String, Codable {
     case DEV = "DEV"
@@ -65,11 +66,34 @@ struct Environment: Codable, Identifiable {
     let apiKey: String
     let outletReference: String
     let realm: String
+    /// Gateway region this outlet lives on. UAE and KSA are physically separate deployments with
+    /// their own identity endpoints, so an outlet's credentials only work against one of them —
+    /// which makes the region a property of the outlet, not an app-wide setting.
+    let region: Region
+    /// Currency this outlet transacts in. Alternative payment methods follow the acquirer, so the
+    /// currency and the available methods travel together: a BHD outlet is the Benefit one, a QAR
+    /// outlet is the QPay one. Pairing them here makes a mismatched combination unrepresentable.
+    let currency: String
+    /// Order action (SALE / PURCHASE / AUTH) this outlet is exercised with. Which actions an
+    /// outlet accepts is outlet configuration — Slice, for one, only supports PURCHASE — so
+    /// pairing it with the outlet stops a global picker from being wrong for half of them.
+    let orderAction: String
+    /// Order type (SINGLE / RECURRING / UNSCHEDULED / INSTALLMENT). Empty means SINGLE.
+    /// Enabled per outlet like the action, so it travels with it.
+    let orderType: String
     let applePayMerchantId: String
     /// Merchant identifier used by the Click to Pay config endpoint
     /// (`/config/merchants/{merchantId}/configs/vctp`). Distinct from `outletReference`.
     let clickToPayMerchantId: String
     
+    /// Currencies offerable on an outlet. One list, so the add form, the edit sheet and
+    /// anything else that needs it cannot drift apart.
+    static let supportedCurrencies = [
+        "AED", "SAR", "BHD", "QAR", "KWD", "OMR", "JOD", "USD", "EUR", "GBP",
+        "AUD", "BRL", "CAD", "CHF", "CNY", "HKD", "INR", "JPY", "KRW", "MXN",
+        "NOK", "NZD", "SEK", "SGD", "TRY", "ZAR", "DZD", "ILS", "LYD", "TND", "ZWG",
+    ]
+
     private static let KEY_SAVED_ENVIRONMENT_ID = "saved_env_id"
     private static let KEY_SAVED_ENVIRONMENTS = "saved_environments"
     private static let KEY_ORDER_ACTION = "order_action"
@@ -100,23 +124,22 @@ struct Environment: Codable, Identifiable {
         case apiKey
         case outletReference
         case realm
+        case region
+        case currency
+        case orderAction
+        case orderType
         case applePayMerchantId
         case clickToPayMerchantId
     }
 
-    init(type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
-        self.type = type
-        self.id = UUID().uuidString
-        self.nickname = nickname
-        self.name = nickname.isEmpty ? realm : nickname
-        self.apiKey = apiKey
-        self.outletReference = outletReference
-        self.realm = realm
-        self.applePayMerchantId = applePayMerchantId
-        self.clickToPayMerchantId = clickToPayMerchantId
+    init(type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, region: Region = .UAE, currency: String = "AED", orderAction: String = "SALE", orderType: String = "", applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
+        self.init(id: UUID().uuidString, type: type, nickname: nickname, apiKey: apiKey,
+                  outletReference: outletReference, realm: realm, region: region, currency: currency,
+                  orderAction: orderAction, orderType: orderType,
+                  applePayMerchantId: applePayMerchantId, clickToPayMerchantId: clickToPayMerchantId)
     }
 
-    init(id: String, type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
+    init(id: String, type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, region: Region = .UAE, currency: String = "AED", orderAction: String = "SALE", orderType: String = "", applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
         self.type = type
         self.id = id
         self.nickname = nickname
@@ -124,6 +147,10 @@ struct Environment: Codable, Identifiable {
         self.apiKey = apiKey
         self.outletReference = outletReference
         self.realm = realm
+        self.region = region
+        self.currency = currency
+        self.orderAction = orderAction
+        self.orderType = orderType
         self.applePayMerchantId = applePayMerchantId
         self.clickToPayMerchantId = clickToPayMerchantId
     }
@@ -139,6 +166,17 @@ struct Environment: Codable, Identifiable {
         realm = try values.decode(String.self, forKey: .realm)
         applePayMerchantId = try values.decodeIfPresent(String.self, forKey: .applePayMerchantId) ?? ""
         clickToPayMerchantId = try values.decodeIfPresent(String.self, forKey: .clickToPayMerchantId) ?? ""
+        // Environments saved before region/currency/orderAction/orderType moved onto the outlet
+        // inherit whatever the app-wide pickers were last set to, so an existing install keeps
+        // working as it did.
+        region = try values.decodeIfPresent(Region.self, forKey: .region)
+            ?? Region(rawValue: Environment.legacyGlobalRegion()) ?? .UAE
+        currency = try values.decodeIfPresent(String.self, forKey: .currency)
+            ?? Environment.legacyGlobalCurrency()
+        orderAction = try values.decodeIfPresent(String.self, forKey: .orderAction)
+            ?? Environment.legacyGlobalOrderAction()
+        orderType = try values.decodeIfPresent(String.self, forKey: .orderType)
+            ?? Environment.legacyGlobalOrderType()
     }
 
     func encode(to encoder: Encoder) throws {
@@ -150,6 +188,10 @@ struct Environment: Codable, Identifiable {
         try container.encode(apiKey, forKey: .apiKey)
         try container.encode(outletReference, forKey: .outletReference)
         try container.encode(realm, forKey: .realm)
+        try container.encode(region, forKey: .region)
+        try container.encode(currency, forKey: .currency)
+        try container.encode(orderAction, forKey: .orderAction)
+        try container.encode(orderType, forKey: .orderType)
         try container.encode(applePayMerchantId, forKey: .applePayMerchantId)
         try container.encode(clickToPayMerchantId, forKey: .clickToPayMerchantId)
     }
@@ -158,8 +200,7 @@ struct Environment: Codable, Identifiable {
     /// endpoint and any other host-level calls. Derived from the same region/env logic as the
     /// transactions URL above.
     func getApiGatewayBaseUrl() -> String {
-        let region = Environment.getRegion()
-        if region == Region.KSA.rawValue {
+        if region == .KSA {
             switch type {
             case .DEV:  return "https://api-gateway.dev.ksa.ngenius-payments.com"
             case .UAT:  return "https://api-gateway.sandbox.ksa.ngenius-payments.com"
@@ -174,8 +215,7 @@ struct Environment: Codable, Identifiable {
     }
     
     func getGateWayUrl() -> String {
-        let region = Environment.getRegion();
-        if(region == Region.KSA.rawValue) {
+        if region == .KSA {
             return switch type {
             case .DEV:
                 "https://api-gateway.dev.ksa.ngenius-payments.com/transactions/outlets/\(outletReference)/orders"
@@ -196,8 +236,7 @@ struct Environment: Codable, Identifiable {
     }
     
     func getIdentityUrl() -> String {
-        let region = Environment.getRegion();
-        if(region == Region.KSA.rawValue) {
+        if region == .KSA {
             return switch type {
                 case .DEV:
                     "https://api-gateway.dev.ksa.ngenius-payments.com/identity/auth/access-token"
@@ -259,6 +298,27 @@ struct Environment: Codable, Identifiable {
         }
     }
     
+    // MARK: - Apple Pay certificate (POC)
+
+    /// NI's own Apple Pay merchant identifier — the identity the hosted pay page uses, and
+    /// the one whose processing certificate NI holds. Already listed in the app's
+    /// in-app-payments entitlement. Change this to run the POC against a different NI
+    /// identity (e.g. the KSA or production pay page).
+    static let niApplePayMerchantId = "merchant.com.ngenius-payments.paypage-sandbox"
+    private static let useNIApplePayCertificateKey = "useNIApplePayCertificate"
+
+    /// When true the Apple Pay sheet is presented with NI's merchant identifier and the
+    /// token is posted as a web-flow payment, so the gateway decrypts it with NI's
+    /// certificate. When false the customer's own identifier and uploaded certificate are
+    /// used. Setting it also pushes the flag into the SDK, so the two cannot disagree.
+    static var useNIApplePayCertificate: Bool {
+        get { UserDefaults.standard.bool(forKey: useNIApplePayCertificateKey) }
+        set {
+            UserDefaults.standard.set(newValue, forKey: useNIApplePayCertificateKey)
+            NISdk.sharedInstance.useNIApplePayCertificate = newValue
+        }
+    }
+
     static func getSelectedEnvironment() -> String? {
         if let savedEnvironmentId = UserDefaults.standard.string(forKey: KEY_SAVED_ENVIRONMENT_ID) {
             return savedEnvironmentId
@@ -270,17 +330,29 @@ struct Environment: Codable, Identifiable {
     static func setSelectedEnvironment(environmentId: String) {
         UserDefaults.standard.set(environmentId, forKey: KEY_SAVED_ENVIRONMENT_ID)
     }
-    
-    static func getOrderAction() -> String {
-        if let action = UserDefaults.standard.string(forKey: KEY_ORDER_ACTION) {
-            return action
-        } else {
-            return "SALE"
-        }
+
+    /// Clears the selection, for when the selected environment is deleted and there is
+    /// nothing left to fall back to.
+    static func clearSelectedEnvironment() {
+        UserDefaults.standard.removeObject(forKey: KEY_SAVED_ENVIRONMENT_ID)
     }
     
-    static func setOrderAction(action: String) {
-        UserDefaults.standard.set(action, forKey: KEY_ORDER_ACTION)
+    /// Order action of the currently selected outlet. Falls back to the pre-migration global.
+    static func selectedOrderAction() -> String {
+        current()?.orderAction ?? legacyGlobalOrderAction()
+    }
+
+    /// Order type of the currently selected outlet; empty means SINGLE.
+    static func selectedOrderType() -> String {
+        current()?.orderType ?? legacyGlobalOrderType()
+    }
+
+    static func legacyGlobalOrderAction() -> String {
+        UserDefaults.standard.string(forKey: KEY_ORDER_ACTION) ?? "SALE"
+    }
+
+    static func legacyGlobalOrderType() -> String {
+        UserDefaults.standard.string(forKey: KEY_ORDER_TYPE) ?? ""
     }
     
     static func setLanguage(language: String) {
@@ -297,41 +369,36 @@ struct Environment: Codable, Identifiable {
         return supportedLanguages.contains(deviceLanguage) ? deviceLanguage : "en"
     }
 
-    static func setRegion(region: String) {
-        UserDefaults.standard.set(region, forKey: KEY_REGION)
+    /// Region/currency used to live here as app-wide settings, independent of the selected
+    /// outlet — which is what forced a tester to set the currency separately (and correctly)
+    /// before an outlet's payment methods would appear. They are now carried by `Environment`;
+    /// these readers exist only so environments saved by an older build can inherit them once.
+    static func legacyGlobalRegion() -> String {
+        UserDefaults.standard.string(forKey: KEY_REGION) ?? "UAE"
     }
 
-    static func getRegion() -> String {
-        if let region = UserDefaults.standard.string(forKey: KEY_REGION) {
-            return region
-        } else {
-            return "UAE"
-        }
+    static func legacyGlobalCurrency() -> String {
+        UserDefaults.standard.string(forKey: KEY_CURRENCY) ?? "AED"
     }
 
-    static func setCurrency(currency: String) {
-        UserDefaults.standard.set(currency, forKey: KEY_CURRENCY)
+    /// Region of the currently selected outlet, for the few call sites that need it without an
+    /// `Environment` to hand. Falls back to the pre-migration global.
+    static func selectedRegion() -> Region {
+        current()?.region ?? Region(rawValue: legacyGlobalRegion()) ?? .UAE
     }
 
-    static func getCurrency() -> String {
-        if let currency = UserDefaults.standard.string(forKey: KEY_CURRENCY) {
-            return currency
-        } else {
-            return "AED"
-        }
+    /// Currency of the currently selected outlet. This is the single source of truth for the
+    /// order's currency — there is no longer a separate picker that can disagree with it.
+    static func selectedCurrency() -> String {
+        current()?.currency ?? legacyGlobalCurrency()
     }
 
-    static func setOrderType(orderType: String) {
-        UserDefaults.standard.set(orderType, forKey: KEY_ORDER_TYPE)
+    /// The environment currently selected, if any.
+    static func current() -> Environment? {
+        guard let id = getSelectedEnvironment() else { return nil }
+        return getEnvironments().first { $0.id == id }
     }
 
-    static func getOrderType() -> String {
-        if let orderType = UserDefaults.standard.string(forKey: KEY_ORDER_TYPE) {
-            return orderType
-        } else {
-            return ""
-        }
-    }
 
     // MARK: - SDK Colors
 
