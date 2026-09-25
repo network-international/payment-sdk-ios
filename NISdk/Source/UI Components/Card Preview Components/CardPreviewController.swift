@@ -184,8 +184,8 @@ class CardPreviewController: UIViewController {
                          leading: containerView.leadingAnchor,
                          bottom: containerView.bottomAnchor,
                          trailing: nil,
-                         padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10),
-                         size: CGSize(width: UIScreen().deviceScreenWidth * 0.45, height: 0))
+                         padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10))
+        cardHolderNameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didChangeCardHolderName(_:)),
                                                name: .didChangeCardHolderName, object: nil)
@@ -199,6 +199,9 @@ class CardPreviewController: UIViewController {
                            leading: nil, bottom: containerView.bottomAnchor,
                            trailing: containerView.trailingAnchor,
                            padding: UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10))
+        expiryDateLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        cardHolderNameLabel.trailingAnchor.constraint(lessThanOrEqualTo: expiryDateLabel.leadingAnchor,
+                                                      constant: -10).isActive = true
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didChangeExpiry(_:)),
                                                name: .didChangeExpiryDate, object: nil)
