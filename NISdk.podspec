@@ -6,13 +6,13 @@ Pod::Spec.new do |spec|
 
   spec.name = "NISdk"
   spec.version = "6.1.1"
-  spec.summary = "Network International's Payment gateway sdk for iOS"
+  spec.summary = "Network International's Payment gateway sdk for iOS (local Xcode 27 patch)"
 
   spec.homepage = "https://docs.ngenius-payments.com/reference#ios-sdk"
   spec.license = "MIT"
   spec.author = "Network International"
 
-  spec.platform = :ios, "14.0"
+  spec.platform = :ios, "15.0"
   spec.swift_version = "4.2"
 
   spec.source = { :git => 'https://github.com/network-international/payment-sdk-ios.git', :tag => "v#{spec.version}" }

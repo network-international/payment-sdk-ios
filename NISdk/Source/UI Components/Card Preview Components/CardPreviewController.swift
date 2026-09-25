@@ -185,7 +185,7 @@ class CardPreviewController: UIViewController {
                          bottom: containerView.bottomAnchor,
                          trailing: nil,
                          padding: UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10),
-                         size: CGSize(width: UIScreen().deviceScreenWidth * 0.45, height: 0))
+                         size: CGSize(width: UIScreen.main.bounds.width * 0.45, height: 0))
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(didChangeCardHolderName(_:)),
                                                name: .didChangeCardHolderName, object: nil)
