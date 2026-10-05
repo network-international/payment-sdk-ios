@@ -13,6 +13,13 @@ class EnvironmentViewModel: ObservableObject {
     @Published var merchantAttributes: [MerchantAttribute] = []
     @Published var language: String = ""
 
+    // QA override — see `Environment.isOverrideEnabled`.
+    @Published var overrideEnabled = Environment.isOverrideEnabled
+    @Published var overrideRegion = Environment.overrideRegion
+    @Published var overrideCurrency = Environment.overrideCurrency
+    @Published var overrideOrderAction = Environment.overrideOrderAction
+    @Published var overrideOrderType = Environment.overrideOrderType
+
     // SDK Colors
     @Published var sdkColorPayButton: String = ""
     @Published var sdkColorPayButtonText: String = ""
@@ -169,6 +176,22 @@ class EnvironmentViewModel: ObservableObject {
     func setLanguage(language: String) {
         Environment.setLanguage(language: language)
     }
+
+    /// Re-reads the four values too: the first switch-on seeds them from the selected
+    /// environment.
+    func setOverrideEnabled(_ on: Bool) {
+        Environment.setOverrideEnabled(on)
+        overrideEnabled = on
+        overrideRegion = Environment.overrideRegion
+        overrideCurrency = Environment.overrideCurrency
+        overrideOrderAction = Environment.overrideOrderAction
+        overrideOrderType = Environment.overrideOrderType
+    }
+
+    func setOverrideRegion(_ v: String) { Environment.overrideRegion = v; overrideRegion = v }
+    func setOverrideCurrency(_ v: String) { Environment.overrideCurrency = v; overrideCurrency = v }
+    func setOverrideOrderAction(_ v: String) { Environment.overrideOrderAction = v; overrideOrderAction = v }
+    func setOverrideOrderType(_ v: String) { Environment.overrideOrderType = v; overrideOrderType = v }
     
     func getLangugae() -> String {
         return Environment.getLanguage()

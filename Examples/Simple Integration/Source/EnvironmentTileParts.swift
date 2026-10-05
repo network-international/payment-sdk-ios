@@ -162,6 +162,8 @@ struct CardBrandBadge: View {
 struct EnvironmentRow: View {
     let environment: Environment
     let isSelected: Bool
+    /// The QA override is on, so this outlet's own region/currency are not what orders use.
+    var isOverridden: Bool = false
     let onSelect: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
@@ -174,8 +176,11 @@ struct EnvironmentRow: View {
             Text(environment.realm)
                 .font(.caption)
                 .foregroundColor(.secondary)
-            Text("\(environment.region.rawValue) · \(environment.currency)")
+            // Struck through while the QA override is on, so nobody reads these as the
+            // values orders will use.
+            Text("\(environment.region.rawValue) · \(environment.currency)\(isOverridden ? "  (overridden)" : "")")
                 .font(.caption)
+                .strikethrough(isOverridden)
                 .foregroundColor(.secondary)
             methodPills
             cardBrandStrip

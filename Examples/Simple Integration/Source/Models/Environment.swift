@@ -106,6 +106,11 @@ struct Environment: Codable, Identifiable {
     private static let KEY_ORDER_TYPE = "order_type"
     private static let KEY_SAVED_LANGUAGE = "saved_language"
     private static let KEY_SAVED_MERCHANT_ATTRIBUTES = "merchant_attributes"
+    private static let KEY_OVERRIDE_ENABLED = "override_enabled"
+    private static let KEY_OVERRIDE_REGION = "override_region"
+    private static let KEY_OVERRIDE_CURRENCY = "override_currency"
+    private static let KEY_OVERRIDE_ORDER_ACTION = "override_order_action"
+    private static let KEY_OVERRIDE_ORDER_TYPE = "override_order_type"
 
     // SDK Color keys
     private static let KEY_SDK_COLOR_PAY_BUTTON = "sdk_color_pay_button"
@@ -347,12 +352,14 @@ struct Environment: Codable, Identifiable {
     
     /// Order action of the currently selected outlet. Falls back to the pre-migration global.
     static func selectedOrderAction() -> String {
-        current()?.orderAction ?? legacyGlobalOrderAction()
+        if isOverrideEnabled { return overrideOrderAction }
+        return current()?.orderAction ?? legacyGlobalOrderAction()
     }
 
     /// Order type of the currently selected outlet; empty means SINGLE.
     static func selectedOrderType() -> String {
-        current()?.orderType ?? legacyGlobalOrderType()
+        if isOverrideEnabled { return overrideOrderType }
+        return current()?.orderType ?? legacyGlobalOrderType()
     }
 
     static func legacyGlobalOrderAction() -> String {
@@ -392,13 +399,64 @@ struct Environment: Codable, Identifiable {
     /// Region of the currently selected outlet, for the few call sites that need it without an
     /// `Environment` to hand. Falls back to the pre-migration global.
     static func selectedRegion() -> Region {
-        current()?.region ?? Region(rawValue: legacyGlobalRegion()) ?? .UAE
+        if isOverrideEnabled { return Region(rawValue: overrideRegion) ?? .UAE }
+        return current()?.region ?? Region(rawValue: legacyGlobalRegion()) ?? .UAE
     }
 
     /// Currency of the currently selected outlet. This is the single source of truth for the
     /// order's currency — there is no longer a separate picker that can disagree with it.
     static func selectedCurrency() -> String {
-        current()?.currency ?? legacyGlobalCurrency()
+        if isOverrideEnabled { return overrideCurrency }
+        return current()?.currency ?? legacyGlobalCurrency()
+    }
+
+    // MARK: - QA override
+
+    // One switch that replaces the selected environment's region, currency, order action
+    // and order type for every order, so QA can try a combination without editing (or
+    // duplicating) an environment. Off by default; the environments themselves are never
+    // changed. Mirrors the Flutter and Android demos.
+    //
+    // Region here feeds what reads `selectedRegion()` (the Apple Pay country code). The
+    // gateway host and the outlet still come from the environment record — an outlet does
+    // not move between the UAE and KSA deployments.
+
+    static var isOverrideEnabled: Bool {
+        UserDefaults.standard.bool(forKey: KEY_OVERRIDE_ENABLED)
+    }
+
+    /// Turning it on starts from the selected environment's values, so switching the box
+    /// on changes nothing until a value is picked.
+    static func setOverrideEnabled(_ on: Bool) {
+        let defaults = UserDefaults.standard
+        if on && defaults.string(forKey: KEY_OVERRIDE_REGION) == nil {
+            let env = current()
+            overrideRegion = env?.region.rawValue ?? legacyGlobalRegion()
+            overrideCurrency = env?.currency ?? legacyGlobalCurrency()
+            overrideOrderAction = env?.orderAction ?? legacyGlobalOrderAction()
+            overrideOrderType = env?.orderType ?? legacyGlobalOrderType()
+        }
+        defaults.set(on, forKey: KEY_OVERRIDE_ENABLED)
+    }
+
+    static var overrideRegion: String {
+        get { UserDefaults.standard.string(forKey: KEY_OVERRIDE_REGION) ?? legacyGlobalRegion() }
+        set { UserDefaults.standard.set(newValue, forKey: KEY_OVERRIDE_REGION) }
+    }
+
+    static var overrideCurrency: String {
+        get { UserDefaults.standard.string(forKey: KEY_OVERRIDE_CURRENCY) ?? legacyGlobalCurrency() }
+        set { UserDefaults.standard.set(newValue, forKey: KEY_OVERRIDE_CURRENCY) }
+    }
+
+    static var overrideOrderAction: String {
+        get { UserDefaults.standard.string(forKey: KEY_OVERRIDE_ORDER_ACTION) ?? legacyGlobalOrderAction() }
+        set { UserDefaults.standard.set(newValue, forKey: KEY_OVERRIDE_ORDER_ACTION) }
+    }
+
+    static var overrideOrderType: String {
+        get { UserDefaults.standard.string(forKey: KEY_OVERRIDE_ORDER_TYPE) ?? legacyGlobalOrderType() }
+        set { UserDefaults.standard.set(newValue, forKey: KEY_OVERRIDE_ORDER_TYPE) }
     }
 
     /// The environment currently selected, if any.

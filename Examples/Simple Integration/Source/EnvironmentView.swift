@@ -256,6 +256,107 @@ struct EnvironmentView: View {
         }
     }
 
+    /// QA shortcut: region, currency, order action and order type for every order, in
+    /// place of the selected environment's own. Built to be obvious at a glance whether it
+    /// is on — an override left on by accident silently changes every order.
+    private var overrideSection: some View {
+        let on = viewModel.overrideEnabled
+        let onColor = Color(red: 0xE6 / 255, green: 0x51 / 255, blue: 0)  // deep orange: attention, not error
+        return VStack(alignment: .leading, spacing: 8) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) { viewModel.setOverrideEnabled(!on) }
+            } label: {
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: on ? "checkmark.square.fill" : "square")
+                        .font(.title2)
+                        .foregroundColor(on ? onColor : .secondary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text("Override environment settings")
+                                .font(.body.bold())
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Text(on ? "ON" : "OFF")
+                                .font(.caption2.bold())
+                                .foregroundColor(on ? .white : .secondary)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(Capsule().fill(on ? onColor : Color(.systemGray5)))
+                        }
+                        Text(on
+                             ? "Every order uses the values below instead of the selected environment's."
+                             : "Off — each environment's own region, currency, action and type are used.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("environment_checkbox_override")
+
+            // Collapsed while off: the values only matter when they apply.
+            if on {
+                VStack(alignment: .leading, spacing: 2) {
+                    overridePicker("Region", selection: $viewModel.overrideRegion
+                        .onChange(viewModel.setOverrideRegion), id: "region") {
+                        Text("UAE").tag("UAE")
+                        Text("KSA").tag("KSA")
+                    }
+                    overridePicker("Currency", selection: $viewModel.overrideCurrency
+                        .onChange(viewModel.setOverrideCurrency), id: "currency") {
+                        ForEach(Environment.supportedCurrencies, id: \.self) { code in
+                            Text(code).tag(code)
+                        }
+                    }
+                    overridePicker("Order Action", selection: $viewModel.overrideOrderAction
+                        .onChange(viewModel.setOverrideOrderAction), id: "orderAction") {
+                        Text("SALE").tag("SALE")
+                        Text("PURCHASE").tag("PURCHASE")
+                        Text("AUTH").tag("AUTH")
+                    }
+                    overridePicker("Order Type", selection: $viewModel.overrideOrderType
+                        .onChange(viewModel.setOverrideOrderType), id: "orderType") {
+                        Text("SINGLE").tag("")
+                        Text("RECURRING").tag("RECURRING")
+                        Text("UNSCHEDULED").tag("UNSCHEDULED")
+                        Text("INSTALLMENT").tag("INSTALLMENT")
+                    }
+                    Text("Region sets the Apple Pay country. The gateway and outlet still come from the selected environment.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
+                }
+                .padding(.leading, 36)
+                .transition(.opacity.combined(with: .move(edge: .top)))
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 10).fill(on ? onColor.opacity(0.08) : Color.clear))
+        .overlay(RoundedRectangle(cornerRadius: 10)
+            .stroke(on ? onColor : Color(.systemGray3), lineWidth: on ? 2 : 1))
+    }
+
+    /// One override row: a fixed label column and a menu filling the rest, so the four
+    /// rows line up whatever their values' lengths.
+    private func overridePicker<Content: View>(
+        _ title: String,
+        selection: Binding<String>,
+        id: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        HStack {
+            Text(title)
+                .frame(width: 110, alignment: .leading)
+            Picker(title, selection: selection, content: content)
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .accessibilityIdentifier("environment_picker_override_\(id)")
+    }
+
     private var environmentsSection: some View {
         Group {
             HStack {
@@ -395,6 +496,7 @@ struct EnvironmentView: View {
                 EnvironmentRow(
                     environment: environment,
                     isSelected: viewModel.getSelectedId() == environment.id,
+                    isOverridden: viewModel.overrideEnabled,
                     onSelect: { viewModel.setEnvironment(environmentId: environment.id) },
                     onEdit: { editingEnvironment = environment },
                     onDelete: { environmentPendingDeletion = environment }
@@ -414,6 +516,8 @@ struct EnvironmentView: View {
                 sdkColorsSection
                 Divider()
                 merchantAttributesSection
+                overrideSection
+                    .padding(.vertical, 8)
                 environmentsSection
                 Spacer()
             }.padding(10)
