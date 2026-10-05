@@ -81,6 +81,10 @@ struct Environment: Codable, Identifiable {
     /// Order type (SINGLE / RECURRING / UNSCHEDULED / INSTALLMENT). Empty means SINGLE.
     /// Enabled per outlet like the action, so it travels with it.
     let orderType: String
+    /// Payment methods the gateway offered for this outlet, captured on import.
+    /// Informational: shown on the tile so an outlet's capabilities are visible without
+    /// opening it or starting a payment. Empty for an outlet added by hand.
+    let paymentMethods: [String]
     let applePayMerchantId: String
     /// Merchant identifier used by the Click to Pay config endpoint
     /// (`/config/merchants/{merchantId}/configs/vctp`). Distinct from `outletReference`.
@@ -128,18 +132,19 @@ struct Environment: Codable, Identifiable {
         case currency
         case orderAction
         case orderType
+        case paymentMethods
         case applePayMerchantId
         case clickToPayMerchantId
     }
 
-    init(type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, region: Region = .UAE, currency: String = "AED", orderAction: String = "SALE", orderType: String = "", applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
+    init(type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, region: Region = .UAE, currency: String = "AED", orderAction: String = "SALE", orderType: String = "", paymentMethods: [String] = [], applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
         self.init(id: UUID().uuidString, type: type, nickname: nickname, apiKey: apiKey,
                   outletReference: outletReference, realm: realm, region: region, currency: currency,
-                  orderAction: orderAction, orderType: orderType,
+                  orderAction: orderAction, orderType: orderType, paymentMethods: paymentMethods,
                   applePayMerchantId: applePayMerchantId, clickToPayMerchantId: clickToPayMerchantId)
     }
 
-    init(id: String, type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, region: Region = .UAE, currency: String = "AED", orderAction: String = "SALE", orderType: String = "", applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
+    init(id: String, type: EnvironmentType, nickname: String = "", apiKey: String, outletReference: String, realm: String, region: Region = .UAE, currency: String = "AED", orderAction: String = "SALE", orderType: String = "", paymentMethods: [String] = [], applePayMerchantId: String = "", clickToPayMerchantId: String = "") {
         self.type = type
         self.id = id
         self.nickname = nickname
@@ -151,6 +156,7 @@ struct Environment: Codable, Identifiable {
         self.currency = currency
         self.orderAction = orderAction
         self.orderType = orderType
+        self.paymentMethods = paymentMethods
         self.applePayMerchantId = applePayMerchantId
         self.clickToPayMerchantId = clickToPayMerchantId
     }
@@ -177,6 +183,7 @@ struct Environment: Codable, Identifiable {
             ?? Environment.legacyGlobalOrderAction()
         orderType = try values.decodeIfPresent(String.self, forKey: .orderType)
             ?? Environment.legacyGlobalOrderType()
+        paymentMethods = try values.decodeIfPresent([String].self, forKey: .paymentMethods) ?? []
     }
 
     func encode(to encoder: Encoder) throws {
@@ -192,6 +199,7 @@ struct Environment: Codable, Identifiable {
         try container.encode(currency, forKey: .currency)
         try container.encode(orderAction, forKey: .orderAction)
         try container.encode(orderType, forKey: .orderType)
+        try container.encode(paymentMethods, forKey: .paymentMethods)
         try container.encode(applePayMerchantId, forKey: .applePayMerchantId)
         try container.encode(clickToPayMerchantId, forKey: .clickToPayMerchantId)
     }

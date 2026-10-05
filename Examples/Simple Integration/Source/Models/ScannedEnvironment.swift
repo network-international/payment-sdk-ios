@@ -5,7 +5,11 @@ import Foundation
 /// Line format, pipe-delimited, shared with the Android and Flutter demos and the
 /// outlet-cred-puller:
 ///
-///     nickname|realm|outletReference|apiKey|applePayMerchantId|region|currency|type|orderAction|orderType
+///     nickname|realm|outletReference|apiKey|applePayMerchantId|region|currency|type|orderAction|orderType|paymentMethods
+///
+/// `paymentMethods` is comma-separated and informational — what the gateway offered on a
+/// probe order, shown on the environment tile so an outlet's capabilities are visible
+/// without opening it.
 ///
 /// The first five fields are the original contract; the rest were appended as region,
 /// currency, order action and order type each moved onto the outlet, so a five- or
@@ -28,10 +32,13 @@ struct ScannedEnvironment: Identifiable, Equatable {
     let orderAction: String
     /// RECURRING / UNSCHEDULED / INSTALLMENT; empty means SINGLE.
     let orderType: String
+    /// Gateway payment-method names. Empty for a code predating the field.
+    let paymentMethods: [String]
 
     init(nickname: String, realm: String, outletReference: String, apiKey: String,
          applePayMerchantId: String = "", region: Region = .UAE, currency: String = "AED",
-         type: EnvironmentType = .DEV, orderAction: String = "SALE", orderType: String = "") {
+         type: EnvironmentType = .DEV, orderAction: String = "SALE", orderType: String = "",
+         paymentMethods: [String] = []) {
         self.nickname = nickname
         self.realm = realm
         self.outletReference = outletReference
@@ -42,6 +49,7 @@ struct ScannedEnvironment: Identifiable, Equatable {
         self.type = type
         self.orderAction = orderAction
         self.orderType = orderType
+        self.paymentMethods = paymentMethods
     }
 
     /// Everything parsed from a payload, plus how many lines were not an environment.
@@ -70,7 +78,11 @@ struct ScannedEnvironment: Identifiable, Equatable {
                 orderAction: at(8, "SALE").uppercased(),
                 // SINGLE is the empty string on the wire, so an explicit "SINGLE" is
                 // normalised rather than stored as a value nothing would match.
-                orderType: at(9).uppercased() == "SINGLE" ? "" : at(9).uppercased())
+                orderType: at(9).uppercased() == "SINGLE" ? "" : at(9).uppercased(),
+                paymentMethods: at(10)
+                    .split(separator: ",")
+                    .map { $0.trimmingCharacters(in: .whitespaces).uppercased() }
+                    .filter { !$0.isEmpty })
         case 4:
             return ScannedEnvironment(nickname: at(0), realm: at(1), outletReference: at(2), apiKey: at(3))
         case 3:
@@ -78,6 +90,61 @@ struct ScannedEnvironment: Identifiable, Equatable {
         default:
             return nil
         }
+    }
+
+    /// Encodes one environment as a payload line — the inverse of [parse].
+    ///
+    /// Always writes all ten fields so a line never has a variable shape, and strips pipes
+    /// and newlines from the free-text fields: the format has no escaping, so a pipe in a
+    /// nickname would shift every later field and put the region where the API key belongs.
+    static func encode(_ e: Environment) -> String {
+        [
+            e.nickname,
+            e.realm,
+            e.outletReference,
+            e.apiKey,
+            e.applePayMerchantId,
+            e.region.rawValue,
+            e.currency,
+            e.type.rawValue,
+            e.orderAction,
+            // SINGLE is the empty string in the model; write it out so the line
+            // always has ten fields.
+            e.orderType.isEmpty ? "SINGLE" : e.orderType,
+            e.paymentMethods.joined(separator: ","),
+        ]
+        .map { $0.replacingOccurrences(of: "[|\r\n]", with: " ", options: .regularExpression)
+                 .trimmingCharacters(in: .whitespaces) }
+        .joined(separator: "|")
+    }
+
+    /// Encodes every environment, one per line — what Copy and the QR both use.
+    static func encodeAll(_ envs: [Environment]) -> String {
+        envs.map(encode).joined(separator: "\n")
+    }
+
+    /// Splits `lines` into groups that each fit within `limitBytes` when joined.
+    ///
+    /// Whole lines only: an environment split across two codes would parse as two broken
+    /// ones. A single line over the limit still gets a group of its own — dropping it would
+    /// silently lose an outlet. The limit matches the outlet-cred-puller's, so a batch
+    /// splits identically whichever end generates it.
+    static func chunkLines(_ lines: [String], limitBytes: Int) -> [[String]] {
+        var chunks: [[String]] = []
+        var current: [String] = []
+        var size = 0
+        for line in lines {
+            let add = line.utf8.count + (current.isEmpty ? 0 : 1)
+            if !current.isEmpty && size + add > limitBytes {
+                chunks.append(current)
+                current = []
+                size = 0
+            }
+            current.append(line)
+            size += add
+        }
+        if !current.isEmpty { chunks.append(current) }
+        return chunks
     }
 
     /// Parses a whole payload: one environment per line, blank lines ignored. A bulk code

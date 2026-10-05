@@ -44,6 +44,7 @@ struct EnvironmentView: View {
 
     // SDK Colors
     @State private var isShowingSdkAppearance = false
+    @State private var isShowingTransfer = false
 
     // Edit environment
     @State private var editingEnvironment: Environment?
@@ -130,6 +131,32 @@ struct EnvironmentView: View {
     /// These settings describe how the SDK draws, not which outlet is charged, and
     /// eleven colour rows crowded a screen that is mostly about environments. The
     /// Android and Flutter demos show the same list under the same name.
+    /// Opens the Transfer page. A sheet, not a NavigationLink, for the same reason
+    /// as the SDK Appearance row: this view is hosted in a UIKit navigation
+    /// controller, so a SwiftUI link has nothing to push onto.
+    private var transferSection: some View {
+        Button {
+            isShowingTransfer = true
+        } label: {
+            HStack {
+                Text("Transfer Environments")
+                    .foregroundColor(.primary)
+                Spacer()
+                Text("Copy, paste, scan or QR")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .accessibilityIdentifier("environment_row_transfer")
+        .sheet(isPresented: $isShowingTransfer) {
+            EnvironmentTransferView(viewModel: viewModel,
+                                    onDone: { isShowingTransfer = false })
+        }
+    }
+
     private var sdkColorsSection: some View {
         // Presented as a sheet, not a NavigationLink: this view is hosted in a
         // UIKit UINavigationController, so there is no SwiftUI navigation
@@ -365,75 +392,24 @@ struct EnvironmentView: View {
     private var environmentsList: some View {
         VStack {
             ForEach(viewModel.environments, id: \.id) { environment in
-                let isSelected = viewModel.getSelectedId() == environment.id
-                VStack(alignment: .leading) {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(environment.nickname.isEmpty ? environment.realm : environment.nickname)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(environment.realm)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-
-                        Text("\(environment.type)")
-                            .font(.caption)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(niBlue.opacity(0.1))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(niBlue, lineWidth: 1)
-                            )
-                            .cornerRadius(12)
-
-                        Button {
-                            editingEnvironment = environment
-                        } label: {
-                            Image(systemName: "pencil")
-                                .foregroundColor(niBlue)
-                        }
-                        .padding(4)
-                        .accessibilityIdentifier("environment_button_edit_\(environment.id)")
-
-                        Button {
-                            environmentPendingDeletion = environment
-                        } label: {
-                            Image(systemName: "trash.fill")
-                        }.foregroundColor(.white)
-                            .padding(4)
-                            .background(Color.red)
-                            .cornerRadius(6)
-                            .accessibilityIdentifier("environment_button_delete_\(environment.id)")
-                    }
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(isSelected ? niBlue : Color.gray, lineWidth: isSelected ? 2 : 1)
+                EnvironmentRow(
+                    environment: environment,
+                    isSelected: viewModel.getSelectedId() == environment.id,
+                    onSelect: { viewModel.setEnvironment(environmentId: environment.id) },
+                    onEdit: { editingEnvironment = environment },
+                    onDelete: { environmentPendingDeletion = environment }
                 )
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(isSelected ? niBlue.opacity(0.05) : Color.clear)
-                )
-                .padding(2)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    if !isSelected {
-                        viewModel.setEnvironment(environmentId: environment.id)
-                    }
-                }
-                .accessibilityIdentifier("environment_item_\(environment.id)")
             }
         }
     }
+
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
                 pickersSection
+                Divider()
+                transferSection
                 Divider()
                 sdkColorsSection
                 Divider()

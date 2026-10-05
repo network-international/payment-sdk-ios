@@ -13,8 +13,6 @@
 		591CC0B12BE3ED4B00FB6086 /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 591CC0B02BE3ED4B00FB6086 /* Bundle.swift */; };
 		592A15D72BD9013C00986490 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D62BD9013C00986490 /* EnvironmentView.swift */; };
 		592A15D92BD9878900986490 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15D82BD9878900986490 /* Environment.swift */; };
-		A1C0DE5E20260918000002 /* ScannedEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE5E20260918000001 /* ScannedEnvironment.swift */; };
-		A1C0DE5E20260921000002 /* SdkAppearanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE5E20260921000001 /* SdkAppearanceView.swift */; };
 		592A15DB2BDA326100986490 /* ApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 592A15DA2BDA326100986490 /* ApiService.swift */; };
 		59ED19AE2AD401960000E024 /* CreditCardInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */; };
 		59FEB0072BE49E410094C943 /* EnvironmentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */; };
@@ -30,6 +28,10 @@
 		86EA2239230F2AA300B46FF9 /* OrderRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA2238230F2AA300B46FF9 /* OrderRequest.swift */; };
 		86EA223B230F2BDE00B46FF9 /* OrderAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */; };
 		A1B2C3D52BD901AA00986490 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D42BD901AA00986490 /* QRScannerView.swift */; };
+		A1C0DE5E20260918000002 /* ScannedEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE5E20260918000001 /* ScannedEnvironment.swift */; };
+		A1C0DE5E20260921000002 /* SdkAppearanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE5E20260921000001 /* SdkAppearanceView.swift */; };
+		A1C0DE5E20260922000002 /* EnvironmentTransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE5E20260922000001 /* EnvironmentTransferView.swift */; };
+		A1C0DE5E20260922000012 /* EnvironmentTileParts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE5E20260922000011 /* EnvironmentTileParts.swift */; };
 		H1A006022B00000200000001 /* PaymentOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = H1A006012B00000200000001 /* PaymentOptionsViewController.swift */; };
 		W1Y00N012BD902AA00986490 /* WhatYouNeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1Y00N002BD902AA00986490 /* WhatYouNeedView.swift */; };
 /* End PBXBuildFile section */
@@ -43,8 +45,6 @@
 		591CC0B02BE3ED4B00FB6086 /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		592A15D62BD9013C00986490 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
 		592A15D82BD9878900986490 /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
-		A1C0DE5E20260918000001 /* ScannedEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedEnvironment.swift; sourceTree = "<group>"; };
-		A1C0DE5E20260921000001 /* SdkAppearanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SdkAppearanceView.swift; sourceTree = "<group>"; };
 		592A15DA2BDA326100986490 /* ApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApiService.swift; sourceTree = "<group>"; };
 		59ED19AD2AD401960000E024 /* CreditCardInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditCardInfoView.swift; sourceTree = "<group>"; };
 		59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentViewModel.swift; sourceTree = "<group>"; };
@@ -64,6 +64,10 @@
 		86EA223A230F2BDE00B46FF9 /* OrderAmount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderAmount.swift; sourceTree = "<group>"; };
 		86ECAFDD23223D29008FDDDC /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		A1B2C3D42BD901AA00986490 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		A1C0DE5E20260918000001 /* ScannedEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedEnvironment.swift; sourceTree = "<group>"; };
+		A1C0DE5E20260921000001 /* SdkAppearanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SdkAppearanceView.swift; sourceTree = "<group>"; };
+		A1C0DE5E20260922000001 /* EnvironmentTransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentTransferView.swift; sourceTree = "<group>"; };
+		A1C0DE5E20260922000011 /* EnvironmentTileParts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentTileParts.swift; sourceTree = "<group>"; };
 		BB759BA726500270482B263D /* Pods-Demo App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Demo App.debug.xcconfig"; path = "Target Support Files/Pods-Demo App/Pods-Demo App.debug.xcconfig"; sourceTree = "<group>"; };
 		D9BB16541062436DDB8A6A7A /* Pods_Demo_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Demo_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		H1A006012B00000200000001 /* PaymentOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentOptionsViewController.swift; sourceTree = "<group>"; };
@@ -115,6 +119,8 @@
 				862CBE86230EF9DB00767774 /* Extensions */,
 				592A15D62BD9013C00986490 /* EnvironmentView.swift */,
 				A1C0DE5E20260921000001 /* SdkAppearanceView.swift */,
+				A1C0DE5E20260922000001 /* EnvironmentTransferView.swift */,
+				A1C0DE5E20260922000011 /* EnvironmentTileParts.swift */,
 				592A15DA2BDA326100986490 /* ApiService.swift */,
 				59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */,
 				A1B2C3D42BD901AA00986490 /* QRScannerView.swift */,
@@ -274,13 +280,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Demo App/Pods-Demo App-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Demo App/Pods-Demo App-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -321,6 +323,8 @@
 				592A15D92BD9878900986490 /* Environment.swift in Sources */,
 				A1C0DE5E20260918000002 /* ScannedEnvironment.swift in Sources */,
 				A1C0DE5E20260921000002 /* SdkAppearanceView.swift in Sources */,
+				A1C0DE5E20260922000002 /* EnvironmentTransferView.swift in Sources */,
+				A1C0DE5E20260922000012 /* EnvironmentTileParts.swift in Sources */,
 				4B6428B82DEDB90400E7A1EA /* InstallmentDetails.swift in Sources */,
 				59FEB0072BE49E410094C943 /* EnvironmentViewModel.swift in Sources */,
 				862CBE85230EF89100767774 /* UIView+AutoLayout.swift in Sources */,

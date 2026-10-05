@@ -57,6 +57,7 @@ class EnvironmentViewModel: ObservableObject {
                                   outletReference: s.outletReference, realm: s.realm,
                                   region: s.region, currency: s.currency,
                                   orderAction: s.orderAction, orderType: s.orderType,
+                                  paymentMethods: s.paymentMethods,
                                   applePayMerchantId: s.applePayMerchantId)
             if let i = environments.firstIndex(where: { $0.id == env.id }) {
                 environments[i] = env
