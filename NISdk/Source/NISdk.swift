@@ -55,7 +55,7 @@ private class NISdkBundleLocator {}
     // but well below the server-side 3DS timeout (~10 min). Set to 0 to disable.
     public var threeDSSessionTimeout: TimeInterval = 300.0
 
-    public var version: String = "6.1.1"
+    public var version: String = "6.1.2"
 
     /// How this SDK is being consumed, sent to the gateway as X-NI-Platform on every
     /// request. Native integrations leave it alone; the React Native bridge and the Flutter
