@@ -61,7 +61,7 @@ private class NISdkBundleLocator {}
     /// request. Native integrations leave it alone; the React Native bridge and the Flutter
     /// plugin set it during initialisation, because the native SDK underneath them is the
     /// same binary and cannot tell the difference on its own.
-    public var platform: NIPlatform = .iOSNative
+    @objc public var platform: NIPlatform = .iOSNative
 
     private override init() {
         super.init()
