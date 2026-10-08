@@ -8,6 +8,7 @@
 
 import Foundation
 import os.log
+import UIKit
 
 public enum HTTPClientErrors: Error {
     case missingUrl
