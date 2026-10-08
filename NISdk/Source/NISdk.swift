@@ -66,7 +66,7 @@ private class NISdkBundleLocator {}
     /// How this SDK is being consumed, sent as X-NI-Platform on every request. Native
     /// integrations leave it alone; the React Native bridge and the Flutter plugin set it
     /// during initialisation, since the native SDK underneath them is the same binary.
-    public var platform: NIPlatform = .iOSNative
+    @objc public var platform: NIPlatform = .iOSNative
 
     private override init() {
         let deviceLanguage = Locale.current.languageCode ?? "en"
