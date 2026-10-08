@@ -14,7 +14,23 @@ The Network International iOS payment SDK requires Xcode 13.0 and later and work
 
 ### Integration
 
-We support all the popular iOS dependency management tools. The SDK can be added via [CocoaPods](https://cocoapods.org/) or [Carthage](https://github.com/Carthage/Carthage).
+We support all the popular iOS dependency management tools. The SDK can be added via [Swift Package Manager](https://www.swift.org/package-manager/), [CocoaPods](https://cocoapods.org/) or [Carthage](https://github.com/Carthage/Carthage).
+
+#### Swift Package Manager
+
+In Xcode choose **File ▸ Add Package Dependencies…**, enter the repository URL and pick the latest tagged version:
+
+```
+https://github.com/network-international/payment-sdk-ios.git
+```
+
+Or add it to the `dependencies` of your own `Package.swift`:
+
+```swift
+.package(url: "https://github.com/network-international/payment-sdk-ios.git", from: "6.1.2")
+```
+
+and add `NISdk` to the `dependencies` of your target. Objective-C sources can import the module with `@import NISdk;`.
 
 Head over to our [iOS Integration Docs](https://docs.ngenius-payments.com/reference#ios-sdk-integration-guide), which explain in detail the payment-sdk integration flow.
 
