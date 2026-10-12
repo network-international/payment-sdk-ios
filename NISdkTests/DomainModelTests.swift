@@ -35,9 +35,9 @@ final class SliceModelTests: XCTestCase {
 
     // MARK: - Installment fee (the offer's `commission`)
 
-    private func offer(commission: Any?) throws -> SliceOffer {
+    private func offer(commission: Any?, fee: String = "0") throws -> SliceOffer {
         var json: [String: Any] = [
-            "period": "3", "rate": "0.00", "fee": "0", "feeType": "FIXED",
+            "period": "3", "rate": "0.00", "fee": fee, "feeType": "FIXED",
             "installmentAmount": ["currencyCode": "AED", "value": 20733],
             "totalAmount": ["currencyCode": "AED", "value": 62200]
         ]
@@ -111,6 +111,28 @@ final class SliceModelTests: XCTestCase {
         XCTAssertEqual(decoded.period, "6")
         XCTAssertEqual(decoded.rate, "1.50")
         XCTAssertEqual(decoded.fee, "500")
+    }
+
+    // MARK: - "Zero fees" tag
+
+    /// The tag needs both charges to be zero — processing fee and installment fee.
+    func testZeroFeeAndNoCommissionIsFeeFree() throws {
+        XCTAssertTrue(try offer(commission: nil).isFeeFree)
+        XCTAssertTrue(try offer(commission: "0").isFeeFree)
+        XCTAssertTrue(try offer(commission: "0.00", fee: "0.00").isFeeFree)
+    }
+
+    func testAnInstallmentFeeAloneRulesOutTheZeroFeesTag() throws {
+        XCTAssertFalse(try offer(commission: "18.00").isFeeFree)
+    }
+
+    func testAProcessingFeeAloneRulesOutTheZeroFeesTag() throws {
+        XCTAssertFalse(try offer(commission: nil, fee: "8.00").isFeeFree)
+        XCTAssertFalse(try offer(commission: "0", fee: "8").isFeeFree)
+    }
+
+    func testAnUnparsableProcessingFeeIsNotShownAsZero() throws {
+        XCTAssertFalse(try offer(commission: nil, fee: "").isFeeFree)
     }
 }
 

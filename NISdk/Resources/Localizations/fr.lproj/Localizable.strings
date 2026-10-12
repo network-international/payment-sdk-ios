@@ -115,14 +115,13 @@
 
 /* Payment Result Screen */
 "Payment Success Title" = "Vous avez payé %@";
-"Payment Success Title Slice" = "Total à payer %@";
 "Payment Success Title No Amount" = "Paiement réussi";
 "Payment Failure Title" = "Une erreur est survenue";
 "Payment Success Subtitle" = "Merci ! Votre paiement a été reçu.";
 "Payment Failure Subtitle" = "Veuillez réessayer plus tard.";
-"Transaction ID Label" = "Numéro de référence";
-"Reference Number Label" = "Numéro de référence";
-"Date Time Label" = "Date de transaction";
+"Transaction ID Label" = "N° de réf.";
+"Reference Number Label" = "N° de réf.";
+"Date Time Label" = "Date et heure";
 "Done" = "Terminé";
 "Add card manually" = "Ajouter une carte manuellement";
 "Select Payment Option Validation" = "Veuillez sélectionner une option de paiement pour continuer";
@@ -131,8 +130,7 @@
 /* Slice instalments. "Slice" is a brand name and stays in English in every locale.
    Month counts are plurals and live in Localizable.stringsdict. */
 "slice_checking_eligibility" = "Vérification de l'éligibilité à Slice...";
-"slice_banner_title" = "Paiement échelonné sans frais ni intérêts.";
-"slice_banner_subtitle" = "Réglez vos achats en plusieurs fois, facilement";
+"slice_banner_title" = "Paiement échelonné sans intérêts";
 "slice_pay_in_full" = "Payer en totalité";
 "slice_per_month" = "Par mois";
 "slice_badge_zero_interest" = "Sans intérêts";

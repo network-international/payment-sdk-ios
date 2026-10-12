@@ -88,12 +88,15 @@ class ApiService {
                         }
 
                         let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+                        let rawBody = "POST \(url)\nHTTP \(statusCode)\n\n" + (String(data: data, encoding: .utf8) ?? "")
 
                         // On a failed status code, surface the actual API error message.
                         if !(200...299).contains(statusCode) {
                             let apiMessage = self.parseApiErrorMessage(from: data) ?? "Order creation failed"
                             print("Order error: \(statusCode) - \(apiMessage)")
-                            completion(.failure(NSError(domain: "OrderError", code: statusCode, userInfo: [NSLocalizedDescriptionKey: apiMessage])))
+                            completion(.failure(NSError(domain: "OrderError", code: statusCode,
+                                                        userInfo: [NSLocalizedDescriptionKey: apiMessage,
+                                                                   TechnicalDetails.rawResponseKey: rawBody])))
                             return
                         }
 
@@ -101,11 +104,14 @@ class ApiService {
                             let orderResponse: OrderResponse = try JSONDecoder().decode(OrderResponse.self, from: data)
                             print("Order: applePayLink = \(orderResponse.embeddedData?.payment?[0].paymentLinks?.applePayLink ?? "nil")")
                             print("Order: cardPaymentLink = \(orderResponse.embeddedData?.payment?[0].paymentLinks?.cardPaymentLink ?? "nil")")
+                            TechnicalDetails.lastOrderResponseBody = String(data: data, encoding: .utf8)
                             completion(.success(orderResponse))
                         } catch {
                             print("Order error: \(error.localizedDescription)")
                             let apiMessage = self.parseApiErrorMessage(from: data) ?? "Failed to decode order response: \(error.localizedDescription)"
-                            completion(.failure(NSError(domain: "OrderDecodeError", code: -1, userInfo: [NSLocalizedDescriptionKey: apiMessage])))
+                            completion(.failure(NSError(domain: "OrderDecodeError", code: -1,
+                                                        userInfo: [NSLocalizedDescriptionKey: apiMessage,
+                                                                   TechnicalDetails.rawResponseKey: rawBody])))
                         }
                     }.resume()
 

@@ -33,6 +33,7 @@
 		A1C0DE5E20260922000002 /* EnvironmentTransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE5E20260922000001 /* EnvironmentTransferView.swift */; };
 		A1C0DE5E20260922000012 /* EnvironmentTileParts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE5E20260922000011 /* EnvironmentTileParts.swift */; };
 		H1A006022B00000200000001 /* PaymentOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = H1A006012B00000200000001 /* PaymentOptionsViewController.swift */; };
+		TD0000012BD902AA00986490 /* TechnicalDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = TD0000002BD902AA00986490 /* TechnicalDetails.swift */; };
 		W1Y00N012BD902AA00986490 /* WhatYouNeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W1Y00N002BD902AA00986490 /* WhatYouNeedView.swift */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +72,7 @@
 		BB759BA726500270482B263D /* Pods-Demo App.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Demo App.debug.xcconfig"; path = "Target Support Files/Pods-Demo App/Pods-Demo App.debug.xcconfig"; sourceTree = "<group>"; };
 		D9BB16541062436DDB8A6A7A /* Pods_Demo_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Demo_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		H1A006012B00000200000001 /* PaymentOptionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentOptionsViewController.swift; sourceTree = "<group>"; };
+		TD0000002BD902AA00986490 /* TechnicalDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TechnicalDetails.swift; sourceTree = "<group>"; };
 		W1Y00N002BD902AA00986490 /* WhatYouNeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatYouNeedView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -125,6 +127,7 @@
 				59FEB0062BE49E410094C943 /* EnvironmentViewModel.swift */,
 				A1B2C3D42BD901AA00986490 /* QRScannerView.swift */,
 				W1Y00N002BD902AA00986490 /* WhatYouNeedView.swift */,
+				TD0000002BD902AA00986490 /* TechnicalDetails.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -342,6 +345,7 @@
 				H1A006022B00000200000001 /* PaymentOptionsViewController.swift in Sources */,
 				A1B2C3D52BD901AA00986490 /* QRScannerView.swift in Sources */,
 				W1Y00N012BD902AA00986490 /* WhatYouNeedView.swift in Sources */,
+				TD0000012BD902AA00986490 /* TechnicalDetails.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -488,7 +492,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.29;
+				CURRENT_PROJECT_VERSION = 3.30;
 				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -523,7 +527,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Simple Integration/Simple Integration.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.29;
+				CURRENT_PROJECT_VERSION = 3.30;
 				DEVELOPMENT_TEAM = 6L462FWTU2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

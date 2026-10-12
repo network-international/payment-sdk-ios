@@ -63,6 +63,20 @@ class OrderCreationViewController: UIViewController {
 
         DispatchQueue.main.async {
             let alert = UIAlertController(title: errorTitle, message: errorMessage, preferredStyle: UIAlertController.Style.alert)
+            if let error = error {
+                // This overlay must go first: the details are presented over the store front,
+                // or closing them would land back on a spinner nothing will ever dismiss.
+                alert.addAction(UIAlertAction(title: "Technical details", style: .default) { [weak self] _ in
+                    guard let self = self else { return }
+                    let report = TechnicalDetails.report(flow: "Create order", message: errorMessage, error: error)
+                    let presenter = self.presentingViewController
+                    self.dismiss(animated: false) {
+                        if let presenter = presenter {
+                            TechnicalDetailsViewController.present(report, from: presenter)
+                        }
+                    }
+                })
+            }
             alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: { [weak self] _ in self?.dismissVC() }))
             self.present(alert, animated: true, completion: nil)
         }

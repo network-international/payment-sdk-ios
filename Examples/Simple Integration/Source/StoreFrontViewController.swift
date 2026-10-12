@@ -47,6 +47,10 @@ class StoreFrontViewController:
 
     let payButton = UIButton()
     var orderId: String?
+
+    /// What the current payment is, and why it failed, for the failure alert's "Technical details".
+    private var currentFlow = "Payment"
+    private var lastPaymentError: NIPaymentError?
     let buttonStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
@@ -313,6 +317,30 @@ class StoreFrontViewController:
         self.present(alert, animated: true, completion: nil)
     }
 
+    /// A failure alert with a "Technical details" button: the SDK's error and the gateway's full
+    /// responses for this payment.
+    func showFailureAlertWith(title: String, message: String, status: String? = nil) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
+        let flow = currentFlow
+        let orderReference = orderId
+        alert.addTechnicalDetailsAction(presenter: self) { [weak self] in
+            TechnicalDetails.report(flow: flow,
+                                    status: status,
+                                    message: message,
+                                    paymentError: self?.lastPaymentError,
+                                    orderReference: orderReference)
+        }
+        alert.addAction(UIAlertAction(title: "Ok", style: UIAlertAction.Style.default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
+    }
+
+    /// Starts a fresh record, so the details describe only the payment being launched.
+    private func beginPayment(_ flow: String) {
+        currentFlow = flow
+        lastPaymentError = nil
+        NISdk.sharedInstance.clearRecentHttpExchanges()
+    }
+
     // MARK: - CardPaymentDelegate (Step 4: Handle payment results)
 
     @objc func paymentDidComplete(with status: PaymentStatus) {
@@ -322,17 +350,17 @@ class StoreFrontViewController:
             showAlertWith(title: "Payment Successfull", message: "Your Payment was successfull.")
             getSavedCard()
         case .PaymentFailed:
-            showAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.")
+            showFailureAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.", status: status.rawVal)
         case .PaymentCancelled:
             showAlertWith(title: "Payment Aborted", message: "You cancelled the payment request. You can try again!")
         case .InValidRequest:
-            showAlertWith(title: "Error", message: "Something went wrong")
+            showFailureAlertWith(title: "Error", message: "Something went wrong", status: status.rawVal)
         case .PaymentPostAuthReview:
             showAlertWith(title: "Payment In Auth Review", message: "Payment is in review will need to be approved via portal")
         case .PartialAuthDeclined:
             showAlertWith(title: "Partial Auth Declined", message: "Customer declined partial auth")
         case .PartialAuthDeclineFailed:
-            showAlertWith(title: "Sorry, your payment has not been accepted.", message: "Due to technical error, the refund was not processed. Please contact merchant for refund.")
+            showFailureAlertWith(title: "Sorry, your payment has not been accepted.", message: "Due to technical error, the refund was not processed. Please contact merchant for refund.", status: status.rawVal)
         case .PartiallyAuthorised:
             showAlertWith(title: "Payment Partially Authorized", message: "Payment Partially Authorized")
         }
@@ -344,18 +372,24 @@ class StoreFrontViewController:
     @objc func paymentDidComplete(with status: PaymentStatus, error: NIPaymentError?) {
         guard let error = error else { return }
         print("Payment finished as \(status.rawVal) — \(error)")
+        // Called straight after the required callback, so its alert's "Technical details" — built
+        // on tap — picks this up.
+        lastPaymentError = error
 
         switch error.category {
         case .timeout:
             // Deliberately not reported as a failure: the outcome is genuinely unknown here.
-            showAlertWith(title: "Payment Status Unknown",
-                          message: "We could not confirm this payment in time. Check the order before retrying.")
+            showFailureAlertWith(title: "Payment Status Unknown",
+                                 message: "We could not confirm this payment in time. Check the order before retrying.",
+                                 status: status.rawVal)
         case .network:
-            showAlertWith(title: "Connection Problem",
-                          message: "Check your connection and try again.")
+            showFailureAlertWith(title: "Connection Problem",
+                                 message: "Check your connection and try again.",
+                                 status: status.rawVal)
         case .configuration:
-            showAlertWith(title: "Configuration Error",
-                          message: error.message ?? "This order cannot be paid with the selected method.")
+            showFailureAlertWith(title: "Configuration Error",
+                                 message: error.message ?? "This order cannot be paid with the selected method.",
+                                 status: status.rawVal)
         case .declined, .provider, .unknown:
             break // already covered by the required callback's alert
         }
@@ -501,6 +535,7 @@ class StoreFrontViewController:
         self.paymentRequest = applePayRequest
 
         applySDKColors()
+        beginPayment("Unified payment page")
 
         NISdk.sharedInstance.showCardPaymentViewWith(
             cardPaymentDelegate: self,
@@ -519,6 +554,7 @@ class StoreFrontViewController:
 
     func didSelectCardPayment(orderResponse: OrderResponse) {
         applySDKColors()
+        beginPayment("Card")
 
         // Pass a PKPaymentRequest to show Apple Pay on the unified page.
         // Pass `with: nil` (and applePayDelegate: nil) to hide Apple Pay on the page
@@ -537,6 +573,7 @@ class StoreFrontViewController:
     }
 
     func didSelectAaniPayment(orderResponse: OrderResponse) {
+        beginPayment("Aani Pay")
         NISdk.sharedInstance.launchAaniPay(
             aaniPaymentDelegate: self,
             overParent: self,
@@ -546,6 +583,7 @@ class StoreFrontViewController:
     }
 
     func didSelectClickToPay(orderResponse: OrderResponse) {
+        beginPayment("Click to Pay")
         NISdk.sharedInstance.launchClickToPay(
             clickToPayDelegate: self,
             overParent: self,
@@ -555,6 +593,7 @@ class StoreFrontViewController:
     }
 
     func didSelectApplePay(orderResponse: OrderResponse) {
+        beginPayment("Apple Pay")
         let applePayRequest = makeApplePayRequest()
         self.paymentRequest = applePayRequest
 
@@ -568,6 +607,7 @@ class StoreFrontViewController:
     }
 
     func didSelectQPay(orderResponse: OrderResponse) {
+        beginPayment("QPay")
         NISdk.sharedInstance.launchQPay(
             qpayDelegate: self,
             overParent: self,
@@ -576,6 +616,7 @@ class StoreFrontViewController:
     }
 
     func didSelectSavedCard(orderResponse: OrderResponse, savedCard: SavedCard, cvv: String?) {
+        beginPayment("Saved card")
         NISdk.sharedInstance.launchSavedCardPayment(
             cardPaymentDelegate: self,
             overParent: self,
@@ -630,6 +671,7 @@ class StoreFrontViewController:
         // BenefitPay test-wallet credentials (EAZY sandbox). amount comes from the basket when > 0.
         let amountString = total > 0 ? String(format: "%.0f", total) : "10"
         let config = BenefitInAppConfig.benefitPayTest(amount: amountString)
+        beginPayment("BenefitPay In-App")
         NISdk.sharedInstance.launchBenefitInAppPayment(
             benefitInAppDelegate: self,
             overParent: self,
@@ -647,6 +689,12 @@ class StoreFrontViewController:
         case .invalidRequest: text = "BenefitPay: INVALID REQUEST (check config / credentials)"
         }
         let alert = UIAlertController(title: "BenefitPay", message: text, preferredStyle: .alert)
+        if status == .failed || status == .invalidRequest {
+            let flow = currentFlow
+            alert.addTechnicalDetailsAction(presenter: self) {
+                TechnicalDetails.report(flow: flow, status: status == .failed ? "failed" : "invalidRequest", message: text)
+            }
+        }
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         DispatchQueue.main.async { self.presentedViewController?.dismiss(animated: true); self.present(alert, animated: true) }
     }
@@ -743,7 +791,7 @@ extension StoreFrontViewController: ClickToPayDelegate {
             showAlertWith(title: "Payment Successfull", message: "Your Payment was successfull.")
             getSavedCard()
         case .failed:
-            showAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.")
+            showFailureAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.", status: "failed")
         case .cancelled:
             showAlertWith(title: "Payment Aborted", message: "You cancelled the payment request. You can try again!")
         case .postAuthReview:
@@ -759,13 +807,13 @@ extension StoreFrontViewController: QPayPaymentDelegate {
             resetSelection()
             showAlertWith(title: "Payment Successfull", message: "Your QPay payment was successfull.")
         case .failed:
-            showAlertWith(title: "Payment Failed", message: "Your QPay payment could not be completed.")
+            showFailureAlertWith(title: "Payment Failed", message: "Your QPay payment could not be completed.", status: "failed")
         case .cancelled:
             showAlertWith(title: "Payment Aborted", message: "You cancelled the QPay payment. You can try again!")
         case .invalidRequest:
-            showAlertWith(title: "Error", message: "Invalid QPay request")
+            showFailureAlertWith(title: "Error", message: "Invalid QPay request", status: "invalidRequest")
         @unknown default:
-            showAlertWith(title: "Error", message: "Unknown QPay status")
+            showFailureAlertWith(title: "Error", message: "Unknown QPay status")
         }
     }
 }
@@ -777,11 +825,11 @@ extension StoreFrontViewController: AaniPaymentDelegate {
             resetSelection()
             showAlertWith(title: "Payment Successfull", message: "Your Payment was successfull.")
         case .failed:
-            showAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.")
+            showFailureAlertWith(title: "Payment Failed", message: "Your Payment could not be completed.", status: "failed")
         case .cancelled:
             showAlertWith(title: "Payment Aborted", message: "You cancelled the payment request. You can try again!")
         case .invalidRequest:
-            showAlertWith(title: "Error", message: "InValid Request")
+            showFailureAlertWith(title: "Error", message: "InValid Request", status: "invalidRequest")
         case .dismissedToPaymentPage:
             break
         }

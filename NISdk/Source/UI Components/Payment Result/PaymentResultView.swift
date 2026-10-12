@@ -12,7 +12,7 @@ struct PaymentResultView: View {
 
     /// The result screen is shown briefly then dismisses itself back to the merchant app —
     /// the merchant confirms/cancels the order off our result, so we must not block on a tap.
-    private let autoDismissDelay: TimeInterval = 1.0
+    private let autoDismissDelay: TimeInterval = 1.5
     @State private var didAutoDismiss = false
 
     private let successGreen = Color(red: 0.184, green: 0.749, blue: 0.443)
@@ -54,13 +54,9 @@ struct PaymentResultView: View {
                     // Title
                     if args.isSuccess {
                         if let amount = args.amount {
-                            // On a Slice plan the amount is the plan's total across the term, not
-                            // what was debited today, so "You paid" would misdescribe it.
                             AedSymbol.swiftUIText(
                                 String.localizedStringWithFormat(
-                                    (args.sliceReceipt != nil
-                                        ? "Payment Success Title Slice"
-                                        : "Payment Success Title").localized,
+                                    "Payment Success Title".localized,
                                     amount),
                                 fontSize: 22,
                                 tint: successGreenUI
@@ -94,7 +90,7 @@ struct PaymentResultView: View {
                          ? "Payment Success Subtitle".localized
                          : "Payment Failure Subtitle".localized)
                         .font(.subheadline)
-                        .foregroundColor(Color(UIColor(hexString: "#1A1A1A")))
+                        .foregroundColor(Color(UIColor(hexString: "#8F8F8F")))
                         .multilineTextAlignment(.center)
 
                     Spacer().frame(height: 32)
@@ -106,27 +102,22 @@ struct PaymentResultView: View {
                     }
 
                     // Details - centered text lines
-                    HStack(spacing: 0) {
-                        Text(args.isSuccess ? "Transaction ID Label".localized : "Reference Number Label".localized)
-                            .font(.footnote)
-                        Text(": ")
-                            .font(.footnote)
-                        Text(args.transactionId)
-                            .font(.footnote)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                    }
+                    // One text per line so a long reference wraps under its label, centred,
+                    // instead of being shrunk to fit.
+                    Text((args.isSuccess ? "Transaction ID Label" : "Reference Number Label").localized
+                         + ": " + args.transactionId)
+                        .font(.footnote)
+                        .foregroundColor(Color(UIColor(hexString: "#8F8F8F")))
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Spacer().frame(height: 8)
 
-                    HStack(spacing: 0) {
-                        Text("Date Time Label".localized)
-                            .font(.footnote)
-                        Text(": ")
-                            .font(.footnote)
-                        Text(args.dateTime)
-                            .font(.footnote)
-                    }
+                    Text("Date Time Label".localized + ": " + args.dateTime)
+                        .font(.footnote)
+                        .foregroundColor(Color(UIColor(hexString: "#8F8F8F")))
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Spacer().frame(height: 24)
 
@@ -161,7 +152,7 @@ private struct SliceSuccessSection: View {
     var body: some View {
         VStack(spacing: 16) {
             Text("slice_receipt_title".localized)
-                .font(.system(size: lgSize, weight: .medium))
+                .font(.system(size: lgSize, weight: .semibold))
                 .foregroundColor(textColor)
                 .multilineTextAlignment(.center)
                 .accessibilityIdentifier("sdk_result_slice_title")
@@ -169,13 +160,17 @@ private struct SliceSuccessSection: View {
             if let logoImage = UIImage(named: "sliceLogo",
                                        in: NISdk.sharedInstance.getBundle(),
                                        compatibleWith: nil) {
+                // The asset is a square with the wordmark across its middle; filling a frame
+                // of the wordmark's own proportions trims the padding without touching the
+                // shared asset.
                 Image(uiImage: logoImage)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 170, height: 70)
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 120, height: 52)
+                    .clipped()
             }
 
-            VStack(spacing: 12) {
+            VStack(spacing: 20) {
                 row(label: "slice_receipt_tenor".localized,
                     value: SliceCopy.months("slice_receipt_tenor_months", period: receipt.period))
                 row(label: SliceCopy.rateLabel(isIslamic: receipt.isIslamic), value: receipt.rate)
@@ -185,24 +180,31 @@ private struct SliceSuccessSection: View {
                 if let installmentFees = receipt.installmentFees {
                     row(label: "slice_installment_fees".localized, value: installmentFees)
                 }
-                row(label: "slice_receipt_installment_amount".localized, value: receipt.installmentAmount)
+                // The figure the payer will actually see each month, so it carries the most weight.
+                row(label: "slice_receipt_installment_amount".localized,
+                    value: receipt.installmentAmount,
+                    valueSize: 20,
+                    valueWeight: .bold)
             }
             .padding(.top, 8)
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 16)
         .accessibilityIdentifier("sdk_result_slice_receipt")
     }
 
     @ViewBuilder
-    private func row(label: String, value: String) -> some View {
+    private func row(label: String,
+                     value: String,
+                     valueSize: CGFloat? = nil,
+                     valueWeight: Font.Weight = .medium) -> some View {
         HStack {
             Text(label)
                 .font(.system(size: lgSize, weight: .regular))
                 .tracking(labelTracking)
                 .foregroundColor(textColor)
             Spacer()
-            AedSymbol.swiftUIText(value, fontSize: lgSize)
-                .font(.system(size: lgSize, weight: .medium))
+            AedSymbol.swiftUIText(value, fontSize: valueSize ?? lgSize)
+                .font(.system(size: valueSize ?? lgSize, weight: valueWeight))
                 .foregroundColor(textColor)
         }
     }

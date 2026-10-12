@@ -90,8 +90,72 @@ public class HTTPClient {
             } else {
                 NILogger.shared.logResponse(response, data: data, elapsed: elapsed)
             }
+            NIHttpExchangeLog.record(request: urlRequest, response: response, data: data, error: error)
             completionHandler(data, response, error)
         }
         task.resume()
+    }
+}
+
+/// One HTTP call the SDK made, kept so an app can show what the gateway actually answered when a
+/// payment fails — `PaymentStatus.PaymentFailed` alone hides a 422's `errors[0].errorCode`.
+///
+/// Request bodies are deliberately not kept: they carry card numbers, CVVs and wallet tokens.
+/// Response bodies are kept as received, so an app that shows or shares them must redact.
+@objc public final class NIHttpExchange: NSObject {
+    @objc public let date: Date
+    @objc public let method: String
+    @objc public let url: String
+    /// 0 when no response arrived.
+    @objc public let statusCode: Int
+    @objc public let responseBody: String?
+    @objc public let errorDescription: String?
+
+    init(date: Date, method: String, url: String, statusCode: Int,
+         responseBody: String?, errorDescription: String?) {
+        self.date = date
+        self.method = method
+        self.url = url
+        self.statusCode = statusCode
+        self.responseBody = responseBody
+        self.errorDescription = errorDescription
+    }
+}
+
+/// The last few exchanges, newest last. Bounded so a long session cannot grow it without limit.
+enum NIHttpExchangeLog {
+    private static let lock = NSLock()
+    private static var entries: [NIHttpExchange] = []
+    private static let capacity = 20
+    private static let maxBodyLength = 256 * 1024
+
+    static func record(request: URLRequest, response: URLResponse?, data: Data?, error: Error?) {
+        var body = data.flatMap { String(data: $0, encoding: .utf8) }
+        if let text = body, text.count > maxBodyLength {
+            body = String(text.prefix(maxBodyLength)) + "\n…[truncated]"
+        }
+        let exchange = NIHttpExchange(
+            date: Date(),
+            method: request.httpMethod ?? "GET",
+            url: request.url?.absoluteString ?? "",
+            statusCode: (response as? HTTPURLResponse)?.statusCode ?? 0,
+            responseBody: body,
+            errorDescription: error?.localizedDescription)
+        lock.lock()
+        entries.append(exchange)
+        if entries.count > capacity { entries.removeFirst(entries.count - capacity) }
+        lock.unlock()
+    }
+
+    static var all: [NIHttpExchange] {
+        lock.lock()
+        defer { lock.unlock() }
+        return entries
+    }
+
+    static func clear() {
+        lock.lock()
+        entries.removeAll()
+        lock.unlock()
     }
 }

@@ -63,6 +63,13 @@ private class NISdkBundleLocator {}
 
     public var version: String = "7.0.0"
 
+    /// The SDK's most recent HTTP calls and the gateway's responses, newest last — for showing
+    /// "technical details" when a payment fails. Response bodies are unredacted.
+    @objc public var recentHttpExchanges: [NIHttpExchange] { NIHttpExchangeLog.all }
+
+    /// Forget `recentHttpExchanges`, e.g. before starting a payment so they describe only that one.
+    @objc public func clearRecentHttpExchanges() { NIHttpExchangeLog.clear() }
+
     /// How this SDK is being consumed, sent as X-NI-Platform on every request. Native
     /// integrations leave it alone; the React Native bridge and the Flutter plugin set it
     /// during initialisation, since the native SDK underneath them is the same binary.

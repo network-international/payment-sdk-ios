@@ -118,14 +118,13 @@
 
 /* Payment Result Screen */
 "Payment Success Title" = "لقد دفعت %@";
-"Payment Success Title Slice" = "إجمالي المبلغ المستحق %@";
 "Payment Success Title No Amount" = "تمت عملية الدفع بنجاح";
 "Payment Failure Title" = "حدث خطأ ما";
 "Payment Success Subtitle" = "شكراً لك! تم استلام دفعتك.";
 "Payment Failure Subtitle" = "يرجى المحاولة مرة أخرى لاحقاً.";
 "Transaction ID Label" = "رقم المرجع";
-"Reference Number Label" = "الرقم المرجعي";
-"Date Time Label" = "تاريخ المعاملة";
+"Reference Number Label" = "رقم المرجع";
+"Date Time Label" = "التاريخ والوقت";
 "Done" = "تم";
 "Add card manually" = "إضافة بطاقة يدوياً";
 "Select Payment Option Validation" = "يرجى اختيار خيار الدفع للمتابعة";
@@ -134,8 +133,7 @@
 /* Slice instalments. "Slice" is a brand name and stays in English in every locale.
    Month counts are plurals and live in Localizable.stringsdict. */
 "slice_checking_eligibility" = "جارٍ التحقق من الأهلية لـ Slice...";
-"slice_banner_title" = "أقساط بدون رسوم وبدون فوائد.";
-"slice_banner_subtitle" = "قسّم مشترياتك على أقساط ميسّرة";
+"slice_banner_title" = "أقساط بدون فوائد";
 "slice_pay_in_full" = "الدفع بالكامل";
 "slice_per_month" = "شهريًا";
 "slice_badge_zero_interest" = "بدون فوائد";

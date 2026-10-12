@@ -25,6 +25,12 @@ extension SliceOffer {
               let value = Double(commission), value > 0 else { return nil }
         return value
     }
+
+    /// True when the plan costs nothing beyond the order: a zero processing fee and no
+    /// Installment Fee — the condition for the "Zero fees" tag.
+    var isFeeFree: Bool {
+        Double(fee) == 0 && installmentFeeAmount == nil
+    }
 }
 
 struct SliceEligibilityResponse: Codable {

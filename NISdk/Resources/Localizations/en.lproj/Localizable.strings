@@ -119,14 +119,13 @@
 
 /* Payment Result Screen */
 "Payment Success Title" = "You paid %@";
-"Payment Success Title Slice" = "Total payable %@";
 "Payment Success Title No Amount" = "Payment Successful";
 "Payment Failure Title" = "Something Went Wrong";
 "Payment Success Subtitle" = "Thank you! your payment has been received.";
 "Payment Failure Subtitle" = "Please try again later.";
-"Transaction ID Label" = "Reference number";
-"Reference Number Label" = "Reference Number";
-"Date Time Label" = "Transaction Date";
+"Transaction ID Label" = "Ref Number";
+"Reference Number Label" = "Ref Number";
+"Date Time Label" = "Date & Time";
 "Done" = "Done";
 "Add card manually" = "Add card manually";
 "Select Payment Option Validation" = "Please select a payment option to proceed";
@@ -135,8 +134,7 @@
 /* Slice instalments. "Slice" is a brand name and stays in English in every locale.
    Month counts are plurals and live in Localizable.stringsdict. */
 "slice_checking_eligibility" = "Checking Slice eligibility...";
-"slice_banner_title" = "Zero fees, Zero interest installments.";
-"slice_banner_subtitle" = "Split your purchases into easy installments";
+"slice_banner_title" = "Interest Free Installments";
 "slice_pay_in_full" = "Pay in Full";
 "slice_per_month" = "Per Month";
 "slice_badge_zero_interest" = "Zero interest";

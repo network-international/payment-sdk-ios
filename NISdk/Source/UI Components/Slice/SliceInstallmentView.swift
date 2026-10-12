@@ -71,7 +71,7 @@ struct SliceInstallmentView: View {
         let installmentAmt = formatAmount(offer.installmentAmount.value, offer.installmentAmount.currencyCode)
         let totalAmt = formatAmount(offer.totalAmount.value, offer.totalAmount.currencyCode)
         let isZeroInterest = offer.rate == "0" || offer.rate == "0.0" || offer.rate == "0.00"
-        let isZeroFee = offer.fee == "0" || offer.fee == "0.0" || offer.fee == "0.00"
+        let isZeroFee = offer.isFeeFree
         let feeDisplay: String = offer.feeType == "P"
             ? "\(offer.fee)%"
             : formatAmount(Int((Double(offer.fee) ?? 0) * 100), offer.installmentAmount.currencyCode)
@@ -436,7 +436,7 @@ final class SliceInstallmentUIView: UIView {
         amountCaptionLabel.text = "slice_per_month".localized
         amountCaptionLabel.isHidden = false
         let isZeroInterest = ["0", "0.0", "0.00"].contains(offer.rate)
-        let isZeroFee = ["0", "0.0", "0.00"].contains(offer.fee)
+        let isZeroFee = offer.isFeeFree
         zeroInterestBadge.isHidden = !isZeroInterest
         zeroFeesBadge.isHidden = !isZeroFee
         rateValueLabel.text = plan.rate
@@ -545,46 +545,29 @@ final class SliceBannerUIView: UIView {
 
         let sdkBundle = NISdk.sharedInstance.getBundle()
 
+        // The asset is a square with the wordmark across its middle; filling a frame of the
+        // wordmark's own proportions trims the padding without touching the shared asset.
         let sliceLogo = UIImageView(image: UIImage(named: "sliceLogo", in: sdkBundle, compatibleWith: nil))
-        sliceLogo.contentMode = .scaleAspectFit
+        sliceLogo.contentMode = .scaleAspectFill
+        sliceLogo.clipsToBounds = true
         sliceLogo.translatesAutoresizingMaskIntoConstraints = false
         sliceLogo.setContentHuggingPriority(.required, for: .horizontal)
         sliceLogo.setContentCompressionResistancePriority(.required, for: .horizontal)
-
-        let topRow = UIStackView(arrangedSubviews: [sliceLogo])
-        topRow.axis = .horizontal
-        topRow.alignment = .center
-        topRow.translatesAutoresizingMaskIntoConstraints = false
-
-        let spacer = UIView()
-        spacer.translatesAutoresizingMaskIntoConstraints = false
-        topRow.addArrangedSubview(spacer)
-
-        let logoAspect: CGFloat = {
-            guard let s = sliceLogo.image?.size, s.height > 0 else { return 2.5 }
-            return s.width / s.height
-        }()
         NSLayoutConstraint.activate([
-            sliceLogo.heightAnchor.constraint(equalToConstant: 48),
-            sliceLogo.widthAnchor.constraint(equalTo: sliceLogo.heightAnchor, multiplier: logoAspect),
+            sliceLogo.widthAnchor.constraint(equalToConstant: 64),
+            sliceLogo.heightAnchor.constraint(equalToConstant: 28),
         ])
 
         let titleLabel = UILabel()
         titleLabel.text = "slice_banner_title".localized
-        titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        titleLabel.font = .systemFont(ofSize: 16, weight: .regular)
         titleLabel.textColor = PgColors.textPrimary
         titleLabel.numberOfLines = 2
 
-        let subtitleLabel = UILabel()
-        subtitleLabel.text = "slice_banner_subtitle".localized
-        subtitleLabel.font = PgType.bodyRowSubtitle
-        subtitleLabel.textColor = PgColors.textSecondary
-        subtitleLabel.numberOfLines = 2
-
-        let mainStack = UIStackView(arrangedSubviews: [topRow, titleLabel, subtitleLabel])
-        mainStack.axis = .vertical
-        mainStack.spacing = 10
-        mainStack.setCustomSpacing(4, after: titleLabel)
+        let mainStack = UIStackView(arrangedSubviews: [sliceLogo, titleLabel])
+        mainStack.axis = .horizontal
+        mainStack.alignment = .center
+        mainStack.spacing = 14
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(mainStack)
         // The bottom is a required `<=` plus a low-priority `=`. This pins content tight to
