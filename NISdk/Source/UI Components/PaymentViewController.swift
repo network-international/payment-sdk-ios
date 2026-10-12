@@ -38,8 +38,24 @@ class PaymentViewController: UIViewController {
     var orderItems: [OrderItem] = []
     var savedCards: [SavedCard] = []
     private var lastPaymentResponse: PaymentResponse?
+    /// The Slice plan the payer actually paid with, captured when the payment is dispatched.
+    ///
+    /// It cannot be read off the unified page at result time: `transition(to:)` removes the page
+    /// as a child view controller, and every reference to it here is weak, so it deallocates the
+    /// moment the flow moves on — which for a 3DS payment happens long before the result screen
+    /// is built. Capturing at dispatch is also what the Android SDK does.
+    private var lastSliceOffer: SliceOffer?
+    private var lastSliceIsIslamic: Bool = false
     /// Cause of the pending non-successful result, reported alongside it to the merchant.
     private var paymentError: NIPaymentError?
+    /// Set once a terminal result has begun closing out the payment, so a second one cannot
+    /// push another result screen or dismiss twice. Main queue only.
+    private var hasFinishedPayment = false
+    /// Set once the merchant has been told the outcome. `paymentDidComplete` is a one-shot
+    /// contract, but several independent paths reach it — the Apple Pay sheet's two
+    /// dismissal callbacks, a partial-auth failure, the deferred result screen — so the
+    /// first result wins and any later one is dropped. Main queue only.
+    private var hasReportedPaymentResult = false
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -267,7 +283,7 @@ class PaymentViewController: UIViewController {
             unifiedPaymentPage.savedCards = Array(cards.suffix(3))
             unifiedPaymentPage.orderItems = orderItems
             unifiedPaymentPage.allowedCardProviders = order.paymentMethods?.card
-            unifiedPaymentPage.onMakeSavedCardPayment = { [weak self] card, cvv, visaRequest in
+            unifiedPaymentPage.onMakeSavedCardPayment = { [weak self] card, cvv, visaRequest, sliceRequest in
                 guard let self = self else { return }
                 let savedCardRequest = SavedCardRequest(
                     expiry: card.expiry,
@@ -276,6 +292,7 @@ class PaymentViewController: UIViewController {
                     cvv: cvv
                 )
                 savedCardRequest.visaRequest = visaRequest
+                savedCardRequest.sliceRequest = sliceRequest
                 self.makeSavedCardPayment(savedCardRequest)
             }
             self.unifiedPage = unifiedPaymentPage
@@ -455,6 +472,14 @@ class PaymentViewController: UIViewController {
                 transactionService: transactionService,
                 accessToken: token
             ) { [weak self] status in
+                // Anything that leaves the order payable hands the payer back to the payment page
+                // with their other methods intact, rather than ending the payment on their behalf.
+                guard !status.returnsToPaymentPage else {
+                    if case .couldNotStart(let error) = status {
+                        print("Benefit: could not start (\(error.message)) — returning to the payment page")
+                    }
+                    return
+                }
                 switch status {
                 case .success:
                     self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
@@ -463,20 +488,15 @@ class PaymentViewController: UIViewController {
                 case .failed(let error):
                     // A configuration problem is the integration's to fix, not a payment the payer
                     // could have completed, so it is reported as an invalid request rather than as
-                    // a declined payment.
+                    // a declined payment. An expired session arrives here too.
                     let status: PaymentStatus = error.category == .configuration
                         ? .InValidRequest
                         : .PaymentFailed
                     self?.finishPaymentAndClosePaymentViewController(with: status, and: nil, and: nil,
                                                                      error: error)
-                case .dismissed:
-                    // Backed out before Benefit recorded anything — the order is untouched, so the
-                    // payer stays on the payment page with their other options intact.
-                    break
-                case .cancelledOnProvider:
-                    // Cancelling on Benefit's own page is the payer changing their mind, not a
-                    // payment outcome, so it hands them back to the payment page with their other
-                    // options intact rather than ending the payment on their behalf.
+                case .dismissed, .cancelledOnProvider, .couldNotStart:
+                    // Handled by the guard above: the order is still payable, so the payer keeps
+                    // the payment page and the methods they have not tried yet.
                     break
                 }
             }
@@ -519,7 +539,7 @@ class PaymentViewController: UIViewController {
                 case .failed(let error):
                     // A configuration problem is the integration's to fix, not a payment the payer
                     // could have completed, so it is reported as an invalid request rather than as
-                    // a declined payment.
+                    // a declined payment. An expired session arrives here too.
                     let status: PaymentStatus = error.category == .configuration
                         ? .InValidRequest
                         : .PaymentFailed
@@ -636,7 +656,11 @@ class PaymentViewController: UIViewController {
                             completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                         }
                     } else {
-                        print("ApplePay: postApplePayResponse returned NO data")
+                        // No body at all — a transport error, or postApplePayResponse bailing
+                        // out early. Leaving the handler uncalled spins the Apple Pay sheet
+                        // forever with no way out, so always complete it.
+                        print("ApplePay: postApplePayResponse returned NO data - failing the sheet")
+                        completion(PKPaymentAuthorizationResult(status: .failure, errors: nil), nil)
                     }
                 })
             } else {
@@ -647,6 +671,9 @@ class PaymentViewController: UIViewController {
     }
     
     lazy private var makePayment = { (paymentRequest: PaymentRequest) in
+        // The page is still alive here; by result time it is not. See `lastSliceOffer`.
+        self.lastSliceOffer = self.unifiedPage?.paidSliceOffer
+        self.lastSliceIsIslamic = self.unifiedPage?.paidSliceIsIslamic ?? false
         // 3. Make Payment
         self.getPayerIp() { (payerIp) -> () in
             paymentRequest.payerIp = payerIp
@@ -706,6 +733,9 @@ class PaymentViewController: UIViewController {
     }
     
     lazy private var makeSavedCardPayment = { (savedCardRequest: SavedCardRequest) in
+        // Same reason as `makePayment` — capture while the page still exists.
+        self.lastSliceOffer = self.unifiedPage?.paidSliceOffer
+        self.lastSliceIsIslamic = self.unifiedPage?.paidSliceIsIslamic ?? false
         // 3. Make Payment
         self.getPayerIp() { (payerIp) -> () in
             savedCardRequest.payerIp = payerIp
@@ -975,6 +1005,14 @@ class PaymentViewController: UIViewController {
     /// optional one carries the cause when there is one, so integrations that never adopt it keep
     /// working exactly as before.
     private func reportPaymentDidComplete(_ paymentStatus: PaymentStatus) {
+        // Every exit path funnels through here, so this is the one place that can promise
+        // the merchant a single terminal callback. A second result would contradict the
+        // first and, on the React Native bridge, invoke an already-consumed callback.
+        guard !hasReportedPaymentResult else {
+            print("ApplePay/Payment: Ignoring duplicate payment completion: \(paymentStatus) - a result was already reported")
+            return
+        }
+        hasReportedPaymentResult = true
         let error = paymentStatus == .PaymentSuccess ? nil : paymentError
         cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
         cardPaymentDelegate?.paymentDidComplete?(with: paymentStatus, error: error)
@@ -989,6 +1027,14 @@ class PaymentViewController: UIViewController {
         self.paymentError = error
         print("ApplePay/Payment: finishPaymentAndClosePaymentViewController - paymentStatus: \(paymentStatus), threeDSStatus: \(String(describing: threeDSStatus)), authStatus: \(String(describing: authStatus)), error: \(error?.description ?? "none")")
         DispatchQueue.main.async { // Use the main thread to update any UI
+            // A terminal result is already closing out this payment attempt. Running the
+            // flow again would show a second result screen and dismiss twice.
+            guard !self.hasFinishedPayment else {
+                print("ApplePay/Payment: Ignoring duplicate terminal result: \(paymentStatus)")
+                return
+            }
+            self.hasFinishedPayment = true
+
             if let threeDSStatus = threeDSStatus {
                 self.cardPaymentDelegate?.threeDSChallengeDidComplete?(with: threeDSStatus)
             }
@@ -1019,12 +1065,27 @@ class PaymentViewController: UIViewController {
                                           threeDSStatus: ThreeDSStatus?,
                                           authStatus: AuthorizationStatus?) {
         let isSuccess = paymentStatus == .PaymentSuccess
-        let formattedAmount = self.order.amount?.getFormattedAmount()
+        // On a Slice plan the payer commits to the plan's total, not the order total — the
+        // instalments plus whatever the issuer charges on top. Showing the order amount here
+        // would understate what they actually signed up for. Built through `Amount` so the
+        // per-currency minor unit is honoured rather than assuming two decimals.
+        let formattedAmount: String? = {
+            if isSuccess, let offer = lastSliceOffer {
+                return Amount(currencyCode: offer.totalAmount.currencyCode,
+                              value: Double(offer.totalAmount.value)).getFormattedAmount()
+            }
+            return self.order.amount?.getFormattedAmount()
+        }()
         let transactionId = self.lastPaymentResponse?.orderReference ?? self.order.reference ?? ""
         let dateFormatter = DateFormatter()
         dateFormatter.locale = Locale(identifier: NISdk.sharedInstance.sdkLanguage)
         dateFormatter.dateFormat = "dd MMM yyyy, hh:mm a"
         let dateTime = dateFormatter.string(from: Date())
+
+        let sliceReceipt: SliceReceipt? = {
+            guard isSuccess, let offer = lastSliceOffer else { return nil }
+            return SliceReceipt.from(offer: offer, isIslamic: lastSliceIsIslamic)
+        }()
 
         let args = PaymentResultArgs(
             isSuccess: isSuccess,
@@ -1032,7 +1093,8 @@ class PaymentViewController: UIViewController {
             transactionId: transactionId,
             dateTime: dateTime,
             cardProviders: self.order.paymentMethods?.card ?? [],
-            orderItems: self.orderItems
+            orderItems: self.orderItems,
+            sliceReceipt: sliceReceipt
         )
 
         let resultVC = PaymentResultViewController(args: args, onDone: { [weak self] in

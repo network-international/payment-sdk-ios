@@ -15,6 +15,7 @@
 		21703F9A9AC267D96517F86D /* VisaInstallmentInlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDD4A657B193B52F836890FC /* VisaInstallmentInlineView.swift */; };
 		2374DE223655CE612EBA3EFE /* CardPaymentSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98FAA607BE80528F25965B76 /* CardPaymentSectionView.swift */; };
 		2748FAE7BA9103FFB76277BA /* OrderHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E97C34A7E4B6122B2C8AEF /* OrderHeaderView.swift */; };
+		28F0FF4133D98AD0856B8A6D /* BenefitInAppPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9BEF36C6F6962B7D268809B /* BenefitInAppPaymentDelegate.swift */; };
 		29F7B8F82F39DF080037C2EF /* ctp_cards_loader.gif in Resources */ = {isa = PBXBuildFile; fileRef = 29F7B8F72F39DF080037C2EF /* ctp_cards_loader.gif */; };
 		306587362FA1210931B5D73E /* TransactionServiceAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4646030CFB459B3EC04F66E4 /* TransactionServiceAdapterTests.swift */; };
 		3C3BE713139D9710FF6DA885 /* PaymentFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADB8B3074140ACC5BF138C4C /* PaymentFieldTests.swift */; };
@@ -70,6 +71,7 @@
 		862CBE75230DD19F00767774 /* ExpiryDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE74230DD19F00767774 /* ExpiryDate.swift */; };
 		862CBE77230DD1BB00767774 /* CardHolderName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE76230DD1BB00767774 /* CardHolderName.swift */; };
 		862CBE79230E6D6D00767774 /* UITextField+CharLimit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE78230E6D6D00767774 /* UITextField+CharLimit.swift */; };
+		C2E277A24E304CF08045DEA6 /* UIView+KeyboardDismissal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD14F007557468F97937D43 /* UIView+KeyboardDismissal.swift */; };
 		862CBE7B230E85D500767774 /* String+Insert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE7A230E85D500767774 /* String+Insert.swift */; };
 		862CBE7D230E8C3B00767774 /* String+Luhn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 862CBE7C230E8C3B00767774 /* String+Luhn.swift */; };
 		863FC9B227F436D700692767 /* ThreeDSTwoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */; };
@@ -130,15 +132,14 @@
 		AA0000010000000000001C /* ClickToPayEmailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000001C /* ClickToPayEmailViewController.swift */; };
 		AA0000010000000000001D /* Local+iso639.2.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020000000000001D /* Local+iso639.2.swift */; };
 		AA00000100000000000100 /* AaniQrDisplayScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000200000000000100 /* AaniQrDisplayScreen.swift */; };
+		ABFF9FCDEEECEDE4A8BA4AC9 /* BenefitInAppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FA5ECF581500F79FD6E19F6 /* BenefitInAppConfig.swift */; };
+		AED7E2CC0760FC050CA365D4 /* BenefitInAppViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A7ED630E7C8F8F092BB5E9 /* BenefitInAppViewController.swift */; };
 		B647C4E89D0B8AB226F5AD4E /* QPayInitResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B005410B2DD71E47C46E76F /* QPayInitResponse.swift */; };
 		BB07C5912408F36B93D4986B /* UtilityExtensionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30F66702969FDDDA37410800 /* UtilityExtensionTests.swift */; };
 		BNF0090000000000000009 /* BenefitInitResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BNF0020000000000000002 /* BenefitInitResponse.swift */; };
 		BNF00A000000000000000A /* BenefitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BNF0030000000000000003 /* BenefitViewController.swift */; };
-		TMR0030000000000000003 /* BnplInitResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR0010000000000000001 /* BnplInitResponse.swift */; };
-		TMR0040000000000000004 /* BnplViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR0020000000000000002 /* BnplViewController.swift */; };
-		TMR0070000000000000007 /* BnplProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR0080000000000000008 /* BnplProvider.swift */; };
-		TMR0090000000000000009 /* BnplInitArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR00A000000000000000A /* BnplInitArgs.swift */; };
 		C08AE63D291C17A14F3E6261 /* PgTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0966E6A5D0454F1F0FDF6692 /* PgTokens.swift */; };
+		C2115467E09FE262E047E912 /* BenefitInAppSDK.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A556E2070A7E31A44ABA6BCD /* BenefitInAppSDK.xcframework */; };
 		C2P0080000000000000008 /* ClickToPayConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0010000000000000001 /* ClickToPayConfig.swift */; };
 		C2P0090000000000000009 /* ClickToPayResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P0020000000000000002 /* ClickToPayResponse.swift */; };
 		C2P00B000000000000000B /* ClickToPayMerchantConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2P00A000000000000000A /* ClickToPayMerchantConfigService.swift */; };
@@ -150,15 +151,22 @@
 		C496B4783CB25B136528683B /* StubURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C495C707188D74FB0292E0E0 /* StubURLProtocol.swift */; };
 		C9379302E17A51891E2E79CE /* TestFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95A429D080BC18A372BE6CAA /* TestFixtures.swift */; };
 		CFE038A50C8A4131D3C2461E /* PaymentResultArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90D9FBE01D2ADFF8469239DA /* PaymentResultArgs.swift */; };
+		CFE78F237400F2F830CE846B /* TermsAgreementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207E2AA71E2D7924FEA8345C /* TermsAgreementTests.swift */; };
+		1EC6E583DFDA4FE5B16FA87A /* KeyboardDismissalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500AB8A03CE44CE3BB7A9BF1 /* KeyboardDismissalTests.swift */; };
 		D1799172A4EDFB02974CD1E0 /* QPayInitArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991DC1E246EF97F7075228C3 /* QPayInitArgs.swift */; };
 		D53FAEBC09AE304D2148C8F9 /* SliceInstallmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A24A10481D4B8443CEE4DF6 /* SliceInstallmentView.swift */; };
 		D93D6B252E2FD2E23D685FE5 /* UnifiedPaymentPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16326CA2C306DAF6850B4BEB /* UnifiedPaymentPageViewController.swift */; };
 		DF4BA060F53CE5A485E6408F /* PaymentSectionSeparatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AA92926603DA86F724B32A /* PaymentSectionSeparatorView.swift */; };
 		F6BB24E212324D6D87FD04F1 /* OrderResponseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3ED15594AA9DE2E7B0F815D /* OrderResponseTests.swift */; };
+		F9E8390A61594422CE51FD82 /* BenefitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03BF07C4F902E12AE3622B62 /* BenefitTests.swift */; };
 		FCC0AC2641BAD729FB4948ED /* QPayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F58BF7366F80F2255DDD23B3 /* QPayViewController.swift */; };
 		MD0000000000000000000001 /* MerchantDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = MD0000000000000000000002 /* MerchantDetails.swift */; };
 		NIE0000000000000000001A /* NIPaymentError.swift in Sources */ = {isa = PBXBuildFile; fileRef = NIE0000000000000000001B /* NIPaymentError.swift */; };
 		NILOG002000000000000002 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = NILOG001000000000000001 /* Logger.swift */; };
+		TMR0030000000000000003 /* BnplInitResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR0010000000000000001 /* BnplInitResponse.swift */; };
+		TMR0040000000000000004 /* BnplViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR0020000000000000002 /* BnplViewController.swift */; };
+		TMR0070000000000000007 /* BnplProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR0080000000000000008 /* BnplProvider.swift */; };
+		TMR0090000000000000009 /* BnplInitArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = TMR00A000000000000000A /* BnplInitArgs.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -184,10 +192,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		03BF07C4F902E12AE3622B62 /* BenefitTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenefitTests.swift; sourceTree = "<group>"; };
 		0966E6A5D0454F1F0FDF6692 /* PgTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PgTokens.swift; sourceTree = "<group>"; };
 		0B005410B2DD71E47C46E76F /* QPayInitResponse.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = QPayInitResponse.swift; sourceTree = "<group>"; };
 		14A1FB6C2985ADF85C0C9F15 /* QPayPaymentDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = QPayPaymentDelegate.swift; sourceTree = "<group>"; };
 		16326CA2C306DAF6850B4BEB /* UnifiedPaymentPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedPaymentPageViewController.swift; sourceTree = "<group>"; };
+		207E2AA71E2D7924FEA8345C /* TermsAgreementTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TermsAgreementTests.swift; sourceTree = "<group>"; };
+		500AB8A03CE44CE3BB7A9BF1 /* KeyboardDismissalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDismissalTests.swift; sourceTree = "<group>"; };
 		29F7B8F72F39DF080037C2EF /* ctp_cards_loader.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = ctp_cards_loader.gif; sourceTree = "<group>"; };
 		2A1F9B81ADD0CDCC203FAEE6 /* PaymentOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentOption.swift; sourceTree = "<group>"; };
 		300BF8AE1BAD74B6D853404C /* RadioButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioButtonView.swift; sourceTree = "<group>"; };
@@ -245,6 +256,7 @@
 		862CBE74230DD19F00767774 /* ExpiryDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryDate.swift; sourceTree = "<group>"; };
 		862CBE76230DD1BB00767774 /* CardHolderName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardHolderName.swift; sourceTree = "<group>"; };
 		862CBE78230E6D6D00767774 /* UITextField+CharLimit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextField+CharLimit.swift"; sourceTree = "<group>"; };
+		8CD14F007557468F97937D43 /* UIView+KeyboardDismissal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+KeyboardDismissal.swift"; sourceTree = "<group>"; };
 		862CBE7A230E85D500767774 /* String+Insert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Insert.swift"; sourceTree = "<group>"; };
 		862CBE7C230E8C3B00767774 /* String+Luhn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Luhn.swift"; sourceTree = "<group>"; };
 		863FC9B127F436D700692767 /* ThreeDSTwoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeDSTwoConfig.swift; sourceTree = "<group>"; };
@@ -274,12 +286,14 @@
 		86ECAFDB232238CA008FDDDC /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
 		86ECAFDE23223E92008FDDDC /* String+Localized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Localized.swift"; sourceTree = "<group>"; };
 		86ECAFE223225949008FDDDC /* UIView+InterfaceLayoutDirection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+InterfaceLayoutDirection.swift"; sourceTree = "<group>"; };
+		8FA5ECF581500F79FD6E19F6 /* BenefitInAppConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BenefitInAppConfig.swift; path = Domain/BenefitInApp/BenefitInAppConfig.swift; sourceTree = "<group>"; };
 		90D9FBE01D2ADFF8469239DA /* PaymentResultArgs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentResultArgs.swift; sourceTree = "<group>"; };
 		92AA92926603DA86F724B32A /* PaymentSectionSeparatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentSectionSeparatorView.swift; sourceTree = "<group>"; };
 		95A429D080BC18A372BE6CAA /* TestFixtures.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestFixtures.swift; sourceTree = "<group>"; };
 		98FAA607BE80528F25965B76 /* CardPaymentSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentSectionView.swift; sourceTree = "<group>"; };
 		991DC1E246EF97F7075228C3 /* QPayInitArgs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = QPayInitArgs.swift; sourceTree = "<group>"; };
 		9A24A10481D4B8443CEE4DF6 /* SliceInstallmentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SliceInstallmentView.swift; sourceTree = "<group>"; };
+		A556E2070A7E31A44ABA6BCD /* BenefitInAppSDK.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = BenefitInAppSDK.xcframework; path = NISdk/Frameworks/BenefitInAppSDK.xcframework; sourceTree = "<group>"; };
 		AA00000200000000000001 /* AaniPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPaymentDelegate.swift; sourceTree = "<group>"; };
 		AA00000200000000000002 /* AaniPayRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPayRequest.swift; sourceTree = "<group>"; };
 		AA00000200000000000003 /* AaniPayArgs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AaniPayArgs.swift; sourceTree = "<group>"; };
@@ -314,10 +328,7 @@
 		BE878C1D4B00255BE2CD6662 /* DomainModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DomainModelTests.swift; sourceTree = "<group>"; };
 		BNF0020000000000000002 /* BenefitInitResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenefitInitResponse.swift; sourceTree = "<group>"; };
 		BNF0030000000000000003 /* BenefitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenefitViewController.swift; sourceTree = "<group>"; };
-		TMR0010000000000000001 /* BnplInitResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplInitResponse.swift; sourceTree = "<group>"; };
-		TMR0020000000000000002 /* BnplViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplViewController.swift; sourceTree = "<group>"; };
-		TMR0080000000000000008 /* BnplProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplProvider.swift; sourceTree = "<group>"; };
-		TMR00A000000000000000A /* BnplInitArgs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplInitArgs.swift; sourceTree = "<group>"; };
+		C0A7ED630E7C8F8F092BB5E9 /* BenefitInAppViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BenefitInAppViewController.swift; path = "UI Components/BenefitInApp/BenefitInAppViewController.swift"; sourceTree = "<group>"; };
 		C2P0010000000000000001 /* ClickToPayConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayConfig.swift; sourceTree = "<group>"; };
 		C2P0020000000000000002 /* ClickToPayResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayResponse.swift; sourceTree = "<group>"; };
 		C2P0030000000000000003 /* ClickToPayArgs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClickToPayArgs.swift; sourceTree = "<group>"; };
@@ -335,11 +346,16 @@
 		F1440BECF782C2473F906EA3 /* StringExtensionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StringExtensionTests.swift; sourceTree = "<group>"; };
 		F58BF7366F80F2255DDD23B3 /* QPayViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = QPayViewController.swift; sourceTree = "<group>"; };
 		F5E97C34A7E4B6122B2C8AEF /* OrderHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderHeaderView.swift; sourceTree = "<group>"; };
+		F9BEF36C6F6962B7D268809B /* BenefitInAppPaymentDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BenefitInAppPaymentDelegate.swift; sourceTree = "<group>"; };
 		FC0EAC8D3900441BD20B5CD3 /* OrderItem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OrderItem.swift; sourceTree = "<group>"; };
 		FDD4A657B193B52F836890FC /* VisaInstallmentInlineView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VisaInstallmentInlineView.swift; sourceTree = "<group>"; };
 		MD0000000000000000000002 /* MerchantDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MerchantDetails.swift; sourceTree = "<group>"; };
 		NIE0000000000000000001B /* NIPaymentError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NIPaymentError.swift; sourceTree = "<group>"; };
 		NILOG001000000000000001 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		TMR0010000000000000001 /* BnplInitResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplInitResponse.swift; sourceTree = "<group>"; };
+		TMR0020000000000000002 /* BnplViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplViewController.swift; sourceTree = "<group>"; };
+		TMR0080000000000000008 /* BnplProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplProvider.swift; sourceTree = "<group>"; };
+		TMR00A000000000000000A /* BnplInitArgs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BnplInitArgs.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -347,6 +363,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2115467E09FE262E047E912 /* BenefitInAppSDK.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,6 +434,9 @@
 				860CCD8C22FC202600B85096 /* UI Components */,
 				862CBE47230743BD00767774 /* Extensions */,
 				14A1FB6C2985ADF85C0C9F15 /* QPayPaymentDelegate.swift */,
+				F9BEF36C6F6962B7D268809B /* BenefitInAppPaymentDelegate.swift */,
+				8FA5ECF581500F79FD6E19F6 /* BenefitInAppConfig.swift */,
+				C0A7ED630E7C8F8F092BB5E9 /* BenefitInAppViewController.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -533,6 +553,7 @@
 				862CBE54230A5F0C00767774 /* URL+QueryParams.swift */,
 				862CBE70230D7AC800767774 /* UIFont+RegisterFromBundle.swift */,
 				862CBE78230E6D6D00767774 /* UITextField+CharLimit.swift */,
+				8CD14F007557468F97937D43 /* UIView+KeyboardDismissal.swift */,
 				86710F4B230FE47600259AE9 /* Encodable+PrettyPrint.swift */,
 				86710F4D230FEB5100259AE9 /* URLResponse+Any.swift */,
 				86710F542311C59900259AE9 /* Collection+Pairs.swift */,
@@ -608,6 +629,7 @@
 		86875E0F23FA7ACA00076BDF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A556E2070A7E31A44ABA6BCD /* BenefitInAppSDK.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -675,6 +697,9 @@
 				C495C707188D74FB0292E0E0 /* StubURLProtocol.swift */,
 				4646030CFB459B3EC04F66E4 /* TransactionServiceAdapterTests.swift */,
 				5EF09553C2FBB696BA864EB8 /* ClickToPayNetworkTests.swift */,
+				03BF07C4F902E12AE3622B62 /* BenefitTests.swift */,
+				207E2AA71E2D7924FEA8345C /* TermsAgreementTests.swift */,
+				500AB8A03CE44CE3BB7A9BF1 /* KeyboardDismissalTests.swift */,
 			);
 			path = NISdkTests;
 			sourceTree = "<group>";
@@ -774,24 +799,6 @@
 			path = Benefit;
 			sourceTree = "<group>";
 		};
-		TMR0050000000000000005 /* BNPL */ = {
-			isa = PBXGroup;
-			children = (
-				TMR0080000000000000008 /* BnplProvider.swift */,
-				TMR00A000000000000000A /* BnplInitArgs.swift */,
-				TMR0010000000000000001 /* BnplInitResponse.swift */,
-			);
-			path = BNPL;
-			sourceTree = "<group>";
-		};
-		TMR0060000000000000006 /* BNPL */ = {
-			isa = PBXGroup;
-			children = (
-				TMR0020000000000000002 /* BnplViewController.swift */,
-			);
-			path = BNPL;
-			sourceTree = "<group>";
-		};
 		C2P0150000000000000015 /* ClickToPay */ = {
 			isa = PBXGroup;
 			children = (
@@ -837,6 +844,24 @@
 				0966E6A5D0454F1F0FDF6692 /* PgTokens.swift */,
 			);
 			path = "Unified Payment Page";
+			sourceTree = "<group>";
+		};
+		TMR0050000000000000005 /* BNPL */ = {
+			isa = PBXGroup;
+			children = (
+				TMR0080000000000000008 /* BnplProvider.swift */,
+				TMR00A000000000000000A /* BnplInitArgs.swift */,
+				TMR0010000000000000001 /* BnplInitResponse.swift */,
+			);
+			path = BNPL;
+			sourceTree = "<group>";
+		};
+		TMR0060000000000000006 /* BNPL */ = {
+			isa = PBXGroup;
+			children = (
+				TMR0020000000000000002 /* BnplViewController.swift */,
+			);
+			path = BNPL;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -982,6 +1007,7 @@
 				59ED19AA2AD11B3D0000E024 /* SavedCard.swift in Sources */,
 				862CBE2F2305D75D00767774 /* CardPaymentViewController.swift in Sources */,
 				862CBE79230E6D6D00767774 /* UITextField+CharLimit.swift in Sources */,
+				C2E277A24E304CF08045DEA6 /* UIView+KeyboardDismissal.swift in Sources */,
 				59ED19AC2AD11B860000E024 /* SavedCardRequest.swift in Sources */,
 				860CCE0922FC945F00B85096 /* TransactionService.swift in Sources */,
 				869DDD61231473720020CB20 /* PaymentMediums.swift in Sources */,
@@ -1090,6 +1116,9 @@
 				6058A87BBF5E4293BDB86B88 /* OrderItem.swift in Sources */,
 				C08AE63D291C17A14F3E6261 /* PgTokens.swift in Sources */,
 				21703F9A9AC267D96517F86D /* VisaInstallmentInlineView.swift in Sources */,
+				28F0FF4133D98AD0856B8A6D /* BenefitInAppPaymentDelegate.swift in Sources */,
+				ABFF9FCDEEECEDE4A8BA4AC9 /* BenefitInAppConfig.swift in Sources */,
+				AED7E2CC0760FC050CA365D4 /* BenefitInAppViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1108,6 +1137,9 @@
 				C496B4783CB25B136528683B /* StubURLProtocol.swift in Sources */,
 				306587362FA1210931B5D73E /* TransactionServiceAdapterTests.swift in Sources */,
 				9741E9E698BE66C48102FBBA /* ClickToPayNetworkTests.swift in Sources */,
+				F9E8390A61594422CE51FD82 /* BenefitTests.swift in Sources */,
+				CFE78F237400F2F830CE846B /* TermsAgreementTests.swift in Sources */,
+				1EC6E583DFDA4FE5B16FA87A /* KeyboardDismissalTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1270,7 +1302,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/NISdk/Frameworks",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/NISdk/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
@@ -1303,7 +1338,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/NISdk/Frameworks",
+				);
 				INFOPLIST_FILE = "$(SRCROOT)/NISdk/Supporting Files/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;

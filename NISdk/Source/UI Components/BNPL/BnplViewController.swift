@@ -41,6 +41,11 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
         case success
         case cancel
         case failure
+        /// The payer landed back on our return address, but without our marker to say how it went.
+        /// Providers that rebuild the query from their own form fields — Tabby's hosted page
+        /// submits a GET form carrying only `code`, `payment_method` and `payment_id` — drop it.
+        /// The payer has still returned, so the payment is finalised and the order decides.
+        case unknown
     }
 
     private let args: BnplInitArgs
@@ -67,11 +72,33 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
 
     private var revealWorkItem: DispatchWorkItem?
 
+    /// Stable identity for the SDK's own website data store, so every checkout reuses one store
+    /// rather than creating a new one — and a new directory on disk — each time.
+    private static let checkoutStoreIdentifier = UUID(uuidString: "7F2C9E14-3B6A-4D58-9C01-4E7A1D3B85F2")!
+
+    /// The website data store the hosted checkout runs on.
+    ///
+    /// It has to be **persistent**. Apple Pay inside the provider's own page is Apple Pay JS, and
+    /// WebKit will not run an `ApplePaySession` in an ephemeral store: the sheet appears and closes
+    /// again immediately, which is what a payer sees as Apple Pay flashing inside Tamara. This was
+    /// `.nonPersistent()`, which is why it never worked here while the same page works in Safari.
+    ///
+    /// It also has to stay out of the app's own store, so an abandoned checkout never signs the
+    /// next payer in — both providers keep the shopper logged in otherwise. iOS 17 gives exactly
+    /// that: a named store, persistent but separate. Below 17 there is no such API, so the default
+    /// store is used and the provider's own data is cleared before each checkout instead — that
+    /// gives up separation from the host app, but a working Apple Pay is worth more than an
+    /// isolation guarantee the payer never sees.
+    private static func checkoutDataStore() -> WKWebsiteDataStore {
+        if #available(iOS 17.0, *) {
+            return WKWebsiteDataStore(forIdentifier: checkoutStoreIdentifier)
+        }
+        return .default()
+    }
+
     private lazy var webView: WKWebView = {
         let config = WKWebViewConfiguration()
-        // Non-persistent store so a previous (possibly abandoned) checkout never leaks into the next
-        // order — both providers keep the shopper signed in across checkouts otherwise.
-        config.websiteDataStore = .nonPersistent()
+        config.websiteDataStore = BnplViewController.checkoutDataStore()
         let wk = WKWebView(frame: .zero, configuration: config)
         wk.accessibilityIdentifier = "sdk_\(provider.rawValue)_webview"
         wk.navigationDelegate = self
@@ -149,12 +176,11 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
 
         navigationController?.setNavigationBarHidden(false, animated: false)
         navigationItem.title = provider.displayNameKey.localized
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Cancel".localized,
-            style: .done,
-            target: self,
-            action: #selector(cancelTapped)
-        )
+        // No Cancel item: the providers render their own close control on every page of the
+        // checkout, and it routes through their cancel URL — which the SDK turns into
+        // `cancelledOnProvider`, returning the payer to the payment page with their other methods
+        // intact. A second way out would sit beside it doing the same job less well, because ours
+        // cannot tell the provider the payer walked away.
     }
 
     // MARK: - Flow
@@ -183,9 +209,24 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
               let response = try? JSONDecoder().decode(BnplInitResponse.self, from: data) else {
             let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "<no body>"
             print("\(provider.methodName): initiation failed httpStatus=\(statusCode) error=\(error?.localizedDescription ?? "none") body=\(body)")
-            // A transport error means the request never got an answer; a 4xx means the gateway
-            // refused this order, which is the integration's problem and will not come right on a
-            // retry. A 5xx is the gateway or the provider failing on their own terms.
+            // A 401 is the payment session's token having expired, not this provider failing.
+            // Every other method on the page authenticates with the same token, so returning the
+            // payer to choose another walks them into the same failure — the payment ends instead.
+            if statusCode == 401 {
+                DispatchQueue.main.async {
+                    // Reported as `.configuration`: retrying this order cannot help, which is
+                    // what that category means. A category of its own would read better but would
+                    // break every merchant's exhaustive switch — the demo app's included.
+                    self.dispatch(.failed(NIPaymentError(
+                        category: .configuration,
+                        message: "The payment session has expired. Start a new order to pay.",
+                        paymentMethod: self.provider.methodName)))
+                }
+                return
+            }
+            // A transport error means the request never got an answer; another 4xx means the
+            // gateway refused this order, which is the integration's problem and will not come
+            // right on a retry. A 5xx is the gateway or the provider failing on their own terms.
             let category: NIPaymentErrorCategory = {
                 if error != nil { return .network }
                 return (400...499).contains(statusCode) ? .configuration : .provider
@@ -219,7 +260,33 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
 
         DispatchQueue.main.async {
             self.providerReference = response.providerReference
-            self.webView.load(URLRequest(url: url))
+            // The store is persistent now, so the sign-in an abandoned checkout leaves behind would
+            // carry into the next payer's order. Clearing the provider's own data first is what
+            // replaces the clean slate the ephemeral store used to give.
+            self.clearProviderData(for: url) {
+                self.webView.load(URLRequest(url: url))
+            }
+        }
+    }
+
+    /// Clears the provider's stored data — cookies, storage, caches — before a checkout starts.
+    /// Scoped to the provider's own host so nothing else in the store is touched.
+    private func clearProviderData(for url: URL, completion: @escaping () -> Void) {
+        guard let host = url.host else {
+            completion()
+            return
+        }
+        let store = webView.configuration.websiteDataStore
+        let types = WKWebsiteDataStore.allWebsiteDataTypes()
+        store.fetchDataRecords(ofTypes: types) { records in
+            let matching = records.filter { host == $0.displayName || host.hasSuffix(".\($0.displayName)") }
+            guard !matching.isEmpty else {
+                completion()
+                return
+            }
+            store.removeData(ofTypes: types, for: matching) {
+                completion()
+            }
         }
     }
 
@@ -342,18 +409,6 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
         }
     }
 
-    @objc private func cancelTapped() {
-        webView.stopLoading()
-        // A cancel after the return leg would discard a checkout that already went through.
-        if sawReturn {
-            startPollingIfNeeded()
-            return
-        }
-        // Backing out from our own toolbar before the provider recorded anything leaves the order
-        // untouched, so the payer keeps their other options.
-        dispatch(.dismissed)
-    }
-
     // MARK: - Cover (hide intermediate redirect pages)
 
     private func showCover() {
@@ -378,19 +433,47 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
 
     // MARK: - Return legs
 
-    /// Which return URL, if any, a navigation is heading to. Matching is on the marker parameter the
-    /// SDK put there rather than on the whole URL, because the providers append their own
-    /// parameters to the address they were given.
-    private func returnLeg(for url: URL?) -> ReturnLeg? {
+    /// Scheme, host, port and path of a URL — what identifies a return address. The query cannot be
+    /// part of it, because the providers append their own parameters to whatever they are given.
+    private func originAndPath(_ url: URL?) -> String? {
         guard let url = url,
               let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let marker = components.queryItems?.first(where: { $0.name == BnplInitArgs.resultParam })?.value
-        else { return nil }
+              let scheme = components.scheme?.lowercased(),
+              let host = components.host?.lowercased() else { return nil }
+        let port = components.port.map { ":\($0)" } ?? ""
+        var path = components.path
+        while path.count > 1 && path.hasSuffix("/") { path.removeLast() }
+        return "\(scheme)://\(host)\(port)\(path)"
+    }
+
+    /// The addresses we asked the provider to send the payer back to.
+    private lazy var returnTargets: Set<String> = {
+        Set([args.successUrl, args.cancelUrl, args.failureUrl]
+            .compactMap { originAndPath(URL(string: $0)) })
+    }()
+
+    /// Which return URL, if any, a navigation is heading to.
+    ///
+    /// Both halves matter. The navigation has to be going to one of the addresses we nominated, and
+    /// it has to carry our marker. Matching on the marker alone ends the checkout the instant it
+    /// opens: the gateway pastes our return URLs into the provider's checkout URL **without
+    /// encoding them**, so the checkout page's own address arrives carrying `ni_sdk_result`, and
+    /// the payer never sees the page they were sent to. Matching on the address alone cannot tell
+    /// success from cancel.
+    private func returnLeg(for url: URL?) -> ReturnLeg? {
+        guard let url = url,
+              let target = originAndPath(url),
+              returnTargets.contains(target) else { return nil }
+        let marker = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+            .queryItems?.first(where: { $0.name == BnplInitArgs.resultParam })?.value
         switch marker {
         case "success": return .success
         case "cancel": return .cancel
         case "failure": return .failure
-        default: return nil
+        // Arriving at an address we nominated is itself the signal that the payer came back. Only
+        // the marker can distinguish a cancel, so without it the payment is finalised and the order
+        // has the final say — which it does in every other case anyway.
+        default: return .unknown
         }
     }
 
@@ -431,7 +514,7 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         let url = navigationAction.request.url
-        print("\(provider.methodName): navigating to \(url?.absoluteString ?? "<nil>")")
+        print("\(provider.methodName): navigating to \(redactUrlForLog(url))")
         if handleIfReturn(url) {
             decisionHandler(.cancel)
             return
@@ -446,7 +529,7 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
     func webView(_ webView: WKWebView, didReceiveServerRedirectForProvisionalNavigation navigation: WKNavigation!) {
         // A redirect taken mid-navigation lands here instead of in `decidePolicyFor`, so this is the
         // other place the return has to be caught — otherwise the paypage loads behind the cover.
-        print("\(provider.methodName): server redirect to \(webView.url?.absoluteString ?? "<nil>")")
+        print("\(provider.methodName): server redirect to \(redactUrlForLog(webView.url))")
         if handleIfReturn(webView.url) { return }
         showCover()
     }

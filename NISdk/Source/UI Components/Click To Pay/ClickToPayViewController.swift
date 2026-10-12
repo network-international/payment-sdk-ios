@@ -144,11 +144,15 @@ class ClickToPayViewController: UIViewController {
         webView.scrollView.bounces = false
 
         view.addSubview(webView)
+        // Safe area, not the raw view: pinned to `view.topAnchor` the Click to
+        // Pay page rendered underneath the status bar, putting its own header
+        // behind the clock, the battery and the camera cutout. The email screen
+        // next door already anchors this way.
         NSLayoutConstraint.activate([
-            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.topAnchor.constraint(equalTo: view.topAnchor),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            webView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
 
         view.bringSubviewToFront(progressBar)

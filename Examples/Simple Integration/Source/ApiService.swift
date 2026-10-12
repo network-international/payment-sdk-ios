@@ -126,10 +126,16 @@ class ApiService {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             return nil
         }
-        if let errors = json["errors"] as? [[String: Any]],
-           let nestedMessage = errors.first?["message"] as? String,
-           !nestedMessage.isEmpty {
-            return nestedMessage
+        // `localizedMessage` is the shopper-facing explanation and says what to do
+        // about it ("Passkey is enabled for this card…"); `message` is the internal
+        // one ("Email or PhoneNumber must not be null…"). Prefer the former, fall
+        // back to the latter, and only then to the envelope's generic text.
+        if let errors = json["errors"] as? [[String: Any]], let first = errors.first {
+            for key in ["localizedMessage", "message"] {
+                if let text = first[key] as? String, !text.isEmpty {
+                    return text
+                }
+            }
         }
         if let message = json["message"] as? String, !message.isEmpty {
             return message

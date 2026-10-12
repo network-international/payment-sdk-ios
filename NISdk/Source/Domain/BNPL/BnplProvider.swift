@@ -95,15 +95,4 @@ enum BnplProvider: String, CaseIterable, Equatable {
         guard BnplProvider.allCases.indices.contains(index) else { return nil }
         self = BnplProvider.allCases[index]
     }
-
-    /// Smallest basket the provider will finance, by currency, in major units. Only the amounts the
-    /// hosted paypage enforces are listed: a currency that is absent is left to the gateway, which
-    /// rejects the checkout on its own terms. Showing an option that is certain to fail is worse
-    /// than not showing it, but guessing a limit the provider never set is worse still.
-    var minimumAmounts: [String: Double] {
-        switch self {
-        case .tabby: return ["AED": 10]
-        case .tamara: return [:]
-        }
-    }
 }

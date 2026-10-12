@@ -38,6 +38,7 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
         cvvTextField.text = ""
         cvvTextField.alignForCurrentLanguage()
         cvvTextField.keyboardType = .asciiCapableNumberPad
+        cvvTextField.addNumericDoneAccessory()
         cvvTextField.borderStyle = .none
         cvvTextField.backgroundColor = NISdk.sharedInstance.niSdkColors.inputFieldBackgroundColor
         cvvTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor

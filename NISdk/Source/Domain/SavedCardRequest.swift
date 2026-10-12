@@ -15,6 +15,9 @@ class SavedCardRequest: NSObject, Codable {
     var cvv: String?
     var payerIp: String?
     var visaRequest: VisaRequest?
+    /// Selected Slice installment plan. Sent under `slice`, exactly as the manual-card
+    /// route sends it — a saved card is as eligible for a plan as a freshly-typed one.
+    var sliceRequest: SliceRequest?
     
     enum CodingKeys: String, CodingKey {
         case expiry
@@ -23,6 +26,7 @@ class SavedCardRequest: NSObject, Codable {
         case cvv
         case payerIp
         case visaRequest = "vis"
+        case sliceRequest = "slice"
     }
     
     override init() {
@@ -32,6 +36,7 @@ class SavedCardRequest: NSObject, Codable {
         cardholderName = nil
         payerIp = nil
         visaRequest = nil
+        sliceRequest = nil
     }
     
     init(expiry: String?, cardholderName: String?, cardToken: String?,
@@ -41,6 +46,7 @@ class SavedCardRequest: NSObject, Codable {
         self.cardToken = cardToken
         self.cvv = cvv
         visaRequest = nil
+        sliceRequest = nil
     }
     
     required public init(from decoder: Decoder) throws {
@@ -51,6 +57,7 @@ class SavedCardRequest: NSObject, Codable {
         cvv = try container.decode(String.self, forKey: .cvv)
         payerIp = try container.decode(String.self, forKey: .payerIp)
         visaRequest = try container.decode(VisaRequest.self, forKey: .visaRequest)
+        sliceRequest = try container.decodeIfPresent(SliceRequest.self, forKey: .sliceRequest)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -61,5 +68,6 @@ class SavedCardRequest: NSObject, Codable {
         try container.encode(cardToken, forKey: .cardToken)
         try container.encode(payerIp, forKey: .payerIp)
         try container.encode(visaRequest, forKey: .visaRequest)
+        try container.encodeIfPresent(sliceRequest, forKey: .sliceRequest)
     }
 }

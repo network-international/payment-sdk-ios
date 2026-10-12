@@ -36,6 +36,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let tf = UITextField()
         tf.placeholder = "Enter card number".localized
         tf.keyboardType = .numberPad
+        tf.addNumericDoneAccessory()
         tf.font = PgType.bodyInput
         tf.textColor = PgColors.textPrimary
         tf.borderStyle = .none
@@ -49,6 +50,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let tf = UITextField()
         tf.placeholder = "MM"
         tf.keyboardType = .numberPad
+        tf.addNumericDoneAccessory()
         tf.font = PgType.bodyInput
         tf.textColor = PgColors.textPrimary
         tf.borderStyle = .none
@@ -62,6 +64,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let tf = UITextField()
         tf.placeholder = "YY"
         tf.keyboardType = .numberPad
+        tf.addNumericDoneAccessory()
         tf.font = PgType.bodyInput
         tf.textColor = PgColors.textPrimary
         tf.borderStyle = .none
@@ -75,6 +78,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         let tf = UITextField()
         tf.placeholder = "CVV".localized
         tf.keyboardType = .numberPad
+        tf.addNumericDoneAccessory()
         tf.font = PgType.bodyInput
         tf.textColor = PgColors.textPrimary
         tf.borderStyle = .none
@@ -199,7 +203,7 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         spinner.translatesAutoresizingMaskIntoConstraints = false
 
         let label = UILabel()
-        label.text = "Checking Slice eligibility..."
+        label.text = "slice_checking_eligibility".localized
         label.font = PgType.captionSlicePeriod
         label.textColor = PgColors.spinnerPrimary
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -410,10 +414,8 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         errorLabel.translatesAutoresizingMaskIntoConstraints = false
         formContainer.addArrangedSubview(errorLabel)
 
-        // Slice installment section (hidden until eligible)
-        formContainer.addArrangedSubview(sliceInstallmentContainer)
-        // Visa installment lives at section level (added to mainStack below) so it can render
-        // for saved-card selection too, when the manual form is collapsed.
+        // Slice and Visa installment sections both live at section level (added to mainStack
+        // below) so they render for saved-card selection too, when the manual form is collapsed.
 
         // Start collapsed: form hidden, header tile always visible
         formContainer.isHidden = true
@@ -442,7 +444,10 @@ class CardPaymentSectionView: UIView, UITextFieldDelegate {
         mainStack.setCustomSpacing(PgSpacing.rowGap, after: savedCardsContainer)
         mainStack.addArrangedSubview(sectionStack)
 
-        // Section-level Visa installment slot — visible for both manual and saved-card selections.
+        // Section-level installment slots — visible for both manual and saved-card selections.
+        // Slice sits above Visa, matching its priority; the two are mutually exclusive in
+        // practice because Visa is only checked when Slice returns nothing.
+        mainStack.addArrangedSubview(padded(sliceInstallmentContainer))
         mainStack.addArrangedSubview(padded(visaInstallmentContainer))
 
         addSubview(mainStack)

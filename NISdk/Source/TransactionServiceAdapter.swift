@@ -115,9 +115,15 @@ import PassKit
 
         let paymentRequestHeaders = ["Authorization": "Bearer \(accessToken)",
             "Content-Type": "application/vnd.ni-payment.v2+json"]
+        // Declaring the payment as web-flow makes the gateway decrypt the token with NI's
+        // own certificate rather than the merchant's. The Android SDK does the same for
+        // Google Pay: GooglePayAcceptInteractor posts to "$url?isWebPayment=true".
         var queryParams: [String: String] = [:]
+        if NISdk.sharedInstance.useNIApplePayCertificate {
+            queryParams["isWebPayment"] = "true"
+        }
         if let payerIp = payerIp {
-            queryParams = ["payer_ip": payerIp]
+            queryParams["payer_ip"] = payerIp
         }
 
         guard let applePayLink = order.embeddedData?.payment?.first?.paymentLinks?.applePayLink else {
@@ -125,7 +131,7 @@ import PassKit
             completion(nil, nil, HTTPClientErrors.missingUrl)
             return
         }
-        print("ApplePay: postApplePayResponse - URL: \(applePayLink)")
+        print("ApplePay: postApplePayResponse - URL: \(redactUrlForLog(applePayLink))")
         print("ApplePay: postApplePayResponse - paymentData size: \(applePayPaymentResponse.token.paymentData.count) bytes")
         if let paymentDataStr = String(data: applePayPaymentResponse.token.paymentData, encoding: .utf8) {
             print("ApplePay: postApplePayResponse - paymentData: \(paymentDataStr.prefix(200))...")

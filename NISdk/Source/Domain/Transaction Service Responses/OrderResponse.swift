@@ -182,10 +182,15 @@ extension OrderResponse {
 
     /// Benefit is only offered for a BHD purchase on an outlet that lists BENEFIT among its card
     /// schemes. The gateway rejects anything else, so the button must stay hidden in those cases.
+    ///
+    /// The order must also carry the links the checkout runs on. Without them the payer could only
+    /// tap the row to have the payment end as an invalid request, so the row stays hidden instead —
+    /// the same gate Android applies in `PaymentsViewModel`.
     var isBenefitSupported: Bool {
         guard paymentMethods?.card?.contains(.benefit) == true else { return false }
         guard action?.uppercased() == "PURCHASE" else { return false }
-        return amount?.currencyCode?.uppercased() == BenefitInitArgs.supportedCurrency
+        guard amount?.currencyCode?.uppercased() == BenefitInitArgs.supportedCurrency else { return false }
+        return benefitPaymentLink != nil && orderLinks?.orderLink != nil
     }
 
     func toBenefitInitArgs() throws -> BenefitInitArgs {
@@ -225,34 +230,6 @@ extension OrderResponse {
             }
             return bnplLink(for: provider) != nil
         }
-    }
-
-    /// True when the basket is below the smallest the provider will finance. The row stays on the
-    /// page either way; this is what puts the reason under it instead of letting the payer tap
-    /// through to a checkout the provider is certain to refuse. Currencies the provider publishes
-    /// no minimum for are left to the gateway.
-    func isBelowBnplMinimum(for provider: BnplProvider) -> Bool {
-        guard let amount = self.amount,
-              let currency = amount.currencyCode?.uppercased(),
-              let minimum = provider.minimumAmounts[currency] else {
-            return false
-        }
-        return amount.majorUnitValue() < minimum
-    }
-
-    /// The provider's minimum for this order's currency, formatted for display, or nil when it
-    /// publishes none.
-    func formattedBnplMinimum(for provider: BnplProvider) -> String? {
-        guard let currency = amount?.currencyCode?.uppercased(),
-              let minimum = provider.minimumAmounts[currency] else {
-            return nil
-        }
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 2
-        formatter.locale = Locale(identifier: "en_US")
-        let value = formatter.string(from: NSNumber(value: minimum)) ?? String(format: "%.0f", minimum)
-        return "\(currency) \(value)"
     }
 
     func toBnplInitArgs(for provider: BnplProvider) throws -> BnplInitArgs {

@@ -227,11 +227,11 @@ final class SliceInstallmentUIView: UIView {
         stack.axis = .horizontal
         stack.spacing = 8
         stack.translatesAutoresizingMaskIntoConstraints = false
-        let fullBtn = makeTabButton(title: "Pay in Full", index: 0)
+        let fullBtn = makeTabButton(title: "slice_pay_in_full".localized, index: 0)
         tabButtons = [fullBtn]
         stack.addArrangedSubview(fullBtn)
         for (i, offer) in offers.enumerated() {
-            let btn = makeTabButton(title: "\(offer.period) months", index: i + 1)
+            let btn = makeTabButton(title: SliceCopy.months("slice_tab_months", period: offer.period), index: i + 1)
             tabButtons.append(btn)
             stack.addArrangedSubview(btn)
         }
@@ -341,8 +341,10 @@ final class SliceInstallmentUIView: UIView {
         amountStack.spacing = 2
         amountStack.alignment = .leading
 
-        zeroInterestBadge.configure(text: (isIslamic ? "Zero profit" : "Zero interest"), color: PgColors.badgeDarkBg)
-        zeroFeesBadge.configure(text: "Zero fees", color: PgColors.badgeDarkBg)
+        zeroInterestBadge.configure(
+            text: (isIslamic ? "slice_badge_zero_profit" : "slice_badge_zero_interest").localized,
+            color: PgColors.badgeDarkBg)
+        zeroFeesBadge.configure(text: "slice_badge_zero_fees".localized, color: PgColors.badgeDarkBg)
         zeroInterestBadge.isHidden = true
         zeroFeesBadge.isHidden = true
 
@@ -382,13 +384,13 @@ final class SliceInstallmentUIView: UIView {
 
         // Installment fees sits directly under Processing fees; hidden unless the offer
         // carries a `commission` greater than zero.
-        let commissionRowView = makeDetailRow(labelText: "Installment fees:", valueLabel: commissionValueLabel)
+        let commissionRowView = makeDetailRow(labelText: "slice_installment_fees".localized + ":", valueLabel: commissionValueLabel)
         commissionRowView.isHidden = true
         commissionRow = commissionRowView
 
         let detailRows = UIStackView(arrangedSubviews: [
-            makeDetailRow(labelText: (isIslamic ? "Profit rate:" : "Interest rate:"), valueLabel: rateValueLabel),
-            makeDetailRow(labelText: "Processing fees:", valueLabel: feeValueLabel),
+            makeDetailRow(labelText: SliceCopy.rateLabel(isIslamic: isIslamic) + ":", valueLabel: rateValueLabel),
+            makeDetailRow(labelText: "slice_processing_fees".localized + ":", valueLabel: feeValueLabel),
             commissionRowView,
             totalRow,
         ])
@@ -427,45 +429,31 @@ final class SliceInstallmentUIView: UIView {
     }
 
     private func updateDetailContent(offer: SliceOffer) {
-        let instAmt = fmtAmt(offer.installmentAmount.value, offer.installmentAmount.currencyCode)
+        // Built through the receipt so the success screen restates exactly what is shown here.
+        let plan = SliceReceipt.from(offer: offer, isIslamic: isIslamic)
         installmentLabel.attributedText = AedSymbol.attributed(
-            instAmt, font: installmentLabel.font, color: PgColors.textPrimary)
-        amountCaptionLabel.text = "Per Month"
+            plan.installmentAmount, font: installmentLabel.font, color: PgColors.textPrimary)
+        amountCaptionLabel.text = "slice_per_month".localized
         amountCaptionLabel.isHidden = false
         let isZeroInterest = ["0", "0.0", "0.00"].contains(offer.rate)
         let isZeroFee = ["0", "0.0", "0.00"].contains(offer.fee)
         zeroInterestBadge.isHidden = !isZeroInterest
         zeroFeesBadge.isHidden = !isZeroFee
-        rateValueLabel.text = "\(offer.rate)%"
-        let feeText = offer.feeType == "P"
-            ? "\(offer.fee)%"
-            : fmtAmt(Int((Double(offer.fee) ?? 0) * 100), offer.installmentAmount.currencyCode)
+        rateValueLabel.text = plan.rate
         feeValueLabel.attributedText = AedSymbol.attributed(
-            feeText, font: feeValueLabel.font, color: PgColors.textPrimary)
-        if let installmentFee = offer.installmentFeeAmount {
+            plan.processingFees, font: feeValueLabel.font, color: PgColors.textPrimary)
+        if let installmentFees = plan.installmentFees {
             commissionValueLabel.attributedText = AedSymbol.attributed(
-                fmtAmt(Int((installmentFee * 100).rounded()), offer.installmentAmount.currencyCode),
-                font: commissionValueLabel.font, color: PgColors.textPrimary)
+                installmentFees, font: commissionValueLabel.font, color: PgColors.textPrimary)
             commissionRow?.isHidden = false
         } else {
             commissionValueLabel.attributedText = nil
             commissionRow?.isHidden = true
         }
-        totalLabelLabel.text = "Total after \(offer.period) months"
+        totalLabelLabel.text = SliceCopy.months("slice_total_after_months", period: offer.period)
         totalValueLabel.attributedText = AedSymbol.attributed(
-            fmtAmt(offer.totalAmount.value, offer.totalAmount.currencyCode),
+            SliceReceipt.formatAmount(minorUnits: offer.totalAmount.value, currency: offer.totalAmount.currencyCode),
             font: totalValueLabel.font, color: PgColors.textPrimary)
-    }
-
-    private func fmtAmt(_ value: Int, _ currency: String) -> String {
-        let f = NumberFormatter()
-        f.numberStyle = .decimal
-        f.minimumFractionDigits = 2
-        f.maximumFractionDigits = 2
-        f.usesGroupingSeparator = true
-        f.groupingSeparator = ","
-        let n = f.string(from: NSNumber(value: Double(value) / 100.0)) ?? "0.00"
-        return "\(currency) \(n)"
     }
 
     // MARK: - Selection Error
@@ -582,13 +570,13 @@ final class SliceBannerUIView: UIView {
         ])
 
         let titleLabel = UILabel()
-        titleLabel.text = "Zero fees, Zero interest installments."
+        titleLabel.text = "slice_banner_title".localized
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         titleLabel.textColor = PgColors.textPrimary
         titleLabel.numberOfLines = 2
 
         let subtitleLabel = UILabel()
-        subtitleLabel.text = "Split your purchases into easy installments"
+        subtitleLabel.text = "slice_banner_subtitle".localized
         subtitleLabel.font = PgType.bodyRowSubtitle
         subtitleLabel.textColor = PgColors.textSecondary
         subtitleLabel.numberOfLines = 2
@@ -626,5 +614,27 @@ final class SliceBannerUIView: UIView {
             iv.heightAnchor.constraint(equalToConstant: height),
         ])
         return iv
+    }
+}
+
+/// Localised Slice copy shared by the offer card and the success receipt.
+enum SliceCopy {
+    /// Interest-based offers and Islamic (Murabaha) offers name the same figure differently.
+    static func rateLabel(isIslamic: Bool) -> String {
+        (isIslamic ? "slice_profit_rate" : "slice_interest_rate").localized
+    }
+
+    /// A month count from an offer's `period`, pluralised for the SDK language through
+    /// `Localizable.stringsdict` — Arabic alone has six forms. The gateway sends `period` as a
+    /// string; one that is not a number is shown as sent rather than guessed at.
+    static func months(_ key: String, period: String) -> String {
+        guard let count = Int(period.trimmingCharacters(in: .whitespaces)) else { return period }
+        let format = key.localized
+        // A bundle built without the stringsdict hands the key back; never show that to a payer.
+        guard format != key else { return "\(count)" }
+        // Plural rules follow the locale passed here, not the `.lproj` the format came from —
+        // `localizedStringWithFormat` would apply the device's rules to the SDK language's
+        // strings, giving an English-locale device "3 شهر" instead of "3 أشهر".
+        return String(format: format, locale: Locale(identifier: NISdk.sharedInstance.sdkLanguage), count)
     }
 }

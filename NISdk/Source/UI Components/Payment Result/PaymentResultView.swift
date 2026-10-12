@@ -54,8 +54,14 @@ struct PaymentResultView: View {
                     // Title
                     if args.isSuccess {
                         if let amount = args.amount {
+                            // On a Slice plan the amount is the plan's total across the term, not
+                            // what was debited today, so "You paid" would misdescribe it.
                             AedSymbol.swiftUIText(
-                                String.localizedStringWithFormat("Payment Success Title".localized, amount),
+                                String.localizedStringWithFormat(
+                                    (args.sliceReceipt != nil
+                                        ? "Payment Success Title Slice"
+                                        : "Payment Success Title").localized,
+                                    amount),
                                 fontSize: 22,
                                 tint: successGreenUI
                             )
@@ -92,6 +98,12 @@ struct PaymentResultView: View {
                         .multilineTextAlignment(.center)
 
                     Spacer().frame(height: 32)
+
+                    // Slice success section - only when the user paid via a Slice installment plan.
+                    if args.isSuccess, let receipt = args.sliceReceipt {
+                        SliceSuccessSection(receipt: receipt)
+                        Spacer().frame(height: 24)
+                    }
 
                     // Details - centered text lines
                     HStack(spacing: 0) {
@@ -133,6 +145,65 @@ struct PaymentResultView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + autoDismissDelay) {
                 onDone()
             }
+        }
+    }
+}
+
+@available(iOS 14.0, *)
+private struct SliceSuccessSection: View {
+    let receipt: SliceReceipt
+
+    private let textColor = Color(UIColor(hexString: "#070707"))
+    private let lgSize: CGFloat = 16
+    // Letter spacing 1% of 16pt cap height = 0.16pt.
+    private let labelTracking: CGFloat = 0.16
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("slice_receipt_title".localized)
+                .font(.system(size: lgSize, weight: .medium))
+                .foregroundColor(textColor)
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("sdk_result_slice_title")
+
+            if let logoImage = UIImage(named: "sliceLogo",
+                                       in: NISdk.sharedInstance.getBundle(),
+                                       compatibleWith: nil) {
+                Image(uiImage: logoImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 170, height: 70)
+            }
+
+            VStack(spacing: 12) {
+                row(label: "slice_receipt_tenor".localized,
+                    value: SliceCopy.months("slice_receipt_tenor_months", period: receipt.period))
+                row(label: SliceCopy.rateLabel(isIslamic: receipt.isIslamic), value: receipt.rate)
+                row(label: "slice_processing_fees".localized, value: receipt.processingFees)
+                // Charged on top of the order total, so it only appears when the offer carried
+                // one - exactly as the offer card hides its own row.
+                if let installmentFees = receipt.installmentFees {
+                    row(label: "slice_installment_fees".localized, value: installmentFees)
+                }
+                row(label: "slice_receipt_installment_amount".localized, value: receipt.installmentAmount)
+            }
+            .padding(.top, 8)
+        }
+        .padding(.horizontal, 4)
+        .accessibilityIdentifier("sdk_result_slice_receipt")
+    }
+
+    @ViewBuilder
+    private func row(label: String, value: String) -> some View {
+        HStack {
+            Text(label)
+                .font(.system(size: lgSize, weight: .regular))
+                .tracking(labelTracking)
+                .foregroundColor(textColor)
+            Spacer()
+            AedSymbol.swiftUIText(value, fontSize: lgSize)
+                .font(.system(size: lgSize, weight: .medium))
+                .foregroundColor(textColor)
         }
     }
 }

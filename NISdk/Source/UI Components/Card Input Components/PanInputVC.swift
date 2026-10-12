@@ -38,6 +38,7 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         )
 
         panTextField.keyboardType = .asciiCapableNumberPad
+        panTextField.addNumericDoneAccessory()
         panTextField.text = ""
         panTextField.alignForCurrentLanguage()
         panTextField.borderStyle = .none

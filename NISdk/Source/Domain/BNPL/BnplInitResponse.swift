@@ -20,6 +20,11 @@ struct BnplInitResponse: Decodable {
     let checkoutUrlField: String?
     /// True when the gateway aborted the checkout itself, e.g. the order was already paid.
     let cancelled: Bool?
+    /// True when the gateway refused the checkout while still answering 200 — an over-large basket
+    /// comes back as `{"isError": true, "errorMessage": "order amount too high"}`. Read explicitly
+    /// rather than inferred from a missing URL: the two have only ever coincided by luck, and a
+    /// response carrying both would otherwise send the payer to a checkout the gateway rejected.
+    let isError: Bool?
     let errorMessage: String?
     /// The provider's own identifier for this checkout, returned at initiation. It is what the
     /// `/accept` call needs, so capturing it here means a return leg that arrives without it in the
@@ -32,6 +37,7 @@ struct BnplInitResponse: Decodable {
         case paymentUrl
         case checkoutUrlField = "checkoutUrl"
         case cancelled
+        case isError
         case errorMessage
         case tamaraOrderId
         case tabbyPaymentId
@@ -46,6 +52,7 @@ struct BnplInitResponse: Decodable {
         paymentUrl = try container.decodeIfPresent(String.self, forKey: .paymentUrl)
         checkoutUrlField = try container.decodeIfPresent(String.self, forKey: .checkoutUrlField)
         cancelled = try container.decodeIfPresent(Bool.self, forKey: .cancelled)
+        isError = try container.decodeIfPresent(Bool.self, forKey: .isError)
         errorMessage = try container.decodeIfPresent(String.self, forKey: .errorMessage)
 
         // Provider-specific names first, then the generic ones — an order id and a payment id are
@@ -59,9 +66,10 @@ struct BnplInitResponse: Decodable {
         providerReference = candidates.compactMap { $0 }.first { !$0.isEmpty }
     }
 
-    /// The hosted page to load, whichever field the gateway used to return it.
+    /// The hosted page to load, or nil when there is none or the gateway flagged an error.
     var checkoutUrl: String? {
-        [webUrl, redirectUrl, paymentUrl, checkoutUrlField]
+        if isError == true { return nil }
+        return [webUrl, redirectUrl, paymentUrl, checkoutUrlField]
             .compactMap { $0 }
             .first { !$0.isEmpty }
     }

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>slice_tab_months</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@months@</string>
+		<key>months</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>zero</key>
+			<string>%d شهر</string>
+			<key>one</key>
+			<string>شهر واحد</string>
+			<key>two</key>
+			<string>شهران</string>
+			<key>few</key>
+			<string>%d أشهر</string>
+			<key>many</key>
+			<string>%d شهرًا</string>
+			<key>other</key>
+			<string>%d شهر</string>
+		</dict>
+	</dict>
+	<key>slice_total_after_months</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@months@</string>
+		<key>months</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>zero</key>
+			<string>الإجمالي بعد %d شهر</string>
+			<key>one</key>
+			<string>الإجمالي بعد شهر واحد</string>
+			<key>two</key>
+			<string>الإجمالي بعد شهرين</string>
+			<key>few</key>
+			<string>الإجمالي بعد %d أشهر</string>
+			<key>many</key>
+			<string>الإجمالي بعد %d شهرًا</string>
+			<key>other</key>
+			<string>الإجمالي بعد %d شهر</string>
+		</dict>
+	</dict>
+	<key>slice_receipt_tenor_months</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@months@</string>
+		<key>months</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>zero</key>
+			<string>%d شهر</string>
+			<key>one</key>
+			<string>شهر واحد</string>
+			<key>two</key>
+			<string>شهران</string>
+			<key>few</key>
+			<string>%d أشهر</string>
+			<key>many</key>
+			<string>%d شهرًا</string>
+			<key>other</key>
+			<string>%d شهر</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

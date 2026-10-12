@@ -196,6 +196,9 @@ class CardPaymentViewController: UIViewController {
         setupCancelButton()
         // Start disabled — enabled once all fields have content
         updatePayButtonState()
+        // A number pad has no Return key; a tap anywhere outside the field is
+        // the other way out, alongside the Done bar above the keyboard.
+        view.addTapToDismissKeyboard()
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -231,12 +234,27 @@ class CardPaymentViewController: UIViewController {
         guard let userInfo = notification.userInfo else {return}
         guard let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {return}
         let keyboardFrame = keyboardSize.cgRectValue
-        self.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
+        // Inset by how far the keyboard actually overlaps the scroll view, not
+        // by its raw height: the scroll view stops at the safe area, so the
+        // home-indicator strip would otherwise be counted twice.
+        let scrollFrame = self.scrollView.superview?.convert(self.scrollView.frame, to: nil) ?? self.scrollView.frame
+        let overlap = max(0, scrollFrame.maxY - keyboardFrame.minY)
+        self.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: overlap, right: 0)
+        self.scrollView.scrollIndicatorInsets = self.scrollView.contentInset
+        // Scroll the Pay button back into view. Without this the pad opens
+        // straight over it and reaching it means guessing that the page
+        // scrolls — on a short form it looks like it does not.
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            let rect = self.scrollView.convert(self.payButton.bounds, from: self.payButton)
+            self.scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -12), animated: true)
+        }
     }
     
     @objc func keyboardWillHide(notification: NSNotification) {
         if(self.scrollView.contentInset.bottom != 0) {
             self.scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+            self.scrollView.scrollIndicatorInsets = self.scrollView.contentInset
         }
     }
     

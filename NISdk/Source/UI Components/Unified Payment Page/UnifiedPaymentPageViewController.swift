@@ -11,6 +11,10 @@ import PassKit
 
 class UnifiedPaymentPageViewController: UIViewController {
 
+    /// Terms page the disclaimer links to. The same address Android opens, so the two SDKs send
+    /// payers to one place.
+    static let termsAndConditionsUrl = "https://www.network.ae/en/terms-and-conditions"
+
     // MARK: - Dependencies
 
     var makePaymentCallback: MakePaymentCallback?
@@ -20,7 +24,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     var onQPayTapped: (() -> Void)?
     var onBenefitTapped: (() -> Void)?
     var onBnplTapped: ((BnplProvider) -> Void)?
-    var onMakeSavedCardPayment: ((SavedCard, String?, VisaRequest?) -> Void)?
+    var onMakeSavedCardPayment: ((SavedCard, String?, VisaRequest?, SliceRequest?) -> Void)?
     /// Slice eligibility check. The first param is either a raw PAN (manual entry) or a saved-card
     /// token, distinguished by `isSavedToken`. The receiver routes to the right API field
     /// (`pan` vs `cardToken`).
@@ -68,9 +72,13 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var selectedSliceOffer: SliceOffer? {
         didSet { refreshBottomPayButtonTitle() }
     }
+    /// Read-only accessor used by the parent `PaymentViewController` after success to build
+    /// the slice receipt section on the result screen.
+    var paidSliceOffer: SliceOffer? { selectedSliceOffer }
     /// Whether the most recent slice eligibility check returned the Islamic indicator (`"I"`).
-    /// Drives the "Profit rate" vs "Interest rate" label on the slice offer card.
-    private var paidSliceIsIslamic: Bool = false
+    /// Drives the "Profit rate" vs "Interest rate" label on both the slice offer card and the
+    /// success receipt.
+    private(set) var paidSliceIsIslamic: Bool = false
     private var sliceSelectionMade: Bool = false
     private var lastSliceCheckKey: String?
     private var sliceInstallmentView: UIView?
@@ -125,7 +133,6 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var bnplRadioButtons: [BnplProvider: RadioButtonView] = [:]
     /// The notice slot under each BNPL row — the "minimum order" hint, or why the provider could
     /// not be reached. Hidden until there is something to say.
-    private var bnplNoticeLabels: [BnplProvider: UILabel] = [:]
     private let bottomBarView = UIView()
     private var bottomBarBottomConstraint: NSLayoutConstraint?
     private let bottomPayButton = UIButton()
@@ -161,6 +168,9 @@ class UnifiedPaymentPageViewController: UIViewController {
             selectPaymentOption(.card)
         }
 
+        // The card fields use number pads, which have no Return key: a tap
+        // outside the field is the way out, alongside the Done bar.
+        view.addTapToDismissKeyboard()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow),
                                                name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide),
@@ -282,13 +292,10 @@ class UnifiedPaymentPageViewController: UIViewController {
         payBtn.addSubview(spinner)
         bottomPaySpinner = spinner
 
-        let termsLabel = UILabel()
-        termsLabel.text = "By clicking Pay terms".localized
-        termsLabel.font = PgType.captionDisclaimer
-        termsLabel.textColor = PgColors.textMuted
-        termsLabel.textAlignment = .center
-        termsLabel.numberOfLines = 0
-        termsLabel.translatesAutoresizingMaskIntoConstraints = false
+        // The "terms and conditions" phrase is underlined and opens the page, the way the same
+        // disclaimer behaves on Android. The rest of the sentence is not a link.
+        let termsLabel = makeTermsAgreementView(alignment: .center,
+                                                accessibilityIdentifier: "sdk_paymentpage_terms")
 
         // Apple Pay button — same position as payBtn, hidden initially
         let pkBtn = PKPaymentButton(paymentButtonType: .buy, paymentButtonStyle: .black)
@@ -1038,28 +1045,13 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var bnplUnavailableProviders: Set<BnplProvider> = []
 
     /// Puts a line under a BNPL row, or clears it when `text` is nil.
-    private func showBnplNotice(_ provider: BnplProvider, _ text: String?) {
-        guard let label = bnplNoticeLabels[provider] else { return }
-        label.text = text
-        label.isHidden = text == nil
-    }
-
-    /// Clears the notices that belong to the current selection, leaving in place the ones that
-    /// outlive it — a provider that could not be reached is still unreachable after a deselect.
-    private func hideTransientBnplNotices() {
-        for (provider, label) in bnplNoticeLabels where !bnplUnavailableProviders.contains(provider) {
-            label.isHidden = true
-        }
-    }
-
-    /// Marks a provider as unreachable after its checkout failed to open: the row greys out, says
-    /// why, and the selection moves off it so the payer's next tap goes somewhere that works.
+    /// Marks a provider as unreachable after its checkout failed to open: the row greys out and
+    /// the selection moves off it so the payer's next tap goes somewhere that works. Why it failed
+    /// is reported to the merchant through the payment result, not written under the row.
     func markBnplUnavailable(_ provider: BnplProvider) {
         bnplUnavailableProviders.insert(provider)
         bnplRadioButtons[provider]?.isOn = false
         bnplRadioButtons[provider]?.alpha = 0.5
-        showBnplNotice(provider, String.localizedStringWithFormat(
-            "Bnpl unavailable".localized, provider.displayNameKey.localized))
         if selectedPaymentOption == .bnpl(provider) {
             selectedPaymentOption = nil
             updateBottomPayButton()
@@ -1081,21 +1073,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         titleLabel.textColor = PgColors.textPrimary
         titleLabel.numberOfLines = 0
 
-        // Why the provider will refuse this basket, shown once the row is selected. Built for every
-        // row that has a published minimum so the copy is ready before the payer taps.
-        let noticeLabel = UILabel()
-        noticeLabel.font = PgType.captionDisclaimer
-        noticeLabel.textColor = .systemRed
-        noticeLabel.numberOfLines = 0
-        noticeLabel.isHidden = true
-        noticeLabel.accessibilityIdentifier = "sdk_paymentpage_label_\(provider.rawValue)_notice"
-        bnplNoticeLabels[provider] = noticeLabel
-
-        let textStack = UIStackView(arrangedSubviews: [titleLabel, noticeLabel])
-        textStack.axis = .vertical
-        textStack.spacing = 2
-
-        let row = UIStackView(arrangedSubviews: [radioButton, textStack, UIView()])
+        let row = UIStackView(arrangedSubviews: [radioButton, titleLabel, UIView()])
         row.axis = .horizontal
         row.spacing = 12
         row.alignment = .center
@@ -1202,18 +1180,12 @@ class UnifiedPaymentPageViewController: UIViewController {
 
         // Terms & conditions disclaimer below the button, with "terms and conditions" underlined
         // and tappable — mirrors the bottom pay bar's agreement text.
-        let termsLabel = UILabel()
-        termsLabel.numberOfLines = 0
-        termsLabel.attributedText = qpayTermsAttributedText()
-        // Align to the reading edge: right for RTL (Arabic), left otherwise. The attributed string
-        // carries no paragraph style, so without this the label defaults to left even in Arabic.
-        termsLabel.textAlignment =
+        // Align to the reading edge: right for RTL (Arabic), left otherwise.
+        let termsAlignment: NSTextAlignment =
             Locale.characterDirection(forLanguage: NISdk.sharedInstance.sdkLanguage) == .rightToLeft
             ? .right : .left
-        termsLabel.accessibilityIdentifier = "sdk_paymentpage_qpay_terms"
-        termsLabel.isUserInteractionEnabled = true
-        termsLabel.addGestureRecognizer(
-            UITapGestureRecognizer(target: self, action: #selector(qpayTermsTapped)))
+        let termsLabel = makeTermsAgreementView(alignment: termsAlignment,
+                                                accessibilityIdentifier: "sdk_paymentpage_qpay_terms")
 
         let vStack = UIStackView(arrangedSubviews: [button, termsLabel])
         vStack.axis = .vertical
@@ -1231,26 +1203,75 @@ class UnifiedPaymentPageViewController: UIViewController {
         return paddedContainer
     }
 
-    /// Disclaimer shown under the QPay express button: muted caption with the
-    /// "terms and conditions" phrase underlined to read as a link.
-    private func qpayTermsAttributedText() -> NSAttributedString {
-        let full = "By clicking Pay terms".localized
+    /// The pay-bar / QPay disclaimer: a muted caption with the "terms and conditions" phrase
+    /// underlined to read as a link. Only that phrase is tappable, as on Android.
+    /// The disclaimer as an attributed string: muted caption throughout, with `linkPhrase`
+    /// underlined and carrying a real `.link` so UIKit hit-tests and opens it. Only that phrase is
+    /// a link, as on Android.
+    ///
+    /// Pure so it can be tested without the SDK's localization bundle — callers pass the localized
+    /// sentence and phrase in.
+    static func termsAgreementAttributedText(sentence: String,
+                                             linkPhrase: String,
+                                             url: URL,
+                                             alignment: NSTextAlignment) -> NSAttributedString {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = alignment
         let attr = NSMutableAttributedString(
-            string: full,
+            string: sentence,
             attributes: [
                 .font: PgType.captionDisclaimer,
                 .foregroundColor: PgColors.textMuted,
+                .paragraphStyle: paragraph,
             ])
-        let nsFull = full as NSString
-        var linkRange = nsFull.range(of: "Terms and Conditions".localized, options: .caseInsensitive)
-        if linkRange.location == NSNotFound {
-            linkRange = nsFull.range(of: "terms and conditions", options: .caseInsensitive)
-        }
+        let linkRange = termsLinkRange(in: sentence, phrase: linkPhrase)
         if linkRange.location != NSNotFound {
-            attr.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: linkRange)
+            attr.addAttributes([
+                .link: url,
+                .underlineStyle: NSUnderlineStyle.single.rawValue,
+            ], range: linkRange)
         }
         return attr
     }
+
+    /// Range of the phrase that acts as the link. Falls back to the untranslated wording so a
+    /// language whose disclaimer has not been translated still links something sensible.
+    static func termsLinkRange(in text: String, phrase: String) -> NSRange {
+        let ns = text as NSString
+        let localised = ns.range(of: phrase, options: .caseInsensitive)
+        if localised.location != NSNotFound { return localised }
+        return ns.range(of: "terms and conditions", options: .caseInsensitive)
+    }
+
+    /// The disclaimer view. A text view rather than a label because only part of the sentence is
+    /// tappable: UIKit hit-tests `.link` ranges itself, which a label cannot do.
+    private func makeTermsAgreementView(alignment: NSTextAlignment,
+                                        accessibilityIdentifier: String) -> UITextView {
+        let textView = UITextView()
+        textView.attributedText = Self.termsAgreementAttributedText(
+            sentence: "By clicking Pay terms".localized,
+            linkPhrase: "Terms and Conditions".localized,
+            url: URL(string: Self.termsAndConditionsUrl)!,
+            alignment: alignment)
+        // Selectable is required for links to respond at all; everything else here strips the text
+        // view back to a label's appearance and layout.
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.isScrollEnabled = false
+        textView.backgroundColor = .clear
+        textView.textContainerInset = .zero
+        textView.textContainer.lineFragmentPadding = 0
+        textView.dataDetectorTypes = []
+        // Keep the link muted and underlined like the rest of the caption rather than system blue.
+        textView.linkTextAttributes = [
+            .foregroundColor: PgColors.textMuted,
+            .underlineStyle: NSUnderlineStyle.single.rawValue,
+        ]
+        textView.accessibilityIdentifier = accessibilityIdentifier
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
+    }
+
 
     private func createSavedCardRow(for card: SavedCard) -> UIView {
         let sdkBundle = NISdk.sharedInstance.getBundle()
@@ -1770,11 +1791,12 @@ class UnifiedPaymentPageViewController: UIViewController {
         // default selection from the moment offers appear — clear the validation gate.
         sliceSelectionMade = true
 
-        // Bleed past ancestor padding (pageH + rowPaddingH + radio button + 12pt gap on leading;
-        // pageH + rowPaddingH on trailing) so the pill scroll reaches the screen edges.
+        // Bleed past ancestor padding (pageH + rowPaddingH on both sides) so the pill scroll
+        // reaches the screen edges. The container sits at section level — beside the Visa slot,
+        // not inside the manual form — so the radio-button indent is not in the chain.
         let pillBleed = UIEdgeInsets(
             top: 0,
-            left: PgSpacing.pageH + PgSpacing.rowPaddingH + PgSize.radioOuter + 12,
+            left: PgSpacing.pageH + PgSpacing.rowPaddingH,
             bottom: 0,
             right: PgSpacing.pageH + PgSpacing.rowPaddingH
         )
@@ -1998,7 +2020,6 @@ class UnifiedPaymentPageViewController: UIViewController {
             aaniRadioButton?.isOn = false
             benefitRadioButton?.isOn = false
             bnplRadioButtons.values.forEach { $0.isOn = false }
-            hideTransientBnplNotices()
             savedCardRadioButtons.values.forEach { $0.isOn = false }
             savedCardCvvContainers.values.forEach { $0.isHidden = true }
             savedCardRowContainers.values.forEach {
@@ -2027,7 +2048,6 @@ class UnifiedPaymentPageViewController: UIViewController {
         aaniRadioButton?.isOn = false
         benefitRadioButton?.isOn = false
         bnplRadioButtons.values.forEach { $0.isOn = false }
-        hideTransientBnplNotices()
         savedCardRadioButtons.values.forEach { $0.isOn = false }
         savedCardCvvContainers.values.forEach { $0.isHidden = true }
         savedCardRowContainers.values.forEach {
@@ -2109,21 +2129,6 @@ class UnifiedPaymentPageViewController: UIViewController {
             applyBottomButtonStyle(forApplePay: false)
         case .bnpl(let provider):
             bnplRadioButtons[provider]?.isOn = true
-            // Say it on selection rather than on tapping Pay — the payer can change the basket or
-            // pick another method without being sent to a checkout that would refuse them.
-            for (each, label) in bnplNoticeLabels where each != provider {
-                // Another row's notice is not this row's problem; an unavailable one keeps its own.
-                if !bnplUnavailableProviders.contains(each) { label.isHidden = true }
-            }
-            if !bnplUnavailableProviders.contains(provider) {
-                showBnplNotice(provider,
-                               order.isBelowBnplMinimum(for: provider)
-                                   ? order.formattedBnplMinimum(for: provider).map {
-                                       String.localizedStringWithFormat("Bnpl below minimum".localized,
-                                                                        provider.displayNameKey.localized, $0)
-                                     }
-                                   : nil)
-            }
             hideVisaInstallments()
             hideSliceOffers()
             lastVisCheckKey = nil
@@ -2185,8 +2190,14 @@ class UnifiedPaymentPageViewController: UIViewController {
                 }
                 return nil
             }()
+            // A saved card runs the same eligibility check as manual entry, so a plan picked
+            // here has to travel with the payment — otherwise the payer is silently charged
+            // in full for a plan they chose.
+            let sliceRequest: SliceRequest? = selectedSliceOffer.map {
+                SliceRequest(period: $0.period, rate: $0.rate, fee: $0.fee)
+            }
             paymentInProgress = true
-            onMakeSavedCardPayment?(card, cvv?.isEmpty == false ? cvv : nil, visaRequest)
+            onMakeSavedCardPayment?(card, cvv?.isEmpty == false ? cvv : nil, visaRequest, sliceRequest)
         case .aani:
             onAaniTapped?()
         case .clickToPay:
@@ -2196,13 +2207,9 @@ class UnifiedPaymentPageViewController: UIViewController {
         case .benefit:
             onBenefitTapped?()
         case .bnpl(let provider):
-            // The provider would refuse this basket, so the payer is kept on the page with the
-            // reason in front of them rather than sent to a checkout that dead-ends.
+            // A provider that could not be reached stays untappable; everything else is the
+            // provider's call, made when it is asked for a checkout.
             guard !bnplUnavailableProviders.contains(provider) else { return }
-            guard !order.isBelowBnplMinimum(for: provider) else {
-                bnplNoticeLabels[provider]?.isHidden = false
-                return
-            }
             onBnplTapped?(provider)
         case .none:
             break
@@ -2230,12 +2237,6 @@ class UnifiedPaymentPageViewController: UIViewController {
     @objc private func qpayExpressTapped() {
         // Express button launches QPay directly, without going through the bottom pay bar.
         onQPayTapped?()
-    }
-
-    @objc private func qpayTermsTapped() {
-        if let url = URL(string: "https://www.network.ae/en/terms-and-conditions") {
-            UIApplication.shared.open(url)
-        }
     }
 
     // MARK: - Navigation
@@ -2334,12 +2335,39 @@ class UnifiedPaymentPageViewController: UIViewController {
         guard let userInfo = notification.userInfo,
               let keyboardSize = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
         let keyboardFrame = keyboardSize.cgRectValue
-        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardFrame.height, right: 0)
+        // The Pay button lives in the bottom bar, which is pinned to the safe
+        // area — a content inset on the scroll view cannot move it, so the
+        // keyboard simply covered it. Lift the bar instead; the scroll view is
+        // anchored to its top, so it shrinks to match and needs no inset.
+        let overlap = max(0, view.bounds.maxY - view.convert(keyboardFrame, from: nil).minY)
+        setBottomBarLift(max(0, overlap - view.safeAreaInsets.bottom), userInfo: userInfo)
+        scrollActiveFieldIntoView()
     }
 
     @objc private func keyboardWillHide(notification: NSNotification) {
-        if scrollView.contentInset.bottom != 0 {
-            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        setBottomBarLift(0, userInfo: notification.userInfo)
+    }
+
+    /// Raises the bottom bar by `lift` points, matching the keyboard's own
+    /// animation so the button travels with it rather than jumping.
+    private func setBottomBarLift(_ lift: CGFloat, userInfo: [AnyHashable: Any]?) {
+        guard let constraint = bottomBarBottomConstraint, constraint.constant != -lift else { return }
+        constraint.constant = -lift
+        let duration = (userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
+        let curveRaw = (userInfo?[UIResponder.keyboardAnimationCurveUserInfoKey] as? UInt) ?? 0
+        UIView.animate(withDuration: duration,
+                       delay: 0,
+                       options: UIView.AnimationOptions(rawValue: curveRaw << 16),
+                       animations: { self.view.layoutIfNeeded() })
+    }
+
+    /// Scrolls whichever field has focus back above the keyboard once the
+    /// scroll view has resized around the lifted bottom bar.
+    private func scrollActiveFieldIntoView() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let field = self.scrollView.niFirstResponder else { return }
+            let rect = self.scrollView.convert(field.bounds, from: field)
+            self.scrollView.scrollRectToVisible(rect.insetBy(dx: 0, dy: -16), animated: true)
         }
     }
 }

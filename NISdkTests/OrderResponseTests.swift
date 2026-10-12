@@ -121,6 +121,29 @@ final class OrderResponseBenefitTests: XCTestCase {
         }
     }
 
+    /// The endpoint is derived from the payment's own `self` href, so an order without one has no
+    /// Benefit endpoint at all. Offering the row would only end the payment as an invalid request
+    /// the moment the payer picked it.
+    func testBenefitIsHiddenWhenThePaymentSelfLinkIsMissing() throws {
+        let order = try TestFixtures.order(
+            action: "PURCHASE", currencyCode: "BHD", cardSchemes: ["BENEFIT"],
+            paymentLinks: ["payment:card": ["href": "https://api.example.com/card"]])
+
+        XCTAssertFalse(order.isBenefitSupported)
+    }
+
+    /// The order self-link is what the checkout polls for the final state once the payer returns
+    /// from Benefit, so it gates the row for the same reason.
+    func testBenefitIsHiddenWhenTheOrderSelfLinkIsMissing() throws {
+        let order = try TestFixtures.order(
+            action: "PURCHASE", currencyCode: "BHD", cardSchemes: ["BENEFIT"],
+            overrides: ["_links": [
+                "payment": ["href": "https://paypage.sandbox.ngenius-payments.com/?code=AUTHCODE123"]
+            ]])
+
+        XCTAssertFalse(order.isBenefitSupported)
+    }
+
     func testInitArgsDeriveTheBenefitEndpointFromThePaymentSelfLink() throws {
         let order = try TestFixtures.order(action: "PURCHASE", currencyCode: "BHD",
                                            cardSchemes: ["BENEFIT"])
@@ -320,43 +343,11 @@ final class OrderResponseBnplTests: XCTestCase {
         XCTAssertEqual(order.supportedBnplProviders, [.tamara])
     }
 
-    /// A basket under the provider's minimum must not remove the row: an option the outlet enables
-    /// and the payer cannot find reads as the SDK being broken. It stays, and says why.
-    func testABasketBelowTheMinimumStillOffersTheRow() throws {
-        let order = try bnplOrder(apm: ["TAMARA", "TABBY"], currencyCode: "AED", value: 500)
+    /// The SDK no longer second-guesses what a provider will finance: a small basket still offers
+    /// the row, and the provider refuses it — or does not — when asked for a checkout.
+    func testASmallBasketStillOffersEveryEnabledProvider() throws {
+        let order = try bnplOrder(apm: ["TAMARA", "TABBY"], currencyCode: "AED", value: 1)
         XCTAssertEqual(order.supportedBnplProviders, [.tamara, .tabby])
-        XCTAssertTrue(order.isBelowBnplMinimum(for: .tabby))
-    }
-
-    func testTheMinimumIsClearedExactlyAtTheThreshold() throws {
-        let order = try bnplOrder(apm: ["TABBY"], currencyCode: "AED", value: 1000)
-        XCTAssertFalse(order.isBelowBnplMinimum(for: .tabby))
-    }
-
-    /// The minimum is quoted in AED only, so another currency is left to the gateway to judge.
-    func testTheAedMinimumDoesNotLeakIntoOtherCurrencies() throws {
-        let order = try bnplOrder(apm: ["TABBY"], currencyCode: "SAR", value: 500)
-        XCTAssertFalse(order.isBelowBnplMinimum(for: .tabby))
-        XCTAssertNil(order.formattedBnplMinimum(for: .tabby))
-    }
-
-    /// Tamara publishes no minimum, so nothing is invented for it.
-    func testTamaraHasNoMinimumOfItsOwn() throws {
-        let order = try bnplOrder(apm: ["TAMARA"], currencyCode: "AED", value: 1)
-        XCTAssertFalse(order.isBelowBnplMinimum(for: .tamara))
-        XCTAssertNil(order.formattedBnplMinimum(for: .tamara))
-    }
-
-    func testTheMinimumIsFormattedForDisplayInTheOrdersCurrency() throws {
-        let order = try bnplOrder(apm: ["TABBY"], currencyCode: "AED", value: 500)
-        XCTAssertEqual(order.formattedBnplMinimum(for: .tabby), "AED 10")
-    }
-
-    /// BHD carries three minor digits, so a naive divide-by-100 would read 500 as 5.000 and clear a
-    /// threshold it does not actually meet.
-    func testMinorUnitsAreRespectedWhenComparing() throws {
-        let order = try bnplOrder(apm: ["TABBY"], currencyCode: "AED", value: 999)
-        XCTAssertTrue(order.isBelowBnplMinimum(for: .tabby))
     }
 
     func testInitArgsUseTheAdvertisedLink() throws {

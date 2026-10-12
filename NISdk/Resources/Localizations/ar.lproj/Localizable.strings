@@ -76,8 +76,6 @@
 "Tamara" = "تمارا";
 "Pay with Tabby" = "الدفع عبر تابي";
 "Tabby" = "تابي";
-"Bnpl below minimum" = "‏%1$@ يتطلب حد أدنى للطلب %2$@.";
-"Bnpl unavailable" = "‏%@ غير متاح حالياً. يرجى اختيار طريقة دفع أخرى.";
 "aani_request_to_pay" = "طلب دفع";
 "aani_generating_qr" = "جارٍ إنشاء رمز الاستجابة";
 "aani_keep_modal_open" = "يرجى إبقاء النافذة مفتوحة";
@@ -120,6 +118,7 @@
 
 /* Payment Result Screen */
 "Payment Success Title" = "لقد دفعت %@";
+"Payment Success Title Slice" = "إجمالي المبلغ المستحق %@";
 "Payment Success Title No Amount" = "تمت عملية الدفع بنجاح";
 "Payment Failure Title" = "حدث خطأ ما";
 "Payment Success Subtitle" = "شكراً لك! تم استلام دفعتك.";
@@ -131,3 +130,21 @@
 "Add card manually" = "إضافة بطاقة يدوياً";
 "Select Payment Option Validation" = "يرجى اختيار خيار الدفع للمتابعة";
 "Card Already Saved" = "هذه البطاقة محفوظة بالفعل";
+
+/* Slice instalments. "Slice" is a brand name and stays in English in every locale.
+   Month counts are plurals and live in Localizable.stringsdict. */
+"slice_checking_eligibility" = "جارٍ التحقق من الأهلية لـ Slice...";
+"slice_banner_title" = "أقساط بدون رسوم وبدون فوائد.";
+"slice_banner_subtitle" = "قسّم مشترياتك على أقساط ميسّرة";
+"slice_pay_in_full" = "الدفع بالكامل";
+"slice_per_month" = "شهريًا";
+"slice_badge_zero_interest" = "بدون فوائد";
+"slice_badge_zero_profit" = "بدون أرباح";
+"slice_badge_zero_fees" = "بدون رسوم";
+"slice_interest_rate" = "معدل الفائدة";
+"slice_profit_rate" = "معدل الربح";
+"slice_processing_fees" = "رسوم المعالجة";
+"slice_installment_fees" = "رسوم التقسيط";
+"slice_receipt_title" = "تم تقسيط مشترياتك بنجاح عبر Slice!";
+"slice_receipt_tenor" = "المدة";
+"slice_receipt_installment_amount" = "قيمة القسط";

@@ -21,6 +21,25 @@ enum BenefitPaymentStatus {
     /// the payer backing out rather than a payment outcome, so the SDK returns them to the payment
     /// page instead of ending the payment.
     case cancelledOnProvider
+    /// Benefit never started: the gateway refused the initiation, or its hosted page never loaded.
+    /// Carries why, for the log. The payer never saw Benefit and nothing was recorded against the
+    /// order, so this is not a payment outcome — most often it is the outlet's BENEFIT
+    /// configuration, which the payer can do nothing about and their other options survive.
+    case couldNotStart(NIPaymentError)
+}
+
+extension BenefitPaymentStatus {
+    /// True for every outcome that leaves the order untouched and still payable. Those belong back
+    /// on the unified payment page with the payer's other options intact — ending the payment would
+    /// throw away methods that would have worked.
+    var returnsToPaymentPage: Bool {
+        switch self {
+        case .dismissed, .cancelledOnProvider, .couldNotStart:
+            return true
+        case .success, .postAuthReview, .failed:
+            return false
+        }
+    }
 }
 
 /// Hosts the Benefit (Bahrain debit) hosted payment page.
@@ -179,24 +198,31 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
                 if error != nil { return .network }
                 return (400...499).contains(statusCode) ? .configuration : .provider
             }()
-            let detail = error?.localizedDescription ?? body
+            let envelope = data.flatMap { try? JSONDecoder().decode(BenefitInitErrorBody.self, from: $0) }
+            let detail = error?.localizedDescription ?? envelope?.reason ?? body
             DispatchQueue.main.async {
-                self.dispatch(.failed(NIPaymentError(category: category,
-                                                     message: detail,
-                                                     paymentMethod: Self.methodName)))
+                self.dispatch(.couldNotStart(NIPaymentError(category: category,
+                                                            message: detail,
+                                                            paymentMethod: Self.methodName)))
             }
             return
         }
         guard response.isInitiated,
               let paymentUrl = response.paymentUrl,
               let url = URL(string: paymentUrl) else {
-            print("Benefit: initiation rejected httpStatus=\(statusCode) status=\(response.status ?? "<nil>") error=\(response.errorMessage ?? "<none>")")
-            // Answered, but Benefit would not start the payment — their problem, not the payer's.
+            // A rejection is answered with the gateway's error envelope, not a BenefitInitResponse,
+            // so the reason has to be read from there before falling back to the status.
+            let envelope = try? JSONDecoder().decode(BenefitInitErrorBody.self, from: data)
+            let reason = response.errorMessage
+                ?? envelope?.reason
+                ?? "Benefit did not accept the payment (status \(response.status ?? "unknown"))"
+            print("Benefit: initiation rejected httpStatus=\(statusCode) status=\(response.status ?? "<nil>") error=\(reason)")
+            // Answered, but Benefit would not start the payment — the payer never got as far as
+            // Benefit, so they go back to the payment page rather than losing the order.
             DispatchQueue.main.async {
-                self.dispatch(.failed(NIPaymentError(
-                    category: .provider,
-                    message: response.errorMessage ?? "Benefit did not accept the payment (status \(response.status ?? "unknown"))",
-                    paymentMethod: Self.methodName)))
+                self.dispatch(.couldNotStart(NIPaymentError(category: .provider,
+                                                            message: reason,
+                                                            paymentMethod: Self.methodName)))
             }
             return
         }
@@ -398,7 +424,7 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     /// Records anything worth knowing about a URL the WebView passes through. Server redirects and
     /// policy decisions surface different hops of the same chain, so both feed into this.
     private func noteNavigation(_ url: URL?, source: String) {
-        print("Benefit: \(source) \(url?.absoluteString ?? "<nil>")")
+        print("Benefit: \(source) \(redactUrlForLog(url))")
         if isBenefitCancelPage(url) || isErrorCallback(url) {
             print("Benefit: payer cancelled on the hosted page")
             payerCancelled = true
@@ -511,9 +537,13 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
                          NSURLErrorTimedOut,
                          NSURLErrorCannotFindHost,
                          NSURLErrorCannotConnectToHost].contains(nsError.code)
-        dispatch(.failed(NIPaymentError(category: isOffline ? .network : .provider,
-                                        message: error.localizedDescription,
-                                        paymentMethod: Self.methodName)))
+        let paymentError = NIPaymentError(category: isOffline ? .network : .provider,
+                                          message: error.localizedDescription,
+                                          paymentMethod: Self.methodName)
+        // Never having reached Benefit's own site means the payer had no chance to authorise
+        // anything, so the order is untouched and they belong back on the payment page. Once they
+        // are on Benefit's site an attempt may be in flight, and that is a payment outcome.
+        dispatch(didReachBenefitHost ? .failed(paymentError) : .couldNotStart(paymentError))
     }
 
     // MARK: - WKUIDelegate

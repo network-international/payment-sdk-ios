@@ -33,6 +33,49 @@ final class SliceModelTests: XCTestCase {
         XCTAssertEqual(response.offers[1].totalAmount.value, 50500)
     }
 
+    // MARK: - Installment fee (the offer's `commission`)
+
+    private func offer(commission: Any?) throws -> SliceOffer {
+        var json: [String: Any] = [
+            "period": "3", "rate": "0.00", "fee": "0", "feeType": "FIXED",
+            "installmentAmount": ["currencyCode": "AED", "value": 20733],
+            "totalAmount": ["currencyCode": "AED", "value": 62200]
+        ]
+        if let commission = commission { json["commission"] = commission }
+        return try TestFixtures.decode(SliceOffer.self, from: json)
+    }
+
+    /// The value behind the "Installment fees" row: the planned commission the backend quotes for
+    /// the selected plan, in major units.
+    func testAPositiveCommissionIsTheInstallmentFee() throws {
+        XCTAssertEqual(try offer(commission: "7.00").installmentFeeAmount, 7.00)
+    }
+
+    /// The row is hidden on a zero fee, so the parsed value must be nil rather than 0 — the view
+    /// decides purely on nil-ness.
+    func testAZeroCommissionCarriesNoInstallmentFee() throws {
+        XCTAssertNil(try offer(commission: "0").installmentFeeAmount)
+        XCTAssertNil(try offer(commission: "0.00").installmentFeeAmount)
+    }
+
+    func testAnAbsentCommissionCarriesNoInstallmentFee() throws {
+        XCTAssertNil(try offer(commission: nil).installmentFeeAmount)
+    }
+
+    /// A plan the backend quotes without a usable number must hide the row rather than render
+    /// something meaningless next to an amount the payer is about to be charged.
+    func testAnUnparsableCommissionCarriesNoInstallmentFee() throws {
+        XCTAssertNil(try offer(commission: "").installmentFeeAmount)
+        XCTAssertNil(try offer(commission: "n/a").installmentFeeAmount)
+        XCTAssertNil(try offer(commission: "-7.00").installmentFeeAmount)
+    }
+
+    /// The breakdown's "Total after N months" reads the backend total directly, which the design
+    /// has covering the order amount plus the installment fee (615.00 + 7.00).
+    func testTheOfferCarriesTheBackendTotal() throws {
+        XCTAssertEqual(try offer(commission: "7.00").totalAmount.value, 62200)
+    }
+
     func testIndicatorIsOptionalSoOlderBackendsStillDecode() throws {
         let response: SliceEligibilityResponse = try TestFixtures.decode(
             SliceEligibilityResponse.self,
@@ -68,6 +111,80 @@ final class SliceModelTests: XCTestCase {
         XCTAssertEqual(decoded.period, "6")
         XCTAssertEqual(decoded.rate, "1.50")
         XCTAssertEqual(decoded.fee, "500")
+    }
+}
+
+/// The receipt restates the plan the payer agreed to on the offer card, and the card builds its
+/// figures through `SliceReceipt.from` — so these pin what both screens show.
+final class SliceReceiptTests: XCTestCase {
+
+    private func offer(period: String = "4", rate: String = "0.00", fee: String = "0",
+                       feeType: String = "F", commission: String? = nil) throws -> SliceOffer {
+        var json: [String: Any] = [
+            "period": period, "rate": rate, "fee": fee, "feeType": feeType,
+            "installmentAmount": ["currencyCode": "AED", "value": 271950],
+            "totalAmount": ["currencyCode": "AED", "value": 1087800]
+        ]
+        if let commission = commission { json["commission"] = commission }
+        return try TestFixtures.decode(SliceOffer.self, from: json)
+    }
+
+    func testCarriesThePeriodAsSentSoTheViewCanPluraliseIt() throws {
+        XCTAssertEqual(SliceReceipt.from(offer: try offer(period: "4"), isIslamic: false).period, "4")
+    }
+
+    func testFormatsTheInstallmentAmountWithGroupingAndTwoDecimals() throws {
+        XCTAssertEqual(SliceReceipt.from(offer: try offer(), isIslamic: false).installmentAmount, "AED 2,719.50")
+    }
+
+    func testShowsTheRateAsAPercentage() throws {
+        XCTAssertEqual(SliceReceipt.from(offer: try offer(rate: "1.5"), isIslamic: false).rate, "1.5%")
+    }
+
+    func testAPercentageFeeTypeIsShownAsAPercentageNotAnAmount() throws {
+        XCTAssertEqual(SliceReceipt.from(offer: try offer(fee: "2", feeType: "P"), isIslamic: false).processingFees, "2%")
+    }
+
+    func testAFixedFeeIsShownAsAnAmountInTheOfferCurrency() throws {
+        XCTAssertEqual(SliceReceipt.from(offer: try offer(fee: "25"), isIslamic: false).processingFees, "AED 25.00")
+    }
+
+    /// `0.29 * 100` is `28.999…`; truncating it quoted the payer AED 0.28.
+    func testAFixedFeeIsRoundedToTheNearestMinorUnitNotTruncated() throws {
+        XCTAssertEqual(SliceReceipt.from(offer: try offer(fee: "0.29"), isIslamic: false).processingFees, "AED 0.29")
+    }
+
+    func testAnUnparsableFixedFeeIsShownAsZero() throws {
+        XCTAssertEqual(SliceReceipt.from(offer: try offer(fee: ""), isIslamic: false).processingFees, "AED 0.00")
+    }
+
+    func testACommissionBecomesTheInstallmentFeeRow() throws {
+        XCTAssertEqual(SliceReceipt.from(offer: try offer(commission: "7.00"), isIslamic: false).installmentFees, "AED 7.00")
+    }
+
+    func testTheInstallmentFeeIsRoundedNotTruncated() throws {
+        XCTAssertEqual(SliceReceipt.from(offer: try offer(commission: "0.29"), isIslamic: false).installmentFees, "AED 0.29")
+    }
+
+    /// The view hides the row purely on nil-ness, as the offer card does.
+    func testNoCommissionMeansNoInstallmentFeeRow() throws {
+        XCTAssertNil(SliceReceipt.from(offer: try offer(commission: nil), isIslamic: false).installmentFees)
+        XCTAssertNil(SliceReceipt.from(offer: try offer(commission: "0.00"), isIslamic: false).installmentFees)
+    }
+
+    func testCarriesTheIslamicFlagThatPicksTheProfitRateLabel() throws {
+        XCTAssertTrue(SliceReceipt.from(offer: try offer(), isIslamic: true).isIslamic)
+        XCTAssertFalse(SliceReceipt.from(offer: try offer(), isIslamic: false).isIslamic)
+    }
+
+    /// Grouping must not depend on the device locale: an Arabic or French device would otherwise
+    /// change the separators between the card and the receipt.
+    func testLargeAmountsGroupThousandsWithCommas() {
+        XCTAssertEqual(SliceReceipt.formatAmount(minorUnits: 123456789, currency: "AED"), "AED 1,234,567.89")
+    }
+
+    func testANonNumericPeriodIsShownAsSent() {
+        XCTAssertEqual(SliceCopy.months("slice_tab_months", period: "flex"), "flex")
     }
 }
 

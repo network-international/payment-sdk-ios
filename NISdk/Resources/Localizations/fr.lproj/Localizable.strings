@@ -77,8 +77,6 @@
 "Tamara" = "Tamara";
 "Pay with Tabby" = "Payer avec Tabby";
 "Tabby" = "Tabby";
-"Bnpl below minimum" = "%1$@ exige une commande minimale de %2$@.";
-"Bnpl unavailable" = "%@ est indisponible pour le moment. Veuillez choisir un autre moyen de paiement.";
 "aani_request_to_pay" = "Demande de paiement";
 "aani_generating_qr" = "Génération du code QR";
 "aani_keep_modal_open" = "Veuillez garder la fenêtre ouverte";
@@ -117,6 +115,7 @@
 
 /* Payment Result Screen */
 "Payment Success Title" = "Vous avez payé %@";
+"Payment Success Title Slice" = "Total à payer %@";
 "Payment Success Title No Amount" = "Paiement réussi";
 "Payment Failure Title" = "Une erreur est survenue";
 "Payment Success Subtitle" = "Merci ! Votre paiement a été reçu.";
@@ -128,3 +127,21 @@
 "Add card manually" = "Ajouter une carte manuellement";
 "Select Payment Option Validation" = "Veuillez sélectionner une option de paiement pour continuer";
 "Card Already Saved" = "Cette carte est déjà enregistrée";
+
+/* Slice instalments. "Slice" is a brand name and stays in English in every locale.
+   Month counts are plurals and live in Localizable.stringsdict. */
+"slice_checking_eligibility" = "Vérification de l'éligibilité à Slice...";
+"slice_banner_title" = "Paiement échelonné sans frais ni intérêts.";
+"slice_banner_subtitle" = "Réglez vos achats en plusieurs fois, facilement";
+"slice_pay_in_full" = "Payer en totalité";
+"slice_per_month" = "Par mois";
+"slice_badge_zero_interest" = "Sans intérêts";
+"slice_badge_zero_profit" = "Sans profit";
+"slice_badge_zero_fees" = "Sans frais";
+"slice_interest_rate" = "Taux d'intérêt";
+"slice_profit_rate" = "Taux de profit";
+"slice_processing_fees" = "Frais de traitement";
+"slice_installment_fees" = "Frais d'échelonnement";
+"slice_receipt_title" = "Votre achat a été échelonné avec Slice !";
+"slice_receipt_tenor" = "Durée";
+"slice_receipt_installment_amount" = "Montant de l'échéance";
