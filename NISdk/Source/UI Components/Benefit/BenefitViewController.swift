@@ -398,7 +398,7 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     /// Records anything worth knowing about a URL the WebView passes through. Server redirects and
     /// policy decisions surface different hops of the same chain, so both feed into this.
     private func noteNavigation(_ url: URL?, source: String) {
-        print("Benefit: \(source) \(url?.absoluteString ?? "<nil>")")
+        print("Benefit: \(source) host=\(url?.host ?? "<nil>")")
         if isBenefitCancelPage(url) || isErrorCallback(url) {
             print("Benefit: payer cancelled on the hosted page")
             payerCancelled = true

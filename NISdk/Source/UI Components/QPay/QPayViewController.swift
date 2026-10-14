@@ -212,7 +212,7 @@ class QPayViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, 
             DispatchQueue.main.async { self.dispatch(.failed) }
             return
         }
-        print("[QPay] Loading auto-submit form, baseURL=\(baseURL.absoluteString) action=\(response.redirectUri ?? "<nil>")")
+        print("[QPay] Loading auto-submit form, host=\(baseURL.host ?? "<nil>")")
         DispatchQueue.main.async {
             self.webView.loadHTMLString(html, baseURL: baseURL)
         }
@@ -301,7 +301,7 @@ class QPayViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, 
                  decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         let url = navigationAction.request.url
-        print("[QPay] decidePolicy method=\(navigationAction.request.httpMethod ?? "?") url=\(url?.absoluteString ?? "nil")")
+        print("[QPay] decidePolicy method=\(navigationAction.request.httpMethod ?? "?") host=\(url?.host ?? "nil")")
         if let path = url?.path {
             // QCB's user-cancel endpoint. When the payer taps cancel on the QCB hosted page the
             // WebView navigates here before it ever reaches our accept callback. Treat this hop as
@@ -389,7 +389,7 @@ class QPayViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, 
                  for navigationAction: WKNavigationAction,
                  windowFeatures: WKWindowFeatures) -> WKWebView? {
         if let url = navigationAction.request.url {
-            print("[QPay] window.open intercepted url=\(url.absoluteString) — loading in same WebView")
+            print("[QPay] window.open intercepted host=\(url.host ?? "nil") — loading in same WebView")
             webView.load(navigationAction.request)
         }
         return nil

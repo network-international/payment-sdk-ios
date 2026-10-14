@@ -125,11 +125,8 @@ import PassKit
             completion(nil, nil, HTTPClientErrors.missingUrl)
             return
         }
-        print("ApplePay: postApplePayResponse - URL: \(applePayLink)")
+        print("ApplePay: postApplePayResponse - posting payment data")
         print("ApplePay: postApplePayResponse - paymentData size: \(applePayPaymentResponse.token.paymentData.count) bytes")
-        if let paymentDataStr = String(data: applePayPaymentResponse.token.paymentData, encoding: .utf8) {
-            print("ApplePay: postApplePayResponse - paymentData: \(paymentDataStr.prefix(200))...")
-        }
         client(for: applePayLink, reportingFailureTo: completion)?
             .withMethod(method: "PUT")
             .withHeaders(headers: paymentRequestHeaders)

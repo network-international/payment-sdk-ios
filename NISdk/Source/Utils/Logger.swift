@@ -41,10 +41,9 @@ class NILogger {
             log("  Headers: \(maskedHeaders)")
         }
 
+        // Request bodies carry card data, auth codes and wallet payloads, so only the size is logged.
         if let body = request.httpBody {
-            let bodyString = String(data: body, encoding: .utf8) ?? "<binary data>"
-            let truncated = truncateBody(bodyString)
-            log("  Body: (\(body.count) bytes) \(truncated)")
+            log("  Body: (\(body.count) bytes)")
         }
 
         logCurl(request)
@@ -60,14 +59,14 @@ class NILogger {
 
         if let headers = request.allHTTPHeaderFields {
             for (key, value) in headers.sorted(by: { $0.key < $1.key }) {
-                let escaped = value.replacingOccurrences(of: "'", with: "'\\''")
+                let masked = maskHeaderValue(key: key, value: value)
+                let escaped = masked.replacingOccurrences(of: "'", with: "'\\''")
                 parts.append("-H '\(key): \(escaped)'")
             }
         }
 
-        if let body = request.httpBody, let bodyString = String(data: body, encoding: .utf8) {
-            let escaped = bodyString.replacingOccurrences(of: "'", with: "'\\''")
-            parts.append("-d '\(escaped)'")
+        if let body = request.httpBody {
+            parts.append("-d '<\(body.count) bytes omitted>'")
         }
 
         parts.append("'\(url)'")
