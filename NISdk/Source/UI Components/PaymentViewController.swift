@@ -37,6 +37,14 @@ class PaymentViewController: UIViewController {
     private var lastPaymentResponse: PaymentResponse?
     /// Cause of the pending non-successful result, reported alongside it to the merchant.
     private var paymentError: NIPaymentError?
+    /// Set once a terminal result has begun closing out the payment, so a second one cannot
+    /// push another result screen or dismiss twice. Main queue only.
+    private var hasFinishedPayment = false
+    /// Set once the merchant has been told the outcome. `paymentDidComplete` is a one-shot
+    /// contract, but several independent paths reach it — the Apple Pay sheet's two
+    /// dismissal callbacks, a partial-auth failure, the deferred result screen — so the
+    /// first result wins and any later one is dropped. Main queue only.
+    private var hasReportedPaymentResult = false
     
     init(order: OrderResponse, cardPaymentDelegate: CardPaymentDelegate,
          applePayDelegate: ApplePayDelegate?, paymentMedium: PaymentMedium) {
@@ -343,7 +351,7 @@ class PaymentViewController: UIViewController {
         print("ApplePay: currencyCode: \(applePayRequest.currencyCode)")
         print("ApplePay: summaryItems: \(applePayRequest.paymentSummaryItems.map { "\($0.label): \($0.amount)" })")
         print("ApplePay: merchantCapabilities: \(applePayRequest.merchantCapabilities.rawValue)")
-        print("ApplePay: applePayLink: \(order.embeddedData?.payment?[0].paymentLinks?.applePayLink ?? "nil")")
+        print("ApplePay: applePayLink: \(order.embeddedData?.payment?[0].paymentLinks?.applePayLink == nil ? "nil" : "present")")
 
         applePayController = ApplePayController(applePayDelegate: applePayDelegate,
                                                 order: order,
@@ -537,7 +545,7 @@ class PaymentViewController: UIViewController {
             print("ApplePay: getPayerIp completed, payerIp: \(payerIp ?? "nil")")
             if let payment = payment, let completion = completion {
                 print("ApplePay: Posting Apple Pay response, accessToken: \(self.accessToken != nil ? "present" : "nil")")
-                print("ApplePay: applePayLink: \(self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink ?? "nil")")
+                print("ApplePay: applePayLink: \(self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink == nil ? "nil" : "present")")
                 self.transactionService.postApplePayResponse(for: self.order,
                                                              with: payment,
                                                              using: self.accessToken!,
@@ -909,6 +917,14 @@ class PaymentViewController: UIViewController {
     /// optional one carries the cause when there is one, so integrations that never adopt it keep
     /// working exactly as before.
     private func reportPaymentDidComplete(_ paymentStatus: PaymentStatus) {
+        // Every exit path funnels through here, so this is the one place that can promise
+        // the merchant a single terminal callback. A second result would contradict the
+        // first and, on the React Native bridge, invoke an already-consumed callback.
+        guard !hasReportedPaymentResult else {
+            print("ApplePay/Payment: Ignoring duplicate payment completion: \(paymentStatus) - a result was already reported")
+            return
+        }
+        hasReportedPaymentResult = true
         let error = paymentStatus == .PaymentSuccess ? nil : paymentError
         cardPaymentDelegate?.paymentDidComplete(with: paymentStatus)
         cardPaymentDelegate?.paymentDidComplete?(with: paymentStatus, error: error)
@@ -923,6 +939,14 @@ class PaymentViewController: UIViewController {
         self.paymentError = error
         print("ApplePay/Payment: finishPaymentAndClosePaymentViewController - paymentStatus: \(paymentStatus), threeDSStatus: \(String(describing: threeDSStatus)), authStatus: \(String(describing: authStatus)), error: \(error?.description ?? "none")")
         DispatchQueue.main.async { // Use the main thread to update any UI
+            // A terminal result is already closing out this payment attempt. Running the
+            // flow again would show a second result screen and dismiss twice.
+            guard !self.hasFinishedPayment else {
+                print("ApplePay/Payment: Ignoring duplicate terminal result: \(paymentStatus)")
+                return
+            }
+            self.hasFinishedPayment = true
+
             if let threeDSStatus = threeDSStatus {
                 self.cardPaymentDelegate?.threeDSChallengeDidComplete?(with: threeDSStatus)
             }
