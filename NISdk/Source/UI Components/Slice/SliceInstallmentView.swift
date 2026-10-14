@@ -107,7 +107,7 @@ struct SliceInstallmentView: View {
                 detailRow(label: "Interest rate", value: "\(offer.rate)%")
                 detailRow(label: "Processing fees", value: feeDisplay)
                 if let installmentFee = installmentFee {
-                    detailRow(label: "Installment fees", value: installmentFee)
+                    detailRow(label: "Installment fee", value: installmentFee)
                 }
                 detailRow(label: "Total after \(offer.period) months", value: totalAmt, bold: true)
             }
@@ -287,7 +287,7 @@ final class SliceInstallmentUIView: UIView {
 
     @objc private func tabTapped(_ sender: UIButton) {
         let wasShowingDetail = !detailCard.isHidden
-        // The Installment fees row is per-offer, so switching between two offers can change
+        // The Installment fee row is per-offer, so switching between two offers can change
         // the card's height without the card itself appearing or disappearing.
         let wasShowingCommission = !(commissionRow?.isHidden ?? true)
         selectedIndex = sender.tag
@@ -382,7 +382,7 @@ final class SliceInstallmentUIView: UIView {
         totalRow.axis = .horizontal
         totalRow.spacing = 8
 
-        // Installment fees sits directly under Processing fees; hidden unless the offer
+        // Installment fee sits directly under Processing fees; hidden unless the offer
         // carries a `commission` greater than zero.
         let commissionRowView = makeDetailRow(labelText: "slice_installment_fees".localized + ":", valueLabel: commissionValueLabel)
         commissionRowView.isHidden = true

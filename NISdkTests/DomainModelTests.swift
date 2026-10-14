@@ -45,7 +45,7 @@ final class SliceModelTests: XCTestCase {
         return try TestFixtures.decode(SliceOffer.self, from: json)
     }
 
-    /// The value behind the "Installment fees" row: the planned commission the backend quotes for
+    /// The value behind the "Installment fee" row: the planned commission the backend quotes for
     /// the selected plan, in major units.
     func testAPositiveCommissionIsTheInstallmentFee() throws {
         XCTAssertEqual(try offer(commission: "7.00").installmentFeeAmount, 7.00)
