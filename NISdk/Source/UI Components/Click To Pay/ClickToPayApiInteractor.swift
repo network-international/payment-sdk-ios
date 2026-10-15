@@ -24,6 +24,7 @@ class ClickToPayApiInteractor {
         if let cardId = srcDigitalCardId {
             bodyDict["srcDigitalCardId"] = cardId
         }
+        bodyDict.merge(PayerDeviceInfo.current.fields) { existing, _ in existing }
 
         guard let bodyData = try? JSONSerialization.data(withJSONObject: bodyDict) else {
             completion(.failed("Failed to serialize request body"))

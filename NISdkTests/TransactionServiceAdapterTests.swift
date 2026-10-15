@@ -179,6 +179,33 @@ final class MakePaymentRequestTests: TransactionServiceTestCase {
                        "the gateway needs to know this came from a native app")
     }
 
+    func testSendsThePayerDeviceFieldsForTrident() throws {
+        let order = try order()
+        let request = paymentRequest
+        request.deviceInfo = PayerDeviceInfo(deviceId: "idfv-1", idiom: .phone)
+
+        awaitResponse { sut.makePayment(for: order, with: request, using: "ptok", on: $0) }
+
+        let body = StubURLProtocol.lastBodyJSON
+        XCTAssertEqual(body?["deviceId"] as? String, "idfv-1")
+        XCTAssertEqual(body?["deviceOs"] as? String, "iOS")
+        XCTAssertEqual(body?["deviceType"] as? String, "Mobile")
+    }
+
+    func testLeavesOutDeviceFieldsThatAreNotAvailable() throws {
+        let order = try order()
+        let request = paymentRequest
+        request.deviceInfo = PayerDeviceInfo(deviceId: nil, deviceOs: nil, idiom: .unspecified)
+
+        awaitResponse { sut.makePayment(for: order, with: request, using: "ptok", on: $0) }
+
+        let body = StubURLProtocol.lastBodyJSON
+        XCTAssertNil(body?["deviceId"])
+        XCTAssertNil(body?["deviceOs"])
+        XCTAssertNil(body?["deviceType"])
+        XCTAssertEqual(body?["pan"] as? String, "4111111111111111", "the payment still goes")
+    }
+
     func testAMissingCardLinkReportsAnErrorInsteadOfHangingTheScreen() throws {
         let order = try order(cardLink: nil)
 
@@ -366,6 +393,18 @@ final class SavedCardRequestTests: TransactionServiceTestCase {
         XCTAssertEqual(body?["cvv"] as? String, "123")
         XCTAssertEqual(body?["expiry"] as? String, "2030-12")
         XCTAssertNil(body?["pan"])
+    }
+
+    func testSendsThePayerDeviceFieldsForTrident() {
+        let request = savedCard
+        request.deviceInfo = PayerDeviceInfo(deviceId: "idfv-1", idiom: .pad)
+
+        awaitResponse { sut.doSavedCardPayment(for: url, with: request, using: "ptok", on: $0) }
+
+        let body = StubURLProtocol.lastBodyJSON
+        XCTAssertEqual(body?["deviceId"] as? String, "idfv-1")
+        XCTAssertEqual(body?["deviceOs"] as? String, "iOS")
+        XCTAssertEqual(body?["deviceType"] as? String, "Tablet")
     }
 
     func testAnUnusableUrlReportsAnError() {
@@ -659,5 +698,53 @@ final class TransportBehaviourTests: TransactionServiceTestCase {
         XCTAssertNil(error)
         XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 502)
         XCTAssertNotNil(data, "the body must survive so callers can log what the gateway said")
+    }
+}
+
+// MARK: - Payer device info
+
+final class PayerDeviceInfoTests: XCTestCase {
+
+    func testDeviceOsIsThePlatformNameOnly() {
+        XCTAssertEqual(PayerDeviceInfo(deviceId: "id", idiom: .phone).deviceOs, "iOS")
+        XCTAssertEqual(PayerDeviceInfo(deviceId: "id", idiom: .pad).deviceOs, "iOS")
+    }
+
+    func testApplePayTokenKeepsItsKeysAndGainsTheDeviceFields() throws {
+        let token = #"{"data":"ab/cd+ef==","header":{"transactionId":"t1"},"signature":"s/g","version":"EC_v1"}"#
+        let info = PayerDeviceInfo(deviceId: "idfv-1", idiom: .phone)
+
+        let body = info.adding(toJSONObject: Data(token.utf8))
+
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+        XCTAssertEqual(json["data"] as? String, "ab/cd+ef==")
+        XCTAssertEqual((json["header"] as? [String: Any])?["transactionId"] as? String, "t1")
+        XCTAssertEqual(json["signature"] as? String, "s/g")
+        XCTAssertEqual(json["version"] as? String, "EC_v1")
+        XCTAssertEqual(json["deviceId"] as? String, "idfv-1")
+        XCTAssertEqual(json["deviceOs"] as? String, "iOS")
+        XCTAssertEqual(json["deviceType"] as? String, "Mobile")
+    }
+
+    func testABodyThatIsNotAJSONObjectIsSentUnchanged() {
+        let info = PayerDeviceInfo(deviceId: "idfv-1", idiom: .phone)
+        let raw = Data("not json".utf8)
+        XCTAssertEqual(info.adding(toJSONObject: raw), raw)
+        XCTAssertEqual(info.adding(toJSONObject: Data()), Data(), "a simulator PKPayment has no token")
+    }
+
+    func testDeviceIdIsNotTruncated() {
+        let long = String(repeating: "a", count: 300)
+        let info = PayerDeviceInfo(deviceId: long, idiom: .phone)
+        XCTAssertEqual(info.deviceId, long, "the gateway puts no limit on deviceId")
+    }
+
+    func testAnEmptyDeviceIdIsLeftOut() {
+        let info = PayerDeviceInfo(deviceId: "", idiom: .phone)
+        XCTAssertNil(info.fields["deviceId"])
+    }
+
+    func testTheCurrentDeviceReportsItsVendorIdentifier() {
+        XCTAssertEqual(PayerDeviceInfo.current.deviceId, UIDevice.current.identifierForVendor?.uuidString)
     }
 }

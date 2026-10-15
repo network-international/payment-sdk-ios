@@ -29,6 +29,8 @@ class PaymentRequest: NSObject, Codable {
     var payerIp: String?
     var visaRequest: VisaRequest?
     var sliceRequest: SliceRequest?
+    /// Payer device fields for Trident fraud screening, read when the body is encoded.
+    var deviceInfo: PayerDeviceInfo = .current
 
     override init() {
         pan = nil
@@ -83,6 +85,9 @@ class PaymentRequest: NSObject, Codable {
         case cardHolderName = "cardholderName"
         case visaRequest = "vis"
         case sliceRequest = "slice"
+        case deviceId
+        case deviceOs
+        case deviceType
     }
     
     required public init(from decoder: Decoder) throws {
@@ -104,5 +109,8 @@ class PaymentRequest: NSObject, Codable {
         try container.encode(payerIp, forKey: .payerIp)
         try container.encodeIfPresent(visaRequest, forKey: .visaRequest)
         try container.encodeIfPresent(sliceRequest, forKey: .sliceRequest)
+        try container.encodeIfPresent(deviceInfo.deviceId, forKey: .deviceId)
+        try container.encodeIfPresent(deviceInfo.deviceOs, forKey: .deviceOs)
+        try container.encodeIfPresent(deviceInfo.deviceType, forKey: .deviceType)
     }
 }
