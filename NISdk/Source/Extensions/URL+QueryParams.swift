@@ -21,7 +21,7 @@ extension URL {
 
 /// Parameters that are the SDK's own, describe no one, and are the whole point of reading these
 /// logs: which return leg a redirect was, and which method it belonged to.
-private let loggableQueryParams: Set<String> = ["ni_sdk_result", "payment_method"]
+private let loggableQueryParams: Set<String> = ["ni_sdk_result", "payment_method", "outcome"]
 
 extension URL {
     /// The URL rendered safe to write to the device log.
