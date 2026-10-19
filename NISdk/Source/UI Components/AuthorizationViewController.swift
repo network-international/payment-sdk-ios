@@ -20,7 +20,7 @@ class AuthorizationViewController: UIViewController {
         view.backgroundColor = .white
         
         let spinner = UIActivityIndicatorView(style: .medium)
-        spinner.color = .gray
+        spinner.color = NISdk.sharedInstance.niSdkColors.progressLoaderColor ?? .gray
         spinner.isHidden = false
         spinner.startAnimating()
         

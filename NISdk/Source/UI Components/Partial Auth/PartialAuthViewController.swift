@@ -105,6 +105,7 @@ class PartialAuthViewController: UIViewController {
         self.parent?.navigationItem.title = "Patial Auth Title".localized
         let textAttributes = [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.payPageTitleColor]
         navigationController?.navigationBar.titleTextAttributes = textAttributes
+        NISdk.sharedInstance.niSdkColors.applyNavigationBarColors(to: navigationController?.navigationBar)
     }
 }
 

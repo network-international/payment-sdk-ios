@@ -30,7 +30,7 @@ class ThreeDSViewController: UIViewController, WKNavigationDelegate {
         self.threeDSTermURL = threeDSTermURL
         self.completionHandler = completion
         activityIndicator.hidesWhenStopped = true
-        activityIndicator.color = .white
+        activityIndicator.color = NISdk.sharedInstance.niSdkColors.progressLoaderColor ?? .white
         super.init(nibName: nil, bundle: nil)
     }
 

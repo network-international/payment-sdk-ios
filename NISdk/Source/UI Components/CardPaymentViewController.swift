@@ -50,11 +50,11 @@ class CardPaymentViewController: UIViewController {
             if(self.paymentInProgress) {
                 self.loadingSpinner.startAnimating()
                 self.payButton.setTitle("Processing Payment".localized, for: .disabled)
-                self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor.withAlphaComponent(0.7)
                 self.payButton.isEnabled = false
             } else {
                 self.loadingSpinner.stopAnimating()
-                self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
+                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
                 // Drop the "Processing Payment" disabled title so a form-incomplete
                 // disable falls back to the normal Pay title again.
                 self.payButton.setTitle(nil, for: .disabled)
@@ -93,12 +93,12 @@ class CardPaymentViewController: UIViewController {
 
             let payLabel = UILabel()
             payLabel.text = "Pay".localized
-            payLabel.textColor = .white
+            payLabel.textColor = NISdk.sharedInstance.niSdkColors.payButtonTitleColor
             payLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
 
             let amountLabel = UILabel()
             amountLabel.text = orderAmount.getFormattedAmountValue()
-            amountLabel.textColor = .white
+            amountLabel.textColor = NISdk.sharedInstance.niSdkColors.payButtonTitleColor
             amountLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
 
             stack.addArrangedSubview(payLabel)
@@ -168,7 +168,10 @@ class CardPaymentViewController: UIViewController {
         self.parent?.navigationItem.title = "Make Payment".localized
         let textAttributes = [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.payPageTitleColor]
         navigationController?.navigationBar.titleTextAttributes = textAttributes
+        NISdk.sharedInstance.niSdkColors.applyNavigationBarColors(to: navigationController?.navigationBar)
         self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
+        // nil keeps the default tint. Set on the item: the .done style ignores the bar tint on recent iOS.
+        self.parent?.navigationItem.rightBarButtonItem?.tintColor = NISdk.sharedInstance.niSdkColors.navigationBarButtonColor
     }
 
     private func updateCancelButtonWith(status: Bool) {

@@ -69,8 +69,9 @@ class CardPreviewController: UIViewController {
         vStack.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
         vStack.isLayoutMarginsRelativeArrangement = true
         
-        let stackBackgroundView = UIView()
+        let stackBackgroundView = CardPreviewBackgroundView()
         stackBackgroundView.backgroundColor = NISdk.sharedInstance.niSdkColors.cardPreviewColor
+        stackBackgroundView.gradientColors = NISdk.sharedInstance.niSdkColors.cardPreviewGradient
         stackBackgroundView.layer.borderColor = ColorCompatibility.label.cgColor
         stackBackgroundView.layer.borderWidth = 1.0
         stackBackgroundView.pinAsBackground(to: vStack)
@@ -222,6 +223,23 @@ class CardPreviewController: UIViewController {
         if let scheme = savedCard.scheme {
             cardProvider = CardProvider(rawValue: scheme)
             updateCardLogo()
+        }
+    }
+}
+
+/// Card preview background: solid `cardPreviewColor`, or a left-to-right gradient when
+/// `cardPreviewStartColor` and `cardPreviewEndColor` are set (as on Android).
+private class CardPreviewBackgroundView: UIView {
+    override class var layerClass: AnyClass { CAGradientLayer.self }
+
+    var gradientColors: [UIColor]? {
+        didSet {
+            let layer = self.layer as! CAGradientLayer
+            layer.colors = gradientColors?.map { $0.cgColor }
+            layer.startPoint = CGPoint(x: 0, y: 0.5)
+            layer.endPoint = CGPoint(x: 1, y: 0.5)
+            // Gradient contents are only clipped to the rounded corners when masked.
+            layer.masksToBounds = gradientColors != nil
         }
     }
 }
