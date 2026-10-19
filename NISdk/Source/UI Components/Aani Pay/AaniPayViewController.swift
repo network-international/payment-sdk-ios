@@ -57,6 +57,8 @@ class AaniPayViewController: UIViewController {
         navigationController?.navigationBar.titleTextAttributes = textAttributes
         NISdk.sharedInstance.niSdkColors.applyNavigationBarColors(to: navigationController?.navigationBar)
         self.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
+        // nil keeps the default tint. Set on the item: the .done style ignores the bar tint on recent iOS.
+        self.navigationItem.rightBarButtonItem?.tintColor = NISdk.sharedInstance.niSdkColors.navigationBarButtonColor
     }
     
     private func finish(with status: AaniPaymentStatus) {
