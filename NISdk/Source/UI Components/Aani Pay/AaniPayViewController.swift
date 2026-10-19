@@ -55,6 +55,7 @@ class AaniPayViewController: UIViewController {
         self.navigationItem.title = "Aani Pay"
         let textAttributes = [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.payPageTitleColor]
         navigationController?.navigationBar.titleTextAttributes = textAttributes
+        NISdk.sharedInstance.niSdkColors.applyNavigationBarColors(to: navigationController?.navigationBar)
         self.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
     }
     

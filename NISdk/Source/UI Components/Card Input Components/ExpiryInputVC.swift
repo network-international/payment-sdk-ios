@@ -88,7 +88,7 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         textField.text = ""
         textField.borderStyle = UITextField.BorderStyle.none
         textField.backgroundColor = ColorCompatibility.systemBackground
-        textField.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
+        textField.textColor = NISdk.sharedInstance.niSdkColors.textFieldTextColor ?? NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         textField.alignForCurrentLanguage()
         textField.delegate = self
         

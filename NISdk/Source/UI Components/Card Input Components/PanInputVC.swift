@@ -34,7 +34,7 @@ class PanInputVC: UIViewController, UITextFieldDelegate {
         panTextField.alignForCurrentLanguage()
         panTextField.borderStyle = .none
         panTextField.backgroundColor = ColorCompatibility.systemBackground
-        panTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
+        panTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldTextColor ?? NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         panTextField.delegate = self
         panTextField.addTarget(self, action: #selector(onPanFieldChange), for: .editingChanged)
         panTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)

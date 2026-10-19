@@ -45,11 +45,11 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
             self.payButton.isEnabled = !self.paymentInProgress
             if(self.paymentInProgress) {
                 self.loadingSpinner.startAnimating()
-                self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor.withAlphaComponent(0.7)
                 self.payButton.setTitle("Processing Payment".localized, for: .normal)
             } else {
                 self.loadingSpinner.stopAnimating()
-                self.payButton.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
+                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
             }
         }
     }
@@ -122,12 +122,12 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
 
             let payLabel = UILabel()
             payLabel.text = "Pay".localized
-            payLabel.textColor = .white
+            payLabel.textColor = NISdk.sharedInstance.niSdkColors.payButtonTitleColor
             payLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
 
             let amountLabel = UILabel()
             amountLabel.text = orderAmount.getFormattedAmountValue()
-            amountLabel.textColor = .white
+            amountLabel.textColor = NISdk.sharedInstance.niSdkColors.payButtonTitleColor
             amountLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
 
             stack.addArrangedSubview(payLabel)
@@ -156,6 +156,7 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         self.parent?.navigationItem.title = "Make Payment".localized
         let textAttributes = [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.payPageTitleColor]
         navigationController?.navigationBar.titleTextAttributes = textAttributes
+        NISdk.sharedInstance.niSdkColors.applyNavigationBarColors(to: navigationController?.navigationBar)
         self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
     }
     

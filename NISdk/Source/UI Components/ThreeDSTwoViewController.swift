@@ -79,7 +79,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
         self.transactionService = transactionService
         self.accessToken = accessToken
         self.paypageLink = ""
-        self.activityIndicator.color = .gray
+        self.activityIndicator.color = NISdk.sharedInstance.niSdkColors.progressLoaderColor ?? .gray
         self.paymentResponse = paymentResponse
         activityIndicator.hidesWhenStopped = true
         super.init(nibName: nil, bundle: nil)

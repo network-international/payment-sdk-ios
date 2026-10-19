@@ -35,7 +35,7 @@ class CvvInputVC: UIViewController, UITextFieldDelegate {
         cvvTextField.keyboardType = .asciiCapableNumberPad
         cvvTextField.borderStyle = .none
         cvvTextField.backgroundColor = ColorCompatibility.systemBackground
-        cvvTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
+        cvvTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldTextColor ?? NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         cvvTextField.delegate = self
         cvvTextField.isSecureTextEntry = true;
         cvvTextField.addTarget(self, action: #selector(onCVVChangeCallback), for: .editingChanged)

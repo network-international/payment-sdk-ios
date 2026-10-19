@@ -32,7 +32,7 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
         nameTextField.borderStyle = .none
         nameTextField.keyboardType = .asciiCapable
         nameTextField.backgroundColor = ColorCompatibility.systemBackground
-        nameTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldLabelColor
+        nameTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldTextColor ?? NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         nameTextField.delegate = self
         nameTextField.addTarget(self, action: #selector(onNameChangeCallback), for: .editingChanged)
         nameTextField.setContentHuggingPriority(UILayoutPriority(249), for: .horizontal)

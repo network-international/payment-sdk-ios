@@ -44,8 +44,8 @@ private class NISdkBundleLocator {}
 
     var niSdkColors = NISdkColors()
     var sdkLanguage = "en"
-    public var shouldShowOrderAmount = true
-    public var shouldShowCancelAlert = false
+    @objc public var shouldShowOrderAmount = true
+    @objc public var shouldShowCancelAlert = false
 
     // Overall wall-clock cap on a single 3DS authentication session. If the flow
     // (fingerprint, authentication calls, ACS challenge render, customer challenge,
@@ -55,7 +55,7 @@ private class NISdkBundleLocator {}
     // but well below the server-side 3DS timeout (~10 min). Set to 0 to disable.
     public var threeDSSessionTimeout: TimeInterval = 300.0
 
-    public var version: String = "6.1.3"
+    public var version: String = "6.1.4"
 
     /// How this SDK is being consumed, sent to the gateway as X-NI-Platform on every
     /// request. Native integrations leave it alone; the React Native bridge and the Flutter

@@ -64,6 +64,7 @@ class VisaInstallmentViewController: UIViewController {
         self.parent?.navigationItem.title = "Make Payment".localized
         let textAttributes = [NSAttributedString.Key.foregroundColor: NISdk.sharedInstance.niSdkColors.payPageTitleColor]
         navigationController?.navigationBar.titleTextAttributes = textAttributes
+        NISdk.sharedInstance.niSdkColors.applyNavigationBarColors(to: navigationController?.navigationBar)
         self.parent?.navigationItem.rightBarButtonItem = UIBarButtonItem.init(title: "Cancel".localized, style: .done, target: self, action: #selector(self.cancelAction))
     }
     
