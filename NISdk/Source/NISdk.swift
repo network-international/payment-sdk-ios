@@ -9,6 +9,7 @@
 import Foundation
 import os.log
 import PassKit
+import UIKit
 
 private class NISdkBundleLocator {}
 
@@ -71,6 +72,11 @@ private class NISdkBundleLocator {}
     }
 
     func getBundle() -> Bundle {
+#if SWIFT_PACKAGE
+        // SwiftPM puts the processed resources in its own bundle (NISdk_NISdk.bundle)
+        // next to the app; `Bundle.module` is the generated accessor for it.
+        return Bundle.module
+#else
         if let bundle = Bundle(path: "NISdk.bundle") {
             return bundle
         } else if let path = Bundle(for: NISdkBundleLocator.self).path(forResource: "NISdk", ofType: "bundle"),
@@ -80,6 +86,7 @@ private class NISdkBundleLocator {}
             let bundle = Bundle(for: NISdkBundleLocator.self)
             return bundle
         }
+#endif
     }
 
     func getBundleFor(language: String) -> Bundle {

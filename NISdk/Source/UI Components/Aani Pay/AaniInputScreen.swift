@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct AaniInputScreen: View {
     @State private var selectedIdType: AaniIDType = .mobileNumber

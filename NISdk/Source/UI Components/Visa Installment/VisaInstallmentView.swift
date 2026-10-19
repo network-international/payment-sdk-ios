@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct VisaInstallmentView: View {
     @State private var selectedPlan: InstallmentPlan?
