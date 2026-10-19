@@ -31,7 +31,7 @@ class NameInputVC: UIViewController, UITextFieldDelegate {
         nameTextField.alignForCurrentLanguage()
         nameTextField.borderStyle = .none
         nameTextField.keyboardType = .asciiCapable
-        nameTextField.backgroundColor = ColorCompatibility.systemBackground
+        nameTextField.backgroundColor = .clear // show the page colour (payPageBackgroundColor) behind the field
         nameTextField.textColor = NISdk.sharedInstance.niSdkColors.textFieldTextColor ?? NISdk.sharedInstance.niSdkColors.textFieldLabelColor
         nameTextField.delegate = self
         nameTextField.addTarget(self, action: #selector(onNameChangeCallback), for: .editingChanged)
