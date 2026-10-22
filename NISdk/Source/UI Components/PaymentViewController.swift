@@ -551,7 +551,7 @@ class PaymentViewController: UIViewController {
                     // provider outage, so the payer is returned to the page with the row marked
                     // unavailable instead.
                     print("\(provider.methodName): unavailable - \(error)")
-                    self?.unifiedPage?.markBnplUnavailable(provider)
+                    self?.unifiedPage?.markBnplUnavailable(provider, error: error)
                 case .dismissed, .cancelledOnProvider:
                     // Backing out — from our toolbar or from the provider's own page — is the payer
                     // changing their mind rather than a payment outcome, so they return to the

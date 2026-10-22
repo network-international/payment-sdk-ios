@@ -75,7 +75,10 @@
 "Benefit" = "Benefit";
 "Pay with Tamara" = "Pay with Tamara";
 "Tamara" = "Tamara";
-"Pay with Tabby" = "Pay with Tabby";
+"Pay later with Tabby" = "Pay later with Tabby";
+"tabby_description" = "No fees. Pay with any card";
+"bnpl_unavailable_amount" = "%@ isn't available for this order amount. Please choose a different payment method.";
+"bnpl_unavailable" = "%@ is unavailable right now. Please choose a different payment method.";
 "Tabby" = "Tabby";
 "aani_request_to_pay" = "Request to Pay";
 "aani_generating_qr" = "Generating QR Code";

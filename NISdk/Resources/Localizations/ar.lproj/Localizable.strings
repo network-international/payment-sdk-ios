@@ -74,7 +74,10 @@
 "Benefit" = "بنفت";
 "Pay with Tamara" = "الدفع عبر تمارا";
 "Tamara" = "تمارا";
-"Pay with Tabby" = "الدفع عبر تابي";
+"Pay later with Tabby" = "ادفع لاحقاً مع تابي";
+"tabby_description" = "بدون رسوم. ادفع بأي بطاقة";
+"bnpl_unavailable_amount" = "%@ غير متاح لقيمة هذا الطلب. يرجى اختيار طريقة دفع أخرى.";
+"bnpl_unavailable" = "%@ غير متاح حالياً. يرجى اختيار طريقة دفع أخرى.";
 "Tabby" = "تابي";
 "aani_request_to_pay" = "طلب دفع";
 "aani_generating_qr" = "جارٍ إنشاء رمز الاستجابة";

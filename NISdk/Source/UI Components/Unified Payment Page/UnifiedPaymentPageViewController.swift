@@ -131,6 +131,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var aaniRadioButton: RadioButtonView?
     private var benefitRadioButton: RadioButtonView?
     private var bnplRadioButtons: [BnplProvider: RadioButtonView] = [:]
+    private var bnplNoticeLabels: [BnplProvider: UILabel] = [:]
     /// The notice slot under each BNPL row — the "minimum order" hint, or why the provider could
     /// not be reached. Hidden until there is something to say.
     private let bottomBarView = UIView()
@@ -388,8 +389,10 @@ class UnifiedPaymentPageViewController: UIViewController {
             let token = card.cardToken ?? ""
             let cvvText = savedCardCvvFields[token]?.text ?? ""
             enabled = !card.recaptureCsc || !cvvText.isEmpty
-        case .applePay, .aani, .clickToPay, .qpay, .benefit, .bnpl:
+        case .applePay, .aani, .clickToPay, .qpay, .benefit:
             enabled = true
+        case .bnpl(let provider):
+            enabled = !bnplUnavailableProviders.contains(provider)
         case .none:
             enabled = false
         }
@@ -1044,22 +1047,29 @@ class UnifiedPaymentPageViewController: UIViewController {
     /// so and stop responding, rather than sending the payer back into a checkout that just failed.
     private var bnplUnavailableProviders: Set<BnplProvider> = []
 
-    /// Puts a line under a BNPL row, or clears it when `text` is nil.
-    /// Marks a provider as unreachable after its checkout failed to open: the row greys out and
-    /// the selection moves off it so the payer's next tap goes somewhere that works. Why it failed
-    /// is reported to the merchant through the payment result, not written under the row.
-    func markBnplUnavailable(_ provider: BnplProvider) {
+    /// Marks a provider as unreachable after its checkout failed to open: the row greys out, says
+    /// why under the title, and the selection moves off it so the payer's next tap goes somewhere
+    /// that works. A basket outside the provider's limits is told apart from an outage because the
+    /// payer can act on it — with a different basket, or simply by knowing it is not the SDK.
+    func markBnplUnavailable(_ provider: BnplProvider, error: NIPaymentError? = nil) {
         bnplUnavailableProviders.insert(provider)
         bnplRadioButtons[provider]?.isOn = false
         bnplRadioButtons[provider]?.alpha = 0.5
+        // The gateway words amount refusals itself ("order amount too high"), so its message is the
+        // only signal; it is matched loosely and never shown verbatim.
+        let isAmountRefusal = error?.message?.range(of: "amount", options: .caseInsensitive) != nil
+        let key = isAmountRefusal ? "bnpl_unavailable_amount" : "bnpl_unavailable"
+        if let notice = bnplNoticeLabels[provider] {
+            notice.text = String(format: key.localized, provider.displayNameKey.localized)
+            notice.isHidden = false
+        }
         if selectedPaymentOption == .bnpl(provider) {
             selectedPaymentOption = nil
             updateBottomPayButton()
         }
     }
 
-    /// A BNPL row: title, brand mark, and nothing else. The second line stays reserved for a notice
-    /// — too small a basket for this provider, or a provider that could not be reached.
+    /// A BNPL row: title, an optional description line the provider asks for, and the brand mark.
     private func createBnplSection(for provider: BnplProvider) -> UIView {
         let radioButton = RadioButtonView()
         radioButton.isOn = false
@@ -1073,7 +1083,28 @@ class UnifiedPaymentPageViewController: UIViewController {
         titleLabel.textColor = PgColors.textPrimary
         titleLabel.numberOfLines = 0
 
-        let row = UIStackView(arrangedSubviews: [radioButton, titleLabel, UIView()])
+        let textStack = UIStackView(arrangedSubviews: [titleLabel])
+        textStack.axis = .vertical
+        textStack.spacing = 2
+        if let descriptionKey = provider.descriptionKey {
+            let descriptionLabel = UILabel()
+            descriptionLabel.text = descriptionKey.localized
+            descriptionLabel.font = PgType.bodyRowSubtitle
+            descriptionLabel.textColor = PgColors.textSecondary
+            descriptionLabel.numberOfLines = 0
+            textStack.addArrangedSubview(descriptionLabel)
+        }
+
+        let noticeLabel = UILabel()
+        noticeLabel.font = PgType.bodyRowSubtitle
+        noticeLabel.textColor = .red
+        noticeLabel.numberOfLines = 0
+        noticeLabel.isHidden = true
+        noticeLabel.accessibilityIdentifier = "sdk_paymentpage_label_\(provider.rawValue)_unavailable"
+        bnplNoticeLabels[provider] = noticeLabel
+        textStack.addArrangedSubview(noticeLabel)
+
+        let row = UIStackView(arrangedSubviews: [radioButton, textStack, UIView()])
         row.axis = .horizontal
         row.spacing = 12
         row.alignment = .center
@@ -2230,7 +2261,8 @@ class UnifiedPaymentPageViewController: UIViewController {
 
     @objc private func bnplRowTapped(_ sender: UITapGestureRecognizer) {
         guard let tag = sender.view?.tag,
-              let provider = BnplProvider(rowTag: tag) else { return }
+              let provider = BnplProvider(rowTag: tag),
+              !bnplUnavailableProviders.contains(provider) else { return }
         selectPaymentOption(.bnpl(provider))
     }
 
