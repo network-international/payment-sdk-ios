@@ -477,6 +477,7 @@ class PaymentViewController: UIViewController {
                 guard !status.returnsToPaymentPage else {
                     if case .couldNotStart(let error) = status {
                         print("Benefit: could not start (\(error.message)) — returning to the payment page")
+                        self?.unifiedPage?.markBenefitUnavailable()
                     }
                     return
                 }
@@ -508,13 +509,10 @@ class PaymentViewController: UIViewController {
             navController.isModalInPresentation = true
             self.present(navController, animated: true)
         } catch {
-            // The order is missing the links Benefit needs, so the request was never valid.
-            print("Benefit: Failed to build args - \(error)")
-            finishPaymentAndClosePaymentViewController(
-                with: .InValidRequest, and: nil, and: nil,
-                error: NIPaymentError(category: .configuration,
-                                      message: "Benefit cannot start for this order: \(error)",
-                                      paymentMethod: BenefitViewController.methodName))
+            // The order is missing the links Benefit needs. That is the outlet's configuration, not
+            // the payer's doing, and every other method still works — so the payer stays on the page.
+            print("Benefit: cannot start for this order (\(error)) — returning to the payment page")
+            unifiedPage?.markBenefitUnavailable()
         }
     }
 

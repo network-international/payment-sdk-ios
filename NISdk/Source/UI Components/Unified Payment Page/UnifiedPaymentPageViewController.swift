@@ -130,6 +130,10 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var clickToPayRadioButton: RadioButtonView?
     private var aaniRadioButton: RadioButtonView?
     private var benefitRadioButton: RadioButtonView?
+    private var benefitRow: UIView?
+    private var benefitNoticeLabel: UILabel?
+    /// Set when Benefit could not be started this session; its row says so and stops responding.
+    private var isBenefitUnavailable = false
     private var bnplRadioButtons: [BnplProvider: RadioButtonView] = [:]
     private var bnplNoticeLabels: [BnplProvider: UILabel] = [:]
     /// The notice slot under each BNPL row — the "minimum order" hint, or why the provider could
@@ -984,7 +988,21 @@ class UnifiedPaymentPageViewController: UIViewController {
         titleLabel.font = PgType.bodyRowTitle
         titleLabel.textColor = PgColors.textPrimary
 
-        let row = UIStackView(arrangedSubviews: [radioButton, titleLabel, UIView()])
+        // Hidden until Benefit fails to start, then says why the row no longer responds.
+        let noticeLabel = UILabel()
+        noticeLabel.text = "benefit_unavailable".localized
+        noticeLabel.font = PgType.bodyRowSubtitle
+        noticeLabel.textColor = PgColors.textSecondary
+        noticeLabel.numberOfLines = 0
+        noticeLabel.isHidden = true
+        noticeLabel.accessibilityIdentifier = "sdk_paymentpage_label_benefit_unavailable"
+        benefitNoticeLabel = noticeLabel
+
+        let textStack = UIStackView(arrangedSubviews: [titleLabel, noticeLabel])
+        textStack.axis = .vertical
+        textStack.spacing = 2
+
+        let row = UIStackView(arrangedSubviews: [radioButton, textStack, UIView()])
         row.axis = .horizontal
         row.spacing = 12
         row.alignment = .center
@@ -1010,6 +1028,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         let tap = UITapGestureRecognizer(target: self, action: #selector(benefitRadioTapped))
         row.addGestureRecognizer(tap)
         row.isUserInteractionEnabled = true
+        benefitRow = row
 
         let rowContainer = UIView()
         rowContainer.layer.cornerRadius = PgRadius.row
@@ -1031,6 +1050,20 @@ class UnifiedPaymentPageViewController: UIViewController {
                             padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
                                                   bottom: 0, right: PgSpacing.pageH))
         return paddedContainer
+    }
+
+    /// Marks Benefit as unreachable after it failed to start. Nothing was charged and the order is
+    /// still payable, so the row stays visible and says so, and the selection moves off it so the
+    /// payer's next tap goes to a method that works. Why it failed is logged, not shown.
+    func markBenefitUnavailable() {
+        isBenefitUnavailable = true
+        benefitRadioButton?.isOn = false
+        benefitRow?.alpha = 0.5
+        benefitNoticeLabel?.isHidden = false
+        if selectedPaymentOption == .benefit {
+            selectedPaymentOption = nil
+            updateBottomPayButton()
+        }
     }
 
     // MARK: - Buy Now, Pay Later Sections
@@ -2236,6 +2269,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         case .qpay:
             onQPayTapped?()
         case .benefit:
+            guard !isBenefitUnavailable else { return }
             onBenefitTapped?()
         case .bnpl(let provider):
             // A provider that could not be reached stays untappable; everything else is the
@@ -2256,6 +2290,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     }
 
     @objc private func benefitRadioTapped() {
+        guard !isBenefitUnavailable else { return }
         selectPaymentOption(.benefit)
     }
 

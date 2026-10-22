@@ -72,6 +72,8 @@
 "aani_scan_qr_to_pay" = "Scanner le QR → Approuver le paiement → Terminé";
 "Pay with Aani" = "Payer avec AANI";
 "Pay by Benefit" = "Payer avec Benefit";
+"benefit_unavailable" = "Échec de la connexion à Benefit. Veuillez réessayer en choisissant un autre moyen de paiement.";
+"benefit_payment_in_progress" = "Un paiement est en cours. Pour choisir un autre moyen de paiement, utilisez Annuler sur la page Benefit.";
 "Benefit" = "Benefit";
 "Pay with Tamara" = "Payer avec Tamara";
 "Tamara" = "Tamara";
