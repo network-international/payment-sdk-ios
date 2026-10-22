@@ -62,6 +62,8 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     private var sawReturnCallback = false
     private var didStartPolling = false
     private var pollAttempt = 0
+    /// Set while a Cancel is being checked against the order before the payer may leave.
+    private var isVerifyingBeforeLeaving = false
     /// Set when the payer is seen hitting Benefit's cancel page. Distinguishes "the payer backed
     /// out" from "the payment was declined" — the order reports `FAILED` for both.
     private var payerCancelled = false
@@ -334,15 +336,79 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
     }
 
     @objc private func cancelTapped() {
-        webView.stopLoading()
+        // The button is disabled while the cover is up; this guards a tap that raced it.
+        guard !didDispatchResult, !didStartPolling, !isVerifyingBeforeLeaving, coverView.isHidden else {
+            print("Benefit: cancel ignored while the payment is loading or processing")
+            return
+        }
         // A cancel after the gateway callback would discard a payment that already went through.
         if sawReturnCallback {
+            webView.stopLoading()
             startPollingIfNeeded()
             return
         }
-        // Backing out from our own toolbar before Benefit recorded anything leaves the order
-        // untouched, so the payer keeps their other options.
-        dispatch(payerCancelled ? .cancelledOnProvider : .dismissed)
+        if payerCancelled {
+            webView.stopLoading()
+            dispatch(.cancelledOnProvider)
+            return
+        }
+        if didReachBenefitHost {
+            // Benefit can settle a payment without the WebView ever seeing the callback, so the
+            // order decides whether the payer is leaving an untouched order or a paid one.
+            verifyBeforeLeaving()
+            return
+        }
+        // Nothing recorded against the payment yet, so the order is still payable.
+        webView.stopLoading()
+        dispatch(.dismissed)
+    }
+
+    /// Reads the order once before letting the payer leave Benefit's page. A payment that already
+    /// went through ends the flow as a success instead of handing the payer back to a payment page
+    /// whose order is spent; an attempt the gateway already failed returns them as a cancellation;
+    /// an untouched order is a plain dismissal. If the order cannot be read, the payer stays on
+    /// Benefit's page rather than being let go on a guess.
+    private func verifyBeforeLeaving() {
+        isVerifyingBeforeLeaving = true
+        showCover()
+        transactionService.getOrder(for: args.orderLink, using: accessToken) { [weak self] data, _, error in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.isVerifyingBeforeLeaving = false
+                guard error == nil,
+                      let data = data,
+                      let order = try? OrderResponse.decodeFrom(data: data) else {
+                    print("Benefit: could not read the order on cancel; staying on Benefit's page")
+                    self.scheduleReveal()
+                    return
+                }
+                let state = order.embeddedData?.payment?.first?.state.uppercased() ?? ""
+                print("Benefit: cancel on Benefit's page, order state=\(state)")
+                switch state {
+                case "AUTHORISED", "PURCHASED", "CAPTURED", "VERIFIED":
+                    self.dispatch(.success)
+                case "POST_AUTH_REVIEW":
+                    self.dispatch(.postAuthReview)
+                case "FAILED", "DECLINED", "CANCELLED", "REVERSED":
+                    self.webView.stopLoading()
+                    self.dispatch(.cancelledOnProvider)
+                case "", "STARTED":
+                    // Nothing attempted against the order yet, so the payer may simply leave.
+                    self.webView.stopLoading()
+                    self.dispatch(.dismissed)
+                default:
+                    // PENDING or any other in-flight state: Benefit may already be taking the
+                    // payment, and leaving now would strand it. Benefit's own Cancel is the safe
+                    // way back — it reaches the gateway, which returns the payer to the page.
+                    self.scheduleReveal()
+                    let alert = UIAlertController(title: nil,
+                                                  message: "benefit_payment_in_progress".localized,
+                                                  preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Done".localized, style: .default))
+                    self.present(alert, animated: true)
+                }
+            }
+        }
     }
 
     // MARK: - Cover (hide intermediate redirect pages)
@@ -352,6 +418,10 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
         revealWorkItem = nil
         coverView.isHidden = false
         activityIndicator.startAnimating()
+        // Frozen while anything is loading or being resolved: the cover is up exactly when a page
+        // is loading, a payment is being processed, or the result is being read, and leaving then
+        // could abandon a payment Benefit is already taking.
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
 
     /// Reveals the WebView only if no further navigation starts within `revealDebounce`. A redirect
@@ -362,6 +432,8 @@ class BenefitViewController: UIViewController, WKNavigationDelegate, WKUIDelegat
             guard let self = self else { return }
             self.activityIndicator.stopAnimating()
             self.coverView.isHidden = true
+            self.navigationItem.rightBarButtonItem?.isEnabled =
+                !(self.didStartPolling || self.isVerifyingBeforeLeaving || self.didDispatchResult)
         }
         revealWorkItem = item
         DispatchQueue.main.asyncAfter(deadline: .now() + BenefitViewController.revealDebounce, execute: item)

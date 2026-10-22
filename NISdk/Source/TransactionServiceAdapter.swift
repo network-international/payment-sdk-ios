@@ -11,7 +11,10 @@ import PassKit
 
 @objc final class TransactionServiceAdapter: NSObject, TransactionService {
 
-    private lazy var deviceFingerprint: String = UUID().uuidString
+    /// Sent as `X-Payer-Fingerprint`, which the gateway takes as the payer's `deviceId` for Trident,
+    /// so it is the same `identifierForVendor` the payment bodies carry. A random ID stands in only
+    /// while iOS cannot provide one.
+    private lazy var deviceFingerprint: String = PayerDeviceInfo.current.deviceId ?? UUID().uuidString
 
     /// Builds a client, reporting failure through `completion` instead of silently doing nothing.
     ///
@@ -133,14 +136,12 @@ import PassKit
         }
         print("ApplePay: postApplePayResponse - URL: \(redactUrlForLog(applePayLink))")
         print("ApplePay: postApplePayResponse - paymentData size: \(applePayPaymentResponse.token.paymentData.count) bytes")
-        if let paymentDataStr = String(data: applePayPaymentResponse.token.paymentData, encoding: .utf8) {
-            print("ApplePay: postApplePayResponse - paymentData: \(paymentDataStr.prefix(200))...")
-        }
+        let body = PayerDeviceInfo.current.adding(toJSONObject: applePayPaymentResponse.token.paymentData)
         client(for: applePayLink, reportingFailureTo: completion)?
             .withMethod(method: "PUT")
             .withHeaders(headers: paymentRequestHeaders)
             .withQueryParams(queries: queryParams)
-            .withBodyData(data: applePayPaymentResponse.token.paymentData)
+            .withBodyData(data: body)
             .makeRequest(with: completion)
     }
     

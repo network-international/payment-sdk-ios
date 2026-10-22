@@ -18,6 +18,8 @@ class SavedCardRequest: NSObject, Codable {
     /// Selected Slice installment plan. Sent under `slice`, exactly as the manual-card
     /// route sends it — a saved card is as eligible for a plan as a freshly-typed one.
     var sliceRequest: SliceRequest?
+    /// Payer device fields for Trident fraud screening, read when the body is encoded.
+    var deviceInfo: PayerDeviceInfo = .current
     
     enum CodingKeys: String, CodingKey {
         case expiry
@@ -27,6 +29,9 @@ class SavedCardRequest: NSObject, Codable {
         case payerIp
         case visaRequest = "vis"
         case sliceRequest = "slice"
+        case deviceId
+        case deviceOs
+        case deviceType
     }
     
     override init() {
@@ -69,5 +74,8 @@ class SavedCardRequest: NSObject, Codable {
         try container.encode(payerIp, forKey: .payerIp)
         try container.encode(visaRequest, forKey: .visaRequest)
         try container.encodeIfPresent(sliceRequest, forKey: .sliceRequest)
+        try container.encodeIfPresent(deviceInfo.deviceId, forKey: .deviceId)
+        try container.encodeIfPresent(deviceInfo.deviceOs, forKey: .deviceOs)
+        try container.encodeIfPresent(deviceInfo.deviceType, forKey: .deviceType)
     }
 }

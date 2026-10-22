@@ -71,10 +71,15 @@
 "aani_scan_qr_to_pay" = "امسح رمز الاستجابة - قم بالدفع - تم";
 "Pay with Aani" = "الدفع عبر آني";
 "Pay by Benefit" = "الدفع عبر بنفت";
+"benefit_unavailable" = "تعذر الاتصال بخدمة Benefit. يرجى اختيار طريقة دفع اخرى و المحاولة مرة اخرى.";
+"benefit_payment_in_progress" = "هناك عملية دفع قيد التنفيذ. لاختيار طريقة دفع أخرى، استخدم زر الإلغاء في صفحة بنفت.";
 "Benefit" = "بنفت";
 "Pay with Tamara" = "الدفع عبر تمارا";
 "Tamara" = "تمارا";
-"Pay with Tabby" = "الدفع عبر تابي";
+"Pay later with Tabby" = "ادفع لاحقاً مع تابي";
+"tabby_description" = "بدون رسوم. ادفع بأي بطاقة";
+"bnpl_unavailable_amount" = "%@ غير متاح لقيمة هذا الطلب. يرجى اختيار طريقة دفع أخرى.";
+"bnpl_unavailable" = "%@ غير متاح حالياً. يرجى اختيار طريقة دفع أخرى.";
 "Tabby" = "تابي";
 "aani_request_to_pay" = "طلب دفع";
 "aani_generating_qr" = "جارٍ إنشاء رمز الاستجابة";

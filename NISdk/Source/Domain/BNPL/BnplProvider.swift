@@ -46,7 +46,15 @@ enum BnplProvider: String, CaseIterable, Equatable {
     var titleKey: String {
         switch self {
         case .tamara: return "Pay with Tamara"
-        case .tabby: return "Pay with Tabby"
+        case .tabby: return "Pay later with Tabby"
+        }
+    }
+
+    /// Line under the title, for providers whose brand guidelines ask for one.
+    var descriptionKey: String? {
+        switch self {
+        case .tamara: return nil
+        case .tabby: return "tabby_description"
         }
     }
 

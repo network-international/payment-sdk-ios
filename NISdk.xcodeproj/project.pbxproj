@@ -34,6 +34,7 @@
 		860CCDFF22FC473800B85096 /* NISdk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCDFE22FC473800B85096 /* NISdk.swift */; };
 		860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */; };
 		860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0422FC933200B85096 /* PaymentRequest.swift */; };
+		A7D3E1F02A0B4C5D6E7F8091 /* PayerDeviceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7D3E1F02A0B4C5D6E7F8092 /* PayerDeviceInfo.swift */; };
 		860CCE0722FC934700B85096 /* OrderResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0622FC934700B85096 /* OrderResponse.swift */; };
 		860CCE0922FC945F00B85096 /* TransactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0822FC945F00B85096 /* TransactionService.swift */; };
 		860CCE0F22FD243000B85096 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 860CCE0E22FD243000B85096 /* HTTPClient.swift */; };
@@ -218,6 +219,7 @@
 		860CCDFE22FC473800B85096 /* NISdk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NISdk.swift; sourceTree = "<group>"; };
 		860CCE0022FC476E00B85096 /* CardPaymentDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPaymentDelegate.swift; sourceTree = "<group>"; };
 		860CCE0422FC933200B85096 /* PaymentRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentRequest.swift; sourceTree = "<group>"; };
+		A7D3E1F02A0B4C5D6E7F8092 /* PayerDeviceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayerDeviceInfo.swift; sourceTree = "<group>"; };
 		860CCE0622FC934700B85096 /* OrderResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderResponse.swift; sourceTree = "<group>"; };
 		860CCE0822FC945F00B85096 /* TransactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionService.swift; sourceTree = "<group>"; };
 		860CCE0E22FD243000B85096 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
@@ -497,6 +499,7 @@
 				862CBE61230C7F9100767774 /* Transaction Service Responses */,
 				860CCE0822FC945F00B85096 /* TransactionService.swift */,
 				860CCE0422FC933200B85096 /* PaymentRequest.swift */,
+				A7D3E1F02A0B4C5D6E7F8092 /* PayerDeviceInfo.swift */,
 				59ED19AB2AD11B860000E024 /* SavedCardRequest.swift */,
 				AA00000200000000000006 /* PartialAuthArgs.swift */,
 				90D9FBE01D2ADFF8469239DA /* PaymentResultArgs.swift */,
@@ -999,6 +1002,7 @@
 				860CCE0122FC476E00B85096 /* CardPaymentDelegate.swift in Sources */,
 				862CBE71230D7AC800767774 /* UIFont+RegisterFromBundle.swift in Sources */,
 				860CCE0522FC933200B85096 /* PaymentRequest.swift in Sources */,
+				A7D3E1F02A0B4C5D6E7F8091 /* PayerDeviceInfo.swift in Sources */,
 				862CBE4623068C2900767774 /* NameInputVC.swift in Sources */,
 				862CBE7D230E8C3B00767774 /* String+Luhn.swift in Sources */,
 				862CBE5123089EDB00767774 /* UIView+Border.swift in Sources */,

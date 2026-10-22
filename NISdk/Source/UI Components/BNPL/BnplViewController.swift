@@ -62,6 +62,16 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
     /// The provider's reference for this checkout, captured at initiation. Tamara returns it there
     /// (`tamaraOrderId`), which makes the accept call independent of what the return URL carries.
     private var providerReference: String?
+    /// What to report if the order is still not final on the next read. Set only when the gateway
+    /// rejected the accept call: with no provider payment to finalise, the order will not move, so
+    /// waiting out the full polling window would only keep the payer staring at a spinner.
+    private var resultIfNotFinal: BnplPaymentStatus?
+    /// Set when the payer chose Cancel on the provider's page but the way back lost our marker. The
+    /// gateway's Tamara test checkout submits the payer's choice as `outcome` to its own `notify`
+    /// step and then returns to the success address with only `code`, so the return itself looks
+    /// the same for approve, decline and cancel. Accepting after a cancel fails the order, so a
+    /// return that follows a cancel goes back to the payment page instead, as the web paypage does.
+    private var payerCancelledOnProvider = false
 
     private var provider: BnplProvider { args.provider }
 
@@ -297,7 +307,7 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
         guard !didDispatchResult, !didStartPolling else { return }
         showCover()
 
-        if leg == .cancel {
+        if leg == .cancel || (leg == .unknown && payerCancelledOnProvider) {
             print("\(provider.methodName): payer cancelled on the provider's page — returning to the payment page")
             dispatch(.cancelledOnProvider)
             return
@@ -323,6 +333,23 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
             if error != nil || !(200...299).contains(status) {
                 let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "<no body>"
                 print("\(self.provider.methodName): accept failed httpStatus=\(status) error=\(error?.localizedDescription ?? "none") body=\(body)")
+            }
+            // A 4xx is the gateway saying there is no provider payment to finalise for this order
+            // (e.g. Tabby's "Back to merchant", which returns without our marker). The order still
+            // gets one read in case it already settled; if it has not, the payer is not left waiting.
+            // A network error, 5xx, auth failure or throttle says nothing about the payment, so the
+            // full window still applies.
+            if error == nil, (400...499).contains(status), ![401, 403, 408, 429].contains(status) {
+                switch leg {
+                case .unknown:
+                    self.resultIfNotFinal = .cancelledOnProvider
+                case .failure:
+                    self.resultIfNotFinal = .failed(NIPaymentError(category: .declined,
+                                                                   message: "Payment was not completed on \(self.provider.methodName)",
+                                                                   paymentMethod: self.provider.methodName))
+                case .success, .cancel:
+                    break
+                }
             }
             DispatchQueue.main.async { self.startPollingIfNeeded() }
         }
@@ -354,6 +381,16 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
                                                          paymentMethod: self.provider.methodName)))
                 }
             default:
+                if let fallback = self.resultIfNotFinal {
+                    print("\(self.provider.methodName): accept was rejected and the order is still \(state) — not waiting further")
+                    DispatchQueue.main.async {
+                        if case .cancelledOnProvider = fallback {
+                            print("\(self.provider.methodName): treating the return as a cancel — returning to the payment page")
+                        }
+                        self.dispatch(fallback)
+                    }
+                    return
+                }
                 // Still STARTED or an in-flight state — give the backend more time.
                 self.retryOrFail()
             }
@@ -493,6 +530,16 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
         return nil
     }
 
+    /// Records a cancel the payer submitted on the provider's page. Only a `notify` step carrying
+    /// `outcome=cancel` counts; anything else leaves the order to decide.
+    private func noteProviderOutcome(_ url: URL?) {
+        guard let url = url,
+              url.path.hasSuffix("/notify"),
+              let outcome = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.first(where: { $0.name == "outcome" })?.value else { return }
+        payerCancelledOnProvider = outcome.lowercased() == "cancel"
+    }
+
     /// Catches a return leg wherever it surfaces — a navigation the policy delegate sees, or a
     /// server-side redirect it never does. The paypage the URL points at is meaningless for an
     /// SDK-hosted payment (its session was consumed when the payment started here rather than
@@ -515,6 +562,7 @@ class BnplViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         let url = navigationAction.request.url
         print("\(provider.methodName): navigating to \(redactUrlForLog(url))")
+        noteProviderOutcome(url)
         if handleIfReturn(url) {
             decisionHandler(.cancel)
             return
