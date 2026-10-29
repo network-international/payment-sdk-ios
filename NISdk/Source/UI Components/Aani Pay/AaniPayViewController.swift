@@ -26,7 +26,7 @@ class AaniPayViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = NISdk.sharedInstance.niSdkColors.payPageBackgroundColor
         setupCancelButton()
         let child = UIHostingController(rootView: AaniPayView(viewModel: AaniViewModel(aaniPayArgs: aaniPayArgs, onCompletion: { status in
             self.finish(with: status)

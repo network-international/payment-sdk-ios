@@ -31,7 +31,7 @@ class VisaInstallmentViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = NISdk.sharedInstance.niSdkColors.payPageBackgroundColor
         setupCancelButton()
         let installmentPlans = visaPlan.toInstallmentPlans(fullAmount: fullAmount)
         let child = UIHostingController(rootView: VisaInstallmentView(plans: installmentPlans, cardNumber: cardNumber, onMakePayment: { plan in

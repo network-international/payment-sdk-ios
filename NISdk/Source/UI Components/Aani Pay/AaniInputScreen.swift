@@ -28,7 +28,7 @@ struct AaniInputScreen: View {
                         Text(idType.text).tag(idType).font(.subheadline)
                     }
                 }
-                .accentColor(.black)
+                .accentColor(Color(ColorCompatibility.label))
                 .disabled(paymentProcessing)
             }
             Divider()

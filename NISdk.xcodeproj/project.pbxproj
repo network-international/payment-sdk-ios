@@ -105,6 +105,7 @@
 		D114B314072163ED6DC10474 /* VisaRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E27A826609E7CF62786289D /* VisaRequest.swift */; };
 		D32EDCDE4A56AC5957CA58AB /* PartialAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C241DC571A0DE7C1D3F943B /* PartialAuthView.swift */; };
 		D6F861061061755ADEFB208B /* Local+iso639.2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03393CEAF13388C0DD42C71 /* Local+iso639.2.swift */; };
+		DAA4804681BDA4901BF6665B /* CurrencySymbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB1BE1DD1F1A353C1C6FDA6 /* CurrencySymbol.swift */; };
 		DFC7289253CD261E8F34D32E /* AaniPayRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 202B4553C1DEF9F967370A10 /* AaniPayRequest.swift */; };
 		E6BF7C1FD6A898DD2839AEE0 /* PartialAuthArgs.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDDDEBA8A7398C6E772CB0A3 /* PartialAuthArgs.swift */; };
 		F27C538D171E6C1EF79F13E6 /* PartialAuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619E31DBA1DBBDB8AD432B6B /* PartialAuthViewController.swift */; };
@@ -234,6 +235,7 @@
 		B662E7944937502FEA671D0F /* VisaInstallmentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = VisaInstallmentView.swift; sourceTree = "<group>"; };
 		BDDDEBA8A7398C6E772CB0A3 /* PartialAuthArgs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PartialAuthArgs.swift; sourceTree = "<group>"; };
 		BEAA640EB2685A5E341EB9B0 /* AaniPayView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniPayView.swift; sourceTree = "<group>"; };
+		BFB1BE1DD1F1A353C1C6FDA6 /* CurrencySymbol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CurrencySymbol.swift; sourceTree = "<group>"; };
 		C236B6525FFB0522D8463C8B /* AaniPayArgs.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniPayArgs.swift; sourceTree = "<group>"; };
 		C2ED1C92FDB2678928B7E354 /* AaniPaymentDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniPaymentDelegate.swift; sourceTree = "<group>"; };
 		E75A4520D0DB3EA1EAF33F56 /* AaniIDType.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AaniIDType.swift; sourceTree = "<group>"; };
@@ -327,6 +329,7 @@
 				806BEF5644F474678C2A8808 /* Aani Pay */,
 				D1971EA627BC22E79C921718 /* Partial Auth */,
 				BCAC4E9656D040DCB521EA87 /* Visa Installment */,
+				A4C5C744FB44B2D9922A0724 /* Currency */,
 			);
 			path = "UI Components";
 			sourceTree = "<group>";
@@ -536,6 +539,15 @@
 				86D2FB5F22FC1AE700CF1FA1 /* Info.plist */,
 			);
 			path = NISdkTests;
+			sourceTree = "<group>";
+		};
+		A4C5C744FB44B2D9922A0724 /* Currency */ = {
+			isa = PBXGroup;
+			children = (
+				BFB1BE1DD1F1A353C1C6FDA6 /* CurrencySymbol.swift */,
+			);
+			name = Currency;
+			path = Currency;
 			sourceTree = "<group>";
 		};
 		BCAC4E9656D040DCB521EA87 /* Visa Installment */ = {
@@ -796,6 +808,7 @@
 				F27C538D171E6C1EF79F13E6 /* PartialAuthViewController.swift in Sources */,
 				84667EDFD6A8DDAC33389E29 /* VisaInstallmentView.swift in Sources */,
 				020F09EDA24C9DD2C8C4E8F0 /* VisaInstallmentViewController.swift in Sources */,
+				DAA4804681BDA4901BF6665B /* CurrencySymbol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

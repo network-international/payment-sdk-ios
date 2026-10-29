@@ -14,7 +14,8 @@ struct AaniTimerScreen: View {
     var body: some View {
         VStack(alignment: .center, content: {
             
-            Text(String.localizedStringWithFormat("aani_paying_amount".localized, amountFormatted)).font(.title)
+            CurrencySymbol.swiftUIText(String.localizedStringWithFormat("aani_paying_amount".localized, amountFormatted),
+                                       fontSize: UIFont.preferredFont(forTextStyle: .title1).pointSize).font(.title)
                 .multilineTextAlignment(.center)
                 .foregroundColor(/*@START_MENU_TOKEN@*/.blue/*@END_MENU_TOKEN@*/)
             
