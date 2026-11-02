@@ -185,7 +185,7 @@ class ThreeDSTwoViewController: UIViewController, WKNavigationDelegate, WKUIDele
         vStack.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         vStack.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
 
-        view.backgroundColor = .white
+        view.backgroundColor = NISdk.sharedInstance.niSdkColors.payPageBackgroundColor
         webView.navigationDelegate = self
         webView.uiDelegate = self
         view.addSubview(webView)

@@ -25,10 +25,13 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
         payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColorHighlighted, for: .highlighted)
+        payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.titleColorForPayButton(enabled: false), for: .disabled)
         payButton.layer.cornerRadius = 5
         payButton.setTitle("Processing Payment".localized, for: .disabled)
         return payButton
     }()
+    /// The pay button's title; the currency code is drawn as its symbol.
+    private var payButtonTitle = ""
     var errorLabel: UILabel = {
         let errorLabel = UILabel()
         errorLabel.textColor = .red
@@ -45,11 +48,12 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
             self.payButton.isEnabled = !self.paymentInProgress
             if(self.paymentInProgress) {
                 self.loadingSpinner.startAnimating()
-                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor.withAlphaComponent(0.7)
-                self.payButton.setTitle("Processing Payment".localized, for: .normal)
+                NISdk.sharedInstance.niSdkColors.applyPayButtonColors(self.payButton, enabled: false,
+                    fadedBackgroundAlpha: 0.7)
+                CurrencySymbol.setPayButtonTitle("Processing Payment".localized, on: self.payButton)
             } else {
                 self.loadingSpinner.stopAnimating()
-                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
+                NISdk.sharedInstance.niSdkColors.applyPayButtonColors(self.payButton, enabled: true)
             }
         }
     }
@@ -108,47 +112,8 @@ class SavedCardViewController: UIViewController, UITextFieldDelegate {
     }
     
     fileprivate func updatePayButtonContent(_ order: OrderResponse, _ orderAmount: Amount, _ payButtonTitle: String) {
-        if (order.isSaudiPaymentEnabled! && order.amount?.currencyCode == "SAR") {
-            let stack = UIStackView()
-            stack.axis = .horizontal
-            stack.spacing = 6
-            stack.alignment = .center
-
-            // Resource-bundle lookup — see CardPreviewController.updateCardLogo().
-            let icon = UIImageView(image: UIImage(named: "riyal", in: NISdk.sharedInstance.getBundle(), compatibleWith: nil))
-            icon.contentMode = .scaleAspectFit
-            icon.widthAnchor.constraint(equalToConstant: 20).isActive = true
-            icon.heightAnchor.constraint(equalToConstant: 16).isActive = true
-
-            let payLabel = UILabel()
-            payLabel.text = "Pay".localized
-            payLabel.textColor = NISdk.sharedInstance.niSdkColors.payButtonTitleColor
-            payLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-
-            let amountLabel = UILabel()
-            amountLabel.text = orderAmount.getFormattedAmountValue()
-            amountLabel.textColor = NISdk.sharedInstance.niSdkColors.payButtonTitleColor
-            amountLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-
-            stack.addArrangedSubview(payLabel)
-            stack.addArrangedSubview(icon)
-            stack.addArrangedSubview(amountLabel)
-            
-            stack.isUserInteractionEnabled = false
-            for view in stack.arrangedSubviews {
-                view.isUserInteractionEnabled = false
-            }
-            
-            self.payButton.addSubview(stack)
-
-            stack.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                stack.centerXAnchor.constraint(equalTo: self.payButton.centerXAnchor),
-                stack.centerYAnchor.constraint(equalTo: self.payButton.centerYAnchor)
-            ])
-        } else {
-            self.payButton.setTitle(payButtonTitle, for: .normal)
-        }
+        self.payButtonTitle = payButtonTitle
+        CurrencySymbol.setPayButtonTitle(payButtonTitle, on: payButton, disabledText: "Processing Payment".localized)
     }
     
     private func setupCancelButton() {

@@ -40,7 +40,7 @@ class ExpiryInputVC: UIViewController, UITextFieldDelegate {
         label.text = "Expires".localized
         
         let seperatorLabel = UILabel()
-        seperatorLabel.textColor = UIColor(hexString: "#dbdbdc")
+        seperatorLabel.textColor = NISdk.sharedInstance.niSdkColors.payPageDividerColor
         seperatorLabel.text = "/"
         
         let rightHStatch = UIStackView(arrangedSubviews: [monthTextField, seperatorLabel, yearTextField])

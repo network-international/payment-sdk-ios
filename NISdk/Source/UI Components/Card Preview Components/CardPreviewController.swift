@@ -72,7 +72,7 @@ class CardPreviewController: UIViewController {
         let stackBackgroundView = CardPreviewBackgroundView()
         stackBackgroundView.backgroundColor = NISdk.sharedInstance.niSdkColors.cardPreviewColor
         stackBackgroundView.gradientColors = NISdk.sharedInstance.niSdkColors.cardPreviewGradient
-        stackBackgroundView.layer.borderColor = ColorCompatibility.label.cgColor
+        stackBackgroundView.borderColor = ColorCompatibility.label
         stackBackgroundView.layer.borderWidth = 1.0
         stackBackgroundView.pinAsBackground(to: vStack)
         stackBackgroundView.layer.cornerRadius = 16
@@ -240,6 +240,20 @@ private class CardPreviewBackgroundView: UIView {
             layer.endPoint = CGPoint(x: 1, y: 0.5)
             // Gradient contents are only clipped to the rounded corners when masked.
             layer.masksToBounds = gradientColors != nil
+        }
+    }
+
+    var borderColor: UIColor? {
+        didSet { layer.borderColor = borderColor?.cgColor }
+    }
+
+    // CGColors are resolved once; re-resolve them when switching light/dark.
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if #available(iOS 13.0, *),
+           traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            layer.borderColor = borderColor?.cgColor
+            (layer as! CAGradientLayer).colors = gradientColors?.map { $0.cgColor }
         }
     }
 }

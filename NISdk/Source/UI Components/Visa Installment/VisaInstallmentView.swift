@@ -67,10 +67,11 @@ struct VisaInstallmentView: View {
                             Text(headerTitle)
                                 .font(.headline)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(amountFormatted)
+                            CurrencySymbol.swiftUIText(amountFormatted, fontSize: UIFont.preferredFont(forTextStyle: .body).pointSize)
                             
                             if plan.frequency != .PayInFull {
-                                Text(String.localizedStringWithFormat("Visa Processing Fee".localized, plan.totalUpFrontFees))
+                                CurrencySymbol.swiftUIText(String.localizedStringWithFormat("Visa Processing Fee".localized, plan.totalUpFrontFees),
+                                                           fontSize: UIFont.preferredFont(forTextStyle: .subheadline).pointSize)
                                     .font(.subheadline)
                                 Text(rateFormatted)
                                     .font(.subheadline)
@@ -209,13 +210,15 @@ struct VisaHeaderView: View {
 
 struct PaymentButtonStyle: ButtonStyle {
     let enabled: Bool
+    private let colors = NISdk.sharedInstance.niSdkColors
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding(.horizontal, 10)
             .frame(maxWidth: .infinity, maxHeight: 44)
-            .foregroundColor(.white)
-            .background(enabled ? Color.blue : Color.gray)
+            .foregroundColor(Color(colors.titleColorForPayButton(enabled: enabled)))
+            .background(Color(enabled ? colors.payButtonBackgroundColor
+                              : colors.payButtonDisabledBackgroundColor ?? .gray))
             .cornerRadius(5)
     }
 }

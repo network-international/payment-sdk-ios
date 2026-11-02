@@ -146,4 +146,11 @@ public enum ColorCompatibility {
         }
         return UIColor(red: 0.9490196078431372, green: 0.9490196078431372, blue: 0.9686274509803922, alpha: 1.0)
     }
+    /// `light` in light mode, `dark` in dark mode. Before iOS 13 always `light`.
+    public static func dynamic(light: UIColor, dark: UIColor) -> UIColor {
+        if #available(iOS 13, *) {
+            return UIColor { $0.userInterfaceStyle == .dark ? dark : light }
+        }
+        return light
+    }
 }

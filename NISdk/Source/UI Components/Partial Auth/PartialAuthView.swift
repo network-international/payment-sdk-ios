@@ -40,7 +40,7 @@ struct PartialAuthView: View {
                 )
             }
             Divider()
-            Text(titleText)
+            CurrencySymbol.swiftUIText(titleText, fontSize: UIFont.preferredFont(forTextStyle: .headline).pointSize)
                 .font(.headline)
                 .multilineTextAlignment(.center)
                 .padding(.vertical)

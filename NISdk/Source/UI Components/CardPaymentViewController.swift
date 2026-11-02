@@ -33,9 +33,12 @@ class CardPaymentViewController: UIViewController {
         payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColor, for: .normal)
         payButton.titleLabel?.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.payButtonTitleColorHighlighted, for: .highlighted)
+        payButton.setTitleColor(NISdk.sharedInstance.niSdkColors.titleColorForPayButton(enabled: false), for: .disabled)
         payButton.layer.cornerRadius = 5
         return payButton
     }()
+    /// The pay button's title; the currency code is drawn as its symbol.
+    private var payButtonTitle = ""
     var errorLabel: UILabel = {
         let errorLabel = UILabel()
         errorLabel.textColor = .red
@@ -49,15 +52,17 @@ class CardPaymentViewController: UIViewController {
         didSet {
             if(self.paymentInProgress) {
                 self.loadingSpinner.startAnimating()
-                self.payButton.setTitle("Processing Payment".localized, for: .disabled)
-                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor.withAlphaComponent(0.7)
+                CurrencySymbol.setPayButtonTitle(self.payButtonTitle, on: self.payButton,
+                                                 disabledText: "Processing Payment".localized)
                 self.payButton.isEnabled = false
+                NISdk.sharedInstance.niSdkColors.applyPayButtonColors(self.payButton, enabled: false,
+                    fadedBackgroundAlpha: 0.7)
             } else {
                 self.loadingSpinner.stopAnimating()
-                self.payButton.backgroundColor = NISdk.sharedInstance.niSdkColors.payButtonBackgroundColor
+                NISdk.sharedInstance.niSdkColors.applyPayButtonColors(self.payButton, enabled: true)
                 // Drop the "Processing Payment" disabled title so a form-incomplete
                 // disable falls back to the normal Pay title again.
-                self.payButton.setTitle(nil, for: .disabled)
+                CurrencySymbol.setPayButtonTitle(self.payButtonTitle, on: self.payButton)
                 self.updatePayButtonEnabledState()
             }
         }
@@ -79,47 +84,8 @@ class CardPaymentViewController: UIViewController {
     }()
 
     fileprivate func updatePayButtonContent(_ order: OrderResponse, _ orderAmount: Amount, _ payButtonTitle: String) {
-        if (order.isSaudiPaymentEnabled! && order.amount?.currencyCode == "SAR") {
-            let stack = UIStackView()
-            stack.axis = .horizontal
-            stack.spacing = 6
-            stack.alignment = .center
-
-            // Resource-bundle lookup — see CardPreviewController.updateCardLogo().
-            let icon = UIImageView(image: UIImage(named: "riyal", in: NISdk.sharedInstance.getBundle(), compatibleWith: nil))
-            icon.contentMode = .scaleAspectFit
-            icon.widthAnchor.constraint(equalToConstant: 20).isActive = true
-            icon.heightAnchor.constraint(equalToConstant: 16).isActive = true
-
-            let payLabel = UILabel()
-            payLabel.text = "Pay".localized
-            payLabel.textColor = NISdk.sharedInstance.niSdkColors.payButtonTitleColor
-            payLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-
-            let amountLabel = UILabel()
-            amountLabel.text = orderAmount.getFormattedAmountValue()
-            amountLabel.textColor = NISdk.sharedInstance.niSdkColors.payButtonTitleColor
-            amountLabel.font = UIFont.systemFont(ofSize: 20, weight: .medium)
-
-            stack.addArrangedSubview(payLabel)
-            stack.addArrangedSubview(icon)
-            stack.addArrangedSubview(amountLabel)
-
-            stack.isUserInteractionEnabled = false
-            for view in stack.arrangedSubviews {
-                view.isUserInteractionEnabled = false
-            }
-
-            self.payButton.addSubview(stack)
-
-            stack.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                stack.centerXAnchor.constraint(equalTo: self.payButton.centerXAnchor),
-                stack.centerYAnchor.constraint(equalTo: self.payButton.centerYAnchor)
-            ])
-        } else {
-            self.payButton.setTitle(payButtonTitle, for: .normal)
-        }
+        self.payButtonTitle = payButtonTitle
+        CurrencySymbol.setPayButtonTitle(payButtonTitle, on: payButton, disabledText: nil)
     }
 
     init(makePaymentCallback: MakePaymentCallback?, order: OrderResponse, onCancel: @escaping () -> Void) {
@@ -356,7 +322,8 @@ class CardPaymentViewController: UIViewController {
         if paymentInProgress { return }
         let isFormValid = validateAllFields().0
         payButton.isEnabled = isFormValid
-        payButton.alpha = isFormValid ? 1.0 : 0.5
+        NISdk.sharedInstance.niSdkColors.applyPayButtonColors(payButton, enabled: isFormValid,
+            fadedButtonAlpha: 0.5)
         updateValidationErrorLabel()
     }
 
