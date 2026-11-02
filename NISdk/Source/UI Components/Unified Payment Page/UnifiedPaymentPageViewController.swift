@@ -135,8 +135,8 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var benefitNoticeLabel: UILabel?
     /// Set when Benefit could not be started this session; its row says so and stops responding.
     private var isBenefitUnavailable = false
-    private var knetRadioButton: RadioButtonView?
-    private var knetRow: UIView?
+    /// The KNET hero button and the notice under it, kept to dim the button if KNET fails to start.
+    private var knetExpressButton: UIView?
     private var knetNoticeLabel: UILabel?
     /// Set when KNET could not be started this session; its row says so and stops responding.
     /// A payer who cancels on KNET does not set this — the order is still payable and the row
@@ -493,15 +493,23 @@ class UnifiedPaymentPageViewController: UIViewController {
         // When QPay is enabled it takes the express slot at the very top, and the
         // native wallet (Apple Pay) drops below the card into the other-options group.
         let qpayExpress = availablePaymentOptions.contains(.qpay)
+        // KNET takes the same hero slot for Kuwait orders, as on the hosted paypage.
+        let knetExpress = availablePaymentOptions.contains(.knet)
+        let hasExpress = qpayExpress || knetExpress
 
         // 2. QPay express button — top of the page when available
         if qpayExpress {
             contentStackView.addArrangedSubview(createQPayExpressButton())
         }
 
-        // 2b. Apple Pay section — radio style at the top only when QPay is not the
-        //     express option; otherwise it moves into the other-options group below.
-        if availablePaymentOptions.contains(.applePay) && !qpayExpress {
+        // 2a. KNET hero button — top of the page when the order carries payment:knet
+        if knetExpress {
+            contentStackView.addArrangedSubview(createKnetExpressButton())
+        }
+
+        // 2b. Apple Pay section — radio style at the top only when no express option took the
+        //     top slot; otherwise it moves into the other-options group below.
+        if availablePaymentOptions.contains(.applePay) && !hasExpress {
             let applePaySection = createApplePaySection()
             contentStackView.addArrangedSubview(applePaySection)
         }
@@ -549,12 +557,11 @@ class UnifiedPaymentPageViewController: UIViewController {
 
         // 4. Other payment options below the card. With QPay express, Apple Pay joins
         //    this group; QPay itself is the top button so it is not repeated here.
-        let otherHasApplePay = availablePaymentOptions.contains(.applePay) && qpayExpress
+        let otherHasApplePay = availablePaymentOptions.contains(.applePay) && hasExpress
         let hasOtherOptions = otherHasApplePay
             || availablePaymentOptions.contains(.clickToPay)
             || availablePaymentOptions.contains(.aani)
             || availablePaymentOptions.contains(.benefit)
-            || availablePaymentOptions.contains(.knet)
             || !availableBnplProviders.isEmpty
             || (availablePaymentOptions.contains(.qpay) && !qpayExpress)
         if hasOtherOptions {
@@ -582,10 +589,6 @@ class UnifiedPaymentPageViewController: UIViewController {
             if availablePaymentOptions.contains(.benefit) {
                 let benefitSection = createBenefitSection()
                 contentStackView.addArrangedSubview(benefitSection)
-            }
-
-            if availablePaymentOptions.contains(.knet) {
-                contentStackView.addArrangedSubview(createKnetSection())
             }
 
             for provider in availableBnplProviders {
@@ -1085,21 +1088,68 @@ class UnifiedPaymentPageViewController: UIViewController {
         }
     }
 
-    // MARK: - KNET Section
+    // MARK: - KNET Hero Button
 
-    private func createKnetSection() -> UIView {
-        let radioButton = RadioButtonView()
-        radioButton.isOn = false
-        radioButton.translatesAutoresizingMaskIntoConstraints = false
-        radioButton.accessibilityIdentifier = "sdk_paymentpage_radio_knet"
-        knetRadioButton = radioButton
+    /// Full-width "Pay with [KNET]" button at the top of the page, matching the hosted paypage.
+    /// Tapping it starts KNET directly, without going through the bottom pay bar, so the terms
+    /// line sits under it the same way it does under the QPay express button.
+    private func createKnetExpressButton() -> UIView {
+        let payWithLabel = UILabel()
+        payWithLabel.text = "Pay With".localized
+        payWithLabel.font = PgType.bodyRowTitle
+        payWithLabel.textColor = .black
 
-        let titleLabel = UILabel()
-        titleLabel.text = "Pay by KNET".localized
-        titleLabel.font = PgType.bodyRowTitle
-        titleLabel.textColor = PgColors.textPrimary
+        let logoView = UIImageView(image: UIImage(named: "knetLogo", in: NISdk.sharedInstance.getBundle(),
+                                                  compatibleWith: nil))
+        logoView.contentMode = .scaleAspectFit
+        logoView.translatesAutoresizingMaskIntoConstraints = false
+        logoView.accessibilityLabel = "KNET"
+        let logoHeight: CGFloat = 36
+        let logoAspect: CGFloat = {
+            guard let size = logoView.image?.size, size.height > 0 else { return 115.0 / 83.0 }
+            return size.width / size.height
+        }()
+        NSLayoutConstraint.activate([
+            logoView.heightAnchor.constraint(equalToConstant: logoHeight),
+            logoView.widthAnchor.constraint(equalToConstant: logoHeight * logoAspect),
+        ])
 
-        // Hidden until KNET fails to start, then says why the row no longer responds.
+        let contentStack = UIStackView(arrangedSubviews: [payWithLabel, logoView])
+        contentStack.axis = .horizontal
+        contentStack.spacing = 12
+        contentStack.alignment = .center
+        contentStack.translatesAutoresizingMaskIntoConstraints = false
+        contentStack.isUserInteractionEnabled = false
+
+        // White card with a hairline border and soft shadow, as on the paypage. The colours are
+        // fixed rather than themed: the KNET mark is drawn for a white background.
+        let button = UIView()
+        button.backgroundColor = .white
+        button.layer.cornerRadius = PgRadius.row
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor(white: 0.85, alpha: 1).cgColor
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOpacity = 0.08
+        button.layer.shadowRadius = 6
+        button.layer.shadowOffset = CGSize(width: 0, height: 2)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.isAccessibilityElement = true
+        button.accessibilityTraits = .button
+        button.accessibilityLabel = "Pay by KNET".localized
+        button.accessibilityIdentifier = "sdk_paymentpage_knet_express"
+        button.addSubview(contentStack)
+        NSLayoutConstraint.activate([
+            button.heightAnchor.constraint(equalToConstant: 64),
+            contentStack.centerXAnchor.constraint(equalTo: button.centerXAnchor),
+            contentStack.centerYAnchor.constraint(equalTo: button.centerYAnchor),
+        ])
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(knetExpressTapped))
+        button.addGestureRecognizer(tap)
+        button.isUserInteractionEnabled = true
+        knetExpressButton = button
+
+        // Hidden until KNET fails to start, then says why the button no longer responds.
         let noticeLabel = UILabel()
         noticeLabel.text = "knet_unavailable".localized
         noticeLabel.font = PgType.bodyRowSubtitle
@@ -1109,67 +1159,35 @@ class UnifiedPaymentPageViewController: UIViewController {
         noticeLabel.accessibilityIdentifier = "sdk_paymentpage_label_knet_unavailable"
         knetNoticeLabel = noticeLabel
 
-        let textStack = UIStackView(arrangedSubviews: [titleLabel, noticeLabel])
-        textStack.axis = .vertical
-        textStack.spacing = 2
+        let termsAlignment: NSTextAlignment =
+            Locale.characterDirection(forLanguage: NISdk.sharedInstance.sdkLanguage) == .rightToLeft
+            ? .right : .left
+        let termsLabel = makeTermsAgreementView(alignment: termsAlignment,
+                                                accessibilityIdentifier: "sdk_paymentpage_knet_terms")
 
-        let row = UIStackView(arrangedSubviews: [radioButton, textStack, UIView()])
-        row.axis = .horizontal
-        row.spacing = 12
-        row.alignment = .center
-        row.translatesAutoresizingMaskIntoConstraints = false
-
-        // The brand mark is optional: a `knetLogo` asset in the SDK bundle is shown on the trailing
-        // edge, otherwise the row stays text-only rather than falling back to a placeholder.
-        if let logo = UIImage(named: "knetLogo", in: NISdk.sharedInstance.getBundle(), compatibleWith: nil) {
-            let logoView = UIImageView(image: logo)
-            logoView.contentMode = .scaleAspectFit
-            logoView.translatesAutoresizingMaskIntoConstraints = false
-            let logoHeight: CGFloat = 40
-            let logoAspect: CGFloat = {
-                guard let size = logoView.image?.size, size.height > 0 else { return 1 }
-                return size.width / size.height
-            }()
-            logoView.heightAnchor.constraint(equalToConstant: logoHeight).isActive = true
-            logoView.widthAnchor.constraint(equalToConstant: logoHeight * logoAspect).isActive = true
-            logoView.setContentHuggingPriority(.required, for: .horizontal)
-            row.addArrangedSubview(logoView)
-        }
-
-        let tap = UITapGestureRecognizer(target: self, action: #selector(knetRadioTapped))
-        row.addGestureRecognizer(tap)
-        row.isUserInteractionEnabled = true
-        knetRow = row
-
-        let rowContainer = UIView()
-        rowContainer.layer.cornerRadius = PgRadius.row
-        rowContainer.layer.borderColor = PgColors.borderRow.cgColor
-        rowContainer.layer.borderWidth = 1
-        rowContainer.backgroundColor = PgColors.surfaceRow
-        rowContainer.translatesAutoresizingMaskIntoConstraints = false
-        rowContainer.addSubview(row)
-        row.anchor(top: rowContainer.topAnchor, leading: rowContainer.leadingAnchor,
-                   bottom: rowContainer.bottomAnchor, trailing: rowContainer.trailingAnchor,
-                   padding: UIEdgeInsets(top: 20, left: PgSpacing.rowPaddingH,
-                                        bottom: 20, right: PgSpacing.rowPaddingH))
+        let vStack = UIStackView(arrangedSubviews: [button, noticeLabel, termsLabel])
+        vStack.axis = .vertical
+        vStack.spacing = 8
+        vStack.alignment = .fill
+        vStack.translatesAutoresizingMaskIntoConstraints = false
 
         let paddedContainer = UIView()
         paddedContainer.translatesAutoresizingMaskIntoConstraints = false
-        paddedContainer.addSubview(rowContainer)
-        rowContainer.anchor(top: paddedContainer.topAnchor, leading: paddedContainer.leadingAnchor,
-                            bottom: paddedContainer.bottomAnchor, trailing: paddedContainer.trailingAnchor,
-                            padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
-                                                  bottom: 0, right: PgSpacing.pageH))
+        paddedContainer.addSubview(vStack)
+        vStack.anchor(top: paddedContainer.topAnchor, leading: paddedContainer.leadingAnchor,
+                      bottom: paddedContainer.bottomAnchor, trailing: paddedContainer.trailingAnchor,
+                      padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
+                                            bottom: 0, right: PgSpacing.pageH))
         return paddedContainer
     }
 
     /// Marks KNET as unreachable after it failed to start. Nothing was charged and the order is
-    /// still payable, so the row stays visible and says so, and the selection moves off it. Only a
-    /// failure to start does this; a payer who cancels on KNET keeps the row for another try.
+    /// still payable, so the button stays visible, dimmed, with the reason under it. Only a failure
+    /// to start does this; a payer who cancels on KNET keeps the button for another try.
     func markKnetUnavailable() {
         isKnetUnavailable = true
-        knetRadioButton?.isOn = false
-        knetRow?.alpha = 0.5
+        knetExpressButton?.alpha = 0.5
+        knetExpressButton?.accessibilityTraits = [.button, .notEnabled]
         knetNoticeLabel?.isHidden = false
         if selectedPaymentOption == .knet {
             selectedPaymentOption = nil
@@ -2194,7 +2212,6 @@ class UnifiedPaymentPageViewController: UIViewController {
             clickToPayRadioButton?.isOn = false
             aaniRadioButton?.isOn = false
             benefitRadioButton?.isOn = false
-            knetRadioButton?.isOn = false
             bnplRadioButtons.values.forEach { $0.isOn = false }
             savedCardRadioButtons.values.forEach { $0.isOn = false }
             savedCardCvvContainers.values.forEach { $0.isHidden = true }
@@ -2223,7 +2240,6 @@ class UnifiedPaymentPageViewController: UIViewController {
         clickToPayRadioButton?.isOn = false
         aaniRadioButton?.isOn = false
         benefitRadioButton?.isOn = false
-        knetRadioButton?.isOn = false
         bnplRadioButtons.values.forEach { $0.isOn = false }
         savedCardRadioButtons.values.forEach { $0.isOn = false }
         savedCardCvvContainers.values.forEach { $0.isHidden = true }
@@ -2305,7 +2321,8 @@ class UnifiedPaymentPageViewController: UIViewController {
             lastSliceCheckKey = nil
             applyBottomButtonStyle(forApplePay: false)
         case .knet:
-            knetRadioButton?.isOn = true
+            // KNET is driven by its hero button (createKnetExpressButton), not a radio row, so it
+            // is never selected through here; the case remains for switch exhaustiveness.
             hideVisaInstallments()
             hideSliceOffers()
             lastVisCheckKey = nil
@@ -2417,9 +2434,10 @@ class UnifiedPaymentPageViewController: UIViewController {
         selectPaymentOption(.benefit)
     }
 
-    @objc private func knetRadioTapped() {
+    @objc private func knetExpressTapped() {
+        // The hero button starts KNET directly, without going through the bottom pay bar.
         guard !isKnetUnavailable else { return }
-        selectPaymentOption(.knet)
+        onKnetTapped?()
     }
 
     @objc private func bnplRowTapped(_ sender: UITapGestureRecognizer) {
