@@ -202,6 +202,7 @@ class KnetViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
             }
             let payment = order.embeddedData?.payment?.first
             let state = payment?.state.uppercased() ?? ""
+            print("KNET: starting, order state=\(state), knet link=\(payment?.paymentLinks?.knetLink != nil)")
             if Self.successStates.contains(state) {
                 // An earlier attempt on this order settled after the payer left it.
                 print("KNET: order already paid (state=\(state)); not starting another attempt")
@@ -533,6 +534,14 @@ class KnetViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        // KNET's cancel page is a dead end: it shows "Payment Page validation failed due to invalid
+        // Order Status: CANCELED" and never redirects back. Once it has loaded KNET has recorded the
+        // cancel, so the payer goes straight back to the payment page — the cover raised when the
+        // navigation started keeps that page from ever showing.
+        if payerCancelled {
+            resolveAfterLeavingKnet()
+            return
+        }
         if sawReturnCallback || hasLeftKnet(webView.url) {
             resolveAfterLeavingKnet()
             return
