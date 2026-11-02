@@ -56,9 +56,9 @@ extension KnetPaymentStatus {
 /// Differs from `BenefitViewController` in two ways:
 /// - The order is re-read before every attempt, so a retry after a cancel always posts to the
 ///   payment's current `payment:knet` link rather than the one the page was built with.
-/// - A KNET payment is `PENDING` from the moment it is initiated, long before the payer has done
-///   anything, and the gateway accepts a new initiation on a `PENDING` payment. So Cancel during
-///   `PENDING` hands the payer back to the payment page instead of holding them on KNET's page.
+/// - There is no SDK Cancel button; KNET's page has its own. Its cancel lands back on the payment
+///   page, and a KNET payment that is merely `PENDING` (as every one is from initiation) can be
+///   initiated again, so the payer gets another try on the same order.
 class KnetViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
 
     private let args: KnetInitArgs
@@ -71,7 +71,7 @@ class KnetViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
     private var sawReturnCallback = false
     private var didStartPolling = false
     private var pollAttempt = 0
-    /// Set while a Cancel is being checked against the order before the payer may leave.
+    /// Set while the order is being checked before the payer may leave KNET's page.
     private var isVerifyingBeforeLeaving = false
     /// Set when the payer is seen on KNET's cancel page. Distinguishes "the payer backed out" from
     /// "the payment was declined" — the order reports `FAILED` for both.
@@ -178,12 +178,8 @@ class KnetViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
         navigationController?.setNavigationBarHidden(false, animated: false)
         // A trademark: "KNET" stays in Latin script in every locale.
         navigationItem.title = "KNET"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Cancel".localized,
-            style: .done,
-            target: self,
-            action: #selector(cancelTapped)
-        )
+        // No Cancel of our own: KNET's page carries its own, so a second one is not shown.
+        // KNET's Cancel reaches the gateway and lands back on the payment page.
     }
 
     // MARK: - Flow
@@ -380,38 +376,10 @@ class KnetViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
         }
     }
 
-    @objc private func cancelTapped() {
-        // The button is disabled while the cover is up; this guards a tap that raced it.
-        guard !didDispatchResult, !didStartPolling, !isVerifyingBeforeLeaving, coverView.isHidden else {
-            print("KNET: cancel ignored while the payment is loading or processing")
-            return
-        }
-        // A cancel after the gateway callback would discard a payment that may have gone through.
-        if sawReturnCallback {
-            webView.stopLoading()
-            startPollingIfNeeded()
-            return
-        }
-        if payerCancelled {
-            webView.stopLoading()
-            dispatch(.cancelledOnProvider)
-            return
-        }
-        if didReachKnetHost {
-            // KNET can settle a payment without the WebView seeing the callback, so the order
-            // decides whether the payer is leaving a payable order or a paid one.
-            verifyBeforeLeaving()
-            return
-        }
-        // Nothing recorded against the payment yet, so the order is still payable.
-        webView.stopLoading()
-        dispatch(.dismissed)
-    }
-
-    /// Reads the order once before letting the payer leave KNET's page. A payment that already
-    /// went through ends the flow as a success instead of handing the payer a spent order; every
-    /// other state returns them to the payment page, where the same order can be tried again. If
-    /// the order cannot be read, the payer stays on KNET's page rather than being let go on a guess.
+    /// Reads the order once when KNET's page stops loading part-way. A payment that already went
+    /// through ends the flow as a success instead of handing the payer a spent order; every other
+    /// state returns them to the payment page, where the same order can be tried again. If the
+    /// order cannot be read, the payer stays on KNET's page rather than being let go on a guess.
     private func verifyBeforeLeaving() {
         isVerifyingBeforeLeaving = true
         showCover()
@@ -422,12 +390,12 @@ class KnetViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
                 guard error == nil,
                       let data = data,
                       let order = try? OrderResponse.decodeFrom(data: data) else {
-                    print("KNET: could not read the order on cancel; staying on KNET's page")
+                    print("KNET: could not read the order; staying on KNET's page")
                     self.scheduleReveal()
                     return
                 }
                 let state = order.embeddedData?.payment?.first?.state.uppercased() ?? ""
-                print("KNET: cancel on KNET's page, order state=\(state)")
+                print("KNET: checked the order before leaving KNET's page, state=\(state)")
                 if Self.successStates.contains(state) {
                     self.dispatch(.success)
                 } else if state == "POST_AUTH_REVIEW" {
@@ -454,9 +422,6 @@ class KnetViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
         revealWorkItem = nil
         coverView.isHidden = false
         activityIndicator.startAnimating()
-        // Frozen while anything is loading or being resolved: leaving then could abandon a payment
-        // KNET is already taking.
-        navigationItem.rightBarButtonItem?.isEnabled = false
     }
 
     /// Reveals the WebView only if no further navigation starts within `revealDebounce`. A redirect
@@ -467,8 +432,6 @@ class KnetViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
             guard let self = self else { return }
             self.activityIndicator.stopAnimating()
             self.coverView.isHidden = true
-            self.navigationItem.rightBarButtonItem?.isEnabled =
-                !(self.didStartPolling || self.isVerifyingBeforeLeaving || self.didDispatchResult)
         }
         revealWorkItem = item
         DispatchQueue.main.asyncAfter(deadline: .now() + KnetViewController.revealDebounce, execute: item)
@@ -612,7 +575,7 @@ class KnetViewController: UIViewController, WKNavigationDelegate, WKUIDelegate {
                                           paymentMethod: Self.methodName)
         // Never having reached KNET's site means the payer could not have authorised anything, so
         // the order is untouched. Once on KNET's site an attempt may be in flight, so the order is
-        // read once, exactly as for a Cancel: paid ends the payment, anything still payable goes
+        // read once: paid ends the payment, anything still payable goes
         // back to the payment page for another try. Polling a PENDING payment would only time out.
         if didReachKnetHost {
             verifyBeforeLeaving()

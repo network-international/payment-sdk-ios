@@ -563,8 +563,8 @@ class PaymentViewController: UIViewController {
             let navController = UINavigationController(rootViewController: knetVC)
             navController.modalPresentationStyle = .pageSheet
             // A swipe-down would tear the sheet away without running the completion handler, so a
-            // payment the payer had already authorised would be silently dropped. Cancel is the only
-            // way out, and it checks the order first.
+            // payment the payer had already authorised would be silently dropped. KNET's own Cancel,
+            // on its page, is the way out.
             navController.isModalInPresentation = true
             self.present(navController, animated: true)
         } catch {

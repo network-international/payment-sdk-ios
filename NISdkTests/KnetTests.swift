@@ -127,7 +127,7 @@ final class KnetPaymentStatusRoutingTests: XCTestCase {
                               paymentMethod: KnetViewController.methodName)
     }
 
-    /// Cancelling — on KNET's page or with the SDK's Cancel — leaves the order payable, so the
+    /// Cancelling on KNET's page, or leaving it before anything settled, leaves the order payable, so the
     /// payer goes back to the payment page to try again on the same order.
     func testCancellingReturnsThePayerToThePaymentPage() {
         XCTAssertTrue(KnetPaymentStatus.dismissed.returnsToPaymentPage)
