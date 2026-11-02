@@ -10,8 +10,12 @@
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
-@property (strong, nonatomic) UIWindow *window;
+@end
 
+// Apps built with the iOS 27 SDK must use the UIScene lifecycle; without it iOS ends them at launch.
+@interface SceneDelegate : UIResponder <UIWindowSceneDelegate>
+
+@property (strong, nonatomic) UIWindow *window;
 
 @end
 
