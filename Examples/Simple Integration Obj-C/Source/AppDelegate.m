@@ -18,16 +18,15 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    
-    StoreFrontViewController *firstScreen = [[StoreFrontViewController alloc] init];
-    UINavigationController * navigationController = [[UINavigationController alloc] initWithRootViewController: firstScreen];
-    
     [[NISdk sharedInstance] setSDKLanguageWithLanguage:@"en"];
-    self.window = [[UIWindow alloc] initWithFrame: UIScreen.mainScreen.bounds];
-    self.window.rootViewController = navigationController;
-    [self.window makeKeyAndVisible];
-    
     return YES;
+}
+
+
+- (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options {
+    UISceneConfiguration *configuration = [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
+    configuration.delegateClass = [SceneDelegate class];
+    return configuration;
 }
 
 
@@ -57,5 +56,21 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+
+@end
+
+
+@implementation SceneDelegate
+
+- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions {
+    if (![scene isKindOfClass:[UIWindowScene class]]) {
+        return;
+    }
+    StoreFrontViewController *firstScreen = [[StoreFrontViewController alloc] init];
+    UINavigationController * navigationController = [[UINavigationController alloc] initWithRootViewController: firstScreen];
+    self.window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+    self.window.rootViewController = navigationController;
+    [self.window makeKeyAndVisible];
+}
 
 @end
