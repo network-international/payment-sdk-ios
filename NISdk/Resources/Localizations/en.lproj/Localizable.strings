@@ -75,6 +75,8 @@
 "benefit_unavailable" = "Failed connection to Benefit. Please try again by choosing a different payment method.";
 "benefit_payment_in_progress" = "A payment is in progress. To choose another payment method, use Cancel on the Benefit page.";
 "Benefit" = "Benefit";
+"Pay by KNET" = "Pay by KNET";
+"knet_unavailable" = "Failed connection to KNET. Please try again by choosing a different payment method.";
 "Pay with Tamara" = "Pay with Tamara";
 "Tamara" = "Tamara";
 "Pay later with Tabby" = "Pay later with Tabby";

@@ -16,6 +16,7 @@ enum PaymentOption: Equatable {
     case aani
     case qpay
     case benefit
+    case knet
     /// Buy now, pay later — Tamara or Tabby. Both drive the same flow, so the provider rides along
     /// with the case rather than each getting one of its own.
     case bnpl(BnplProvider)

@@ -23,6 +23,7 @@ class UnifiedPaymentPageViewController: UIViewController {
     var onAaniTapped: (() -> Void)?
     var onQPayTapped: (() -> Void)?
     var onBenefitTapped: (() -> Void)?
+    var onKnetTapped: (() -> Void)?
     var onBnplTapped: ((BnplProvider) -> Void)?
     var onMakeSavedCardPayment: ((SavedCard, String?, VisaRequest?, SliceRequest?) -> Void)?
     /// Slice eligibility check. The first param is either a raw PAN (manual entry) or a saved-card
@@ -134,6 +135,13 @@ class UnifiedPaymentPageViewController: UIViewController {
     private var benefitNoticeLabel: UILabel?
     /// Set when Benefit could not be started this session; its row says so and stops responding.
     private var isBenefitUnavailable = false
+    private var knetRadioButton: RadioButtonView?
+    private var knetRow: UIView?
+    private var knetNoticeLabel: UILabel?
+    /// Set when KNET could not be started this session; its row says so and stops responding.
+    /// A payer who cancels on KNET does not set this — the order is still payable and the row
+    /// stays live for another attempt.
+    private var isKnetUnavailable = false
     private var bnplRadioButtons: [BnplProvider: RadioButtonView] = [:]
     private var bnplNoticeLabels: [BnplProvider: UILabel] = [:]
     /// The notice slot under each BNPL row — the "minimum order" hint, or why the provider could
@@ -238,6 +246,12 @@ class UnifiedPaymentPageViewController: UIViewController {
         // Benefit - show only for a BHD purchase on an outlet that lists BENEFIT
         if order.isBenefitSupported {
             availablePaymentOptions.append(.benefit)
+        }
+
+        // KNET - show when the gateway handed the payment a payment:knet link (KWD purchases on a
+        // KNET-enabled outlet)
+        if order.isKnetSupported {
+            availablePaymentOptions.append(.knet)
         }
 
         // Buy now, pay later — one row per provider the order actually supports
@@ -393,7 +407,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             let token = card.cardToken ?? ""
             let cvvText = savedCardCvvFields[token]?.text ?? ""
             enabled = !card.recaptureCsc || !cvvText.isEmpty
-        case .applePay, .aani, .clickToPay, .qpay, .benefit:
+        case .applePay, .aani, .clickToPay, .qpay, .benefit, .knet:
             enabled = true
         case .bnpl(let provider):
             enabled = !bnplUnavailableProviders.contains(provider)
@@ -540,6 +554,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             || availablePaymentOptions.contains(.clickToPay)
             || availablePaymentOptions.contains(.aani)
             || availablePaymentOptions.contains(.benefit)
+            || availablePaymentOptions.contains(.knet)
             || !availableBnplProviders.isEmpty
             || (availablePaymentOptions.contains(.qpay) && !qpayExpress)
         if hasOtherOptions {
@@ -567,6 +582,10 @@ class UnifiedPaymentPageViewController: UIViewController {
             if availablePaymentOptions.contains(.benefit) {
                 let benefitSection = createBenefitSection()
                 contentStackView.addArrangedSubview(benefitSection)
+            }
+
+            if availablePaymentOptions.contains(.knet) {
+                contentStackView.addArrangedSubview(createKnetSection())
             }
 
             for provider in availableBnplProviders {
@@ -1061,6 +1080,98 @@ class UnifiedPaymentPageViewController: UIViewController {
         benefitRow?.alpha = 0.5
         benefitNoticeLabel?.isHidden = false
         if selectedPaymentOption == .benefit {
+            selectedPaymentOption = nil
+            updateBottomPayButton()
+        }
+    }
+
+    // MARK: - KNET Section
+
+    private func createKnetSection() -> UIView {
+        let radioButton = RadioButtonView()
+        radioButton.isOn = false
+        radioButton.translatesAutoresizingMaskIntoConstraints = false
+        radioButton.accessibilityIdentifier = "sdk_paymentpage_radio_knet"
+        knetRadioButton = radioButton
+
+        let titleLabel = UILabel()
+        titleLabel.text = "Pay by KNET".localized
+        titleLabel.font = PgType.bodyRowTitle
+        titleLabel.textColor = PgColors.textPrimary
+
+        // Hidden until KNET fails to start, then says why the row no longer responds.
+        let noticeLabel = UILabel()
+        noticeLabel.text = "knet_unavailable".localized
+        noticeLabel.font = PgType.bodyRowSubtitle
+        noticeLabel.textColor = PgColors.textSecondary
+        noticeLabel.numberOfLines = 0
+        noticeLabel.isHidden = true
+        noticeLabel.accessibilityIdentifier = "sdk_paymentpage_label_knet_unavailable"
+        knetNoticeLabel = noticeLabel
+
+        let textStack = UIStackView(arrangedSubviews: [titleLabel, noticeLabel])
+        textStack.axis = .vertical
+        textStack.spacing = 2
+
+        let row = UIStackView(arrangedSubviews: [radioButton, textStack, UIView()])
+        row.axis = .horizontal
+        row.spacing = 12
+        row.alignment = .center
+        row.translatesAutoresizingMaskIntoConstraints = false
+
+        // The brand mark is optional: a `knetLogo` asset in the SDK bundle is shown on the trailing
+        // edge, otherwise the row stays text-only rather than falling back to a placeholder.
+        if let logo = UIImage(named: "knetLogo", in: NISdk.sharedInstance.getBundle(), compatibleWith: nil) {
+            let logoView = UIImageView(image: logo)
+            logoView.contentMode = .scaleAspectFit
+            logoView.translatesAutoresizingMaskIntoConstraints = false
+            let logoHeight: CGFloat = 40
+            let logoAspect: CGFloat = {
+                guard let size = logoView.image?.size, size.height > 0 else { return 1 }
+                return size.width / size.height
+            }()
+            logoView.heightAnchor.constraint(equalToConstant: logoHeight).isActive = true
+            logoView.widthAnchor.constraint(equalToConstant: logoHeight * logoAspect).isActive = true
+            logoView.setContentHuggingPriority(.required, for: .horizontal)
+            row.addArrangedSubview(logoView)
+        }
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(knetRadioTapped))
+        row.addGestureRecognizer(tap)
+        row.isUserInteractionEnabled = true
+        knetRow = row
+
+        let rowContainer = UIView()
+        rowContainer.layer.cornerRadius = PgRadius.row
+        rowContainer.layer.borderColor = PgColors.borderRow.cgColor
+        rowContainer.layer.borderWidth = 1
+        rowContainer.backgroundColor = PgColors.surfaceRow
+        rowContainer.translatesAutoresizingMaskIntoConstraints = false
+        rowContainer.addSubview(row)
+        row.anchor(top: rowContainer.topAnchor, leading: rowContainer.leadingAnchor,
+                   bottom: rowContainer.bottomAnchor, trailing: rowContainer.trailingAnchor,
+                   padding: UIEdgeInsets(top: 20, left: PgSpacing.rowPaddingH,
+                                        bottom: 20, right: PgSpacing.rowPaddingH))
+
+        let paddedContainer = UIView()
+        paddedContainer.translatesAutoresizingMaskIntoConstraints = false
+        paddedContainer.addSubview(rowContainer)
+        rowContainer.anchor(top: paddedContainer.topAnchor, leading: paddedContainer.leadingAnchor,
+                            bottom: paddedContainer.bottomAnchor, trailing: paddedContainer.trailingAnchor,
+                            padding: UIEdgeInsets(top: PgSpacing.rowGap, left: PgSpacing.pageH,
+                                                  bottom: 0, right: PgSpacing.pageH))
+        return paddedContainer
+    }
+
+    /// Marks KNET as unreachable after it failed to start. Nothing was charged and the order is
+    /// still payable, so the row stays visible and says so, and the selection moves off it. Only a
+    /// failure to start does this; a payer who cancels on KNET keeps the row for another try.
+    func markKnetUnavailable() {
+        isKnetUnavailable = true
+        knetRadioButton?.isOn = false
+        knetRow?.alpha = 0.5
+        knetNoticeLabel?.isHidden = false
+        if selectedPaymentOption == .knet {
             selectedPaymentOption = nil
             updateBottomPayButton()
         }
@@ -2083,6 +2194,7 @@ class UnifiedPaymentPageViewController: UIViewController {
             clickToPayRadioButton?.isOn = false
             aaniRadioButton?.isOn = false
             benefitRadioButton?.isOn = false
+            knetRadioButton?.isOn = false
             bnplRadioButtons.values.forEach { $0.isOn = false }
             savedCardRadioButtons.values.forEach { $0.isOn = false }
             savedCardCvvContainers.values.forEach { $0.isHidden = true }
@@ -2111,6 +2223,7 @@ class UnifiedPaymentPageViewController: UIViewController {
         clickToPayRadioButton?.isOn = false
         aaniRadioButton?.isOn = false
         benefitRadioButton?.isOn = false
+        knetRadioButton?.isOn = false
         bnplRadioButtons.values.forEach { $0.isOn = false }
         savedCardRadioButtons.values.forEach { $0.isOn = false }
         savedCardCvvContainers.values.forEach { $0.isHidden = true }
@@ -2186,6 +2299,13 @@ class UnifiedPaymentPageViewController: UIViewController {
             applyBottomButtonStyle(forApplePay: false)
         case .benefit:
             benefitRadioButton?.isOn = true
+            hideVisaInstallments()
+            hideSliceOffers()
+            lastVisCheckKey = nil
+            lastSliceCheckKey = nil
+            applyBottomButtonStyle(forApplePay: false)
+        case .knet:
+            knetRadioButton?.isOn = true
             hideVisaInstallments()
             hideSliceOffers()
             lastVisCheckKey = nil
@@ -2271,6 +2391,9 @@ class UnifiedPaymentPageViewController: UIViewController {
         case .benefit:
             guard !isBenefitUnavailable else { return }
             onBenefitTapped?()
+        case .knet:
+            guard !isKnetUnavailable else { return }
+            onKnetTapped?()
         case .bnpl(let provider):
             // A provider that could not be reached stays untappable; everything else is the
             // provider's call, made when it is asked for a checkout.
@@ -2292,6 +2415,11 @@ class UnifiedPaymentPageViewController: UIViewController {
     @objc private func benefitRadioTapped() {
         guard !isBenefitUnavailable else { return }
         selectPaymentOption(.benefit)
+    }
+
+    @objc private func knetRadioTapped() {
+        guard !isKnetUnavailable else { return }
+        selectPaymentOption(.knet)
     }
 
     @objc private func bnplRowTapped(_ sender: UITapGestureRecognizer) {

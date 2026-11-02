@@ -339,6 +339,17 @@ import PassKit
             .makeRequest(with: completion)
     }
 
+    func initKnet(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback)) {
+        let headers = ["Content-Type": "application/vnd.ni-payment.v2+json",
+                       "Accept": "application/vnd.ni-payment.v2+json",
+                       "Authorization": "Bearer \(accessToken)"]
+        client(for: url, reportingFailureTo: completion)?
+            .withMethod(method: "POST")
+            .withHeaders(headers: headers)
+            .withBodyData(data: Data("{}".utf8))
+            .makeRequest(with: completion)
+    }
+
     func initBnpl(with url: String,
                   successUrl: String,
                   cancelUrl: String,

@@ -22,6 +22,20 @@ class BenefitInitArgs {
     static let supportedCurrency = "BHD"
 }
 
+class KnetInitArgs {
+    /// Order self-link. Each KNET attempt re-reads the order through it to find the current
+    /// `payment:knet` link, and polls it for the final payment state once the payer returns.
+    let orderLink: String
+    /// The `payment:knet` link as it stood when the payment page was built. Used only if the
+    /// order cannot be re-read before an attempt starts.
+    let knetLink: String
+
+    init(orderLink: String, knetLink: String) {
+        self.orderLink = orderLink
+        self.knetLink = knetLink
+    }
+}
+
 
 @objc public class OrderResponse: NSObject, Codable {
     public var _id: String?
@@ -201,6 +215,27 @@ extension OrderResponse {
             throw NSError(domain: "argument orderLink missing", code: 99)
         }
         return BenefitInitArgs(benefitLink: benefitLink, orderLink: orderLink)
+    }
+
+    /// KNET (Kuwait debit) is offered exactly when the gateway hands the payment a `payment:knet`
+    /// link. The gateway only does that for orders it will accept KNET on (a KWD purchase on an
+    /// outlet with KNET enabled), so the SDK does not second-guess it with its own currency rule.
+    /// The order self-link gates the row too: it is what the checkout re-reads and polls.
+    var isKnetSupported: Bool {
+        guard let link = embeddedData?.payment?.first?.paymentLinks?.knetLink, !link.isEmpty else {
+            return false
+        }
+        return orderLinks?.orderLink != nil
+    }
+
+    func toKnetInitArgs() throws -> KnetInitArgs {
+        guard let knetLink = embeddedData?.payment?.first?.paymentLinks?.knetLink, !knetLink.isEmpty else {
+            throw NSError(domain: "argument knetLink missing", code: 99)
+        }
+        guard let orderLink = orderLinks?.orderLink else {
+            throw NSError(domain: "argument orderLink missing", code: 99)
+        }
+        return KnetInitArgs(orderLink: orderLink, knetLink: knetLink)
     }
 
     /// The order carries no `payment:benefit` rel, so the endpoint is derived from the payment's own

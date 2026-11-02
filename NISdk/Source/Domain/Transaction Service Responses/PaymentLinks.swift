@@ -27,6 +27,7 @@ public struct PaymentLinks {
     public let qpayLink: String?
     public let tamaraLink: String?
     public let tabbyLink: String?
+    public let knetLink: String?
 }
 
 extension PaymentLinks: Codable {
@@ -50,6 +51,7 @@ extension PaymentLinks: Codable {
         case qpayLink = "payment:qpay"
         case tamaraLink = "payment:tamara"
         case tabbyLink = "payment:tabby"
+        case knetLink = "payment:knet"
     }
     
     private enum hrefCodingKeys: String, CodingKey {
@@ -183,6 +185,13 @@ extension PaymentLinks: Codable {
             tabbyLink = try tabbyLinkContainer.decodeIfPresent(String.self, forKey: .href)
         } catch {
             self.tabbyLink = nil
+        }
+
+        do {
+            let knetLinkContainer = try paymentLinksContainer.nestedContainer(keyedBy: hrefCodingKeys.self, forKey: .knetLink)
+            knetLink = try knetLinkContainer.decodeIfPresent(String.self, forKey: .href)
+        } catch {
+            self.knetLink = nil
         }
     }
 }

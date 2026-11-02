@@ -217,6 +217,9 @@ class PaymentViewController: UIViewController {
             unifiedPaymentPage.onBenefitTapped = { [weak self] in
                 self?.initiateBenefitFromUnifiedPage()
             }
+            unifiedPaymentPage.onKnetTapped = { [weak self] in
+                self?.initiateKnetFromUnifiedPage()
+            }
             unifiedPaymentPage.onBnplTapped = { [weak self] provider in
                 self?.initiateBnplFromUnifiedPage(provider)
             }
@@ -513,6 +516,60 @@ class PaymentViewController: UIViewController {
             // the payer's doing, and every other method still works — so the payer stays on the page.
             print("Benefit: cannot start for this order (\(error)) — returning to the payment page")
             unifiedPage?.markBenefitUnavailable()
+        }
+    }
+
+    private func initiateKnetFromUnifiedPage() {
+        guard let token = self.accessToken, !token.isEmpty else {
+            print("KNET: missing access token; cannot start checkout")
+            finishPaymentAndClosePaymentViewController(with: .PaymentFailed, and: nil, and: nil)
+            return
+        }
+        do {
+            let args = try order.toKnetInitArgs()
+            let knetVC = KnetViewController(
+                args: args,
+                transactionService: transactionService,
+                accessToken: token
+            ) { [weak self] status in
+                // Cancelling on KNET, backing out, or KNET failing to start all leave the order
+                // payable: the payer is handed back to the payment page on the same order, where
+                // KNET (unless it failed to start) and every other method can be tried again.
+                guard !status.returnsToPaymentPage else {
+                    if case .couldNotStart(let error) = status {
+                        print("KNET: could not start (\(error.message)) — returning to the payment page")
+                        self?.unifiedPage?.markKnetUnavailable()
+                    } else {
+                        print("KNET: payer left KNET — returning to the payment page to try again")
+                    }
+                    return
+                }
+                switch status {
+                case .success:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentSuccess, and: nil, and: nil)
+                case .postAuthReview:
+                    self?.finishPaymentAndClosePaymentViewController(with: .PaymentPostAuthReview, and: nil, and: nil)
+                case .failed(let error):
+                    let status: PaymentStatus = error.category == .configuration
+                        ? .InValidRequest
+                        : .PaymentFailed
+                    self?.finishPaymentAndClosePaymentViewController(with: status, and: nil, and: nil,
+                                                                     error: error)
+                case .dismissed, .cancelledOnProvider, .couldNotStart:
+                    // Handled by the guard above.
+                    break
+                }
+            }
+            let navController = UINavigationController(rootViewController: knetVC)
+            navController.modalPresentationStyle = .pageSheet
+            // A swipe-down would tear the sheet away without running the completion handler, so a
+            // payment the payer had already authorised would be silently dropped. Cancel is the only
+            // way out, and it checks the order first.
+            navController.isModalInPresentation = true
+            self.present(navController, animated: true)
+        } catch {
+            print("KNET: cannot start for this order (\(error)) — returning to the payment page")
+            unifiedPage?.markKnetUnavailable()
         }
     }
 

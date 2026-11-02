@@ -61,6 +61,10 @@ import PassKit
 
     @objc func initBenefit(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
 
+    /// Starts a KNET payment. `url` is the payment's `payment:knet` link; the answer carries the
+    /// hosted `paymentUrl` on KNET's own site.
+    @objc func initKnet(with url: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
+
     /// Starts a buy-now-pay-later checkout (Tamara or Tabby — one endpoint shape, one body).
     @objc func initBnpl(with url: String, successUrl: String, cancelUrl: String, failureUrl: String, using accessToken: String, on completion: @escaping (HttpResponseCallback))
 

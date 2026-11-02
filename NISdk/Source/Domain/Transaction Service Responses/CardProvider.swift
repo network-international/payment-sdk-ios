@@ -20,15 +20,16 @@ public enum CardProvider: String, CaseIterable, Codable {
     case visa = "VISA"
     case qpay = "QPAY"
     case benefit = "BENEFIT"
+    case knet = "KNET"
     case unknown
 
-    /// QPAY and BENEFIT are gateway routing schemes that the gateway reports inside
+    /// QPAY, BENEFIT and KNET are gateway routing schemes that the gateway reports inside
     /// `paymentMethods.card`, not card networks Apple Pay can tokenize. Excluding them keeps them
     /// out of `PKPaymentRequest.supportedNetworks`, which would otherwise advertise Visa on an
     /// outlet that never enabled Visa.
     public var isApplePayNetwork: Bool {
         switch self {
-        case .qpay, .benefit: return false
+        case .qpay, .benefit, .knet: return false
         default: return true
         }
     }
@@ -49,6 +50,7 @@ public enum CardProvider: String, CaseIterable, Codable {
         case .jaywan: return .visa
         case .qpay: return .visa
         case .benefit: return .visa
+        case .knet: return .visa
         case .unknown: return .visa
         }
     }
