@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class CardPreviewController: UIViewController {
     let panLabel = UILabel()

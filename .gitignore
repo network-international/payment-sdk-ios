@@ -93,3 +93,6 @@ iOSInjectionProject/
 
 # private libraries used during development
 NISdk/Frameworks/uSDK.framework
+
+# Swift Package Manager
+.swiftpm/

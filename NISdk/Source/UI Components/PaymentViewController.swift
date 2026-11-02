@@ -9,6 +9,7 @@
 import Foundation
 import os.log
 import PassKit
+import UIKit
 
 typealias MakePaymentCallback = (PaymentRequest) -> Void
 

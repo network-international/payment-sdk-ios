@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 // @objcMembers so Objective-C callers (the React Native bridge, an Objective-C AppDelegate)
 // can set these, not just Swift.

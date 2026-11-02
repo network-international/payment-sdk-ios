@@ -9,6 +9,7 @@
 import Foundation
 import os.log
 import WebKit
+import UIKit
 
 class ThreeDSViewController: UIViewController, WKNavigationDelegate {
     private var webView = WKWebView()
