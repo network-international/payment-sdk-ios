@@ -11,6 +11,11 @@ enum CurrencySymbol {
 
     private static let assets = ["AED": "aed", "SAR": "riyal"]
 
+    /// Left-to-right mark placed on both sides of a symbol image. An image is direction-neutral,
+    /// so in Arabic it would join the word before it ("إدفع ⃁ 700" read right to left); the marks
+    /// keep it with the amount, where the Latin code "SAR" used to sit.
+    private static let ltrMark = "\u{200E}"
+
     static func attributed(_ text: String, font: UIFont, color: UIColor) -> NSAttributedString {
         let attributes: [NSAttributedString.Key: Any] = [.font: font, .foregroundColor: color]
         let result = NSMutableAttributedString()
@@ -20,7 +25,9 @@ enum CurrencySymbol {
                 result.append(NSAttributedString(string: string, attributes: attributes))
             case .symbol(let code, let asset):
                 if let image = image(asset) {
+                    result.append(NSAttributedString(string: ltrMark, attributes: attributes))
                     result.append(attachment(for: image.tinted(with: color), font: font))
+                    result.append(NSAttributedString(string: ltrMark, attributes: attributes))
                 } else {
                     result.append(NSAttributedString(string: code, attributes: attributes))
                 }
@@ -51,7 +58,8 @@ enum CurrencySymbol {
                 combined = combined + Text(string)
             case .symbol(let code, let asset):
                 if let image = image(asset)?.resized(toHeight: fontSize * 0.75) {
-                    combined = combined + Text(Image(uiImage: image).renderingMode(.template))
+                    combined = combined + Text(ltrMark) + Text(Image(uiImage: image).renderingMode(.template))
+                        + Text(ltrMark)
                 } else {
                     combined = combined + Text(code)
                 }
