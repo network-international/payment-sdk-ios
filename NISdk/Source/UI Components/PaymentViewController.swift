@@ -367,7 +367,7 @@ class PaymentViewController: UIViewController {
         print("ApplePay: currencyCode: \(applePayRequest.currencyCode)")
         print("ApplePay: summaryItems: \(applePayRequest.paymentSummaryItems.map { "\($0.label): \($0.amount)" })")
         print("ApplePay: merchantCapabilities: \(applePayRequest.merchantCapabilities.rawValue)")
-        print("ApplePay: applePayLink: \(order.embeddedData?.payment?[0].paymentLinks?.applePayLink ?? "nil")")
+        print("ApplePay: applePayLink: \(order.embeddedData?.payment?[0].paymentLinks?.applePayLink == nil ? "nil" : "present")")
 
         applePayController = ApplePayController(applePayDelegate: applePayDelegate,
                                                 order: order,
@@ -621,7 +621,7 @@ class PaymentViewController: UIViewController {
             print("ApplePay: getPayerIp completed, payerIp: \(payerIp ?? "nil")")
             if let payment = payment, let completion = completion {
                 print("ApplePay: Posting Apple Pay response, accessToken: \(self.accessToken != nil ? "present" : "nil")")
-                print("ApplePay: applePayLink: \(self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink ?? "nil")")
+                print("ApplePay: applePayLink: \(self.order.embeddedData?.payment?[0].paymentLinks?.applePayLink == nil ? "nil" : "present")")
                 self.transactionService.postApplePayResponse(for: self.order,
                                                              with: payment,
                                                              using: self.accessToken!,
